@@ -895,10 +895,11 @@ def test_reuse_resolves_every_file_to_the_licence_of_its_layer():
     # The rule, not a table of extensions: a file is code if it is source or
     # build configuration *and* does not live in a data or pattern directory.
     # Classifying by suffix alone made src/slabika/data/foo.toml code, and made
-    # a pattern file in a format not yet listed fail as unclassifiable.
+    # a pattern file in a format not yet listed fail as unclassifiable. A browser
+    # interface is source too, so its markup and scripts count as code.
     def expected_licences(name):
         under_data = any(part in ("data", "patterns") for part in Path(name).parts[:-1])
-        is_code = Path(name).suffix in (".py", ".toml") and not under_data
+        is_code = Path(name).suffix in (".py", ".toml", ".html", ".css", ".js") and not under_data
         return frozenset((CODE_LICENCE if is_code else DATA_LICENCE).split(" OR "))
 
     for block in result.stdout.split("FileName: ")[1:]:
