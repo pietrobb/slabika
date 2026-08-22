@@ -1,0 +1,42 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "slabika"
+version = "0.1.0"
+description = "Slovak syllabification and hyphenation, derived from a full phonological inventory"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "(Apache-2.0 OR MIT) AND (CC0-1.0 OR MIT)"
+license-files = ["LICENSE", "LICENSES/*"]
+authors = [{ name = "Peter Bezemek", email = "peter.bezemek@gmail.com" }]
+keywords = ["slovak", "slovencina", "hyphenation", "syllabification", "phonology", "typography", "patgen"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: Slovak",
+    "Programming Language :: Python :: 3",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7", "ruff", "reuse"]
+
+[project.urls]
+Homepage = "https://github.com/pietrobb/slabika"
+Source = "https://github.com/pietrobb/slabika"
+Issues = "https://github.com/pietrobb/slabika/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/slabika"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src"]

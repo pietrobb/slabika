@@ -1,0 +1,34 @@
+slabika is licensed in layers. This file is a pointer, not a licence text.
+
+    Source code, build configuration, tests    Apache-2.0 OR MIT
+    Language data (word lists, inventories)    CC0-1.0 OR MIT
+    Generated hyphenation patterns             CC0-1.0 OR MIT
+    Documentation                              CC0-1.0 OR MIT
+
+"OR" is an SPDX license expression: you choose, per use, whichever of the
+listed licences suits you. You do not have to comply with both. Every layer is
+also offered under MIT, for compliance policies that do not admit CC0-1.0.
+Where EU sui generis database rights matter, CC0-1.0 is the option that
+expressly addresses them; MIT is a copyright licence and does not. Selecting MIT
+does not forfeit that: CC0-1.0 is a public-domain dedication, it has already been
+applied to the data, and it operates for the public generally whichever of the
+two an inventory records.
+
+The binding licence texts are in LICENSES/:
+
+    LICENSES/Apache-2.0.txt
+    LICENSES/MIT.txt
+    LICENSES/CC0-1.0.txt
+
+Per-file licensing follows REUSE 3.3 <https://reuse.software/> and is declared
+in REUSE.toml and in the SPDX headers of the individual files. Where this file
+and those declarations could be read differently, the SPDX declarations govern.
+
+The reasoning behind the split, the provenance of the data, and how CC0-1.0
+disposes of the EU sui generis database right are in LICENSING.md. That
+document is informational: it is not a licence and adds no conditions to any
+licence.
+
+There is deliberately no Apache NOTICE file in this project.
+
+Copyright 2026 Peter Bezemek <peter.bezemek@gmail.com>

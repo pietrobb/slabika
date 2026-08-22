@@ -1,0 +1,114 @@
+{
+  "comment": "Phonological inventory of Slovak: the phonemes and the classes they fall into, by articulatory and distributional property. This is a table of linguistic facts, not code — the module slabika.phonology reads it and derives the rest. Data layer, CC0-1.0 OR MIT.",
+  "provenance": "The classification follows Emil Páleš, 'Sapfo — parafrázovač slovenčiny' (VEDA, Bratislava, 1994, ISBN 80-224-0109-9), ch. 2 'Fonológia', who attributes it to J. Dvončová (1980) and J. Horecký (1977). See LICENSING.md §5.",
+
+  "terminology_provenance": "The Slovak class names below are the settled terminology of Slovak phonetics rather than any one author's coinages: the same terms are used in the standard descriptive literature, e.g. E. Pauliny, 'Slovenská fonológia' (SPN, Bratislava, 1979) and Á. Kráľ – J. Sabol, 'Fonetika a fonológia' (SPN, Bratislava, 1989).",
+
+  "terminology": {
+    "short": "krátke", "long": "dlhé", "diphthongs": "dvojhlásky",
+    "back": "zadné (velárne)", "central": "stredné", "front": "predné (palatálne)",
+    "high": "vysoké", "mid": "stredné", "low": "nízke",
+    "rounded": "labializované", "unrounded": "nelabializované",
+    "open": "otvorené", "half_open": "polootvorené", "closed": "zatvorené",
+    "semivowels": "polovokály", "syllabic": "sonóry (slabikotvorné)",
+    "hard": "tvrdé", "soft": "mäkké", "ambiguous": "obojaké",
+    "voicing_pairs": "párové (znelé — neznelé)", "unpaired": "nepárové",
+    "bilabial": "pernoperné (bilabiálne)", "labiodental": "pernozubné (labiodentálne)",
+    "prealveolar": "predoďasnové", "postalveolar": "zadoďasnové",
+    "alveopalatal": "ďasnovopodnebné", "palatal": "tvrdopodnebné",
+    "velar": "mäkkopodnebné", "laryngeal": "hrtanové",
+    "plosive": "explozívne", "affricate": "afrikáty", "fricative": "frikatívy",
+    "sonorant": "sonóry", "liquid": "likvidy (plynné)", "vibrant": "vibranty",
+    "palatalization": "zmäkčovanie", "lingual_dorsal": "lingválna/dorzálna alternácia",
+    "lengthening": "predĺženie (opačne: skrátenie)"
+  },
+
+  "vowels": {
+    "short": ["a", "e", "i", "o", "u", "y", "ä"],
+    "long": ["á", "é", "í", "ó", "ú", "ý"],
+    "diphthongs": ["ia", "ie", "iu", "ô"],
+    "lengthening": {"a": "á", "e": "é", "i": "í", "o": "ó", "u": "ú", "y": "ý"},
+    "by_resonance": {
+      "back": ["o", "ó", "u", "ú"],
+      "central": ["a", "á"],
+      "front": ["e", "é", "i", "í", "y", "ý"]
+    },
+    "by_height": {
+      "high": ["i", "í", "y", "ý", "u", "ú"],
+      "mid": ["e", "é", "o", "ó"],
+      "low": ["a", "á", "ä"]
+    },
+    "by_rounding": {
+      "rounded": ["u", "ú", "o", "ó", "y", "ý"],
+      "unrounded": ["i", "í", "e", "é", "a", "á"]
+    },
+    "by_openness": {
+      "open": ["a", "á"],
+      "half_open": ["e", "é", "o", "ó"],
+      "closed": ["i", "í", "y", "ý", "u", "ú"]
+    }
+  },
+
+  "semivowels": ["v"],
+
+  "consonants": {
+    "syllabic": ["r", "l", "ŕ", "ĺ"],
+    "short": ["r", "l"],
+    "long": ["ŕ", "ĺ"],
+    "by_hardness": {
+      "hard": ["h", "ch", "k", "g", "d", "t", "n", "l"],
+      "soft": ["c", "č", "dz", "dž", "f", "j", "š", "ž", "ť", "ď", "ň", "ľ"],
+      "ambiguous": ["v", "m", "r", "b", "p", "s", "ŕ", "z"]
+    },
+    "voicing_pairs": {
+      "b": "p", "d": "t", "ď": "ť", "g": "k",
+      "dz": "c", "dž": "č", "z": "s", "ž": "š"
+    },
+    "unpaired": ["r", "l", "m", "n", "ň", "j"],
+    "by_place": {
+      "bilabial": ["p", "b", "m"],
+      "labiodental": ["f", "v"],
+      "prealveolar": ["t", "d", "n", "s", "z", "c", "dz"],
+      "postalveolar": ["š", "ž", "č", "dž", "r", "ŕ", "l", "ĺ"],
+      "alveopalatal": ["ť", "ď", "ň", "ľ"],
+      "palatal": ["j"],
+      "velar": ["k", "g", "ch"],
+      "laryngeal": ["h"]
+    },
+    "by_manner": {
+      "plosive": ["p", "b", "m", "t", "d", "n", "ť", "ď", "ň", "k", "g"],
+      "affricate": ["c", "č", "dz", "dž"],
+      "fricative": ["s", "z", "š", "ž", "h", "ch", "f", "v", "ŕ", "l", "ĺ", "ľ"],
+      "sonorant": ["m", "n", "ň", "j", "r", "l", "ĺ", "ľ"],
+      "liquid": ["r", "l", "ŕ", "ĺ"],
+      "vibrant": ["r", "ŕ"]
+    }
+  },
+
+  "alternations": {
+    "palatalization": {
+      "k": "č", "č": "k",
+      "g": "ž", "ž": "g",
+      "ch": "š", "š": "ch",
+      "h": "ž",
+      "c": "č",
+      "d": "ď", "ď": "d",
+      "t": "ť", "ť": "t",
+      "n": "ň", "ň": "n",
+      "l": "ľ", "ľ": "l",
+      "r": "r"
+    },
+    "palatalization_comment": "Consonant softening used in declension and derivation. r does not change; the map is not everywhere bidirectional.",
+    "lingual_dorsal": {
+      "k": "c", "c": "k",
+      "g": "dz", "dz": "g",
+      "ch": "s", "s": "ch",
+      "h": "z", "z": "h",
+      "sk": "šť", "šť": "sk",
+      "st": "šť"
+    },
+    "lingual_dorsal_comment": "Alternation in verb stems (piecť/pekú). Not always bidirectional."
+  },
+
+  "digraphs": ["dž", "ch", "dz"]
+}

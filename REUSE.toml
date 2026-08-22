@@ -1,0 +1,51 @@
+version = 1
+SPDX-PackageName = "slabika"
+SPDX-PackageSupplier = "Peter Bezemek <peter.bezemek@gmail.com>"
+SPDX-PackageDownloadLocation = "https://github.com/pietrobb/slabika"
+
+# Where two blocks below match the same file, the LAST match wins. The data and
+# pattern blocks therefore follow the source-code block on purpose: they carve
+# src/slabika/data/** and src/slabika/patterns/** back out of src/**.
+#
+# ---------------------------------------------------------------------------
+# Source code — dual licensed, user's choice (see LICENSING.md §1)
+# ---------------------------------------------------------------------------
+[[annotations]]
+path = ["src/**", "tools/**", "tests/**", "pyproject.toml"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Peter Bezemek"
+SPDX-License-Identifier = "Apache-2.0 OR MIT"
+
+# ---------------------------------------------------------------------------
+# Language data — CC0-1.0 OR MIT (database rights: see LICENSING.md §2)
+#
+# "closest", not "override": REUSE applies precedence to copyright and to
+# licence separately, so a contributor's own SPDX-FileCopyrightText in a data
+# file is kept while the licence still falls back to this block. "override"
+# would discard their copyright line and contradict CONTRIBUTING ("You keep
+# your copyright"). A wrong licence header inside a data file is caught by
+# tests/test_provenance.py instead, where it produces a readable failure.
+# ---------------------------------------------------------------------------
+[[annotations]]
+path = ["data/**", "src/slabika/data/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Peter Bezemek"
+SPDX-License-Identifier = "CC0-1.0 OR MIT"
+
+# ---------------------------------------------------------------------------
+# Generated hyphenation patterns — same terms as the data they are built from
+# ---------------------------------------------------------------------------
+[[annotations]]
+path = ["patterns/**", "src/slabika/patterns/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Peter Bezemek"
+SPDX-License-Identifier = "CC0-1.0 OR MIT"
+
+# ---------------------------------------------------------------------------
+# Documentation and repository metadata — CC0-1.0 OR MIT
+# ---------------------------------------------------------------------------
+[[annotations]]
+path = ["LICENSE", "README.md", "README.sk.md", "LICENSING.md", "CONTRIBUTING.md", "docs/**", ".gitignore", ".gitattributes", "REUSE.toml", ".github/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Peter Bezemek"
+SPDX-License-Identifier = "CC0-1.0 OR MIT"
