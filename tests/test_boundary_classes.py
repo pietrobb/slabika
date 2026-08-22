@@ -82,6 +82,8 @@ def test_a_vocalized_prefix_does_not_swallow_the_root_vowel():
     # ...but the genuine vocalized environments still resolve as vocalized.
     assert get_syllables("odovzdať") == ["o", "do", "vzdať"]
     assert get_syllables("rozobrať") == ["ro", "zo", "brať"]
+    assert get_syllables("predovšetkým") == ["pre", "do", "všet", "kým"]
+    assert get_syllables("nadovšetko") == ["na", "do", "všet", "ko"]
 
 
 # --------------------------------------------------------------------------

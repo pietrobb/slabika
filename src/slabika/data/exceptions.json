@@ -22,10 +22,18 @@
     "obuv",
     "obyvate",
     "odev",
+    "navštív",
     "odpove",
     "otec",
+    "poprad",
     "rozum"
   ],
+  "foreign_nucleus_spellings_comment": "Stem openings whose adjacent vowel letters form one nucleus in Slovak pronunciation. The spelling alone cannot distinguish these from a hiatus; a stem covers its inflected forms.",
+  "foreign_nucleus_spellings": {
+    "flau": "au",
+    "leu": "eu",
+    "medail": "ai"
+  },
   "unhyphenated_foreign": [
     "azincourt",
     "baudricourt",

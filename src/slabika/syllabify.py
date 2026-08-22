@@ -19,6 +19,7 @@ This layer is purely linguistic. Typographic line-breaking rules are applied on
 top of it in :mod:`slabika.typo`.
 """
 
+from .exceptions import FOREIGN_NUCLEUS_SPELLINGS as _FOREIGN_NUCLEUS_SPELLINGS
 from .exceptions import LEXICAL_SYLLABIFICATIONS as _LEXICAL_SYLLABIFICATIONS
 from .exceptions import LEXICALIZED_STEMS as _LEXICALIZED_STEMS
 from .phonology import (
@@ -63,6 +64,12 @@ _LEXICAL_PREFIX_ROOTS = (
     ('porno', ('graf',)),
     ('rozo', ('br', 'ber')),   # rozo·brať, rozo·berať — not roz·ob·rať
     ('o', ('hra', 'hrá')),
+    ('in', ('štruk',)),
+    ('šéf', ('lekár',)),
+    # po·drobiť (rozdrobiť) against pod·robiť (podmaniť) — the two are spelled
+    # alike and only the sense tells them apart. PSP prints po-drobný, and the
+    # adjective and its adverbs are the frequent reading of the string.
+    ('po', ('drob',)),
 )
 
 # Vocalized prefix variants (bezo-, nado-, podo-, predo-) exist only to break up
@@ -75,7 +82,7 @@ _VOCALIZED_ONLY_BEFORE = {
     'bezo': ('mn',),
     'nado': ('vš', 'mn'),
     'podo': ('mn',),
-    'predo': ('vš', 'mn'),
+    'predo': ('vš', 'mn', 'str'),   # predovšetkým, predo mnou, predo·strieť
 }
 
 # Derivational suffixes that start with a consonant — these form a morpheme boundary.
@@ -89,9 +96,12 @@ _VOCALIZED_ONLY_BEFORE = {
 _SK_SUFFIXES_CONS = [
     # 4+ chars (longest first)
     'stiev',  # spoločen·stiev — the genitive plural of ·stvo
+    'ština',  # francúz·ština
     'ných', 'ného', 'nému',
     # 3 chars
     'stv',    # priateľ·stvo, kráľov·stvá
+    'ctv',    # baní·ctvo, zdravotní·ctvo
+    'cia',    # funk·cia, ak·cia, polí·cia — the borrowed -tio suffix
     'ník', 'níc', 'nil',   # dl·žník, robot·ní·ci, účast·nil
     'ným', 'nej', 'nou', 'nom',   # ohrad·ným — the rest of the ·ný paradigm
     'dlo',    # mera·dlo
@@ -118,7 +128,7 @@ _SK_COMPOSITA = [
     'pseudo', 'semi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',
     'super', 'hyper', 'meta', 'multi', 'mini', 'maxi',
     # Slovak-specific composita
-    'modlo', 'rodo',
+    'modlo', 'rodo', 'jedno', 'stredo', 'brati',
     'veľ',   # veľ·kňaz, veľ·kolepý, veľ·mocný
 ]
 
@@ -196,6 +206,8 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 continue
             if not any(c in _VOWELS_SK for c in reml):
                 continue
+            if licensed is not None:
+                return w[:length], rem
             # Remainder must start with a vowel, or with a consonant followed
             # immediately by a vowel (CV start) — blocks 'dpo', 'tvo'→ok, 'dp'→bad
             if reml[0] in _VOWEL_LETTERS:
@@ -260,8 +272,12 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
             # -sk- attaches to a consonant-final stem (Benát·ska, voj·sko). On
             # a vowel-final one the s belongs to the stem, not to a suffix:
             # mis·ka, bles·ky, po·ris·ko.
+            # mis·ka, bles·ky, po·ris·ko. The one vowel-final stem that keeps
+            # the boundary is one ending in a hiatus: no suffix begins with a
+            # vowel sequence, so lao·ský cannot be read any other way.
             if length == 2 and (steml[-1] in ALL_VOWELS or steml[-1] == 'ô'):
-                continue
+                if not (len(steml) >= 2 and steml[-2] in ALL_VOWELS):
+                    continue
             return w[:start], w[start:]
     return None, None
 
@@ -277,6 +293,51 @@ def _strip_grammatical_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
         if is_consonant(steml[-1]) and any(c in _VOWELS_SK for c in steml):
             return stem, w[-len(sfx):]
     return None, None
+
+
+def get_morpheme_parts(word: str) -> list[str]:
+    """Return the morphological units whose seams override phonotactics.
+
+    Typographic hyphenation needs the same analysis as syllabification, but it
+    applies a different rule inside each unit. Keeping the units explicit stops
+    the PSP consonant-cluster rule from pulling a prefix-final consonant across
+    a real morpheme boundary (``roz|ísť``, not ``ro|zísť``).
+    """
+    wl = word.lower()
+    if wl in _LEXICAL_SYLLABIFICATIONS:
+        return [word]
+
+    if wl.startswith('naj') and 'tejš' in wl[3:]:
+        return [word[:3], *get_morpheme_parts(word[3:])]
+
+    comparative_n = wl.find('nejš')
+    if comparative_n > 0:
+        return [*get_morpheme_parts(word[:comparative_n]), word[comparative_n:]]
+
+    comparative_t = wl.find('tejš')
+    if comparative_t > 0:
+        return [*get_morpheme_parts(word[:comparative_t]), word[comparative_t:]]
+
+    pfx, rem = _strip_prefix(word)
+    if pfx is not None:
+        return [pfx, *get_morpheme_parts(rem)]
+
+    for length, group in _COMPOSITA_BY_LEN:
+        comp = wl[:length]
+        if comp in group and len(word) > length + 2:
+            rem = word[length:]
+            if any(c in _VOWELS_SK for c in rem.lower()) and _starts_like_a_word(rem.lower()):
+                return [word[:length], *get_morpheme_parts(rem)]
+
+    stem, sfx = _strip_grammatical_suffix(word)
+    if stem is not None:
+        return [*get_morpheme_parts(stem), sfx]
+
+    stem, sfx = _strip_suffix(word)
+    if stem is not None:
+        return [*get_morpheme_parts(stem), sfx]
+
+    return [word]
 
 
 def get_syllables(word: str) -> list[str]:
@@ -360,7 +421,7 @@ _NUCLEI = ALL_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 
 #: Written vowel graphemes, including the ones that are not phonological
 #: diphthongs (ô is written as one grapheme, ou is a nucleus only word-finally).
-_VOWEL_LIKE = ALL_VOWELS | DIPHTHONGS | {'ô', 'ou'}
+_VOWEL_LIKE = ALL_VOWELS | DIPHTHONGS | {'ô', 'ou'} | set(_FOREIGN_NUCLEUS_SPELLINGS.values())
 
 #: No Slovak syllable opens with more than three consonants (vzdych, štvrť).
 _MAX_ONSET = 3
@@ -425,13 +486,54 @@ def _merge_latin_qu(phonemes: list[str]) -> list[str]:
     return out
 
 
-def _syllabify_simple(word: str) -> list[str]:
-    """Core syllabification without prefix awareness."""
+def phoneme_layout(word: str) -> tuple[list[str], list[int], list[int]]:
+    """Return the phonemes of *word*, their character offsets, and the indices
+    of those that carry a syllable nucleus.
+
+    The three lists are what any layer above needs in order to talk about
+    positions in the original string: the phonemes never split a digraph or a
+    diphthong, and the offsets are exact because every transformation here
+    preserves the spelling.
+
+    >>> phoneme_layout("dcéra")
+    (['d', 'c', 'é', 'r', 'a'], [0, 1, 2, 3, 4], [2, 4])
+    """
+    phonemes = _phonemes(word)
+    offsets, pos = [], 0
+    for phoneme in phonemes:
+        offsets.append(pos)
+        pos += len(phoneme)
+    return phonemes, offsets, _nuclei(phonemes)
+
+
+def _merge_foreign_nucleus(word: str, phonemes: list[str]) -> list[str]:
+    """Keep a lexically known foreign vowel spelling in one nucleus."""
+    wl = word.casefold()
+    for stem, spelling in _FOREIGN_NUCLEUS_SPELLINGS.items():
+        if not wl.startswith(stem):
+            continue
+        width = len(spelling)
+        for index in range(len(phonemes) - width + 1):
+            if ''.join(phonemes[index:index + width]) == spelling:
+                return [
+                    *phonemes[:index],
+                    spelling,
+                    *phonemes[index + width:],
+                ]
+    return phonemes
+
+
+def _phonemes(word: str) -> list[str]:
     phonemes = _merge_latin_qu(_resolve_hiatus(split_into_phonemes(word)))
+    phonemes = _merge_foreign_nucleus(word, phonemes)
     # The feminine instrumental ending -ou is one syllabic nucleus, although
     # Slovak phonology does not classify ou among the four diphthongs.
     if len(phonemes) >= 2 and phonemes[-2:] == ['o', 'u']:
         phonemes[-2:] = ['ou']
+    return phonemes
+
+
+def _nuclei(phonemes: list[str]) -> list[int]:
     n = len(phonemes)
 
     def is_nucleus(idx: int) -> bool:
@@ -447,8 +549,14 @@ def _syllabify_simple(word: str) -> list[str]:
             return prev_ok and next_ok
         return False
 
-    # Find positions of all nuclei
-    nuclei = [i for i in range(n) if is_nucleus(i)]
+    return [i for i in range(n) if is_nucleus(i)]
+
+
+def _syllabify_simple(word: str) -> list[str]:
+    """Core syllabification without prefix awareness."""
+    phonemes = _phonemes(word)
+    n = len(phonemes)
+    nuclei = _nuclei(phonemes)
 
     if not nuclei:
         return [word]

@@ -19,10 +19,10 @@ def test_slovak_hyphenation_golden_cases():
         "zemepisný": "ze·me·pis·ný",
         "pastva": "pas·tva",
         "priateľstvo": "pria·teľ·stvo",
-        "trojuholník": "troj·u·hol·ník",
+        "trojuholník": "troj·uhol·ník",
         "viacfarebný": "viac·fa·reb·ný",
-        "MODLOSLUŽOBNÍČKA": "MO·DLO·SLU·ŽOB·NÍČ·KA",
-        "stredoamerický": "stre·do·a·me·ric·ký",
+        "MODLOSLUŽOBNÍČKA": "MOD·LO·SLU·ŽOB·NÍČ·KA",
+        "stredoamerický": "stre·do·ame·ric·ký",
         "pohľad": "po·hľad",
         "pohľadom": "po·hľa·dom",
         "pohľady": "po·hľa·dy",
@@ -89,6 +89,20 @@ def test_syllabification_and_typographic_hyphenation_are_separate_layers():
     assert get_syllables("Slovensko") == ["slo", "ven", "sko"]
     assert get_syllables("odpornosťou") == ["od", "por", "nos", "ťou"]
 
+    # The same spelling can have a sonority boundary and a different PSP break.
+    assert get_syllables("maslo") == ["ma", "slo"]
+    assert hyphenate("maslo") == "mas·lo"
+    assert get_syllables("okno") == ["o", "kno"]
+    assert hyphenate("okno") == "ok·no"
+    assert get_syllables("mydlo") == ["my", "dlo"]
+    assert hyphenate("mydlo") == "myd·lo"
+    assert get_syllables("jedla") == ["je", "dla"]
+    assert hyphenate("jedla") == "jed·la"
+    assert get_syllables("modla") == ["mo", "dla"]
+    assert hyphenate("modla") == "mod·la"
+    assert get_syllables("advokát") == ["a", "dvo", "kát"]
+    assert hyphenate("advokát") == "ad·vo·kát"
+
 
 def test_a_cluster_that_rises_towards_the_nucleus_opens_the_next_syllable():
     """The onset takes everything that still rises and can open a word.
@@ -103,12 +117,69 @@ def test_a_cluster_that_rises_towards_the_nucleus_opens_the_next_syllable():
         "láska": "lás·ka",
         "mašlička": "ma·šlič·ka",
         "sestra": "ses·tra",
-        "Angličan": "An·gli·čan",
+        "Angličan": "an·gli·čan",
         "lingvistika": "ling·vis·ti·ka",
         "špendlík": "špen·dlík",
     }
 
+    assert {word: "·".join(get_syllables(word)) for word in expected} == expected
+
+
+def test_psp_cluster_boundaries_are_independent_of_syllabification():
+    expected = {
+        # 2a: one consonant — before it
+        "žena": "že·na",
+        # 2b: two consonants — between them
+        "maslo": "mas·lo",
+        "mašlička": "maš·lič·ka",
+        "okno": "ok·no",
+        "advokát": "ad·vo·kát",
+        # 2c: three or more — after the first
+        "sestra": "ses·tra",
+        "lingvistika": "lin·gvis·ti·ka",
+        "špendlík": "špen·dlík",
+    }
+
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_psp_doublets_offer_both_break_points():
+    expected = {
+        "lietadlo": {5, 6},
+        "baníctvo": {4, 5},
+        "laoský": {3, 4},
+        "komerčný": {5, 6},
+        "funkčný": {4, 5},
+        "jednotlivý": {5, 6},
+        "funkcia": {3, 4},
+    }
+
+    for word, points in expected.items():
+        assert points <= set(break_points(word))
+
+
+def test_foreign_one_nucleus_spellings_are_not_split_as_hiatuses():
+    assert get_syllables("flauta") == ["flau", "ta"]
+    assert get_syllables("leukémia") == ["leu", "ké", "mia"]
+    assert get_syllables("medaila") == ["me", "dai", "la"]
+
+    expected = {
+        "flauta": (4, 3),
+        "leukémia": (3, 2),
+        "medaila": (5, 4),
+    }
+
+    for word, (required, forbidden) in expected.items():
+        points = break_points(word)
+        assert required in points
+        assert forbidden not in points
+
+
+def test_a_lexical_compound_seam_does_not_turn_into_a_productive_prefix():
+    assert get_syllables("šéflekár") == ["šéf", "le", "kár"]
+    assert hyphenate("šéflekár") == "šéf·le·kár"
+    assert get_syllables("šéfovať") == ["šé", "fo", "vať"]
+    assert hyphenate("šéfovať") == "šé·fo·vať"
 
 
 def test_an_onset_rises_in_sonority_and_opens_some_slovak_word():

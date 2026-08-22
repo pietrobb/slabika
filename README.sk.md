@@ -77,9 +77,10 @@ konvencia, slovný materiál aj generovanie vzorov — je pôvodná práca tohto
 projektu. Páleš sa rozdeľovaním slov nezaoberá.
 
 Zhoda s normou sa meria voči *Pravidlám slovenského pravopisu* (JÚĽŠ SAV),
-kapitola **V. Rozdeľovanie slov**. PSP sa používajú ako vyjadrenie toho, čo je
-správny výsledok — nie ako zdroj dát. Tento projekt nie je nijako spojený s
-JÚĽŠ SAV a nie je ním schválený.
+kapitola **V. Rozdeľovanie slov**. Samostatne formulovanú projektovú referenciu
+obsahuje dokument [`docs/pravidla-delenia-slov.md`](docs/pravidla-delenia-slov.md).
+PSP sa používajú ako vyjadrenie toho, čo je správny výsledok — nie ako zdroj dát.
+Tento projekt nie je nijako spojený s JÚĽŠ SAV a nie je ním schválený.
 
 ## Licencia po slovensky
 

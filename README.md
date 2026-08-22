@@ -122,7 +122,8 @@ Apache-2.0.
 Output is intended to conform to the rules of Slovak orthography codified in
 *Pravidlá slovenského pravopisu* (JÚĽŠ SAV), chapter **V. Rozdeľovanie slov**.
 PSP is used as a statement of what the correct answer is — not as a source of
-data. Rule descriptions here are independent restatements, and test vocabulary
+data. The project's independent Slovak-language restatement is in
+[`docs/pravidla-delenia-slov.md`](docs/pravidla-delenia-slov.md); test vocabulary
 comes from this project's own word material. This project is not affiliated
 with, nor endorsed by, JÚĽŠ SAV.
 

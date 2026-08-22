@@ -18,6 +18,11 @@ LEXICAL_SYLLABIFICATIONS: Final[dict[str, tuple[str, ...]]] = {
 #: Stems whose prefix-shaped opening has lexicalized and forms no boundary.
 LEXICALIZED_STEMS: Final[tuple[str, ...]] = tuple(_RAW["lexicalized_stems"])
 
+#: Adjacent vowel spellings that form one nucleus in a foreign lexical stem.
+FOREIGN_NUCLEUS_SPELLINGS: Final[dict[str, str]] = dict(
+    _RAW["foreign_nucleus_spellings"]
+)
+
 #: Unadapted foreign spellings that Slovak syllable rules must not guess at.
 UNHYPHENATED_FOREIGN_WORDS: Final[frozenset[str]] = frozenset(
     _RAW["unhyphenated_foreign"]
