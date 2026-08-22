@@ -17,7 +17,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
          font: 14px/1.45 "Segoe UI", system-ui, sans-serif; height: 100vh;
-         display: grid; grid-template-rows: auto auto 1fr auto; }
+         display: grid; grid-template-rows: auto auto auto 1fr auto; }
 
   header { border-bottom: 1px solid var(--line); padding: 8px 12px;
            display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
@@ -34,8 +34,11 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .spacer { flex: 1; }
 
   .grid { display: grid;
-          grid-template-columns: 46px 148px 196px 190px 78px;
-          gap: 0 8px; align-items: center; max-width: 720px; }
+          grid-template-columns: 46px 190px 220px 300px 430px;
+          gap: 0 8px; align-items: center; width: max-content; }
+  .hint { padding: 5px 12px; color: var(--dim); background: var(--panel);
+          border-bottom: 1px solid var(--line); font-size: 12px; }
+  .hint b { color: var(--text); }
   .head { border-bottom: 1px solid var(--line); padding: 5px 12px;
           color: var(--dim); font-size: 11.5px; text-transform: uppercase;
           letter-spacing: .8px; }
@@ -51,6 +54,9 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .row.d-flag { border-left-color: var(--bad); }
   .row.d-uncertain { border-left-color: var(--accent); }
   .row.d-invalid { border-left-color: var(--grey); }
+  .row.d-classify { border-left-color: #b58cff; }
+  .row.d-deleted { opacity: .6; }
+  .row.d-deleted .form { text-decoration: line-through; }
 
   .idx { color: var(--dim); font-size: 11.5px; text-align: right;
          font-variant-numeric: tabular-nums; }
@@ -64,8 +70,10 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .state { font-size: 11.5px; color: var(--dim); white-space: nowrap;
            overflow: hidden; text-overflow: ellipsis; }
   .state b { font-weight: 600; }
-  .acts { display: flex; gap: 3px; }
+  .acts { display: flex; gap: 3px; flex-wrap: wrap; }
   .acts button { padding: 2px 7px; font-size: 12px; line-height: 1.3; }
+  .acts button.on { border-color: #b58cff; color: #d7c2ff; background: #2b213a; }
+  .acts button.off { border-color: var(--grey); color: var(--dim); text-decoration: line-through; }
 
   footer { border-top: 1px solid var(--line); padding: 7px 12px;
            color: var(--dim); font-size: 12px; display: flex; gap: 14px;
@@ -73,6 +81,13 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   kbd { background: var(--panel); border: 1px solid var(--line);
         border-bottom-width: 2px; border-radius: 4px; padding: 0 5px;
         font-family: inherit; color: var(--text); font-size: 11.5px; }
+  dialog { background: var(--panel); color: var(--text); border: 1px solid var(--line);
+           border-radius: 10px; padding: 18px; min-width: 360px; }
+  dialog::backdrop { background: #000a; }
+  dialog form { display: grid; gap: 12px; }
+  dialog label { color: var(--dim); }
+  dialog input { width: 100%; }
+  .dialog-acts { display: flex; justify-content: flex-end; gap: 8px; }
   #toast { position: fixed; right: 16px; bottom: 46px; background: var(--panel);
            border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px;
            opacity: 0; transition: opacity .2s; max-width: 46vw; }
@@ -92,38 +107,42 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   </select>
   <select id="status" title="ktoré slová ukázať">
     <option value="all">všetko</option>
-    <option value="undecided">ešte neskontrolované</option>
+    <option value="undecided">bez rozhodnutia o delení</option>
     <option value="mine">už som rozhodol</option>
     <option value="correct">moje opravy</option>
     <option value="flag">⚑ označené ako zlé</option>
     <option value="confirm">potvrdené</option>
     <option value="uncertain">neviem</option>
     <option value="invalid">nie je slovo</option>
+    <option value="proper">označené: meno</option>
+    <option value="foreign">označené: cudzie slovo</option>
+    <option value="abbreviation">označené: skratka</option>
+    <option value="corrected_form">slovo má opravený tvar</option>
+    <option value="deleted">označené na vymazanie</option>
     <option value="engine_disagree">moje ≠ engine</option>
-    <option value="ai_disagree_syl">AI má iné slabiky</option>
     <option value="ai_disagree">AI má iné delenie slov</option>
     <option value="human_review">AI: rozpor alebo neistota</option>
     <option value="verified">overené ľuďmi (import)</option>
     <option value="engine_error">engine spadol</option>
   </select>
-  <select id="field" title="ktorá vrstva sa edituje v riadkoch">
-    <option value="s">slabiky (jazyk)</option>
-    <option value="h">delenie slov (typografia)</option>
-  </select>
   <select id="limit" title="koľko riadkov naraz">
     <option>200</option><option selected>500</option>
     <option>1000</option><option>2000</option>
   </select>
-  <button id="bulk" title="potvrdí všetky nedotknuté riadky na tejto strane">✓ potvrdiť zvyšok strany</button>
+  <button id="bulk" title="potvrdí nedotknuté delenia na tejto strane">✓ potvrdiť zvyšok strany</button>
   <button id="undo" title="Alt+Z">↶ späť</button>
   <div class="spacer"></div>
   <span class="stat" id="totals"></span>
 </header>
 
+<div class="hint">
+  Kontrolujú sa <b>povolené body delenia riadka podľa PSP</b>. V poli delenia možno meniť iba pomlčky. Akcia <b>Opraviť</b> uloží návrh nového tvaru; zobrazené delenie naďalej patrí pôvodnému tvaru.
+</div>
+
 <div class="grid head">
   <span style="text-align:right">#</span>
   <span>tvar</span>
-  <span id="head-edit">slabiky — oprav pomlčky a stlač Enter</span>
+  <span>delenie riadka (PSP)</span>
   <span>stav</span>
   <span>akcia</span>
 </div>
@@ -131,8 +150,8 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 <div id="rows"></div>
 
 <footer>
-  <span><kbd>Enter</kbd> ulož + ďalší</span>
-  <span><kbd>Shift</kbd>+<kbd>Enter</kbd> ulož + predošlý</span>
+  <span><kbd>Enter</kbd> ulož + ďalšie slovo</span>
+  <span><kbd>Shift</kbd>+<kbd>Enter</kbd> ulož + predošlé slovo</span>
   <span><kbd>Esc</kbd> vráť návrh enginu</span>
   <span><kbd>↑</kbd><kbd>↓</kbd> riadok</span>
   <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd> ⚑ je to zle</span>
@@ -145,16 +164,29 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   <button id="prev">←</button><button id="next">→</button>
 </footer>
 
+<dialog id="correction-dialog">
+  <form method="dialog">
+    <label for="correction-input">Opravený slovný tvar</label>
+    <input type="text" id="correction-input" autocomplete="off" spellcheck="false">
+    <div class="dialog-acts">
+      <button type="button" id="correction-cancel">Zrušiť</button>
+      <button value="save">Uložiť opravu</button>
+    </div>
+  </form>
+</dialog>
+
 <div id="toast"></div>
 
 <script>
 const S = {
-  items: [], total: 0, offset: 0, limit: 500, focus: 0,
-  q: "", mode: "prefix", status: "all", field: "s",
+  items: [], total: 0, offset: 0, limit: 500, focus: 0, pending: false,
+  q: "", mode: "prefix", status: "all", loadVersion: 0,
+  applied: {q: "", mode: "prefix", status: "all", limit: 500},
 };
 
 const $ = id => document.getElementById(id);
-const esc = s => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const esc = s => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;")
+  .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 const dash = s => (s || "").replace(/·/g, "-");
 const toast = msg => {
   const t = $("toast"); t.textContent = msg; t.classList.add("show");
@@ -162,14 +194,52 @@ const toast = msg => {
 };
 
 async function api(path, body) {
-  const r = await fetch(path, body ? {method: "POST", body: JSON.stringify(body)} : {});
+  const r = await fetch(path, body ? {
+    method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body),
+  } : {});
   return r.json();
 }
 
-const engineText = it => dash(S.field === "h" ? it.hyphenation : it.syllabification);
-const mineText = it => dash(S.field === "h" ? it.my_expected : it.my_syllabification);
-const aiText = it => dash(S.field === "h" ? it.ai_expected : it.ai_syllabification);
-const aiDiffers = it => S.field === "h" ? it.ai_disagrees : it.ai_disagrees_syl;
+const engineText = it => dash(it.hyphenation);
+const mineText = it => dash(it.my_expected);
+const aiText = it => dash(it.ai_expected);
+const aiDiffers = it => it.ai_disagrees;
+const myAction = it => it.my_hyphenation_action;
+const unmarked = text => (text || "").replace(/[-·\u2010-\u2015\s]/g, "");
+const isValid = (it, input) => unmarked(input.value) === it.review_form;
+const firstInvalid = (row, it) => [...row.querySelectorAll(".edit")]
+  .find(input => !isValid(it, input));
+const hasDirty = () => [...document.querySelectorAll(".edit")]
+  .some(input => input.value !== input._committed);
+function askCorrection(item) {
+  const dialog = $("correction-dialog");
+  const input = $("correction-input");
+  input.value = item.corrected_form || item.review_form;
+  dialog.returnValue = "cancel";
+  dialog.showModal();
+  input.focus();
+  input.select();
+  return new Promise(resolve => dialog.addEventListener("close", () => {
+    resolve(dialog.returnValue === "save" ? input.value : null);
+  }, {once: true}));
+}
+const entriesFor = (row, it, requiredField = null) => [...row.querySelectorAll(".edit")]
+  .filter(input => input.value !== input._committed ||
+                   (input.dataset.field === requiredField && !myAction(it)))
+  .map(input => ({
+    form: it.form, action: "confirm", field: "hyphenation", text: input.value,
+  }));
+function setPending(value) {
+  if (value) ++S.loadVersion;
+  S.pending = value;
+  for (const id of ["q", "mode", "status", "limit", "undo", "bulk", "prev", "next"])
+    $(id).disabled = value;
+  document.querySelectorAll(".edit").forEach(input => { input.disabled = value; });
+}
+function restoreAppliedFilters() {
+  Object.assign(S, S.applied);
+  for (const id of ["q", "mode", "status", "limit"]) $(id).value = S[id];
+}
 
 // -- rendering ---------------------------------------------------------
 
@@ -178,21 +248,41 @@ const LABEL = {confirm: ["potvrdené", "var(--good)"], correct: ["opravené", "v
                invalid: ["nie je slovo", "var(--grey)"]};
 
 function paint(row, it) {
-  const input = row.querySelector(".edit");
-  row.className = "row grid" + (it.my_action ? " d-" + it.my_action : "") +
+  const classified = it.my_classification || it.corrected_form ||
+    Object.values(it.flags).some(Boolean);
+  const visibleAction = it.flags.deleted ? "deleted" :
+    (it.my_row_action || it.my_hyphenation_action || (classified ? "classify" : null));
+  row.className = "row grid" + (visibleAction ? " d-" + visibleAction : "") +
                   (aiDiffers(it) ? " ai-diff" : "") +
                   (row._i === S.focus ? " focus" : "");
-  input.classList.toggle("diff", input.value !== engineText(it));
-  input.classList.remove("bad");
+  row.querySelectorAll(".edit").forEach(input => {
+    input.classList.toggle("diff", input.value !== engineText(it));
+    input.classList.toggle("bad", !isValid(it, input));
+  });
 
   const parts = [];
-  if (it.my_action) {
-    const [text, colour] = LABEL[it.my_action];
+  const action = myAction(it);
+  if (action) {
+    const [text, colour] = LABEL[action];
+    parts.push(`<b style="color:${colour}">PSP: ${text}</b>`);
+  }
+  if (it.stale_h)
+    parts.push(`<span style="color:var(--bad)">PSP: engine sa zmenil</span>`);
+  if (aiDiffers(it))
+    parts.push(`<b style="color:var(--bad)">AI PSP: ${esc(aiText(it))}</b>`);
+  if (it.my_row_action) {
+    const [text, colour] = LABEL[it.my_row_action];
     parts.push(`<b style="color:${colour}">${text}</b>`);
   }
-  if (it.stale) parts.push(`<span style="color:var(--bad)">engine sa zmenil</span>`);
-  if (aiDiffers(it))
-    parts.push(`<b style="color:var(--bad)">AI: ${esc(aiText(it))}</b>`);
+  if (it.flags.proper) parts.push("<b>meno</b>");
+  else if (it.my_flags.proper === 0) parts.push("nie je meno");
+  if (it.flags.foreign) parts.push("<b>cudzie slovo</b>");
+  else if (it.my_flags.foreign === 0) parts.push("nie je cudzie slovo");
+  if (it.flags.abbreviation) parts.push("<b>skratka</b>");
+  else if (it.my_flags.abbreviation === 0) parts.push("nie je skratka");
+  if (it.corrected_form) parts.push(`<b>opraviť na: ${esc(it.corrected_form)}</b>`);
+  if (it.flags.deleted) parts.push("<b>označené na vymazanie</b>");
+  else if (it.my_flags.deleted === 0) parts.push("ponechať v korpuse");
   if (it.engine_error) parts.push(`<span style="color:var(--bad)">engine spadol</span>`);
   row.querySelector(".state").innerHTML = parts.join(" · ") || "—";
 }
@@ -200,41 +290,68 @@ function paint(row, it) {
 function makeRow(it, i) {
   const row = document.createElement("div");
   row._i = i;
+  const formText = it.corrected_form
+    ? `${esc(it.review_form)} → <b>${esc(it.corrected_form)}</b>`
+    : esc(it.review_form);
   row.innerHTML =
     `<span class="idx">${S.offset + i + 1}</span>` +
-    `<span class="form" title="${esc(it.form)}">${esc(it.form)}</span>` +
-    `<input class="edit" spellcheck="false" autocomplete="off">` +
+    `<span class="form" title="${esc(it.review_form)}">${formText}</span>` +
+    `<input class="edit" data-field="h" title="typografické delenie podľa PSP" spellcheck="false" autocomplete="off">` +
     `<span class="state"></span>` +
     `<span class="acts">` +
       `<button data-a="flag" title="je to zle (Ctrl+Enter)">⚑</button>` +
       `<button data-a="uncertain" title="neviem">?</button>` +
-      `<button data-a="invalid" title="nie je to slovo">✗</button>` +
+      `<button data-a="invalid" title="nie je to slovo">Nie slovo</button>` +
+      `<button data-a="proper" title="označiť alebo odznačiť vlastné meno">Meno</button>` +
+      `<button data-a="foreign" title="označiť alebo odznačiť cudzie slovo">Cudzie</button>` +
+      `<button data-a="abbreviation" title="označiť alebo odznačiť skratku">Skratka</button>` +
+      `<button data-a="correct-form" title="opraviť samotný slovný tvar">Opraviť</button>` +
+      `<button data-a="deleted" title="označiť alebo odznačiť na vymazanie">Vymazať</button>` +
       `<button data-a="clear" title="zruš moje rozhodnutie (Ctrl+Delete)">↺</button>` +
     `</span>`;
 
-  const input = row.querySelector(".edit");
-  input.value = input._committed = mineText(it) || engineText(it);
-  input.addEventListener("input", () => paint(row, it));
-  input.addEventListener("focus", () => { S.focus = i; markFocus(); });
-  input.addEventListener("blur", () => {
-    if (input.value !== input._committed) save(i, 0);
+  row.querySelectorAll(".edit").forEach(input => {
+    const field = input.dataset.field;
+    input.value = input._committed = mineText(it) || engineText(it);
+    input._valid = input.value;
+    input.addEventListener("input", () => {
+      if (isValid(it, input)) input._valid = input.value;
+      else {
+        input.value = input._valid;
+        toast(`Meniť možno iba pomlčky; písmená musia zostať presne „${it.review_form}“.`);
+      }
+      paint(row, it);
+    });
+    input.addEventListener("focus", () => { S.focus = i; markFocus(); });
+    input.addEventListener("keydown", ev => {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        if (ev.ctrlKey) act(i, "flag");
+        else save(i, field, ev.shiftKey ? -1 : 1, "h");
+      } else if (ev.key === "Delete" && ev.ctrlKey) {
+        ev.preventDefault(); act(i, "clear");
+      } else if (ev.key === "Escape") {
+        ev.preventDefault(); input.value = engineText(it); paint(row, it);
+      } else if (ev.key === "ArrowDown") {
+        ev.preventDefault(); focusRow(i + 1, field);
+      } else if (ev.key === "ArrowUp") {
+        ev.preventDefault(); focusRow(i - 1, field);
+      }
+    });
   });
-  input.addEventListener("keydown", ev => {
-    if (ev.key === "Enter") {
-      ev.preventDefault();
-      if (ev.ctrlKey) act(i, "flag"); else save(i, ev.shiftKey ? -1 : 1);
-    } else if (ev.key === "Delete" && ev.ctrlKey) {
-      ev.preventDefault(); act(i, "clear");
-    } else if (ev.key === "Escape") {
-      ev.preventDefault(); input.value = engineText(it); paint(row, it);
-    } else if (ev.key === "ArrowDown") {
-      ev.preventDefault(); focusRow(i + 1);
-    } else if (ev.key === "ArrowUp") {
-      ev.preventDefault(); focusRow(i - 1);
-    }
+  const activeActions = {
+    proper: it.flags.proper,
+    foreign: it.flags.foreign,
+    abbreviation: it.flags.abbreviation,
+    "correct-form": it.corrected_form,
+    deleted: it.flags.deleted,
+  };
+  row.querySelectorAll(".acts button").forEach(b => {
+    b.classList.toggle("on", Boolean(activeActions[b.dataset.a]));
+    b.classList.toggle("off", Boolean(FLAG_FOR_ACTION[b.dataset.a] &&
+      it.my_flags[FLAG_FOR_ACTION[b.dataset.a]] === 0));
+    b.addEventListener("click", () => act(i, b.dataset.a));
   });
-  row.querySelectorAll(".acts button").forEach(b =>
-    b.addEventListener("click", () => act(i, b.dataset.a)));
 
   paint(row, it);
   return row;
@@ -245,17 +362,17 @@ function markFocus() {
   [...box.children].forEach((c, n) => c.classList.toggle("focus", n === S.focus));
 }
 
-function focusRow(i) {
-  if (i < 0) { if (S.offset > 0) load(S.offset - S.limit, "end"); return; }
+function focusRow(i, field = "h") {
+  if (i < 0) { if (S.offset > 0) load(S.offset - S.limit, "end", field); return; }
   if (i >= S.items.length) {
-    if (S.offset + S.items.length < S.total) load(S.offset + S.limit);
+    if (S.offset + S.items.length < S.total) load(S.offset + S.limit, 0, field);
     else toast("koniec výberu");
     return;
   }
   S.focus = i;
   const row = $("rows").children[i];
   row.scrollIntoView({block: "nearest"});
-  row.querySelector(".edit").focus();
+  row.querySelector(`.edit[data-field="${field}"]`).focus();
   markFocus();
 }
 
@@ -270,25 +387,44 @@ function renderAll() {
     `<b>${S.total.toLocaleString("sk")}</b> zhôd · zobrazené ${from}–${S.offset + S.items.length}`;
 }
 
-async function load(offset = 0, focus = 0) {
-  const p = new URLSearchParams({q: S.q, mode: S.mode, status: S.status,
-                                offset: Math.max(0, offset), limit: S.limit});
+async function load(offset = 0, focus = 0, field = "h") {
+  const version = ++S.loadVersion;
+  if (S.pending) { toast("počkajte na uloženie"); return; }
+  if (hasDirty()) {
+    if (!confirm("Zahodiť neuložené úpravy?")) {
+      restoreAppliedFilters();
+      return;
+    }
+    document.querySelectorAll(".edit").forEach(input => { input.value = input._committed; });
+    [...$("rows").children].forEach((row, i) => paint(row, S.items[i]));
+  }
+  const request = {q: S.q, mode: S.mode, status: S.status, limit: S.limit};
+  const p = new URLSearchParams({...request, offset: Math.max(0, offset)});
   const data = await api("/api/list?" + p);
+  if (version !== S.loadVersion) return;
+  if (hasDirty() || S.pending) {
+    restoreAppliedFilters();
+    toast("filter sa nepoužil, pretože medzitým vznikla neuložená úprava");
+    return;
+  }
   if (data.error) { toast(data.error); return; }
+  S.applied = request;
   S.items = data.items; S.total = data.total; S.offset = data.offset;
   S.focus = focus === "end" ? Math.max(0, S.items.length - 1) : 0;
   renderAll();
-  if (S.items.length) focusRow(S.focus);
+  if (S.items.length) focusRow(S.focus, field);
   stats();
 }
 
 async function stats() {
   const s = await api("/api/stats");
-  const pct = (100 * s.decided / s.total).toFixed(2);
+  const pct = (100 * s.reviewed / s.total).toFixed(2);
   $("totals").innerHTML =
     `korpus <b>${s.total.toLocaleString("sk")}</b> · skontrolované ` +
-    `<b>${s.decided.toLocaleString("sk")}</b> (${pct} %) · opravy <b>${s.correct}</b>` +
-    ` · ⚑ zlé <b>${s.flag}</b> · neviem <b>${s.uncertain}</b>`;
+    `<b>${s.reviewed.toLocaleString("sk")}</b> (${pct} %)` +
+    ` · delenie opravené <b>${s.correct}</b> · zlé <b>${s.flag}</b>` +
+    ` · mená <b>${s.proper}</b> · cudzie <b>${s.foreign}</b>` +
+    ` · skratky <b>${s.abbreviation}</b> · na vymazanie <b>${s.deleted}</b>`;
   const store = $("store");
   store.textContent = "uložené do " + s.decisions_path.split(/[\\/]/).pop();
   store.title = s.decisions_path + "  (engine slabika " + s.engine_version + ")";
@@ -304,20 +440,33 @@ function replaceRow(i, item) {
   return row;
 }
 
-async function save(i, step) {
+function rejectInvalid(row, it) {
+  const input = firstInvalid(row, it);
+  if (!input) return false;
+  input.classList.add("bad");
+  input.focus();
+  toast(`Meniť možno iba pomlčky; písmená musia zostať presne „${it.review_form}“.`);
+  return true;
+}
+
+async function save(i, field, step, nextField = field) {
+  if (S.pending) return;
   const it = S.items[i];
   const row = $("rows").children[i];
-  const input = row.querySelector(".edit");
-  const value = input.value;
-  if (input._committed === value && it.my_action) { if (step) focusRow(i + step); return; }
-  input._committed = value;
-  const r = await api("/api/decide", {
-    form: it.form, action: "confirm",
-    field: S.field === "h" ? "hyphenation" : "syllabification", text: value,
-  });
-  if (r.error) { input.classList.add("bad"); toast(r.error); return; }
-  const fresh = replaceRow(i, r.item);
-  if (step) focusRow(i + step); else { fresh.classList.toggle("focus", i === S.focus); }
+  if (rejectInvalid(row, it)) return;
+  const entries = entriesFor(row, it, field);
+  if (!entries.length) { focusRow(i + step, nextField); return; }
+  setPending(true);
+  row.querySelectorAll(".edit").forEach(element => { element.disabled = true; });
+  const r = await api("/api/decide_many", {entries});
+  setPending(false);
+  if (r.error || r.failed.length) {
+    row.querySelectorAll(".edit").forEach(element => { element.disabled = false; });
+    row.querySelector(`.edit[data-field="${field}"]`).classList.add("bad");
+    toast(r.error || r.failed[0].error); return;
+  }
+  replaceRow(i, r.items[r.items.length - 1]);
+  focusRow(i + step, nextField);
   stats();
 }
 
@@ -326,17 +475,49 @@ const REASON = {
   uncertain: "Human console: reviewer is not sure.",
   invalid: "Human console: not a valid word form.",
 };
+const FLAG_FOR_ACTION = {
+  proper: "proper", foreign: "foreign", abbreviation: "abbreviation", deleted: "deleted",
+};
 
 async function act(i, action) {
+  if (S.pending) return;
   const form = S.items[i].form;
-  // Withdrawing a verdict keeps you on the row: you asked to undo it, not to
-  // move on, and the row must visibly fall back to the engine's proposal.
+  const row = $("rows").children[i];
+  const item = S.items[i];
+  if (rejectInvalid(row, item)) return;
+  let request = {form, action, reason: REASON[action]};
+  if (FLAG_FOR_ACTION[action]) {
+    const flag = FLAG_FOR_ACTION[action];
+    request = {form, action: "classify", flags: {[flag]: !item.flags[flag]}};
+  } else if (action === "correct-form") {
+    clearTimeout(timer);
+    restoreAppliedFilters();
+    setPending(true);
+    const corrected = await askCorrection(item);
+    setPending(false);
+    if (corrected === null) return;
+    request = {form, action: "classify", corrected_form: corrected};
+  }
+  const pending = entriesFor(row, item);
+  setPending(true);
+  row.querySelectorAll(".edit").forEach(element => { element.disabled = true; });
+  if (pending.length) {
+    const saved = await api("/api/decide_many", {entries: pending});
+    if (saved.error || saved.failed.length) {
+      setPending(false);
+      row.querySelectorAll(".edit").forEach(element => { element.disabled = false; });
+      toast(saved.error || saved.failed[0].error); return;
+    }
+  }
   const clearing = action === "clear";
   const r = clearing
     ? await api("/api/clear", {form})
-    : await api("/api/decide", {form, action, reason: REASON[action]});
-  if (r.error) { toast(r.error); return; }
-  if (!r.ok) { toast(r.message); return; }
+    : await api("/api/decide", request);
+  setPending(false);
+  if (r.error || !r.ok) {
+    row.querySelectorAll(".edit").forEach(element => { element.disabled = false; });
+    toast(r.error || r.message); return;
+  }
   replaceRow(i, r.item);
   stats();
   if (clearing) { toast("rozhodnutie zrušené: " + form); focusRow(i); }
@@ -344,24 +525,33 @@ async function act(i, action) {
 }
 
 async function bulkConfirm() {
+  if (S.pending) return;
+  if (hasDirty()) { toast("najprv uložte rozpracované úpravy cez Enter"); return; }
   const entries = [];
   [...$("rows").children].forEach((row, i) => {
-    const it = S.items[i], value = row.querySelector(".edit").value;
-    if (!it.my_action && value === engineText(it)) entries.push({
-      form: it.form, action: "confirm",
-      field: S.field === "h" ? "hyphenation" : "syllabification", text: value,
+    const it = S.items[i];
+    const value = row.querySelector('.edit[data-field="h"]').value;
+    if (!myAction(it) && !it.my_row_action && !it.my_classification &&
+        !it.engine_error && value === engineText(it)) entries.push({
+      form: it.form, action: "confirm", field: "hyphenation", text: value, bulk: true,
     });
   });
   if (!entries.length) { toast("na tejto strane nie je čo potvrdzovať"); return; }
-  if (!confirm(`Potvrdiť ${entries.length} nedotknutých riadkov na tejto strane ako správne?`)) return;
+  if (!confirm(`Potvrdiť ${entries.length} nedotknutých výstupov na tejto strane?`)) return;
+  setPending(true);
   const r = await api("/api/decide_many", {entries});
+  setPending(false);
   if (r.error) { toast(r.error); return; }
   toast(`potvrdených ${r.items.length}` + (r.failed.length ? `, zlyhalo ${r.failed.length}` : ""));
   load(S.offset);
 }
 
 async function undo() {
+  if (S.pending) { toast("počkajte na uloženie"); return; }
+  if (hasDirty()) { toast("najprv uložte alebo zahoďte rozpracované úpravy"); return; }
+  setPending(true);
   const r = await api("/api/undo", {});
+  setPending(false);
   if (!r.ok) { toast(r.message || r.error); return; }
   const at = S.items.findIndex(x => x.form === r.form);
   if (at >= 0) replaceRow(at, r.item);
@@ -373,6 +563,7 @@ async function undo() {
 
 let timer = null;
 $("q").addEventListener("input", () => {
+  ++S.loadVersion;
   clearTimeout(timer);
   timer = setTimeout(() => { S.q = $("q").value.trim(); load(0); }, 180);
 });
@@ -382,15 +573,10 @@ $("q").addEventListener("keydown", ev => {
 $("mode").addEventListener("change", () => { S.mode = $("mode").value; load(0); });
 $("status").addEventListener("change", () => { S.status = $("status").value; load(0); });
 $("limit").addEventListener("change", () => { S.limit = +$("limit").value; load(0); });
-$("field").addEventListener("change", () => {
-  S.field = $("field").value;
-  $("head-edit").textContent = S.field === "h"
-    ? "delenie slov (typografia) — oprav pomlčky a stlač Enter"
-    : "slabiky — oprav pomlčky a stlač Enter";
-  renderAll();
-});
 $("bulk").addEventListener("click", bulkConfirm);
 $("undo").addEventListener("click", undo);
+$("correction-cancel").addEventListener("click", () =>
+  $("correction-dialog").close("cancel"));
 $("prev").addEventListener("click", () => S.offset > 0 && load(S.offset - S.limit));
 $("next").addEventListener("click", () =>
   S.offset + S.items.length < S.total && load(S.offset + S.limit));
