@@ -34,8 +34,8 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .spacer { flex: 1; }
 
   .grid { display: grid;
-          grid-template-columns: 54px minmax(130px, 1fr) minmax(250px, 1.7fr) 168px 96px;
-          gap: 0 10px; align-items: center; }
+          grid-template-columns: 46px 148px 196px 190px 78px;
+          gap: 0 8px; align-items: center; max-width: 720px; }
   .head { border-bottom: 1px solid var(--line); padding: 5px 12px;
           color: var(--dim); font-size: 11.5px; text-transform: uppercase;
           letter-spacing: .8px; }
@@ -54,14 +54,14 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 
   .idx { color: var(--dim); font-size: 11.5px; text-align: right;
          font-variant-numeric: tabular-nums; }
-  .form { font-family: Cambria, Georgia, serif; font-size: 17px;
+  .form { font-family: Cambria, Georgia, serif; font-size: 15px;
           white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .edit { width: 100%; font-family: Consolas, "Cascadia Mono", monospace;
-          font-size: 16px; letter-spacing: .4px; padding: 4px 8px; }
+          font-size: 14px; letter-spacing: .2px; padding: 3px 6px; }
   .edit.diff { border-color: var(--warn); color: var(--warn); }
   .edit.bad { border-color: var(--bad); color: var(--bad); }
   .edit:focus { outline: none; border-color: var(--accent); }
-  .state { font-size: 12px; color: var(--dim); white-space: nowrap;
+  .state { font-size: 11.5px; color: var(--dim); white-space: nowrap;
            overflow: hidden; text-overflow: ellipsis; }
   .state b { font-weight: 600; }
   .acts { display: flex; gap: 3px; }
