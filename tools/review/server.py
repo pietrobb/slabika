@@ -103,9 +103,18 @@ def _parse_marked(form: str, text: str) -> str:
     return normalised
 
 
+def _recase(parts: list[str], form: str) -> str:
+    """Restore the form's own casing onto engine output, which is lowercased."""
+    out, at = [], 0
+    for part in parts:
+        out.append(form[at:at + len(part)])
+        at += len(part)
+    return "·".join(out) if at == len(form) else "·".join(parts)
+
+
 def _engine(form: str) -> tuple[str, str, str | None]:
     try:
-        return hyphenate(form), "·".join(syllables(form)), None
+        return hyphenate(form), _recase(syllables(form), form), None
     except Exception as error:  # noqa: BLE001 - shown to the reviewer
         return form, form, f"{type(error).__name__}: {error}"
 
@@ -188,6 +197,7 @@ class Corpus:
     def item(self, form: str, ai: sqlite3.Row | None, mine: sqlite3.Row | None) -> dict:
         hyphenation, syllabification, error = _engine(form)
         ai_expected = ai["expected_hyphenation"] if ai else None
+        ai_syllabification = ai["expected_syllabification"] if ai else None
         my_expected = mine["expected_hyphenation"] if mine else None
         return {
             "form": form,
@@ -198,6 +208,11 @@ class Corpus:
             "ai_expected": ai_expected,
             "ai_reason": ai["reason"] if ai else "",
             "ai_disagrees": bool(ai_expected) and ai_expected != hyphenation,
+            "ai_syllabification": ai_syllabification,
+            "ai_disagrees_syl": (
+                bool(ai_syllabification)
+                and ai_syllabification.lower() != syllabification.lower()
+            ),
             "my_action": mine["action"] if mine else None,
             "my_expected": my_expected,
             "my_syllabification": mine["expected_syllabification"] if mine else None,
@@ -227,6 +242,15 @@ class Corpus:
                 row = rows.get(form)
                 expected = row["expected_hyphenation"] if row else None
                 if expected and expected != _engine(form)[0]:
+                    keep.append(form)
+            return keep
+        if status == "ai_disagree_syl":
+            rows = self._ai_rows(forms)
+            keep = []
+            for form in forms:
+                row = rows.get(form)
+                expected = row["expected_syllabification"] if row else None
+                if expected and expected.lower() != _engine(form)[1].lower():
                     keep.append(form)
             return keep
         if status == "engine_disagree":
@@ -285,21 +309,22 @@ class Corpus:
         hyphenation, syllabification, _ = _engine(form)
         flags = payload.get("flags") or {}
         if action in ("confirm", "correct"):
-            field = payload.get("field", "hyphenation")
+            field = payload.get("field", "syllabification")
             text = payload.get("text")
             if text is None:
                 edited = syllabification if field == "syllabification" else hyphenation
             else:
                 edited = _parse_marked(form, text)
+            # Syllabification is a fact about the language; hyphenation is a
+            # typographic layer derived from it.  A verdict on one says nothing
+            # about the other, so only the edited field is ever recorded.
             if field == "syllabification":
                 expected_syllabification = edited
-                # Confirming the syllables says nothing about the division
-                # unless the two happen to agree; do not invent the other half.
-                expected_hyphenation = hyphenation if edited == syllabification else None
+                expected_hyphenation = None
                 action = "confirm" if edited == syllabification else "correct"
             else:
                 expected_hyphenation = edited
-                expected_syllabification = syllabification if edited == hyphenation else None
+                expected_syllabification = None
                 action = "confirm" if edited == hyphenation else "correct"
         else:
             expected_hyphenation = None

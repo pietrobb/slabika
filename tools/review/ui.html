@@ -100,14 +100,15 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
     <option value="uncertain">neviem</option>
     <option value="invalid">nie je slovo</option>
     <option value="engine_disagree">moje ≠ engine</option>
-    <option value="ai_disagree">AI navrhla iné delenie</option>
-    <option value="human_review">AI: iné delenie alebo neistota</option>
+    <option value="ai_disagree_syl">AI má iné slabiky</option>
+    <option value="ai_disagree">AI má iné delenie slov</option>
+    <option value="human_review">AI: rozpor alebo neistota</option>
     <option value="verified">overené ľuďmi (import)</option>
     <option value="engine_error">engine spadol</option>
   </select>
-  <select id="field" title="čo sa edituje v riadkoch">
-    <option value="h">delenie slov</option>
-    <option value="s">slabiky</option>
+  <select id="field" title="ktorá vrstva sa edituje v riadkoch">
+    <option value="s">slabiky (jazyk)</option>
+    <option value="h">delenie slov (typografia)</option>
   </select>
   <select id="limit" title="koľko riadkov naraz">
     <option>200</option><option selected>500</option>
@@ -122,7 +123,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 <div class="grid head">
   <span style="text-align:right">#</span>
   <span>tvar</span>
-  <span id="head-edit">návrh delenia — oprav pomlčky a stlač Enter</span>
+  <span id="head-edit">slabiky — oprav pomlčky a stlač Enter</span>
   <span>stav</span>
   <span>akcia</span>
 </div>
@@ -149,7 +150,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 <script>
 const S = {
   items: [], total: 0, offset: 0, limit: 500, focus: 0,
-  q: "", mode: "prefix", status: "all", field: "h",
+  q: "", mode: "prefix", status: "all", field: "s",
 };
 
 const $ = id => document.getElementById(id);
@@ -167,6 +168,8 @@ async function api(path, body) {
 
 const engineText = it => dash(S.field === "h" ? it.hyphenation : it.syllabification);
 const mineText = it => dash(S.field === "h" ? it.my_expected : it.my_syllabification);
+const aiText = it => dash(S.field === "h" ? it.ai_expected : it.ai_syllabification);
+const aiDiffers = it => S.field === "h" ? it.ai_disagrees : it.ai_disagrees_syl;
 
 // -- rendering ---------------------------------------------------------
 
@@ -177,7 +180,7 @@ const LABEL = {confirm: ["potvrdené", "var(--good)"], correct: ["opravené", "v
 function paint(row, it) {
   const input = row.querySelector(".edit");
   row.className = "row grid" + (it.my_action ? " d-" + it.my_action : "") +
-                  (it.ai_disagrees ? " ai-diff" : "") +
+                  (aiDiffers(it) ? " ai-diff" : "") +
                   (row._i === S.focus ? " focus" : "");
   input.classList.toggle("diff", input.value !== engineText(it));
   input.classList.remove("bad");
@@ -188,8 +191,10 @@ function paint(row, it) {
     parts.push(`<b style="color:${colour}">${text}</b>`);
   }
   if (it.stale) parts.push(`<span style="color:var(--bad)">engine sa zmenil</span>`);
-  if (it.ai_disagrees)
-    parts.push(`<b style="color:var(--bad)">AI: ${esc(dash(it.ai_expected))}</b>`);
+  if (aiDiffers(it))
+    parts.push(`<b style="color:var(--bad)">AI: ${esc(aiText(it))}</b>`);
+  if (S.field === "s")
+    parts.push(`<span style="opacity:.55">delí sa ${esc(dash(it.hyphenation))}</span>`);
   if (it.engine_error) parts.push(`<span style="color:var(--bad)">engine spadol</span>`);
   row.querySelector(".state").innerHTML = parts.join(" · ") || "—";
 }
@@ -382,8 +387,8 @@ $("limit").addEventListener("change", () => { S.limit = +$("limit").value; load(
 $("field").addEventListener("change", () => {
   S.field = $("field").value;
   $("head-edit").textContent = S.field === "h"
-    ? "návrh delenia — oprav pomlčky a stlač Enter"
-    : "návrh slabík — oprav pomlčky a stlač Enter";
+    ? "delenie slov (typografia) — oprav pomlčky a stlač Enter"
+    : "slabiky — oprav pomlčky a stlač Enter";
   renderAll();
 });
 $("bulk").addEventListener("click", bulkConfirm);
