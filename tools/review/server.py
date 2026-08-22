@@ -88,26 +88,19 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def _points(marked: str) -> list[int]:
-    """Convert a dot-marked string into break positions in the bare form."""
-    result: list[int] = []
-    offset = 0
-    for char in marked:
-        if char == "·":
-            result.append(offset)
-        else:
-            offset += 1
-    return result
+def _parse_marked(form: str, text: str) -> str:
+    """Read a reviewer-typed division back into the canonical dot form.
 
-
-def _mark(form: str, points: list[int]) -> str:
-    out: list[str] = []
-    breaks = {p for p in points if 0 < p < len(form)}
-    for index, char in enumerate(form):
-        if index in breaks:
-            out.append("·")
-        out.append(char)
-    return "".join(out)
+    The reviewer types hyphens because that is what a keyboard has.  Runs of
+    separators collapse and edge separators are dropped, so a stray dash does
+    not become a rejected submission; what must hold exactly is the letters.
+    """
+    normalised = re.sub(r"[-·\u2010-\u2015\s]+", "·", text.strip()).strip("·")
+    if normalised.replace("·", "") != form:
+        raise ValueError(
+            f"{text!r} nie je {form!r} — po odstránení pomlčiek musí zostať presne ten tvar"
+        )
+    return normalised
 
 
 def _engine(form: str) -> tuple[str, str, str | None]:
@@ -196,16 +189,10 @@ class Corpus:
         hyphenation, syllabification, error = _engine(form)
         ai_expected = ai["expected_hyphenation"] if ai else None
         my_expected = mine["expected_hyphenation"] if mine else None
-        points = _points(my_expected) if my_expected else _points(hyphenation)
-        syllable_points = _points(
-            (mine["expected_syllabification"] if mine else None) or syllabification
-        )
         return {
             "form": form,
             "hyphenation": hyphenation,
             "syllabification": syllabification,
-            "points": points,
-            "syllable_points": syllable_points,
             "engine_error": error,
             "ai_status": ai["review_status"] if ai else "pending",
             "ai_expected": ai_expected,
@@ -213,6 +200,7 @@ class Corpus:
             "ai_disagrees": bool(ai_expected) and ai_expected != hyphenation,
             "my_action": mine["action"] if mine else None,
             "my_expected": my_expected,
+            "my_syllabification": mine["expected_syllabification"] if mine else None,
             "my_disagrees": bool(my_expected) and my_expected != hyphenation,
             "stale": bool(mine) and mine["engine_hyphenation"] != hyphenation,
             "decided_at": mine["decided_at"] if mine else None,
@@ -246,8 +234,12 @@ class Corpus:
             keep = []
             for form in forms:
                 row = rows.get(form)
-                expected = row["expected_hyphenation"] if row else None
-                if expected and expected != _engine(form)[0]:
+                if row is None:
+                    continue
+                engine_hyphenation, engine_syllabification, _ = _engine(form)
+                if (row["expected_hyphenation"] or engine_hyphenation) != engine_hyphenation or (
+                    row["expected_syllabification"] or engine_syllabification
+                ) != engine_syllabification:
                     keep.append(form)
             return keep
         if status == "engine_error":
@@ -290,12 +282,23 @@ class Corpus:
 
         hyphenation, syllabification, _ = _engine(form)
         flags = payload.get("flags") or {}
-        if action == "confirm":
-            expected_hyphenation = hyphenation
-            expected_syllabification = syllabification
-        elif action == "correct":
-            expected_hyphenation = _mark(form, payload.get("points") or [])
-            expected_syllabification = _mark(form, payload.get("syllable_points") or [])
+        if action in ("confirm", "correct"):
+            field = payload.get("field", "hyphenation")
+            text = payload.get("text")
+            if text is None:
+                edited = syllabification if field == "syllabification" else hyphenation
+            else:
+                edited = _parse_marked(form, text)
+            if field == "syllabification":
+                expected_syllabification = edited
+                # Confirming the syllables says nothing about the division
+                # unless the two happen to agree; do not invent the other half.
+                expected_hyphenation = hyphenation if edited == syllabification else None
+                action = "confirm" if edited == syllabification else "correct"
+            else:
+                expected_hyphenation = edited
+                expected_syllabification = syllabification if edited == hyphenation else None
+                action = "confirm" if edited == hyphenation else "correct"
         else:
             expected_hyphenation = None
             expected_syllabification = None
@@ -367,6 +370,17 @@ class Corpus:
                 raise
             self.decided[form] = action
         return {"ok": True, "item": self._fresh(form)}
+
+    def decide_many(self, payload: dict) -> dict:
+        """Record one decision per entry, reporting failures without aborting."""
+        results = []
+        failed = []
+        for entry in payload.get("entries") or []:
+            try:
+                results.append(self.decide(entry)["item"])
+            except Exception as error:  # noqa: BLE001 - reported to the reviewer
+                failed.append({"form": entry.get("form"), "error": str(error)})
+        return {"ok": True, "items": results, "failed": failed}
 
     def undo_last(self) -> dict:
         with self.lock:
@@ -453,7 +467,7 @@ class Handler(BaseHTTPRequestHandler):
                         query.get("mode", ["prefix"])[0],
                         query.get("status", ["all"])[0],
                         int(query.get("offset", ["0"])[0]),
-                        min(int(query.get("limit", ["200"])[0]), 1000),
+                        min(int(query.get("limit", ["500"])[0]), 2000),
                     )
                 )
             except Exception as error:  # noqa: BLE001
@@ -471,6 +485,9 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if parsed.path == "/api/decide":
                 self._json(self.corpus.decide(payload))
+                return
+            if parsed.path == "/api/decide_many":
+                self._json(self.corpus.decide_many(payload))
                 return
             if parsed.path == "/api/undo":
                 self._json(self.corpus.undo_last())

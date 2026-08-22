@@ -7,74 +7,73 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 <html lang="sk">
 <head>
 <meta charset="utf-8">
-<title>slabika — revízna konzola</title>
+<title>slabika — revízia korpusu</title>
 <style>
   :root {
     --bg: #14161a; --panel: #1b1e24; --line: #2c313a; --text: #e6e8ec;
     --dim: #8b93a1; --accent: #7cc4ff; --good: #64d18a; --bad: #ff7b72;
-    --warn: #e3b341; --cursor: #ffffff;
+    --warn: #e3b341; --grey: #6b7280;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
-         font: 15px/1.5 "Segoe UI", system-ui, sans-serif; height: 100vh;
-         display: grid; grid-template-rows: auto 1fr auto; }
+         font: 14px/1.45 "Segoe UI", system-ui, sans-serif; height: 100vh;
+         display: grid; grid-template-rows: auto auto 1fr auto; }
 
-  header { border-bottom: 1px solid var(--line); padding: 10px 14px;
-           display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  header input[type=text] { background: var(--panel); border: 1px solid var(--line);
-           color: var(--text); padding: 7px 10px; border-radius: 6px; width: 240px;
-           font-size: 15px; }
-  header input[type=text]:focus { outline: none; border-color: var(--accent); }
-  header select { background: var(--panel); border: 1px solid var(--line);
-           color: var(--text); padding: 7px; border-radius: 6px; font-size: 14px; }
-  .stat { color: var(--dim); font-size: 13px; }
+  header { border-bottom: 1px solid var(--line); padding: 8px 12px;
+           display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  input[type=text], select, button {
+           background: var(--panel); border: 1px solid var(--line);
+           color: var(--text); padding: 6px 9px; border-radius: 6px;
+           font-size: 14px; font-family: inherit; }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  #q { width: 220px; }
+  #q:focus, select:focus { outline: none; border-color: var(--accent); }
+  .stat { color: var(--dim); font-size: 12.5px; }
   .stat b { color: var(--text); font-weight: 600; }
+  .spacer { flex: 1; }
 
-  main { display: grid; grid-template-columns: 280px 1fr; overflow: hidden; }
-  #list { overflow-y: auto; border-right: 1px solid var(--line); }
-  #list div { padding: 5px 12px; cursor: pointer; white-space: nowrap;
-              overflow: hidden; text-overflow: ellipsis; font-size: 14px; }
-  #list div.sel { background: #263041; }
-  #list div .dot { display: inline-block; width: 7px; height: 7px;
-                   border-radius: 50%; margin-right: 7px; vertical-align: middle; }
+  .grid { display: grid;
+          grid-template-columns: 54px minmax(130px, 1fr) minmax(250px, 1.7fr) 168px 96px;
+          gap: 0 10px; align-items: center; }
+  .head { border-bottom: 1px solid var(--line); padding: 5px 12px;
+          color: var(--dim); font-size: 11.5px; text-transform: uppercase;
+          letter-spacing: .8px; }
 
-  #stage { padding: 26px 34px; overflow-y: auto; }
-  .word { font-size: 54px; letter-spacing: 1px; user-select: none;
-          font-family: "Cambria", Georgia, serif; margin: 8px 0 4px; }
-  .word .ch { display: inline-block; padding: 0 1px; }
-  .word .gap { display: inline-block; width: 16px; text-align: center;
-               color: var(--line); cursor: pointer; }
-  .word .gap.on { color: var(--accent); }
-  .word .gap.cur { background: #33405a; border-radius: 4px; color: var(--cursor); }
-  .word.secondary { font-size: 30px; color: var(--dim); }
-  .word.secondary .gap.on { color: var(--good); }
-  .rowlabel { color: var(--dim); font-size: 12px; text-transform: uppercase;
-              letter-spacing: 1px; margin-top: 18px; }
-  .rowlabel.active { color: var(--accent); }
+  #rows { overflow-y: auto; }
+  .row { padding: 2px 12px 2px 8px; border-left: 4px solid transparent; }
+  .row:nth-child(even) { background: #171a1f; }
+  .row.focus { background: #222a37; }
+  .row.d-confirm { border-left-color: var(--good); }
+  .row.d-correct { border-left-color: var(--warn); }
+  .row.d-flag { border-left-color: var(--bad); }
+  .row.d-uncertain { border-left-color: var(--accent); }
+  .row.d-invalid { border-left-color: var(--grey); }
 
-  .badges { margin: 14px 0; display: flex; gap: 8px; flex-wrap: wrap; }
-  .badge { padding: 3px 9px; border-radius: 20px; font-size: 12px;
-           border: 1px solid var(--line); color: var(--dim); }
-  .badge.on { color: var(--bg); font-weight: 600; }
-  .badge.st-verified.on, .badge.st-agrees.on { background: var(--good); border-color: var(--good); }
-  .badge.st-human_review.on, .badge.st-flag.on { background: var(--bad); border-color: var(--bad); }
-  .badge.st-ai_agrees.on { background: var(--accent); border-color: var(--accent); }
-  .badge.st-invalid.on { background: var(--warn); border-color: var(--warn); }
-  .badge.flag.on { background: var(--warn); border-color: var(--warn); }
+  .idx { color: var(--dim); font-size: 11.5px; text-align: right;
+         font-variant-numeric: tabular-nums; }
+  .form { font-family: Cambria, Georgia, serif; font-size: 17px;
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .edit { width: 100%; font-family: Consolas, "Cascadia Mono", monospace;
+          font-size: 16px; letter-spacing: .4px; padding: 4px 8px; }
+  .edit.diff { border-color: var(--warn); color: var(--warn); }
+  .edit.bad { border-color: var(--bad); color: var(--bad); }
+  .edit:focus { outline: none; border-color: var(--accent); }
+  .state { font-size: 12px; color: var(--dim); white-space: nowrap;
+           overflow: hidden; text-overflow: ellipsis; }
+  .state b { font-weight: 600; }
+  .acts { display: flex; gap: 3px; }
+  .acts button { padding: 2px 7px; font-size: 12px; line-height: 1.3; }
 
-  .prev { color: var(--dim); font-size: 14px; margin-top: 10px; }
-  .prev b { color: var(--warn); font-weight: 600; }
-  .err { color: var(--bad); font-size: 14px; margin-top: 10px; }
-
-  footer { border-top: 1px solid var(--line); padding: 8px 14px;
-           color: var(--dim); font-size: 12.5px; display: flex;
-           gap: 16px; flex-wrap: wrap; }
-  footer kbd { background: var(--panel); border: 1px solid var(--line);
-               border-bottom-width: 2px; border-radius: 4px; padding: 1px 6px;
-               font-family: inherit; color: var(--text); }
-  #toast { position: fixed; right: 18px; bottom: 52px; background: var(--panel);
+  footer { border-top: 1px solid var(--line); padding: 7px 12px;
+           color: var(--dim); font-size: 12px; display: flex; gap: 14px;
+           flex-wrap: wrap; align-items: center; }
+  kbd { background: var(--panel); border: 1px solid var(--line);
+        border-bottom-width: 2px; border-radius: 4px; padding: 0 5px;
+        font-family: inherit; color: var(--text); font-size: 11.5px; }
+  #toast { position: fixed; right: 16px; bottom: 46px; background: var(--panel);
            border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px;
-           opacity: 0; transition: opacity .2s; }
+           opacity: 0; transition: opacity .2s; max-width: 46vw; }
   #toast.show { opacity: 1; }
 </style>
 </head>
@@ -82,94 +81,192 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 
 <header>
   <input type="text" id="q" placeholder="filter…  (/)" autocomplete="off">
-  <select id="mode">
+  <select id="mode" title="kde sa hľadá">
     <option value="prefix">od začiatku</option>
     <option value="any">kdekoľvek v slove</option>
     <option value="suffix">na konci</option>
     <option value="exact">presne</option>
     <option value="regex">regex</option>
   </select>
-  <select id="status">
+  <select id="status" title="ktoré slová ukázať">
     <option value="all">všetko</option>
-    <option value="undecided">ešte som nepozrel</option>
-    <option value="mine">moje rozhodnutia</option>
-    <option value="flag">⚑ označené ako zlé</option>
+    <option value="undecided">ešte neskontrolované</option>
+    <option value="mine">už som rozhodol</option>
     <option value="correct">moje opravy</option>
-    <option value="engine_disagree">moje ≠ engine</option>
-    <option value="uncertain">neviem</option>
+    <option value="flag">⚑ označené ako zlé</option>
     <option value="confirm">potvrdené</option>
+    <option value="uncertain">neviem</option>
     <option value="invalid">nie je slovo</option>
-    <option value="ai_disagree">AI ≠ engine</option>
-    <option value="human_review">AI ma posiela na revíziu</option>
-    <option value="ai_agrees">AI súhlasí s enginom</option>
-    <option value="verified">overené (import)</option>
-    <option value="engine_error">engine zlyhal</option>
+    <option value="engine_disagree">moje ≠ engine</option>
+    <option value="ai_disagree">AI navrhla iné delenie</option>
+    <option value="human_review">AI: iné delenie alebo neistota</option>
+    <option value="verified">overené ľuďmi (import)</option>
+    <option value="engine_error">engine spadol</option>
   </select>
-  <span class="stat" id="count"></span>
+  <select id="field" title="čo sa edituje v riadkoch">
+    <option value="h">delenie slov</option>
+    <option value="s">slabiky</option>
+  </select>
+  <select id="limit" title="koľko riadkov naraz">
+    <option>200</option><option selected>500</option>
+    <option>1000</option><option>2000</option>
+  </select>
+  <button id="bulk" title="potvrdí všetky nedotknuté riadky na tejto strane">✓ potvrdiť zvyšok strany</button>
+  <button id="undo" title="Alt+Z">↶ späť</button>
+  <div class="spacer"></div>
   <span class="stat" id="totals"></span>
 </header>
 
-<main>
-  <div id="list"></div>
-  <div id="stage">
-    <div class="rowlabel" id="lab-h">delenie (hyphenation)</div>
-    <div class="word" id="w-h"></div>
-    <div class="rowlabel" id="lab-s">slabiky</div>
-    <div class="word secondary" id="w-s"></div>
-    <div class="badges" id="badges"></div>
-    <div class="prev" id="prev"></div>
-    <div class="err" id="err"></div>
-  </div>
-</main>
+<div class="grid head">
+  <span style="text-align:right">#</span>
+  <span>tvar</span>
+  <span id="head-edit">návrh delenia — oprav pomlčky a stlač Enter</span>
+  <span>stav</span>
+  <span>akcia</span>
+</div>
+
+<div id="rows"></div>
 
 <footer>
-  <span><kbd>Enter</kbd> potvrď/ulož</span>
-  <span><kbd>␣</kbd> bod na kurzore</span>
-  <span><kbd>1</kbd>–<kbd>9</kbd><kbd>0</kbd> bod po n. písmene</span>
-  <span><kbd>←</kbd><kbd>→</kbd> kurzor</span>
-  <span><kbd>Tab</kbd> delenie/slabiky</span>
-  <span><kbd>f</kbd> je to zle</span>
-  <span><kbd>?</kbd> neviem</span>
-  <span><kbd>x</kbd> nie je slovo</span>
-  <span><kbd>c</kbd> cudzie</span>
-  <span><kbd>v</kbd> vlastné meno</span>
-  <span><kbd>s</kbd> skratka</span>
-  <span><kbd>u</kbd> späť</span>
-  <span><kbd>↑</kbd><kbd>↓</kbd> preskoč</span>
+  <span><kbd>Enter</kbd> ulož + ďalší</span>
+  <span><kbd>Shift</kbd>+<kbd>Enter</kbd> ulož + predošlý</span>
+  <span><kbd>Esc</kbd> vráť návrh enginu</span>
+  <span><kbd>↑</kbd><kbd>↓</kbd> riadok</span>
+  <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd> ⚑ je to zle</span>
+  <span><kbd>Alt</kbd>+<kbd>Z</kbd> späť</span>
   <span><kbd>/</kbd> filter</span>
+  <span class="spacer"></span>
+  <span class="stat" id="count"></span>
+  <button id="prev">←</button><button id="next">→</button>
 </footer>
 
 <div id="toast"></div>
 
 <script>
 const S = {
-  items: [], total: 0, offset: 0, limit: 200, idx: 0,
-  q: "", mode: "prefix", status: "all",
-  row: "h", cursor: 1, pts: {h: [], s: []}, dirty: false,
-  flags: {foreign: null, proper: null, invalid: null, abbreviation: null},
+  items: [], total: 0, offset: 0, limit: 500, focus: 0,
+  q: "", mode: "prefix", status: "all", field: "h",
 };
 
 const $ = id => document.getElementById(id);
+const esc = s => (s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const dash = s => (s || "").replace(/·/g, "-");
 const toast = msg => {
   const t = $("toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 1400);
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2200);
 };
 
 async function api(path, body) {
-  const opts = body ? {method: "POST", body: JSON.stringify(body)} : {};
-  const r = await fetch(path, opts);
+  const r = await fetch(path, body ? {method: "POST", body: JSON.stringify(body)} : {});
   return r.json();
 }
 
-async function load(offset = 0, keep = false) {
+const engineText = it => dash(S.field === "h" ? it.hyphenation : it.syllabification);
+const mineText = it => dash(S.field === "h" ? it.my_expected : it.my_syllabification);
+
+// -- rendering ---------------------------------------------------------
+
+const LABEL = {confirm: ["potvrdené", "var(--good)"], correct: ["opravené", "var(--warn)"],
+               flag: ["⚑ je to zle", "var(--bad)"], uncertain: ["neviem", "var(--accent)"],
+               invalid: ["nie je slovo", "var(--grey)"]};
+
+function paint(row, it) {
+  const input = row.querySelector(".edit");
+  row.className = "row grid" + (it.my_action ? " d-" + it.my_action : "") +
+                  (row._i === S.focus ? " focus" : "");
+  input.classList.toggle("diff", input.value !== engineText(it));
+  input.classList.remove("bad");
+
+  const parts = [];
+  if (it.my_action) {
+    const [text, colour] = LABEL[it.my_action];
+    parts.push(`<b style="color:${colour}">${text}</b>`);
+  }
+  if (it.stale) parts.push(`<span style="color:var(--bad)">engine sa zmenil</span>`);
+  if (it.ai_disagrees) parts.push(`AI: ${esc(dash(it.ai_expected))}`);
+  if (it.engine_error) parts.push(`<span style="color:var(--bad)">engine spadol</span>`);
+  row.querySelector(".state").innerHTML = parts.join(" · ") || "—";
+}
+
+function makeRow(it, i) {
+  const row = document.createElement("div");
+  row._i = i;
+  row.innerHTML =
+    `<span class="idx">${S.offset + i + 1}</span>` +
+    `<span class="form" title="${esc(it.form)}">${esc(it.form)}</span>` +
+    `<input class="edit" spellcheck="false" autocomplete="off">` +
+    `<span class="state"></span>` +
+    `<span class="acts">` +
+      `<button data-a="flag" title="je to zle (Ctrl+Enter)">⚑</button>` +
+      `<button data-a="uncertain" title="neviem">?</button>` +
+      `<button data-a="invalid" title="nie je to slovo">✗</button>` +
+    `</span>`;
+
+  const input = row.querySelector(".edit");
+  input.value = input._committed = mineText(it) || engineText(it);
+  input.addEventListener("input", () => paint(row, it));
+  input.addEventListener("focus", () => { S.focus = i; markFocus(); });
+  input.addEventListener("blur", () => {
+    if (input.value !== input._committed) save(i, 0);
+  });
+  input.addEventListener("keydown", ev => {
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      if (ev.ctrlKey) act(i, "flag"); else save(i, ev.shiftKey ? -1 : 1);
+    } else if (ev.key === "Escape") {
+      ev.preventDefault(); input.value = engineText(it); paint(row, it);
+    } else if (ev.key === "ArrowDown") {
+      ev.preventDefault(); focusRow(i + 1);
+    } else if (ev.key === "ArrowUp") {
+      ev.preventDefault(); focusRow(i - 1);
+    }
+  });
+  row.querySelectorAll(".acts button").forEach(b =>
+    b.addEventListener("click", () => act(i, b.dataset.a)));
+
+  paint(row, it);
+  return row;
+}
+
+function markFocus() {
+  const box = $("rows");
+  [...box.children].forEach((c, n) => c.classList.toggle("focus", n === S.focus));
+}
+
+function focusRow(i) {
+  if (i < 0) { if (S.offset > 0) load(S.offset - S.limit, "end"); return; }
+  if (i >= S.items.length) {
+    if (S.offset + S.items.length < S.total) load(S.offset + S.limit);
+    else toast("koniec výberu");
+    return;
+  }
+  S.focus = i;
+  const row = $("rows").children[i];
+  row.scrollIntoView({block: "nearest"});
+  row.querySelector(".edit").focus();
+  markFocus();
+}
+
+function renderAll() {
+  const box = $("rows");
+  box.innerHTML = "";
+  const frag = document.createDocumentFragment();
+  S.items.forEach((it, i) => frag.appendChild(makeRow(it, i)));
+  box.appendChild(frag);
+  const from = S.total ? S.offset + 1 : 0;
+  $("count").innerHTML =
+    `<b>${S.total.toLocaleString("sk")}</b> zhôd · zobrazené ${from}–${S.offset + S.items.length}`;
+}
+
+async function load(offset = 0, focus = 0) {
   const p = new URLSearchParams({q: S.q, mode: S.mode, status: S.status,
-                                offset, limit: S.limit});
+                                offset: Math.max(0, offset), limit: S.limit});
   const data = await api("/api/list?" + p);
   if (data.error) { toast(data.error); return; }
   S.items = data.items; S.total = data.total; S.offset = data.offset;
-  if (!keep) S.idx = 0;
-  if (S.idx >= S.items.length) S.idx = Math.max(0, S.items.length - 1);
-  renderList(); select(S.idx);
+  S.focus = focus === "end" ? Math.max(0, S.items.length - 1) : 0;
+  renderAll();
+  if (S.items.length) focusRow(S.focus);
   stats();
 }
 
@@ -177,192 +274,110 @@ async function stats() {
   const s = await api("/api/stats");
   const pct = (100 * s.decided / s.total).toFixed(2);
   $("totals").innerHTML =
-    `korpus <b>${s.total.toLocaleString("sk")}</b> · rozhodnuté <b>${s.decided.toLocaleString("sk")}</b> (${pct} %)`
-    + ` · ⚑ zlé <b>${s.flag}</b> · opravy <b>${s.correct}</b> · neviem <b>${s.uncertain}</b>`
-    + ` · AI fronta <b>${s.ai_review_queue}</b>`;
+    `korpus <b>${s.total.toLocaleString("sk")}</b> · skontrolované ` +
+    `<b>${s.decided.toLocaleString("sk")}</b> (${pct} %) · opravy <b>${s.correct}</b>` +
+    ` · ⚑ zlé <b>${s.flag}</b> · neviem <b>${s.uncertain}</b>`;
 }
 
-const dotColour = it =>
-    it.my_action === "flag" ? "var(--bad)"
-  : it.my_action === "correct" ? "var(--warn)"
-  : it.my_action === "confirm" ? "var(--good)"
-  : it.my_action === "uncertain" ? "var(--accent)"
-  : it.my_action === "invalid" ? "#6b7280"
-  : it.ai_disagrees ? "#4a3a52"
-  : "var(--line)";
+// -- writing -----------------------------------------------------------
 
-function renderList() {
-  const box = $("list");
-  box.innerHTML = "";
-  S.items.forEach((it, i) => {
-    const d = document.createElement("div");
-    d.innerHTML = `<span class="dot" style="background:${dotColour(it)}"></span>` +
-                  it.form.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-    d.onclick = () => select(i);
-    box.appendChild(d);
+function replaceRow(i, item) {
+  S.items[i] = item;
+  const old = $("rows").children[i];
+  const row = makeRow(item, i);
+  old.replaceWith(row);
+  return row;
+}
+
+async function save(i, step) {
+  const it = S.items[i];
+  const row = $("rows").children[i];
+  const input = row.querySelector(".edit");
+  const value = input.value;
+  if (input._committed === value && it.my_action) { if (step) focusRow(i + step); return; }
+  input._committed = value;
+  const r = await api("/api/decide", {
+    form: it.form, action: "confirm",
+    field: S.field === "h" ? "hyphenation" : "syllabification", text: value,
   });
-  $("count").innerHTML = `<b>${S.total.toLocaleString("sk")}</b> zhôd` +
-    (S.total > S.items.length ? ` · zobrazených ${S.offset + 1}–${S.offset + S.items.length}` : "");
-}
-
-function select(i) {
-  if (!S.items.length) { $("w-h").textContent = "—"; $("w-s").textContent = ""; return; }
-  S.idx = Math.max(0, Math.min(i, S.items.length - 1));
-  const it = S.items[S.idx];
-  S.pts = {h: it.points.slice(), s: it.syllable_points.slice()};
-  S.flags = Object.assign({}, it.flags);
-  S.dirty = false; S.cursor = 1; S.row = "h";
-  [...$("list").children].forEach((c, n) => c.classList.toggle("sel", n === S.idx));
-  const sel = $("list").children[S.idx];
-  if (sel) sel.scrollIntoView({block: "nearest"});
-  render();
-}
-
-function renderWord(el, form, pts, active) {
-  el.innerHTML = "";
-  for (let i = 0; i < form.length; i++) {
-    if (i > 0) {
-      const g = document.createElement("span");
-      g.className = "gap" + (pts.includes(i) ? " on" : "") +
-                    (active && S.cursor === i ? " cur" : "");
-      g.textContent = pts.includes(i) ? "·" : "·";
-      g.style.opacity = pts.includes(i) ? 1 : 0.18;
-      g.onclick = () => { toggle(i); };
-      el.appendChild(g);
-    }
-    const c = document.createElement("span");
-    c.className = "ch"; c.textContent = form[i];
-    el.appendChild(c);
-  }
-}
-
-function render() {
-  const it = S.items[S.idx];
-  renderWord($("w-h"), it.form, S.pts.h, S.row === "h");
-  renderWord($("w-s"), it.form, S.pts.s, S.row === "s");
-  $("lab-h").className = "rowlabel" + (S.row === "h" ? " active" : "");
-  $("lab-s").className = "rowlabel" + (S.row === "s" ? " active" : "");
-
-  const b = $("badges");
-  b.innerHTML = "";
-  const add = (cls, text, on) => {
-    const e = document.createElement("span");
-    e.className = "badge " + cls + (on ? " on" : "");
-    e.textContent = text; b.appendChild(e);
-  };
-  const mine = {confirm: ["st-verified", "potvrdil som"],
-                correct: ["st-invalid", "opravil som"],
-                flag: ["st-flag", "⚑ označil som ako zlé"],
-                uncertain: ["st-ai_agrees", "neviem"],
-                invalid: ["st-invalid", "nie je slovo"]};
-  if (it.my_action) add(mine[it.my_action][0], mine[it.my_action][1], true);
-  else add("", "ešte nerozhodnuté", false);
-  const ai = {pending: null, ai_agrees: ["st-ai_agrees", "AI súhlasí s enginom"],
-              human_review: ["st-human_review", "AI ma posiela na revíziu"],
-              verified: ["st-verified", "overené (import)"],
-              invalid: ["st-invalid", "AI: neplatné"]};
-  if (ai[it.ai_status]) add(ai[it.ai_status][0], ai[it.ai_status][1], true);
-  if (it.my_disagrees) add("st-flag", "moje ≠ engine", true);
-  if (it.stale) add("st-invalid", "engine sa odvtedy zmenil", true);
-  if (S.dirty) add("st-flag", "neuložená zmena", true);
-  add("flag", "cudzie (c)", S.flags.foreign === 1);
-  add("flag", "vlastné meno (v)", S.flags.proper === 1);
-  add("flag", "skratka (s)", S.flags.abbreviation === 1);
-
-  const lines = [];
-  if (it.my_expected)
-    lines.push(`moje: <b>${it.my_expected}</b>` +
-      (it.my_disagrees ? ` &nbsp;≠&nbsp; engine <b>${it.hyphenation}</b>` : " = engine") +
-      `<span style="opacity:.6"> · ${it.decided_at}</span>`);
-  if (it.ai_expected)
-    lines.push(`AI: <b>${it.ai_expected}</b>` +
-      (it.ai_disagrees ? ` &nbsp;≠&nbsp; engine <b>${it.hyphenation}</b>` : " = engine") +
-      `<br><span style="opacity:.6">${(it.ai_reason||"").replace(/</g,"&lt;")}</span>`);
-  $("prev").innerHTML = lines.join("<br>");
-  $("err").textContent = it.engine_error ? "engine zlyhal: " + it.engine_error : "";
-}
-
-function toggle(pos) {
-  const arr = S.pts[S.row];
-  const at = arr.indexOf(pos);
-  if (at >= 0) arr.splice(at, 1); else arr.push(pos);
-  arr.sort((a, b) => a - b);
-  S.dirty = true; render();
-}
-
-async function decide(action, extra) {
-  const it = S.items[S.idx];
-  const body = Object.assign({
-    form: it.form, action, points: S.pts.h, syllable_points: S.pts.s,
-    flags: S.flags,
-  }, extra || {});
-  const r = await api("/api/decide", body);
-  if (r.error) { toast(r.error); return; }
-  S.items[S.idx] = r.item;
-  renderList();
-  [...$("list").children].forEach((c, n) => c.classList.toggle("sel", n === S.idx));
+  if (r.error) { input.classList.add("bad"); toast(r.error); return; }
+  const fresh = replaceRow(i, r.item);
+  if (step) focusRow(i + step); else { fresh.classList.toggle("focus", i === S.focus); }
   stats();
-  next();
 }
 
-function next() {
-  if (S.idx + 1 < S.items.length) select(S.idx + 1);
-  else if (S.offset + S.items.length < S.total) load(S.offset + S.limit);
-  else toast("koniec výberu");
+const REASON = {
+  flag: "Human console: division is wrong, needs engine work.",
+  uncertain: "Human console: reviewer is not sure.",
+  invalid: "Human console: not a valid word form.",
+};
+
+async function act(i, action) {
+  const r = await api("/api/decide", {form: S.items[i].form, action, reason: REASON[action]});
+  if (r.error) { toast(r.error); return; }
+  replaceRow(i, r.item);
+  stats();
+  focusRow(i + 1);
 }
-function prev() {
-  if (S.idx > 0) select(S.idx - 1);
-  else if (S.offset > 0) load(Math.max(0, S.offset - S.limit));
+
+async function bulkConfirm() {
+  const entries = [];
+  [...$("rows").children].forEach((row, i) => {
+    const it = S.items[i], value = row.querySelector(".edit").value;
+    if (!it.my_action && value === engineText(it)) entries.push({
+      form: it.form, action: "confirm",
+      field: S.field === "h" ? "hyphenation" : "syllabification", text: value,
+    });
+  });
+  if (!entries.length) { toast("na tejto strane nie je čo potvrdzovať"); return; }
+  if (!confirm(`Potvrdiť ${entries.length} nedotknutých riadkov na tejto strane ako správne?`)) return;
+  const r = await api("/api/decide_many", {entries});
+  if (r.error) { toast(r.error); return; }
+  toast(`potvrdených ${r.items.length}` + (r.failed.length ? `, zlyhalo ${r.failed.length}` : ""));
+  load(S.offset);
 }
 
-document.addEventListener("keydown", async ev => {
-  if (ev.target.tagName === "INPUT" || ev.target.tagName === "SELECT") {
-    if (ev.key === "Escape" || ev.key === "Enter") { ev.target.blur(); ev.preventDefault(); }
-    return;
-  }
-  const it = S.items[S.idx];
-  const k = ev.key;
+async function undo() {
+  const r = await api("/api/undo", {});
+  if (!r.ok) { toast(r.message || r.error); return; }
+  const at = S.items.findIndex(x => x.form === r.form);
+  if (at >= 0) replaceRow(at, r.item);
+  toast("späť: " + r.form);
+  stats();
+}
 
-  if (k === "/") { ev.preventDefault(); $("q").focus(); $("q").select(); return; }
-  if (!it) return;
-
-  if (k === "ArrowDown" || k === "j") { ev.preventDefault(); next(); return; }
-  if (k === "ArrowUp" || k === "k") { ev.preventDefault(); prev(); return; }
-  if (k === "ArrowLeft") { ev.preventDefault(); S.cursor = Math.max(1, S.cursor - 1); render(); return; }
-  if (k === "ArrowRight") { ev.preventDefault(); S.cursor = Math.min(it.form.length - 1, S.cursor + 1); render(); return; }
-  if (k === "Tab") { ev.preventDefault(); S.row = S.row === "h" ? "s" : "h"; render(); return; }
-  if (k === " ") { ev.preventDefault(); toggle(S.cursor); return; }
-  if (k >= "0" && k <= "9") {
-    ev.preventDefault();
-    const pos = k === "0" ? 10 : +k;
-    if (pos < it.form.length) toggle(pos);
-    return;
-  }
-  if (k === "Enter") { ev.preventDefault(); decide(S.dirty ? "correct" : "confirm"); return; }
-  if (k === "f") { ev.preventDefault(); decide("flag", {reason: "Human console: marked wrong, needs engine work."}); return; }
-  if (k === "?") { ev.preventDefault(); decide("uncertain"); return; }
-  if (k === "x") { ev.preventDefault(); decide("invalid", {reason: "Human console: not a valid word form."}); return; }
-  if (k === "c") { ev.preventDefault(); S.flags.foreign = S.flags.foreign === 1 ? 0 : 1; render(); return; }
-  if (k === "v") { ev.preventDefault(); S.flags.proper = S.flags.proper === 1 ? 0 : 1; render(); return; }
-  if (k === "s") { ev.preventDefault(); S.flags.abbreviation = S.flags.abbreviation === 1 ? 0 : 1; render(); return; }
-  if (k === "u") {
-    ev.preventDefault();
-    const r = await api("/api/undo", {});
-    if (!r.ok) { toast(r.message || r.error); return; }
-    const at = S.items.findIndex(x => x.form === r.form);
-    if (at >= 0) { S.items[at] = r.item; renderList(); select(at); }
-    toast("späť: " + r.form); stats();
-    return;
-  }
-});
+// -- wiring ------------------------------------------------------------
 
 let timer = null;
 $("q").addEventListener("input", () => {
   clearTimeout(timer);
   timer = setTimeout(() => { S.q = $("q").value.trim(); load(0); }, 180);
 });
+$("q").addEventListener("keydown", ev => {
+  if (ev.key === "Enter") { ev.preventDefault(); focusRow(0); }
+});
 $("mode").addEventListener("change", () => { S.mode = $("mode").value; load(0); });
 $("status").addEventListener("change", () => { S.status = $("status").value; load(0); });
+$("limit").addEventListener("change", () => { S.limit = +$("limit").value; load(0); });
+$("field").addEventListener("change", () => {
+  S.field = $("field").value;
+  $("head-edit").textContent = S.field === "h"
+    ? "návrh delenia — oprav pomlčky a stlač Enter"
+    : "návrh slabík — oprav pomlčky a stlač Enter";
+  renderAll();
+});
+$("bulk").addEventListener("click", bulkConfirm);
+$("undo").addEventListener("click", undo);
+$("prev").addEventListener("click", () => S.offset > 0 && load(S.offset - S.limit));
+$("next").addEventListener("click", () =>
+  S.offset + S.items.length < S.total && load(S.offset + S.limit));
+
+document.addEventListener("keydown", ev => {
+  if (ev.altKey && (ev.key === "z" || ev.key === "Z")) { ev.preventDefault(); undo(); return; }
+  if (ev.key === "/" && ev.target.tagName !== "INPUT") {
+    ev.preventDefault(); $("q").focus(); $("q").select();
+  }
+});
 
 load(0);
 </script>
