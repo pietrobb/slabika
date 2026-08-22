@@ -193,8 +193,6 @@ function paint(row, it) {
   if (it.stale) parts.push(`<span style="color:var(--bad)">engine sa zmenil</span>`);
   if (aiDiffers(it))
     parts.push(`<b style="color:var(--bad)">AI: ${esc(aiText(it))}</b>`);
-  if (S.field === "s")
-    parts.push(`<span style="opacity:.55">delí sa ${esc(dash(it.hyphenation))}</span>`);
   if (it.engine_error) parts.push(`<span style="color:var(--bad)">engine spadol</span>`);
   row.querySelector(".state").innerHTML = parts.join(" · ") || "—";
 }
