@@ -268,6 +268,8 @@ class Corpus:
             "uncertain": counts.get("uncertain", 0),
             "invalid": counts.get("invalid", 0),
             "ai_review_queue": sum(1 for v in self.ai.values() if v == "human_review"),
+            "decisions_path": str(self.decisions_path),
+            "engine_version": ENGINE_VERSION,
         }
 
     # -- writing ---------------------------------------------------------
@@ -382,6 +384,44 @@ class Corpus:
                 failed.append({"form": entry.get("form"), "error": str(error)})
         return {"ok": True, "items": results, "failed": failed}
 
+    def clear(self, payload: dict) -> dict:
+        """Withdraw one verdict, leaving the form undecided again.
+
+        Logged as a decide-entry carrying no action, so the global undo stack
+        can put the withdrawn verdict back exactly as it stood.
+        """
+        form = payload["form"]
+        if form not in self.form_set:
+            raise ValueError(f"neznámy tvar {form!r}")
+        with self.lock:
+            previous = self.store.execute(
+                "SELECT * FROM decisions WHERE form = ?", (form,)
+            ).fetchone()
+            if previous is None:
+                return {"ok": False, "message": "tento tvar nemá rozhodnutie"}
+            self.store.execute("BEGIN IMMEDIATE")
+            try:
+                self.store.execute("DELETE FROM decisions WHERE form = ?", (form,))
+                self.store.execute(
+                    """
+                    INSERT INTO decision_log(
+                        form, operation, action, previous_json, engine_version, logged_at
+                    ) VALUES (?, 'decide', NULL, ?, ?, ?)
+                    """,
+                    (
+                        form,
+                        json.dumps(dict(previous), ensure_ascii=False),
+                        ENGINE_VERSION,
+                        _now(),
+                    ),
+                )
+                self.store.commit()
+            except BaseException:
+                self.store.rollback()
+                raise
+            self.decided.pop(form, None)
+        return {"ok": True, "item": self._fresh(form)}
+
     def undo_last(self) -> dict:
         with self.lock:
             row = None
@@ -488,6 +528,9 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if parsed.path == "/api/decide_many":
                 self._json(self.corpus.decide_many(payload))
+                return
+            if parsed.path == "/api/clear":
+                self._json(self.corpus.clear(payload))
                 return
             if parsed.path == "/api/undo":
                 self._json(self.corpus.undo_last())

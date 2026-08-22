@@ -43,6 +43,8 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   #rows { overflow-y: auto; }
   .row { padding: 2px 12px 2px 8px; border-left: 4px solid transparent; }
   .row:nth-child(even) { background: #171a1f; }
+  .row.ai-diff { background: #33191c; }
+  .row.ai-diff:nth-child(even) { background: #3a1c20; }
   .row.focus { background: #222a37; }
   .row.d-confirm { border-left-color: var(--good); }
   .row.d-correct { border-left-color: var(--warn); }
@@ -133,9 +135,11 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   <span><kbd>Esc</kbd> vráť návrh enginu</span>
   <span><kbd>↑</kbd><kbd>↓</kbd> riadok</span>
   <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd> ⚑ je to zle</span>
+  <span><kbd>Ctrl</kbd>+<kbd>Del</kbd> zruš rozhodnutie</span>
   <span><kbd>Alt</kbd>+<kbd>Z</kbd> späť</span>
   <span><kbd>/</kbd> filter</span>
   <span class="spacer"></span>
+  <span class="stat" id="store"></span>
   <span class="stat" id="count"></span>
   <button id="prev">←</button><button id="next">→</button>
 </footer>
@@ -173,6 +177,7 @@ const LABEL = {confirm: ["potvrdené", "var(--good)"], correct: ["opravené", "v
 function paint(row, it) {
   const input = row.querySelector(".edit");
   row.className = "row grid" + (it.my_action ? " d-" + it.my_action : "") +
+                  (it.ai_disagrees ? " ai-diff" : "") +
                   (row._i === S.focus ? " focus" : "");
   input.classList.toggle("diff", input.value !== engineText(it));
   input.classList.remove("bad");
@@ -183,7 +188,8 @@ function paint(row, it) {
     parts.push(`<b style="color:${colour}">${text}</b>`);
   }
   if (it.stale) parts.push(`<span style="color:var(--bad)">engine sa zmenil</span>`);
-  if (it.ai_disagrees) parts.push(`AI: ${esc(dash(it.ai_expected))}`);
+  if (it.ai_disagrees)
+    parts.push(`<b style="color:var(--bad)">AI: ${esc(dash(it.ai_expected))}</b>`);
   if (it.engine_error) parts.push(`<span style="color:var(--bad)">engine spadol</span>`);
   row.querySelector(".state").innerHTML = parts.join(" · ") || "—";
 }
@@ -200,6 +206,7 @@ function makeRow(it, i) {
       `<button data-a="flag" title="je to zle (Ctrl+Enter)">⚑</button>` +
       `<button data-a="uncertain" title="neviem">?</button>` +
       `<button data-a="invalid" title="nie je to slovo">✗</button>` +
+      `<button data-a="clear" title="zruš moje rozhodnutie (Ctrl+Delete)">↺</button>` +
     `</span>`;
 
   const input = row.querySelector(".edit");
@@ -213,6 +220,8 @@ function makeRow(it, i) {
     if (ev.key === "Enter") {
       ev.preventDefault();
       if (ev.ctrlKey) act(i, "flag"); else save(i, ev.shiftKey ? -1 : 1);
+    } else if (ev.key === "Delete" && ev.ctrlKey) {
+      ev.preventDefault(); act(i, "clear");
     } else if (ev.key === "Escape") {
       ev.preventDefault(); input.value = engineText(it); paint(row, it);
     } else if (ev.key === "ArrowDown") {
@@ -277,6 +286,9 @@ async function stats() {
     `korpus <b>${s.total.toLocaleString("sk")}</b> · skontrolované ` +
     `<b>${s.decided.toLocaleString("sk")}</b> (${pct} %) · opravy <b>${s.correct}</b>` +
     ` · ⚑ zlé <b>${s.flag}</b> · neviem <b>${s.uncertain}</b>`;
+  const store = $("store");
+  store.textContent = "uložené do " + s.decisions_path.split(/[\\/]/).pop();
+  store.title = s.decisions_path + "  (engine slabika " + s.engine_version + ")";
 }
 
 // -- writing -----------------------------------------------------------
@@ -313,11 +325,19 @@ const REASON = {
 };
 
 async function act(i, action) {
-  const r = await api("/api/decide", {form: S.items[i].form, action, reason: REASON[action]});
+  const form = S.items[i].form;
+  // Withdrawing a verdict keeps you on the row: you asked to undo it, not to
+  // move on, and the row must visibly fall back to the engine's proposal.
+  const clearing = action === "clear";
+  const r = clearing
+    ? await api("/api/clear", {form})
+    : await api("/api/decide", {form, action, reason: REASON[action]});
   if (r.error) { toast(r.error); return; }
+  if (!r.ok) { toast(r.message); return; }
   replaceRow(i, r.item);
   stats();
-  focusRow(i + 1);
+  if (clearing) { toast("rozhodnutie zrušené: " + form); focusRow(i); }
+  else focusRow(i + 1);
 }
 
 async function bulkConfirm() {
