@@ -3,12 +3,15 @@
 """
 slabika — syllabification and hyphenation of Slovak.
 
-The package is layered, and the layers matter:
+The package has a shared linguistic foundation and distinct outputs:
 
-    phonology     phoneme inventory: quantity, voicing, place, manner
-    syllabify     phonotactic division into syllables  (the primary result)
-    typo          typographic line-break convention    (derived from it)
+    phonology     shared phoneme inventory: quantity, voicing, place, manner
+    syllabify     phonotactic division of the spoken word into syllables
+    typo          legal written-word break points under PSP conventions
     phonotactics  well-formedness, rhythmic law, preposition vocalization
+
+Syllabification and typographic word division use the same phonological and
+morphological analysis, but each applies its own boundary rules.
 
 Typical use::
 

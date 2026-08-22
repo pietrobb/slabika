@@ -15,8 +15,10 @@ tk do not rise, so they cannot both belong to the onset.
 A morpheme boundary (prefix, derivational suffix, compound seam) overrides the
 phonotactics: pod·ze·mie, roz·de·ľo·va·nie, ze·me·pis·ný.
 
-This layer is purely linguistic. Typographic line-breaking rules are applied on
-top of it in :mod:`slabika.typo`.
+This module produces the linguistic syllable analysis. :mod:`slabika.typo`
+shares its phoneme layout and morpheme analysis, but independently applies the
+PSP rules for written-word division; it does not derive its break points from
+the syllable boundaries returned here.
 """
 
 from .exceptions import FOREIGN_NUCLEUS_SPELLINGS as _FOREIGN_NUCLEUS_SPELLINGS

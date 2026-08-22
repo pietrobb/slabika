@@ -1,7 +1,7 @@
 # slabika
 
-Delenie slovenských slov na slabiky — a až z toho odvodené rozdeľovanie slov na
-konci riadka.
+Slovenské slabikovanie a typografické rozdeľovanie slov na konci riadka — dva
+samostatné výsledky založené na spoločnej hláskovej a morfematickej analýze.
 
 ```python
 >>> import slabika
@@ -40,24 +40,28 @@ Bežný postup je taký, že sa zoznam **pozbiera** — z voľných slovníkov, 
 existujúcich zdrojov. Tým sa do vzorov prenesú aj všetky nedôslednosti tých
 zdrojov.
 
-Tento projekt zoznam **generuje**. Slabičné hranice sa počítajú z fonológie
-jazyka: z vokalických a diftongických jadier, zo slabikotvorných `ŕ`, `ĺ`, `r`,
-`l`, zo spoluhláskových skupín a zo švíkov medzi morfémami; tvary sa dopĺňajú
-morfologickým rozvinutím. Generovaný zoznam môže byť ľubovoľne veľký a je z
-podstaty veci bezosporný. Existujúci text slúži len na to, aby sa vedelo, akú
-slovnú zásobu treba pokryť — nie ako zdroj dát.
+Tento projekt zoznam **generuje**. Slabiky aj typografické deliace body sa
+počítajú z explicitného modelu jazyka: z vokalických a diftongických jadier, zo
+slabikotvorných `ŕ`, `ĺ`, `r`, `l`, zo spoluhláskových skupín a zo švíkov medzi
+morfémami. Typografická vetva navyše samostatne uplatňuje pravidlá PSP; tvary sa
+dopĺňajú morfologickým rozvinutím. Generovaný zoznam môže byť ľubovoľne veľký a
+je z podstaty veci bezosporný. Existujúci text slúži len na to, aby sa vedelo,
+akú slovnú zásobu treba pokryť — nie ako zdroj dát.
 
-Poradie vrstiev je zámerné a je to hlavná myšlienka celého balíka:
+Architektúra má spoločný základ a dva samostatné výstupy:
 
 | modul | čo to je |
 | --- | --- |
-| `slabika.phonology` | inventár foném: dĺžka, znelosť, miesto a spôsob artikulácie, mäkkosť |
-| `slabika.syllabify` | fonotaktické delenie na slabiky — **primárny výsledok** |
-| `slabika.typo` | typografická konvencia rozdeľovania — *odvodená* zo slabík |
+| `slabika.phonology` | spoločný inventár foném: dĺžka, znelosť, miesto a spôsob artikulácie, mäkkosť |
+| `slabika.syllabify` | fonotaktické členenie vysloveného slova na slabiky |
+| `slabika.typo` | prípustné miesta rozdelenia napísaného slova podľa PSP a typografických obmedzení |
 | `slabika.phonotactics` | správnosť tvaru, rytmický zákon, vokalizácia predložiek |
 
-Slabikovanie je produkt. Rozdeľovanie slov je len jeden jeho odberateľ —
-ďalšími sú syntéza reči, prozódia, verzológia a tvaroslovie.
+`slabika.syllabify` a `slabika.typo` netvoria potrubie, v ktorom druhý modul iba
+preberá výsledok prvého. Oba používajú spoločnú hláskovú a morfematickú analýzu,
+no každý nad ňou rozhoduje podľa vlastných pravidiel. Preto môže byť fonologický
+výsledok `ma·slo`, kým prípustný typografický deliaci bod je `mas|lo`. Hranice sa
+často zhodujú, ale jeden výstup nemožno zamieňať za druhý.
 
 ## Odkiaľ je fonológia
 

@@ -319,9 +319,9 @@ class Corpus:
                 edited = syllabification if field == "syllabification" else hyphenation
             else:
                 edited = _parse_marked(form, text)
-            # Syllabification is a fact about the language; hyphenation is a
-            # typographic layer derived from it.  A verdict on one says nothing
-            # about the other, so only the edited field is ever recorded.
+            # Syllabification and hyphenation are separate outputs of shared
+            # linguistic analysis. A verdict on one says nothing about the
+            # other, so only the edited field is ever recorded.
             if field == "syllabification":
                 expected_syllabification = edited
                 expected_hyphenation = None
