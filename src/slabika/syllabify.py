@@ -6,10 +6,14 @@ Syllabification (slabikovanie) of Slovak words.
 A Slovak syllable has exactly one nucleus: a vowel, a diphthong, or a syllabic
 consonant (ŕ, ĺ always; r, l when standing between consonants — vlk, prst).
 
-Division follows the phonotactic fallback — a single intervocalic consonant
-opens the next syllable, and in a cluster the first consonant closes the
-preceding one — except where a morpheme boundary (prefix, derivational suffix,
-compound seam) overrides it: pod·ze·mie, roz·de·ľo·va·nie, ze·me·pis·ný.
+The boundary falls where sonority stops falling and starts rising again. A
+syllable takes as its onset every consonant that still rises towards the
+nucleus and can open a Slovak word — A·bra·ham, o·kno, do·bre — and closes on
+whatever is left, which is why ses·tra and mat·ka divide where they do: st and
+tk do not rise, so they cannot both belong to the onset.
+
+A morpheme boundary (prefix, derivational suffix, compound seam) overrides the
+phonotactics: pod·ze·mie, roz·de·ľo·va·nie, ze·me·pis·ný.
 
 This layer is purely linguistic. Typographic line-breaking rules are applied on
 top of it in :mod:`slabika.typo`.
@@ -21,6 +25,7 @@ from .phonology import (
     ALL_VOWELS,
     DIPHTHONGS,
     LONG_VOWELS,
+    ONSET_CLUSTERS,
     is_consonant,
     split_into_phonemes,
 )
@@ -83,15 +88,16 @@ _VOCALIZED_ONLY_BEFORE = {
 # one only strands the stem's final cluster (ozd·o·ba, dob·r·o·ta).
 _SK_SUFFIXES_CONS = [
     # 4+ chars (longest first)
-    'stvo',   # priateľ·stvo, nábo·žen·stvo
-    'nými', 'ných', 'ného', 'nému',
-    'nila', 'nilo', 'nili', 'nily',
+    'stiev',  # spoločen·stiev — the genitive plural of ·stvo
+    'ných', 'ného', 'nému',
     # 3 chars
-    'ník', 'níc', 'nil',   # dl·žník, účast·nil
-    'sko', 'dlo',   # Holand·sko, mera·dlo
-    'ský', 'ská', 'ské',   # slo·ven·ský
+    'stv',    # priateľ·stvo, kráľov·stvá
+    'ník', 'níc', 'nil',   # dl·žník, robot·ní·ci, účast·nil
+    'ným', 'nej', 'nou', 'nom',   # ohrad·ným — the rest of the ·ný paradigm
+    'dlo',    # mera·dlo
     'tva',    # pas·tva
     # 2 chars
+    'sk',     # slo·ven·ský, Benát·ska, Holand·sko
     'ný', 'ná', 'né',   # ze·me·pis·ný, pís·om·ný
     'ňa',
 ]
@@ -101,7 +107,7 @@ _SUFFIXES_BY_LEN = _by_length(_SK_SUFFIXES_CONS)
 # Short grammatical suffixes are boundaries only after consonant-final stems.
 # Keep these separate from derivational suffixes to avoid treating every final
 # -mi, -me, or -te sequence as morphology.
-_SK_GRAMMATICAL_SUFFIXES_CONS = ('mi', 'me', 'te')
+_SK_GRAMMATICAL_SUFFIXES_CONS = ('mi', 'me', 'te', 'ne')
 
 # Compositional first-parts that act as hard split boundaries (troj·uholník, viac·hlasný...)
 _SK_COMPOSITA = [
@@ -131,8 +137,31 @@ _VALID_ONSETS = frozenset({
     'pch', 'sch', 'vzd', 'vst', 'str', 'spr', 'skr',
 })
 
-# Minimum length of remainder after prefix stripping (must contain a vowel nucleus)
+# What can be a nucleus at all — vowels plus the syllabic consonants, used to
+# check that a remainder is pronounceable.
 _VOWELS_SK = set('aáäeéiíoóôuúyýrŕlĺ')
+
+# What is written as a vowel. A root beginning with r- or l- begins with a
+# consonant however syllabic that consonant may become, and testing it against
+# the set above cost ne·roz·lú·čiť its prefix.
+_VOWEL_LETTERS = set('aáäeéiíoóôuúyý')
+
+
+def _starts_like_a_word(rem: str) -> bool:
+    """True when *rem* opens with a cluster some Slovak word opens with.
+
+    A compound seam is only a seam if what follows it could stand alone: agri·
+    matches the opening of Agrippa, but no word begins pp-, so the boundary is
+    the table's accident and not the word's.
+    """
+    onset = []
+    for phoneme in split_into_phonemes(rem):
+        if any(char in _VOWELS_SK for char in phoneme):
+            break
+        onset.append(phoneme)
+    if len(onset) < 2:
+        return True
+    return ''.join(onset) in ONSET_CLUSTERS or ''.join(onset) in _VALID_ONSETS
 
 
 def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
@@ -169,10 +198,10 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 continue
             # Remainder must start with a vowel, or with a consonant followed
             # immediately by a vowel (CV start) — blocks 'dpo', 'tvo'→ok, 'dp'→bad
-            if reml[0] in _VOWELS_SK:
+            if reml[0] in _VOWEL_LETTERS:
                 # starts with vowel — only accept if prefix ends with consonant
                 # (prevents 'pri' + 'atelstvo' splitting 'priateľstvo')
-                if pfx[-1] in _VOWELS_SK and not any(
+                if pfx[-1] in _VOWEL_LETTERS and not any(
                     reml.startswith(inner_pfx + root)
                     for inner_pfx, roots in _LEXICAL_PREFIX_ROOTS
                     for root in roots
@@ -184,32 +213,56 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 if len(reml) >= 2 and reml[1] in _VOWELS_SK:
                     return w[:length], rem
                 # or it's a valid onset cluster (incl. digraph ch)
-                if reml[:2] in _VALID_ONSETS or reml[:3] in _VALID_ONSETS:
+                if (reml[:2] in _VALID_ONSETS or reml[:3] in _VALID_ONSETS
+                        or reml[:2] in ONSET_CLUSTERS or reml[:3] in ONSET_CLUSTERS):
                     return w[:length], rem
                 # invalid onset after prefix — not a real prefix boundary
                 continue
     return None, None
 
 
-def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
-    """Return (stem, suffix) if w ends with a known consonant-initial suffix
-    and the split produces a valid morpheme boundary. Else (None, None).
+#: An inflectional ending is short, and every one that follows a derivational
+#: suffix begins with a vowel except the instrumental -mi. That is what lets a
+#: suffix be found inside a word form and not only at its end: without it
+#: chod·ník keeps its boundary but chod·ní·ky loses it.
+_MAX_INFLECTION = 4
+_CONSONANT_INITIAL_INFLECTIONS = ('mi',)
 
-    Valid boundary: stem ≥2 chars and contains a vowel. A consonant-initial
+
+def _is_inflection(tail: str) -> bool:
+    """True when *tail* can be what is left of a word after its last suffix."""
+    if not tail:
+        return True
+    if len(tail) > _MAX_INFLECTION:
+        return False
+    return tail[0] in _VOWELS_SK or tail in _CONSONANT_INITIAL_INFLECTIONS
+
+
+def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
+    """Return (stem, rest) if w carries a known consonant-initial suffix and
+    the split produces a valid morpheme boundary. Else (None, None).
+
+    Valid boundary: stem ≥3 chars and contains a vowel. A consonant-initial
     suffix remains a morpheme boundary even when the stem ends in a consonant
     cluster (ohyzd·ný, vlast·ný).
     """
     wl = w.lower()
     for length, group in _SUFFIXES_BY_LEN:
-        sfx = wl[-length:]
-        if sfx in group and len(w) > length + 2:
-            stem = w[:-length]
-            steml = stem.lower()
+        for tail_length in range(_MAX_INFLECTION + 1):
+            start = len(w) - length - tail_length
+            if start < 3 or wl[start:start + length] not in group:
+                continue
+            if not _is_inflection(wl[start + length:]):
+                continue
+            steml = wl[:start]
             if not any(c in _VOWELS_SK for c in steml):
                 continue
-            if sfx == 'sko' and steml[-1] in _VOWELS_SK:
+            # -sk- attaches to a consonant-final stem (Benát·ska, voj·sko). On
+            # a vowel-final one the s belongs to the stem, not to a suffix:
+            # mis·ka, bles·ky, po·ris·ko.
+            if length == 2 and (steml[-1] in ALL_VOWELS or steml[-1] == 'ô'):
                 continue
-            return stem, w[-length:]
+            return w[:start], w[start:]
     return None, None
 
 
@@ -236,9 +289,9 @@ def get_syllables(word: str) -> list[str]:
     boundaries that override onset maximization
     (e.g. pod·ze·mie, roz·de·ľo·va·nie, ze·me·pis·ný, pas·tva).
 
-    Rule: one consonant between nuclei starts the next syllable. With two or
-    more consonants, the first closes the preceding syllable and the rest start
-    the next syllable, unless a known morpheme boundary overrides this fallback.
+    Rule: the next syllable claims the longest cluster that can open a Slovak
+    word (:data:`slabika.phonology.ONSET_CLUSTERS`); the rest closes the
+    syllable before it. A known morpheme boundary overrides this.
     """
     wl = word.lower()
     lexical_syllables = _LEXICAL_SYLLABIFICATIONS.get(wl)
@@ -274,7 +327,7 @@ def get_syllables(word: str) -> list[str]:
         if comp in group and len(word) > length + 2:
             rem = word[length:]
             reml = rem.lower()
-            if any(c in _VOWELS_SK for c in reml):
+            if any(c in _VOWELS_SK for c in reml) and _starts_like_a_word(reml):
                 first_part = word[:length]
                 first_syls = [first_part] if comp in _BOUND_COMPOSITA else _syllabify_simple(first_part)
                 return first_syls + get_syllables(rem)
@@ -308,6 +361,9 @@ _NUCLEI = ALL_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 #: Written vowel graphemes, including the ones that are not phonological
 #: diphthongs (ô is written as one grapheme, ou is a nucleus only word-finally).
 _VOWEL_LIKE = ALL_VOWELS | DIPHTHONGS | {'ô', 'ou'}
+
+#: No Slovak syllable opens with more than three consonants (vzdych, štvrť).
+_MAX_ONSET = 3
 
 
 def _resolve_hiatus(phonemes: list[str]) -> list[str]:
@@ -347,9 +403,31 @@ def _resolve_hiatus(phonemes: list[str]) -> list[str]:
     return out
 
 
+def _merge_latin_qu(phonemes: list[str]) -> list[str]:
+    """Read qu as one onset grapheme: a·li·quid, not a·li·qu·id.
+
+    Slovak writes the sound as kv and keeps qu only in unassimilated Latin,
+    where the u is never a nucleus of its own.
+    """
+    if 'q' not in phonemes:
+        return phonemes
+    out: list[str] = []
+    skip = False
+    for i, ph in enumerate(phonemes):
+        if skip:
+            skip = False
+            continue
+        if ph == 'q' and i + 1 < len(phonemes) and phonemes[i + 1] == 'u':
+            out.append('qu')
+            skip = True
+        else:
+            out.append(ph)
+    return out
+
+
 def _syllabify_simple(word: str) -> list[str]:
     """Core syllabification without prefix awareness."""
-    phonemes = _resolve_hiatus(split_into_phonemes(word))
+    phonemes = _merge_latin_qu(_resolve_hiatus(split_into_phonemes(word)))
     # The feminine instrumental ending -ou is one syllabic nucleus, although
     # Slovak phonology does not classify ou among the four diphthongs.
     if len(phonemes) >= 2 and phonemes[-2:] == ['o', 'u']:
@@ -361,8 +439,11 @@ def _syllabify_simple(word: str) -> list[str]:
         if ph in _VOWEL_LIKE or ph in ('ŕ', 'ĺ'):
             return True
         if ph in ('r', 'l'):
+            # Short r and l are nuclei only where no vowel can be one: between
+            # consonants, as in vlk and prst. At the end of a word they are the
+            # coda of the syllable before — An·na·mierl, not An·na·mie·rl.
             prev_ok = idx == 0 or phonemes[idx - 1] not in _VOWEL_LIKE
-            next_ok = idx == n - 1 or phonemes[idx + 1] not in _VOWEL_LIKE
+            next_ok = idx < n - 1 and phonemes[idx + 1] not in _VOWEL_LIKE
             return prev_ok and next_ok
         return False
 
@@ -373,16 +454,20 @@ def _syllabify_simple(word: str) -> list[str]:
         return [word]
 
     def _best_split(cons_indices: list[int]) -> int:
-        """Return the next-syllable start required by PSP chapter V.
+        """Return the index at which the next syllable's onset begins.
 
-        One intervocalic consonant starts the next syllable. With two or more
-        consonants, the first closes the preceding syllable and the rest start
-        the next one; explicit morpheme boundaries are handled before this
-        syllabic fallback.
+        The onset is the longest run of the cluster that can open a Slovak word
+        — it rises in sonority and is attested word-initially. Everything to its
+        left closes the syllable before. A single intervocalic consonant is
+        always an onset; a cluster that cannot rise (mat·ka, ses·tra, ag·rip·pa)
+        gives up all but its last consonant. Explicit morpheme boundaries are
+        handled before this phonotactic fallback.
         """
-        if len(cons_indices) == 1:
-            return cons_indices[0]
-        return cons_indices[1]
+        for size in range(min(_MAX_ONSET, len(cons_indices)), 1, -1):
+            cluster = ''.join(phonemes[i] for i in cons_indices[-size:])
+            if cluster in ONSET_CLUSTERS:
+                return cons_indices[-size]
+        return cons_indices[-1]
 
     # Build syllable boundaries: each boundary is the index where a new syllable starts
     # Initial consonants before first nucleus belong to first syllable

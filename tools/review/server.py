@@ -217,7 +217,11 @@ class Corpus:
             "my_expected": my_expected,
             "my_syllabification": mine["expected_syllabification"] if mine else None,
             "my_disagrees": bool(my_expected) and my_expected != hyphenation,
-            "stale": bool(mine) and mine["engine_hyphenation"] != hyphenation,
+            "stale": (
+                bool(mine)
+                and (mine["engine_syllabification"] or "").lower()
+                != syllabification.lower()
+            ),
             "decided_at": mine["decided_at"] if mine else None,
             "flags": {
                 "foreign": (mine or ai)["is_foreign_word"] if (mine or ai) else None,

@@ -110,5 +110,33 @@
     "lingual_dorsal_comment": "Alternation in verb stems (piecť/pekú). Not always bidirectional."
   },
 
-  "digraphs": ["dž", "ch", "dz"]
+  "digraphs": ["dž", "ch", "dz"],
+
+  "sonority_scale": {
+    "obstruent": ["p", "b", "t", "d", "ť", "ď", "k", "g", "c", "č", "dz", "dž", "f", "s", "z", "š", "ž", "ch", "h"],
+    "nasal": ["m", "n", "ň"],
+    "liquid": ["l", "ľ", "r"],
+    "semivowel": ["v", "j"]
+  },
+  "sonority_scale_comment": "Tiers of increasing sonority (šumové — nosové — likvidy — polovokály); the index of the tier is the sonority of every phoneme in it. Obstruents form one tier: Slovak treats a stop and a fricative alike at a syllable seam, which is why kap-sa and ses-tra divide the same way. v is a semivowel here as it is under 'semivowels', so tv- and sv- rise while -vn- and -vl- fall.",
+
+  "onset_clusters": [
+    "bl", "br", "bľ",
+    "cl", "cm", "cn", "cr", "cv",
+    "čl", "čm", "čn", "čr", "čv", "čľ",
+    "dl", "dm", "dn", "dr", "dv", "dň",
+    "fj", "fl", "fr", "fľ", "fň",
+    "gl", "gn", "gr",
+    "hl", "hm", "hml", "hn", "hr", "hv", "hľ",
+    "chl", "chm", "chr", "chv", "chľ", "chň",
+    "kl", "km", "kn", "kr", "kv", "kľ", "kň",
+    "ml", "mr", "mľ",
+    "pl", "pn", "pr", "pľ", "pň",
+    "sl", "sm", "smr", "sn", "sr", "sv", "sľ", "sň",
+    "šl", "šm", "šn", "šv", "šľ",
+    "tl", "tm", "tr", "tv", "tľ",
+    "zj", "zl", "zm", "zml", "zmr", "zn", "zr", "zv", "zľ",
+    "žl", "žm", "žn", "žr", "žv", "žľ"
+  ],
+  "onset_clusters_comment": "Consonant clusters that open a syllable. Every one of them is attested at the start of a Slovak word and rises in sonority; a cluster that begins a word without rising (st-, sk-, šp-, vl-, vz-) opens a word but not an inner syllable, which is why sestra divides ses-tra while Abraham divides A-bra-ham. Clusters occurring in fewer than three word forms of the reference corpus are left out as spellings of single names rather than facts about the language."
 }

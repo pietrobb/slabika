@@ -85,6 +85,20 @@ SEMIVOWELS = set(_INVENTORY["semivowels"])  # v functions as a semivowel in some
 
 SONORY = set(_CONSONANTS["syllabic"])  # sonóry - syllabic consonants in Slovak
 
+#: Sonority of each consonant: the index of the tier it belongs to, counting
+#: from the least sonorous. A syllable boundary falls where sonority stops
+#: falling, so this is what decides which consonants of a cluster open the next
+#: syllable and which close the one before it.
+SONORITY = {
+    phoneme: rank
+    for rank, tier in enumerate(_INVENTORY["sonority_scale"].values())
+    for phoneme in tier
+}
+
+#: Consonant clusters that may open a syllable — attested word-initially and
+#: rising in sonority. See :mod:`slabika.syllabify`.
+ONSET_CLUSTERS = frozenset(_INVENTORY["onset_clusters"])
+
 # =============================================================================
 # CONSONANTS (SPOLUHLÁSKY / KONSONANTY)
 # =============================================================================

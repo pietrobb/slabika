@@ -21,7 +21,7 @@ def test_slovak_hyphenation_golden_cases():
         "priateľstvo": "pria·teľ·stvo",
         "trojuholník": "troj·u·hol·ník",
         "viacfarebný": "viac·fa·reb·ný",
-        "MODLOSLUŽOBNÍČKA": "MOD·LO·SLU·ŽOB·NÍČ·KA",
+        "MODLOSLUŽOBNÍČKA": "MO·DLO·SLU·ŽOB·NÍČ·KA",
         "stredoamerický": "stre·do·a·me·ric·ký",
         "pohľad": "po·hľad",
         "pohľadom": "po·hľa·dom",
@@ -83,26 +83,77 @@ def test_syllabification_and_typographic_hyphenation_are_separate_layers():
     assert get_syllables("pornografickej") == ["por", "no", "gra", "fic", "kej"]
     assert get_syllables("porisko") == ["po", "ris", "ko"]
     assert get_syllables("porota") == ["po", "ro", "ta"]
-    assert get_syllables("ihrisko") == ["ih", "ris", "ko"]
+    assert get_syllables("ihrisko") == ["i", "hris", "ko"]
     assert get_syllables("robota") == ["ro", "bo", "ta"]
     assert get_syllables("choroba") == ["cho", "ro", "ba"]
     assert get_syllables("Slovensko") == ["slo", "ven", "sko"]
     assert get_syllables("odpornosťou") == ["od", "por", "nos", "ťou"]
 
 
-def test_intervocalic_consonant_count_boundaries():
+def test_a_cluster_that_rises_towards_the_nucleus_opens_the_next_syllable():
+    """The onset takes everything that still rises and can open a word.
+
+    ``maslo`` and ``sestra`` are the two halves of the same rule: sl rises from
+    obstruent to liquid and opens ``slovo``, so it is an onset; st does not
+    rise, so the s is left behind to close the syllable before it.
+    """
     expected = {
         "žena": "že·na",
-        "maslo": "mas·lo",
+        "maslo": "ma·slo",
         "láska": "lás·ka",
-        "mašlička": "maš·lič·ka",
+        "mašlička": "ma·šlič·ka",
         "sestra": "ses·tra",
         "Angličan": "An·gli·čan",
-        "lingvistika": "lin·gvis·ti·ka",
+        "lingvistika": "ling·vis·ti·ka",
         "špendlík": "špen·dlík",
     }
 
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_an_onset_rises_in_sonority_and_opens_some_slovak_word():
+    """Both halves of the test are needed, and each one alone gives a wrong answer.
+
+    Sonority alone would make anjel a·njel, because nj rises — but no Slovak
+    word opens with nj. Attestation alone would make sestra se·stra, because
+    stôl opens with st — but st falls, and what opens a word need not open a
+    syllable inside one.
+    """
+    assert get_syllables("Abrahám") == ["a", "bra", "hám"]
+    assert get_syllables("Agricola") == ["a", "gri", "co", "la"]
+    assert get_syllables("Ahriman") == ["a", "hri", "man"]
+    assert get_syllables("adresa") == ["a", "dre", "sa"]
+    assert get_syllables("akonáhle") == ["a", "ko", "ná", "hle"]
+    assert get_syllables("ohryzok") == ["o", "hry", "zok"]
+    assert get_syllables("okno") == ["o", "kno"]
+    assert get_syllables("dobre") == ["do", "bre"]
+    assert get_syllables("zebra") == ["ze", "bra"]
+    # ...and where nothing rises, the cluster is divided.
+    assert get_syllables("matka") == ["mat", "ka"]
+    assert get_syllables("kapsa") == ["kap", "sa"]
+    assert get_syllables("Alžbetou") == ["alž", "be", "tou"]
+    assert get_syllables("rovnako") == ["rov", "na", "ko"]
+    assert get_syllables("anjel") == ["an", "jel"]
+    # A doubled consonant is two of the same sonority, so it never opens one.
+    assert get_syllables("Agrippa") == ["a", "grip", "pa"]
+    assert get_syllables("Abba") == ["ab", "ba"]
+
+
+def test_a_short_r_or_l_is_a_nucleus_only_between_consonants():
+    """It is a nucleus where no vowel can be one, and nowhere else.
+
+    At the end of a word it is the coda of the syllable before it: Annamierl
+    has three nuclei, not four, and an·na·mie·rl invents one.
+    """
+    assert get_syllables("vlk") == ["vlk"]
+    assert get_syllables("prst") == ["prst"]
+    assert get_syllables("Opatrnosť") == ["o", "pa", "tr", "nosť"]
+    assert get_syllables("Annamierl") == ["an", "na", "mierl"]
+
+
+def test_latin_qu_is_an_onset_and_not_a_syllable_of_its_own():
+    assert get_syllables("aliquid") == ["a", "li", "quid"]
+    assert get_syllables("quido") == ["qui", "do"]
 
 
 def test_a_umlaut_is_a_short_vowel_and_hyphenation_nucleus():
