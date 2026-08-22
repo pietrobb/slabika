@@ -104,7 +104,7 @@ _SK_SUFFIXES_CONS = [
     'stv',    # priateľ·stvo, kráľov·stvá
     'ctv',    # baní·ctvo, zdravotní·ctvo
     'cia',    # funk·cia, ak·cia, polí·cia — the borrowed -tio suffix
-    'ník', 'níc', 'nil',   # dl·žník, robot·ní·ci, účast·nil
+    'ník', 'níc', 'nil', 'kár',   # dl·žník, robot·ní·ci, účast·nil, tajnost·kár
     'ným', 'nej', 'nou', 'nom',   # ohrad·ným — the rest of the ·ný paradigm
     'dlo',    # mera·dlo
     'tva',    # pas·tva
@@ -130,7 +130,7 @@ _SK_COMPOSITA = [
     'pseudo', 'semi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',
     'super', 'hyper', 'meta', 'multi', 'mini', 'maxi',
     # Slovak-specific composita
-    'modlo', 'rodo', 'jedno', 'stredo', 'brati',
+    'modlo', 'rodo', 'jedno', 'stredo', 'brati', 'mäso',
     'veľ',   # veľ·kňaz, veľ·kolepý, veľ·mocný
 ]
 
@@ -142,7 +142,7 @@ _COMPOSITA_BY_LEN = _by_length(_SK_COMPOSITA)
 # Word-initial clusters that license a prefix boundary before a consonant that
 # is not followed by a vowel (vz·nik, roz·str·hnúť). Includes the digraph ch.
 _VALID_ONSETS = frozenset({
-    'bl', 'br', 'ch', 'dr', 'fl', 'fr', 'gl', 'gr', 'kl', 'kr',
+    'bl', 'br', 'bz', 'ch', 'dr', 'fl', 'fr', 'gl', 'gr', 'kl', 'kr',
     'db', 'hľ', 'hv', 'mk', 'mn', 'pl', 'pr', 'sl', 'sm', 'sn', 'sp', 'sr', 'st',
     'sv', 'sk', 'tr', 'tl', 'vn', 'vr', 'vl', 'vz', 'zb', 'zl',
     'zm', 'zn', 'zr', 'zv', 'šk', 'šp', 'št', 'šť', 'šv', 'žd',
@@ -174,6 +174,13 @@ def _starts_like_a_word(rem: str) -> bool:
     if len(onset) < 2:
         return True
     return ''.join(onset) in ONSET_CLUSTERS or ''.join(onset) in _VALID_ONSETS
+
+
+def _licenses_compositum(comp: str, rem: str) -> bool:
+    reml = rem.lower()
+    if comp == 'mäso' and not reml.startswith('žrav'):
+        return False
+    return any(c in _VOWELS_SK for c in reml) and _starts_like_a_word(reml)
 
 
 def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
@@ -269,6 +276,8 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
             if not _is_inflection(wl[start + length:]):
                 continue
             steml = wl[:start]
+            if wl[start:start + length] == 'kár' and not steml.endswith('st'):
+                continue
             if not any(c in _VOWELS_SK for c in steml):
                 continue
             # -sk- attaches to a consonant-final stem (Benát·ska, voj·sko). On
@@ -328,7 +337,7 @@ def get_morpheme_parts(word: str) -> list[str]:
         comp = wl[:length]
         if comp in group and len(word) > length + 2:
             rem = word[length:]
-            if any(c in _VOWELS_SK for c in rem.lower()) and _starts_like_a_word(rem.lower()):
+            if _licenses_compositum(comp, rem):
                 return [word[:length], *get_morpheme_parts(rem)]
 
     stem, sfx = _strip_grammatical_suffix(word)
@@ -389,8 +398,7 @@ def get_syllables(word: str) -> list[str]:
         comp = wl[:length]
         if comp in group and len(word) > length + 2:
             rem = word[length:]
-            reml = rem.lower()
-            if any(c in _VOWELS_SK for c in reml) and _starts_like_a_word(reml):
+            if _licenses_compositum(comp, rem):
                 first_part = word[:length]
                 first_syls = [first_part] if comp in _BOUND_COMPOSITA else _syllabify_simple(first_part)
                 return first_syls + get_syllables(rem)

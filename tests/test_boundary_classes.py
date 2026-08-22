@@ -23,7 +23,12 @@ import pytest
 
 from slabika import syllables as get_syllables
 from slabika.exceptions import LEXICALIZED_STEMS
-from slabika.syllabify import _SK_COMPOSITA, _SK_PREFIXES, _SK_SUFFIXES_CONS
+from slabika.syllabify import (
+    _SK_COMPOSITA,
+    _SK_PREFIXES,
+    _SK_SUFFIXES_CONS,
+    get_morpheme_parts,
+)
 
 # --------------------------------------------------------------------------
 # Class 1 — consonant-final prefix, vowel-initial root
@@ -198,6 +203,13 @@ def test_every_onset_cluster_rises_in_sonority():
         assert all(a < b for a, b in zip(levels, levels[1:])), (
             f"{cluster} does not rise: {levels}"
         )
+
+
+def test_reviewed_morpheme_rules_do_not_overreach_neighbouring_stems():
+    assert get_morpheme_parts("mäsožravce") == ["mäso", "žravce"]
+    assert get_morpheme_parts("mäsovosť") == ["mäsovosť"]
+    assert get_morpheme_parts("tajnostkár") == ["tajnost", "kár"]
+    assert get_morpheme_parts("bankár") == ["bankár"]
 
 
 def test_no_vowel_initial_suffix_is_treated_as_a_morpheme_boundary():

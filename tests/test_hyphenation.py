@@ -158,6 +158,36 @@ def test_psp_doublets_offer_both_break_points():
         assert points <= set(break_points(word))
 
 
+def test_productive_morpheme_boundaries_from_reviewed_families():
+    expected = {
+        "Nebzučala": "Ne·bzu·ča·la",
+        "mäsožravce": "mä·so·žrav·ce",
+        "mäsožravé": "mä·so·žra·vé",
+        "múdrostkársky": "múd·rost·kár·sky",
+        "nebzučalo": "ne·bzu·ča·lo",
+        "nezabzučí": "ne·za·bzu·čí",
+        "nostkárstvo": "nost·kár·stvo",
+        "pobožnostkári": "po·bož·nost·ká·ri",
+        "pobožnostkárov": "po·bož·nost·ká·rov",
+        "pobožnostkárske": "po·bož·nost·kár·ske",
+        "pobzukovať": "po·bzu·ko·vať",
+        "tajnostkár": "taj·nost·kár",
+        "tajnostkársky": "taj·nost·kár·sky",
+        "tajnostkárskym": "taj·nost·kár·skym",
+        "tajnostkárskymi": "taj·nost·kár·sky·mi",
+        "tajnostkárstve": "taj·nost·kár·stve",
+        "tajnostkárstvo": "taj·nost·kár·stvo",
+        "tajnostkárstvom": "taj·nost·kár·stvom",
+        "zabzučal": "za·bzu·čal",
+        "zabzučali": "za·bzu·ča·li",
+        "zabzučalo": "za·bzu·ča·lo",
+        "zabzučať": "za·bzu·čať",
+        "Šťastkár": "Šťast·kár",
+    }
+
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
 def test_foreign_one_nucleus_spellings_are_not_split_as_hiatuses():
     assert get_syllables("flauta") == ["flau", "ta"]
     assert get_syllables("leukémia") == ["leu", "ké", "mia"]
