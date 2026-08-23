@@ -6,9 +6,10 @@ Please include the word, what the library returns, and what it should return.
 One thing worth knowing before you propose a fix: **a single wrongly hyphenated
 word is usually the symptom of a missing rule, not an exception.** Patches that
 add a word to a lookup table will generally be turned down in favour of finding
-the rule the word is telling us about. If the rule really cannot be stated, an
-entry in `src/slabika/data/exceptions.json` is the right place — not a branch
-in the code.
+the rule the word is telling us about. The engine carries no word list at all —
+the one it used to have was measured against the adjudicated decisions and
+found to contradict them — so a word that no rule reaches stays wrong until the
+rule exists, and the failing expectation is recorded as an `xfail` in the tests.
 
 ## Licensing of contributions
 

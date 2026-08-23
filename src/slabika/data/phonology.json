@@ -112,6 +112,16 @@
 
   "digraphs": ["dž", "ch", "dz"],
 
+  "native_letters": ["a", "á", "ä", "b", "c", "č", "d", "ď", "e", "é", "f", "g", "h", "i", "í", "j", "k", "l", "ĺ", "ľ", "m", "n", "ň", "o", "ó", "ô", "p", "r", "ŕ", "s", "š", "t", "ť", "u", "ú", "v", "x", "y", "ý", "z", "ž"],
+  "native_letters_comment": "The letters the Slovak writing system uses to spell native and adapted words. This is a fact about the orthography, not the phoneme inventory: x is here because it is written (xylofón) although it stands for the cluster ks and is not a phoneme of its own, while q and w are absent because Slovak spelling does not use them. A word containing anything outside this set is spelled in a foreign orthography, whose pronunciation the rules cannot assume — PSP §5.4.",
+
+  "pronounced_foreign_vowels": ["ě", "ů"],
+  "pronounced_foreign_consonants": {"ř": "r"},
+  "pronounced_foreign_letters_comment": "Foreign letters whose Slovak pronunciation is known, each standing for exactly one sound. PSP §5.4 forbids applying the rules to a foreign spelling *without knowing its pronunciation*; where the pronunciation is known the prohibition does not apply, and the only thing it then asks is that a group standing for one sound is not torn apart. These are one letter each, so there is nothing to tear. That is why they, unlike q and w, are hyphenated rather than declined: a break beside them is defensible letter by letter. A consonant is listed with the native letter it behaves like in a cluster — ř fills the r slot, so dob-ře divides as dob-re would. This does NOT make the word Slovak and is not a Czech hyphenator: a Czech word in Slovak text is divided by PSP §3 and §4, and a Czech text for Czech typesetting needs its own language profile.",
+
+  "tolerated_foreign_consonants": ["q", "w"],
+  "tolerated_foreign_consonants_comment": "Letters that are not part of Slovak spelling but stand for a consonant wherever they turn up in Slovak text, so reading them as one is right rather than a guess. They occur in the untranslated Latin and Germanic quotations that run through Slovak prose (aliquid, watt). Syllabification therefore accepts them; hyphenation still declines, because a line break has to be defensible letter by letter. A foreign VOWEL letter must never be added to THIS list: read as a consonant it collapses měsíc and vůle into one syllable each, silently. Its place is 'pronounced_foreign_vowels' above, which is also why the two lists differ in what hyphenation does with them: ě is divided beside, q is not.",
+
   "sonority_scale": {
     "obstruent": ["p", "b", "t", "d", "ť", "ď", "k", "g", "c", "č", "dz", "dž", "f", "s", "z", "š", "ž", "ch", "h"],
     "nasal": ["m", "n", "ň"],

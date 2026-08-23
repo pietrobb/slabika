@@ -169,6 +169,57 @@ LINGUAL_DORSAL = dict(_ALTERNATIONS["lingual_dorsal"])
 
 ALL_PHONEMES = ALL_VOWELS | ALL_CONSONANTS | DIPHTHONGS | SEMIVOWELS
 
+#: Letters the Slovak writing system uses natively. A property of the
+#: orthography rather than of the phoneme inventory — see the comment beside it
+#: in the data file. Anything outside this set is a foreign spelling, and the
+#: rules may not be applied to it without knowing its pronunciation (PSP §5.4).
+NATIVE_LETTERS = frozenset(_INVENTORY["native_letters"])
+
+#: Non-Slovak letters that reliably stand for a consonant, so a syllable count
+#: over them is sound even though the spelling is foreign. See the data file.
+TOLERATED_FOREIGN_CONSONANTS = frozenset(_INVENTORY["tolerated_foreign_consonants"])
+
+#: Foreign vowel letters whose pronunciation is known — one sound each, so
+#: PSP §5.4 has nothing to forbid and the rules may be applied. See the data file.
+PRONOUNCED_FOREIGN_VOWELS = frozenset(_INVENTORY["pronounced_foreign_vowels"])
+
+#: The same for consonants, each mapped to the native letter whose slot it fills
+#: in a cluster: ř behaves as r, so dob·ře divides where dob·re would.
+PRONOUNCED_FOREIGN_CONSONANTS = dict(_INVENTORY["pronounced_foreign_consonants"])
+
+#: Letters that carry a syllable nucleus on their own — the Slovak vowels plus
+#: the foreign vowel letters above.
+VOWEL_LETTERS = ALL_VOWELS | PRONOUNCED_FOREIGN_VOWELS
+
+#: What :func:`slabika.syllables` will analyse: Slovak spelling, plus the
+#: foreign letters above. Everything else is refused rather than guessed at.
+ANALYSABLE_LETTERS = (
+    NATIVE_LETTERS
+    | TOLERATED_FOREIGN_CONSONANTS
+    | PRONOUNCED_FOREIGN_VOWELS
+    | frozenset(PRONOUNCED_FOREIGN_CONSONANTS)
+)
+
+#: What :func:`slabika.hyphenate` will divide: Slovak spelling plus the letters
+#: whose pronunciation is known. q and w are missing on purpose — a syllable
+#: count over them is sound, but a line break has to be defensible letter by
+#: letter and their sound value in Slovak text is not.
+HYPHENATABLE_LETTERS = (
+    NATIVE_LETTERS | PRONOUNCED_FOREIGN_VOWELS | frozenset(PRONOUNCED_FOREIGN_CONSONANTS)
+)
+
+_FOREIGN_TWINS = str.maketrans(PRONOUNCED_FOREIGN_CONSONANTS)
+
+
+def native_spelling(cluster: str) -> str:
+    """Rewrite foreign consonant letters as the native letter they behave like.
+
+    Only for looking a cluster up in the onset tables: those list what Slovak
+    words are written with, and ř is not one of them although the cluster it
+    forms behaves exactly as the one with r does.
+    """
+    return cluster.translate(_FOREIGN_TWINS)
+
 # Multi-character graphemes, longest-match first, for segmentation.
 _DIGRAPHS = tuple(_INVENTORY["digraphs"])
 _TWO_CHAR_DIPHTHONGS = tuple(d for d in _VOWELS["diphthongs"] if len(d) == 2)
@@ -179,8 +230,13 @@ _TWO_CHAR_DIPHTHONGS = tuple(d for d in _VOWELS["diphthongs"] if len(d) == 2)
 # =============================================================================
 
 def is_vowel(char: str) -> bool:
-    """Check if character is a vowel (short or long)."""
-    return char.lower() in ALL_VOWELS
+    """Check if character is a vowel letter (short, long, or foreign).
+
+    A question about the writing system, not about the Slovak inventory: ě and ů
+    are vowels wherever they are written. Use :data:`ALL_VOWELS` directly where
+    only the Slovak inventory counts.
+    """
+    return char.lower() in VOWEL_LETTERS
 
 
 def is_short_vowel(char: str) -> bool:
@@ -197,7 +253,7 @@ def is_diphthong(s: str) -> bool:
 
 
 def is_consonant(char: str) -> bool:
-    return char.lower() in ALL_CONSONANTS
+    return char.lower() in ALL_CONSONANTS or char.lower() in PRONOUNCED_FOREIGN_CONSONANTS
 
 
 def is_hard_consonant(char: str) -> bool:

@@ -21,15 +21,16 @@ PSP rules for written-word division; it does not derive its break points from
 the syllable boundaries returned here.
 """
 
-from .exceptions import FOREIGN_NUCLEUS_SPELLINGS as _FOREIGN_NUCLEUS_SPELLINGS
-from .exceptions import LEXICAL_SYLLABIFICATIONS as _LEXICAL_SYLLABIFICATIONS
-from .exceptions import LEXICALIZED_STEMS as _LEXICALIZED_STEMS
 from .phonology import (
     ALL_VOWELS,
     DIPHTHONGS,
     LONG_VOWELS,
+    ANALYSABLE_LETTERS,
     ONSET_CLUSTERS,
+    PRONOUNCED_FOREIGN_VOWELS,
+    SONORY,
     is_consonant,
+    native_spelling,
     split_into_phonemes,
 )
 
@@ -42,6 +43,10 @@ _SK_PREFIXES = [
     'pred', 'bezo', 'nado', 'podo', 'vzo', 'arci',
     # 3 letter — productive Slovak prefixes
     'naj', 'nad', 'pod', 'pre', 'pri', 'pro', 'roz', 'bez', 'odo', 'pra', 'sú', 'syn',
+    # zne- is the prefix that makes a verb out of an adjective or a noun
+    # (zne·hodnotiť, zne·možniť, zne·užiť). It is listed in its own right and not
+    # as z + ne-, because the negative ne- is not what is in these words.
+    'zne',
     # 2 letter
     'do', 'dô', 'na', 'ne', 'ob', 'od', 'po', 'so', 'vo', 'vy', 'vý', 'za', 'zo',
 ]
@@ -107,7 +112,10 @@ _SK_SUFFIXES_CONS = [
     'ník', 'níc', 'nil', 'kár',   # dl·žník, robot·ní·ci, účast·nil, tajnost·kár
     'ným', 'nej', 'nou', 'nom',   # ohrad·ným — the rest of the ·ný paradigm
     'dlo',    # mera·dlo
-    'tva',    # pas·tva
+    # No 'tva'. It is not a suffix — pas·tva is section 4.3 doing its job,
+    # because tv- opens tvoj and the point never has to move. Listed here it
+    # outranked the real suffix in ·stva (mužs|tva for muž|stva) and overrode
+    # 4.2 in words where tv is the whole cluster (bri|tva for brit|va).
     # 2 chars
     'sk',     # slo·ven·ský, Benát·ska, Holand·sko
     'ný', 'ná', 'né', 'nú', 'ní',   # ze·me·pis·ný, pís·om·ný, mast·nú, počest·ní
@@ -121,6 +129,17 @@ _SUFFIXES_BY_LEN = _by_length(_SK_SUFFIXES_CONS)
 # -mi, -me, or -te sequence as morphology.
 _SK_GRAMMATICAL_SUFFIXES_CONS = ('mi', 'me', 'te', 'ne')
 
+# The nominal suffix ·k· cannot be listed above, because the vowel that follows
+# it belongs to the ending, not to the suffix: klient·ka, klient·ky, klient·kou.
+# It is therefore matched as the single letter k plus one of the endings of the
+# paradigms it derives — the žena/ulica type, the mesto type, ·kyňa and ·kový.
+_SK_K_SUFFIX_ENDINGS = frozenset({
+    'a', 'y', 'e', 'u', 'ou', 'ám', 'ách', 'ami', 'am',        # klient·ka
+    'o', 'i', 'om', 'ov', 'och', 'ovi', 'ovia',                # Robert·ko, líst·kov
+    'yňa', 'yne', 'yňu',                                       # vešt·kyňa
+    'ová', 'ové', 'ový', 'ovú', 'ovej', 'ovom', 'ovým',        # poist·ková
+})
+
 # Compositional first-parts that act as hard split boundaries (troj·uholník, viac·hlasný...)
 _SK_COMPOSITA = [
     'video', 'šesť', 'zeme', 'vrti',
@@ -132,7 +151,22 @@ _SK_COMPOSITA = [
     # Slovak-specific composita
     'modlo', 'rodo', 'jedno', 'stredo', 'brati', 'mäso', 'krátko', 'krato',
     'veľ',   # veľ·kňaz, veľ·kolepý, veľ·mocný
+    'seba',  # seba·vedomie, seba·kritika, seba·určenie
+    # First parts that are only recognisable in front of a vowel — see
+    # _VOWEL_SEAM_COMPOSITA.
+    'bystro', 'dlho', 'hore', 'mnoho', 'mravo', 'novo', 'polo', 'viero',
+    'vše', 'vysoko',
 ]
+
+# A compositional first part ending in the linking vowel of section 3.4 is not
+# always one: hore·kovanie is no compound of hore, and vše·tkého no compound of
+# vše. In front of a vowel it always is (hore·uvedený, vše·obecný,
+# viero·uka) — and that is also the only environment where the seam decides
+# anything, because it is what tells viero|uka from vie·rou·ka.
+_VOWEL_SEAM_COMPOSITA = frozenset({
+    'bystro', 'dlho', 'hore', 'mnoho', 'mravo', 'novo', 'polo', 'viero',
+    'vše', 'vysoko',
+})
 
 # Compositional second-parts. A multiplicative numeral is a compound of the
 # counting word and krát (dva·krát, koľko·krát, desať·sto·krát), so section 3.4
@@ -170,20 +204,32 @@ _VALID_ONSETS = frozenset({
     'pch', 'sch', 'vzd', 'vst', 'str', 'spr', 'skr', 'vžd',
 })
 
-# What can be a nucleus at all — vowels plus the syllabic consonants, used to
-# check that a remainder is pronounceable.
-_VOWELS_SK = set('aáäeéiíoóôuúyýrŕlĺ')
+# What is written as a vowel: the vowel graphemes, plus the diphthongs that are
+# written as a single letter (ô). Derived from the inventory rather than spelled
+# out, so that adding a grapheme to data/phonology.json is enough to teach the
+# whole package about it.
+_VOWEL_LETTERS = ALL_VOWELS | {d for d in DIPHTHONGS if len(d) == 1}
 
-# What is written as a vowel. A root beginning with r- or l- begins with a
-# consonant however syllabic that consonant may become, and testing it against
-# the set above cost ne·roz·lú·čiť its prefix.
-_VOWEL_LETTERS = set('aáäeéiíoóôuúyý')
+# What can be a nucleus at all — the above plus the syllabic consonants, used to
+# check that a remainder is pronounceable. A root beginning with r- or l- still
+# begins with a consonant however syllabic that consonant may become, which is
+# why the two sets are distinct: testing prefixes against this one cost
+# ne·roz·lú·čiť its prefix.
+_VOWELS_SK = _VOWEL_LETTERS | SONORY
 
 # No Slovak morpheme begins with these graphemes, so a prefix candidate that
 # leaves one of them at the head of the remainder has not found a seam but a
 # spelling accident: ob·ývať cut the b off bývať because ý looked like a root.
 # ô is deliberately absent — ôsmy exists.
 _NEVER_INITIAL = set('äýĺŕ')
+
+#: The vowel sequences that are written as two letters and read as one nucleus.
+#: Slovak phonology counts four diphthongs and none of these is among them, but
+#: word division is about the written syllable, and PSP §4.4 asks for the
+#: decision to be made before a point is placed between the letters: the pair is
+#: one nucleus wherever no morpheme seam runs through it (pau·za, pneu·ma·ti·ka,
+#: ru·kou) and two where one does (po|učiť, zne|užiť).
+_FALLING_DIPHTHONGS = frozenset({'au', 'eu', 'ou'})
 
 
 def _starts_like_a_word(rem: str) -> bool:
@@ -205,11 +251,34 @@ def _starts_like_a_word(rem: str) -> bool:
 
 def _licenses_compositum(comp: str, rem: str) -> bool:
     reml = rem.lower()
-    if (comp + reml).startswith(_LEXICALIZED_STEMS):
+    if comp in _VOWEL_SEAM_COMPOSITA and reml[0] not in _VOWEL_LETTERS:
         return False
     if comp == 'mäso' and not reml.startswith('žrav'):
         return False
     return any(c in _VOWELS_SK for c in reml) and _starts_like_a_word(reml)
+
+
+def _is_vowel_seam(pfx: str, reml: str) -> bool:
+    """True when a vowel-initial remainder is a root and not the rest of a stem.
+
+    A prefix ending in a vowel in front of a vowel-initial remainder is not
+    decidable from the spelling: pri|ateľstvo would be a seam by the letters and
+    is not one, so the default is to reject the split. Two environments overturn
+    it — a remainder that itself opens with a lexically listed prefix and root,
+    and a remainder beginning with u.
+
+    The u is the case section 4.4 is about. Every other vowel pair stays two
+    nuclei whatever the analysis says, so the morphology changes nothing there;
+    au, eu and ou are read as one nucleus, and only the seam tells po|učiť from
+    pau·za.
+    """
+    if any(
+        reml.startswith(inner_pfx + root)
+        for inner_pfx, roots in _LEXICAL_PREFIX_ROOTS
+        for root in roots
+    ):
+        return True
+    return reml[0] == 'u'
 
 
 def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
@@ -225,9 +294,6 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     by a vowel-like character (to avoid 'pri' + 'atelstvo' → bad split).
     """
     wl = w.lower()
-    if wl.startswith(_LEXICALIZED_STEMS):
-        return None, None
-
     for pfx, roots in _LEXICAL_PREFIX_ROOTS:
         if any(wl.startswith(pfx + root) for root in roots):
             return w[:len(pfx)], w[len(pfx):]
@@ -253,11 +319,7 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             if reml[0] in _VOWEL_LETTERS:
                 # starts with vowel — only accept if prefix ends with consonant
                 # (prevents 'pri' + 'atelstvo' splitting 'priateľstvo')
-                if pfx[-1] in _VOWEL_LETTERS and not any(
-                    reml.startswith(inner_pfx + root)
-                    for inner_pfx, roots in _LEXICAL_PREFIX_ROOTS
-                    for root in roots
-                ):
+                if pfx[-1] in _VOWEL_LETTERS and not _is_vowel_seam(pfx, reml):
                     continue  # vowel+vowel boundary — skip, not a real prefix split
                 return w[:length], rem
             else:
@@ -321,6 +383,38 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
                 if not (len(steml) >= 2 and steml[-2] in ALL_VOWELS):
                     continue
             return w[:start], w[start:]
+    return _strip_k_suffix(w)
+
+
+def _strip_k_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
+    """Split the nominal suffix ·k· off a consonant-final stem.
+
+    Without it a three-consonant cluster ending in tk is handed to section 4.3,
+    which moves the point left of the whole tk- because tk- does open a Slovak
+    word (tkáč): klien|tka. The suffix is a recognised morpheme boundary, so
+    section 3 decides first and the result is klient|ka.
+
+    A stem ending in a sibilant is left alone: there the k belongs to the ·sk·
+    suffix already listed above (Benát·ska, Vlaš·sko), and reading it as ·k·
+    would strand the s (Benáts·ka).
+    """
+    wl = w.lower()
+    for tail_length in range(1, _MAX_INFLECTION + 1):
+        start = len(w) - 1 - tail_length
+        if start < 3 or wl[start] != 'k':
+            continue
+        if wl[start + 1:] not in _SK_K_SUFFIX_ENDINGS:
+            continue
+        steml = wl[:start]
+        if steml[-1] in ALL_VOWELS or steml[-1] in ('ô', 's', 'š', 'z', 'ž'):
+            continue
+        # A stem ending in a syllabic r or l ends in a nucleus, not in a coda,
+        # and the k opens its own syllable already: ja·bl·ko, not jabl·ko.
+        if steml[-1] in ('r', 'l') and steml[-2:-1] and steml[-2] not in _VOWELS_SK:
+            continue
+        if not any(c in _VOWELS_SK for c in steml):
+            continue
+        return w[:start], w[start:]
     return None, None
 
 
@@ -368,9 +462,6 @@ def get_morpheme_parts(word: str) -> list[str]:
     a real morpheme boundary (``roz|ísť``, not ``ro|zísť``).
     """
     wl = word.lower()
-    if wl in _LEXICAL_SYLLABIFICATIONS:
-        return [word]
-
     second = _split_compound_tail(word)
     if second is not None:
         first, tail = second
@@ -427,11 +518,21 @@ def get_syllables(word: str) -> list[str]:
     Rule: the next syllable claims the longest cluster that can open a Slovak
     word (:data:`slabika.phonology.ONSET_CLUSTERS`); the rest closes the
     syllable before it. A known morpheme boundary overrides this.
+
+    :raises ValueError: if *word* contains a letter outside the Slovak writing
+        system. Such a word is spelled in a foreign orthography whose sound
+        values these rules may not assume, and answering anyway would be a
+        guess: měsíc used to come back as a single syllable because ě was read
+        as a consonant. :func:`slabika.hyphenate` returns such words untouched.
     """
     wl = word.lower()
-    lexical_syllables = _LEXICAL_SYLLABIFICATIONS.get(wl)
-    if lexical_syllables is not None:
-        return list(lexical_syllables)
+    foreign = {char for char in wl if char.isalpha() and char not in ANALYSABLE_LETTERS}
+    if foreign:
+        raise ValueError(
+            f"{word!r} is not spelled in Slovak: {''.join(sorted(foreign))}. "
+            "Slovak syllabification cannot be applied to a foreign spelling "
+            "without knowing its pronunciation (PSP §5.4)."
+        )
 
     # Split superlative naj- before applying the comparative -stejší- boundary.
     if wl.startswith('naj') and 'tejš' in wl[3:]:
@@ -490,11 +591,18 @@ _LONG_NUCLEI = LONG_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 
 #: Everything that can carry a syllable nucleus on its own, without depending on
 #: what surrounds it — r and l are decided by context and are not in here.
-_NUCLEI = ALL_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
+_NUCLEI = ALL_VOWELS | PRONOUNCED_FOREIGN_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
+
+#: Latin -eum and -eus decline a stem that ends in e, so their u opens a
+#: syllable of its own: mú·ze·um, li·no·le·um, Or·fe·us. It is the -ium of
+#: :func:`_resolve_hiatus` in the neuter and the masculine.
+_LATIN_HIATUS_TAILS = ('eum', 'eus')
 
 #: Written vowel graphemes, including the ones that are not phonological
-#: diphthongs (ô is written as one grapheme, ou is a nucleus only word-finally).
-_VOWEL_LIKE = ALL_VOWELS | DIPHTHONGS | {'ô', 'ou'} | set(_FOREIGN_NUCLEUS_SPELLINGS.values())
+#: diphthongs (ô is written as one grapheme; au, eu, ou are read as one).
+_VOWEL_LIKE = (
+    ALL_VOWELS | PRONOUNCED_FOREIGN_VOWELS | DIPHTHONGS | {'ô'} | _FALLING_DIPHTHONGS
+)
 
 #: No Slovak syllable opens with more than three consonants (vzdych, štvrť).
 _MAX_ONSET = 3
@@ -579,31 +687,55 @@ def phoneme_layout(word: str) -> tuple[list[str], list[int], list[int]]:
     return phonemes, offsets, _nuclei(phonemes)
 
 
-def _merge_foreign_nucleus(word: str, phonemes: list[str]) -> list[str]:
-    """Keep a lexically known foreign vowel spelling in one nucleus."""
-    wl = word.casefold()
-    for stem, spelling in _FOREIGN_NUCLEUS_SPELLINGS.items():
-        if not wl.startswith(stem):
+def _seam_offsets(word: str) -> frozenset[int]:
+    """Character offsets in *word* at which a morpheme unit begins."""
+    offsets, position = set(), 0
+    for part in get_morpheme_parts(word)[:-1]:
+        position += len(part)
+        offsets.add(position)
+    return frozenset(offsets)
+
+
+def _merge_falling_diphthongs(word: str, phonemes: list[str]) -> list[str]:
+    """Read au, eu, ou as one nucleus except where a morpheme seam divides them.
+
+    Two adjacent vowel letters are not by themselves two syllables (PSP §4.4).
+    Slovak writes these three both ways: as one nucleus in a loan or in the
+    instrumental (pau·za, pneu·ma·ti·ka, ru·kou) and as two across a seam
+    (po|učiť, zne|užiť, tro|j·uholník). The morphology decides, so the seams are
+    taken from :func:`get_morpheme_parts` and the sequence is merged everywhere
+    else; the Latin endings of :data:`_LATIN_HIATUS_TAILS` are the one hiatus no
+    seam marks.
+    """
+    wl = word.lower()
+    if not any(pair in wl for pair in _FALLING_DIPHTHONGS):
+        return phonemes
+
+    seams = _seam_offsets(word)
+    out: list[str] = []
+    offset = index = 0
+    while index < len(phonemes):
+        phoneme = phonemes[index]
+        following = phonemes[index + 1] if index + 1 < len(phonemes) else ''
+        pair = phoneme + following
+        if (
+            pair in _FALLING_DIPHTHONGS
+            and offset + len(phoneme) not in seams
+            and not wl.endswith(_LATIN_HIATUS_TAILS, offset)
+        ):
+            out.append(pair)
+            offset += len(pair)
+            index += 2
             continue
-        width = len(spelling)
-        for index in range(len(phonemes) - width + 1):
-            if ''.join(phonemes[index:index + width]) == spelling:
-                return [
-                    *phonemes[:index],
-                    spelling,
-                    *phonemes[index + width:],
-                ]
-    return phonemes
+        out.append(phoneme)
+        offset += len(phoneme)
+        index += 1
+    return out
 
 
 def _phonemes(word: str) -> list[str]:
     phonemes = _merge_latin_qu(_resolve_hiatus(split_into_phonemes(word)))
-    phonemes = _merge_foreign_nucleus(word, phonemes)
-    # The feminine instrumental ending -ou is one syllabic nucleus, although
-    # Slovak phonology does not classify ou among the four diphthongs.
-    if len(phonemes) >= 2 and phonemes[-2:] == ['o', 'u']:
-        phonemes[-2:] = ['ou']
-    return phonemes
+    return _merge_falling_diphthongs(word, phonemes)
 
 
 def _nuclei(phonemes: list[str]) -> list[int]:
@@ -645,7 +777,7 @@ def _syllabify_simple(word: str) -> list[str]:
         handled before this phonotactic fallback.
         """
         for size in range(min(_MAX_ONSET, len(cons_indices)), 1, -1):
-            cluster = ''.join(phonemes[i] for i in cons_indices[-size:])
+            cluster = native_spelling(''.join(phonemes[i] for i in cons_indices[-size:]))
             if cluster in ONSET_CLUSTERS:
                 return cons_indices[-size]
         return cons_indices[-1]

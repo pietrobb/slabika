@@ -9,22 +9,25 @@ inside a morpheme, the boundary is derived from the number of consonants between
 nuclei. A one-letter vowel is not left at either edge by default, non-native
 graphemes are left untouched, and original casing is preserved.
 
-Where PSP codifies two equally correct readings of one boundary (``lieta|dlo``
-aj ``lietad|lo``), the default output offers the preferred one; ``all_points``
-adds the competing point, which is what a line-breaking engine wants and a
-human reader does not.
+PSP grade their own rules (section 9), and the API keeps the three grades apart.
+The default output is the basic reading. ``all_points`` adds the codified
+doublets of section 3.5 (``lieta|dlo`` aj ``lietad|lo``). ``contextual`` adds
+what the norm permits but advises against — a one-letter opening syllable
+(``i|deál``), or a compound's second part surrendering its initial vowel
+(``pou|čiť``) — which only an exceptionally narrow measure justifies.
 
 The default marker is the middle dot (U+00B7) so that output is unambiguous in
 tests; pass ``separator="-"`` or ``separator="\\u00ad"`` for line-breaking use,
 or call :func:`break_points` for raw character offsets.
 """
 
-from .exceptions import (
-    FOREIGN_NUCLEUS_SPELLINGS as _FOREIGN_NUCLEUS_SPELLINGS,
-    LEXICAL_SYLLABIFICATIONS as _LEXICAL_SYLLABIFICATIONS,
-    UNHYPHENATED_FOREIGN_WORDS as _UNHYPHENATED_FOREIGN_WORDS,
+from .phonology import (
+    ATTESTED_ONSETS,
+    HYPHENATABLE_LETTERS,
+    is_consonant,
+    is_vowel,
+    native_spelling,
 )
-from .phonology import ATTESTED_ONSETS, is_consonant, is_vowel
 from .syllabify import (
     _SK_PREFIXES,
     _SK_SUFFIXES_CONS,
@@ -32,8 +35,9 @@ from .syllabify import (
     phoneme_layout,
 )
 
-#: Letters that the Slovak writing system uses natively.
-_NATIVE_SK_LETTERS = set('aáäbcčdďeéfghiíjklĺľmnňoóôprŕsštťuúvxyýzž')
+#: Letters a break may stand beside: Slovak spelling, plus the foreign letters
+#: whose pronunciation is known, so that PSP §5.4 is satisfied — data layer.
+_DIVISIBLE_LETTERS = HYPHENATABLE_LETTERS
 
 #: Middle dot — the default, unambiguous break marker.
 MIDDLE_DOT = '\u00b7'
@@ -46,24 +50,6 @@ def _nucleus_spans(word: str) -> tuple[list[str], list[int], list[tuple[int, int
     """Return phonemes, offsets, and logical nucleus spans for PSP division."""
     phonemes, offsets, nuclei = phoneme_layout(word)
     spans = [(index, index + 1) for index in nuclei]
-    wl = word.casefold()
-
-    for stem, spelling in _FOREIGN_NUCLEUS_SPELLINGS.items():
-        if not wl.startswith(stem):
-            continue
-        char_start = wl.find(spelling)
-        char_end = char_start + len(spelling)
-        members = [
-            index for index in nuclei
-            if char_start <= offsets[index] < char_end
-        ]
-        if len(members) < 2:
-            continue
-        first, last = members[0], members[-1]
-        spans = [span for span in spans if span[0] not in members]
-        spans.append((first, last + 1))
-        spans.sort()
-
     return phonemes, offsets, spans
 
 
@@ -104,7 +90,7 @@ def _opening_consonant(phonemes: list[str], between: list[int], next_start: int)
     A single consonant always opens a syllable, so the search terminates.
     """
     for index in range(1, len(between)):
-        if ''.join(phonemes[between[index]:next_start]) in ATTESTED_ONSETS:
+        if native_spelling(''.join(phonemes[between[index]:next_start])) in ATTESTED_ONSETS:
             return index
     return len(between) - 1
 
@@ -134,40 +120,36 @@ def _variant_crosses_seam(left: str, right: str) -> bool:
     ) or rightl.startswith('cia')
 
 
-def _collect_points(word: str) -> tuple[set[int], set[int]]:
-    """Return (preferred, variant) break offsets for *word*.
+def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
+    """Return (preferred, variant, contextual) break offsets for *word*.
 
-    The preferred set holds one point per boundary: a morpheme seam where the
-    analysis finds one, otherwise the syllabic point of section 4. The variant
-    set holds the competing point that PSP codifies alongside it in the classes
-    of section 3.5 — ``lietad|lo`` next to ``lieta|dlo``, ``funk|čný`` next to
-    ``funkč|ný``. Both are legal; only the preferred one is shown by default.
+    The three sets are the three normative levels section 9 distinguishes.
+
+    *preferred* holds one point per boundary: a morpheme seam where the analysis
+    finds one, otherwise the syllabic point of section 4.
+
+    *variant* holds the competing point PSP codifies as equally correct beside
+    it, in the three classes of section 3.5 — ``lietad|lo`` next to
+    ``lieta|dlo``, ``funk|čný`` next to ``funkč|ný``.
+
+    *contextual* holds a point that is legal but that PSP tells the typesetter
+    to avoid unless the measure leaves no choice: the one-letter opening
+    syllable (``i|deál``), and the point that pulls the vowel opening a
+    compound's second part onto its first (``pou|čiť``). Neither is a codified
+    doublet, so neither belongs in *variant*.
     """
-    if (
-        not word.isalpha()
-        or any(char.lower() not in _NATIVE_SK_LETTERS for char in word)
-        or word.casefold() in _UNHYPHENATED_FOREIGN_WORDS
+    if not word.isalpha() or any(
+        char.lower() not in _DIVISIBLE_LETTERS for char in word
     ):
-        return set(), set()
-
-    lexical = _LEXICAL_SYLLABIFICATIONS.get(word.casefold())
-    if lexical is not None:
-        points, pos = [], 0
-        for part in lexical[:-1]:
-            pos += len(part)
-            points.append(pos)
-        if word and is_vowel(word[0]) and points[:1] == [1]:
-            points.pop(0)
-        if word and is_vowel(word[-1]) and points[-1:] == [len(word) - 1]:
-            points.pop()
-        return set(points), set()
+        return set(), set(), set()
 
     if len(_nucleus_spans(word)[2]) <= 1:
-        return set(), set()
+        return set(), set(), set()
 
     parts = get_morpheme_parts(word)
     points: set[int] = set()
     variants: set[int] = set()
+    contextual: set[int] = set()
     seams: list[tuple[int, str, str]] = []
     pos = 0
     for index, part in enumerate(parts):
@@ -182,8 +164,14 @@ def _collect_points(word: str) -> tuple[set[int], set[int]]:
     # that second point; only a consonant-only shift across the seam is admitted.
     raw_points = _psp_points(word, mechanical=True)
     for seam, left, right in seams:
-        if len(right) > 1 and is_vowel(right[0]):
+        # Section 3.4 keeps the second part's initial vowel off the first part
+        # "podľa možnosti" — a preference, not a ban. Section 3.5 does not name
+        # this class, so pou|čiť is no codified doublet of po|učiť; it is a
+        # plain 4.1 point the norm asks the typesetter not to take unless the
+        # measure forces it. That is the contextual level, not the variant one.
+        if len(right) > 1 and is_vowel(right[0]) and seam + 1 in points:
             points.discard(seam + 1)
+            contextual.add(seam + 1)
 
         if _variant_crosses_seam(left, right):
             alternatives = [
@@ -205,20 +193,27 @@ def _collect_points(word: str) -> tuple[set[int], set[int]]:
         ):
             variants.add(seam - 1)
 
-    # A one-letter vowel is not carried alone to the next line. At the start PSP
-    # allows it only in exceptionally narrow columns, so the context-free API
-    # follows the normal, conservative form and suppresses that point too.
+    # The two edges are not the same rule. Leaving a one-letter syllable at the
+    # end of a word is barred outright (section 9, basic level), so that point
+    # is dropped from every level. Detaching a one-letter opening syllable is
+    # merely discouraged — "predvolene odstrániť", admitted in exceptionally
+    # narrow measure — which is the contextual level and nothing stronger.
     if word and is_vowel(word[0]):
+        if 1 in points or 1 in variants:
+            contextual.add(1)
         points.discard(1)
         variants.discard(1)
     if word and is_vowel(word[-1]):
         points.discard(len(word) - 1)
         variants.discard(len(word) - 1)
+        contextual.discard(len(word) - 1)
 
-    return points, variants - points
+    return points, variants - points, contextual - points - variants
 
 
-def break_points(word: str, all_points: bool = False) -> list[int]:
+def break_points(
+    word: str, all_points: bool = False, contextual: bool = False
+) -> list[int]:
     """
     Return the character offsets at which *word* may be broken across lines.
 
@@ -226,10 +221,16 @@ def break_points(word: str, all_points: bool = False) -> list[int]:
     is allowed between ``word[i - 1]`` and ``word[i]``. An empty list means the
     word must not be broken.
 
-    By default one point per boundary is returned — the reading a human expects.
-    Pass ``all_points=True`` to also get the competing points PSP codifies as
-    equally correct; a typesetter wants those, because every extra opportunity
-    is one more place a line may be broken.
+    The two flags follow the three normative levels of section 9. By default one
+    point per boundary is returned — the reading a human expects.
+
+    ``all_points=True`` adds the competing points PSP codifies as equally
+    correct, the three classes of section 3.5.
+
+    ``contextual=True`` adds the points PSP permits but tells the typesetter to
+    avoid: a one-letter opening syllable, and the vowel that opens a compound's
+    second part. Ask for these only when setting an exceptionally narrow
+    measure — they are legal, and they are ugly.
 
     >>> break_points("Prekladateľský")
     [3, 6, 8, 11]
@@ -237,9 +238,20 @@ def break_points(word: str, all_points: bool = False) -> list[int]:
     [3, 5]
     >>> break_points("lietadlo", all_points=True)
     [3, 5, 6]
+    >>> break_points("poučiť")
+    [2]
+    >>> break_points("poučiť", contextual=True)
+    [2, 3]
+    >>> break_points("ideál", contextual=True)
+    [1, 3]
     """
-    preferred, variants = _collect_points(word)
-    return sorted(preferred | variants) if all_points else sorted(preferred)
+    preferred, variants, contextuals = _collect_points(word)
+    offsets = set(preferred)
+    if all_points:
+        offsets |= variants
+    if contextual:
+        offsets |= contextuals
+    return sorted(offsets)
 
 
 def divisions(word: str) -> list[str]:
@@ -255,7 +267,12 @@ def divisions(word: str) -> list[str]:
     ]
 
 
-def hyphenate(word: str, separator: str = MIDDLE_DOT, all_points: bool = False) -> str:
+def hyphenate(
+    word: str,
+    separator: str = MIDDLE_DOT,
+    all_points: bool = False,
+    contextual: bool = False,
+) -> str:
     """
     Return *word* with *separator* inserted at every valid break point.
 
@@ -270,8 +287,12 @@ def hyphenate(word: str, separator: str = MIDDLE_DOT, all_points: bool = False) 
     'lie·ta·dlo'
     >>> hyphenate('lietadlo', all_points=True)
     'lie·ta·d·lo'
+    >>> hyphenate('poučiť')
+    'po·učiť'
+    >>> hyphenate('poučiť', contextual=True)
+    'po·u·čiť'
     """
-    offsets = break_points(word, all_points)
+    offsets = break_points(word, all_points, contextual)
     if not offsets:
         return word
 
