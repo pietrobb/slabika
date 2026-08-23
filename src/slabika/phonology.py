@@ -99,6 +99,13 @@ SONORITY = {
 #: rising in sonority. See :mod:`slabika.syllabify`.
 ONSET_CLUSTERS = frozenset(_INVENTORY["onset_clusters"])
 
+#: Consonant clusters a written Slovak word opens with before a vowel — what a
+#: syllable *can* begin with, as opposed to what wins the sonority contest word
+#: -internally. PSP 4.3 hands the tail of a three-consonant cluster to the next
+#: syllable, which presupposes the tail is one of these. See
+#: :func:`slabika.typo.break_points`.
+ATTESTED_ONSETS = frozenset(_INVENTORY["attested_onsets"])
+
 # =============================================================================
 # CONSONANTS (SPOLUHLÁSKY / KONSONANTY)
 # =============================================================================

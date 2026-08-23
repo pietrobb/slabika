@@ -4,6 +4,7 @@
 
 from slabika import (
     break_points,
+    divisions,
     hyphenate,
     is_vowel,
     split_into_phonemes,
@@ -155,7 +156,138 @@ def test_psp_doublets_offer_both_break_points():
     }
 
     for word, points in expected.items():
-        assert points <= set(break_points(word))
+        assert points <= set(break_points(word, all_points=True))
+        assert len(points & set(break_points(word))) == 1
+
+
+def test_cluster_tail_of_43_must_be_able_to_open_a_syllable():
+    """4.3 says the tail *opens* the next syllable, so it has to be an opening.
+
+    ``al|žbetínska`` hands over ``žb``, which begins no Slovak word before a
+    vowel; the point moves right until the tail is one Slovak words are written
+    with. The three readings PSP prints stay where they are, because in each of
+    them the tail already opens words: tra-, tva-, tra-.
+    """
+    moved = {
+        "alžbetínska": "alž·be·tín·ska",
+        "ústna": "úst·na",
+        "zamestnáva": "za·mest·ná·va",
+        "gangster": "gang·ster",
+        "očistca": "očist·ca",
+        "veštba": "vešt·ba",
+    }
+    kept = {
+        "sestra": "ses·tra",
+        "pastva": "pas·tva",
+        "zajtra": "zaj·tra",
+        "lingvistika": "lin·gvis·ti·ka",   # gv- opens gvaš, which PSP prints
+        "abstinencia": "ab·sti·nen·cia",
+        "monštrancie": "mon·štran·cie",
+        "najvľúdnejšou": "naj·vľúd·nej·šou",
+        "neviestku": "ne·vies·tku",
+    }
+    assert {word: hyphenate(word) for word in moved} == moved
+    assert {word: hyphenate(word) for word in kept} == kept
+
+
+def test_a_prefix_seam_outranks_the_consonant_count():
+    """3.1 decides before 4.3 does, even when the base opens with a consonant.
+
+    ``vždy`` is a word, so ``navždy`` is ``na`` before it and the seam is the
+    division point. Counting consonants instead offers ``nav|ždy`` — a reading
+    of a boundary that is not there.
+    """
+    assert hyphenate("navždy") == "na·vždy"
+    assert hyphenate("povždy") == "po·vždy"
+
+
+def test_two_consonants_are_untouched_by_the_opening_test():
+    """4.2 leaves one consonant on each side and 4.3 never reaches that case."""
+    for word, expected in (("láska", "lás·ka"), ("maslo", "mas·lo"), ("okno", "ok·no")):
+        assert hyphenate(word) == expected
+
+
+def test_bound_greek_second_member_divides_at_its_seam():
+    """3.4 with the recognisability test of 3.5: -krat/-krac alternate visibly."""
+    expected = {
+        "aristokrat": "aris·to·krat",
+        "aristokraciu": "aris·to·kra·ciu",
+        "demokrat": "de·mo·krat",
+        "demokracia": "de·mo·kra·cia",
+        "byrokratickými": "by·ro·kra·tic·ký·mi",
+        "teokracia": "te·o·kra·cia",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+    # No first part of its own, or none that a reader would see — no seam.
+    untouched = {
+        "Sokrata": "So·kra·ta",
+        "kratochvíle": "kra·to·chví·le",
+        "skracovanie": "skra·co·va·nie",
+        "Demokrita": "De·mok·ri·ta",
+        "demontovali": "de·mon·to·va·li",
+        "demolačnej": "de·mo·lač·nej",
+    }
+    assert {word: hyphenate(word) for word in untouched} == untouched
+
+
+def test_default_output_never_isolates_a_single_letter():
+    """The doublet of 3.5 is two readings of one boundary, not two boundaries.
+
+    Offered together they read as a stray letter — ``lie·ta·d·lo`` — which is
+    what a typesetter wants and a human never does.
+    """
+    for word in ("lietadlo", "celistvej", "naskladať", "funkčný", "audienčnej"):
+        parts = hyphenate(word, separator="-").split("-")
+        assert all(len(part) > 1 for part in parts), (word, parts)
+
+
+def test_all_points_is_a_superset_of_the_preferred_reading():
+    for word in ("lietadlo", "celistvej", "naskladať", "funkčný", "prekladateľský"):
+        assert set(break_points(word)) <= set(break_points(word, all_points=True))
+
+
+def test_divisions_writes_out_every_permitted_break():
+    assert divisions("lietadlo") == ["lie-tadlo", "lieta-dlo", "lietad-lo"]
+    assert divisions("pes") == []
+
+
+def test_variant_reading_is_closed_to_the_three_classes_of_35():
+    """A prefix seam is not one of them, whatever the TeX patterns offer.
+
+    ``nas|kladať`` has no footing in PSP: what follows na· is the base, and skl·
+    is the root's own onset, not a suffix spelled alike.
+    """
+    for word in ("naskladať", "neposkytla", "naskakovali", "doskočiť"):
+        assert break_points(word) == break_points(word, all_points=True), word
+
+
+def test_compound_seam_of_the_multiplicative_numeral():
+    expected = {
+        "dvakrát": "dva·krát",
+        "stokrát": "sto·krát",
+        "obakrát": "oba·krát",
+        "koľkokrát": "koľ·ko·krát",
+        "dvanásťkrát": "dva·násť·krát",
+        "desaťstokrát": "de·sať·sto·krát",
+        "nekonečnekrát": "ne·ko·neč·ne·krát",
+    }
+
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_arci_is_a_prefix_and_arch_lexicalizes_before_a_borrowed_stem():
+    expected = {
+        "arcikňazov": "ar·ci·kňa·zov",
+        "arcizloduch": "ar·ci·zlo·duch",
+        "archanjel": "arch·an·jel",
+        "archívu": "ar·chí·vu",
+        "archeológ": "ar·che·o·lóg",
+        "krátkozraký": "krát·ko·zra·ký",
+        "kratochvíle": "kra·to·chví·le",
+    }
+
+    assert {word: hyphenate(word) for word in expected} == expected
 
 
 def test_productive_morpheme_boundaries_from_reviewed_families():

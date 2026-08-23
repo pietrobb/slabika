@@ -125,6 +125,21 @@ Ak skupina najmenej troch spoluhlások neobsahuje rozpoznanú morfematickú
 hranicu, prvá spoluhláska uzatvára predchádzajúcu slabiku a zvyšok otvára
 nasledujúcu: `ses|tra`, `pas|tva`, `zaj|tra`.
 
+Slovo „otvára“ tu nie je opis výsledku, ale podmienka. Zvyšok skupiny musí byť
+taký, akým sa slovenské slovo pred samohláskou začína — vo všetkých troch
+uvedených príkladoch to platí (`tra-`, `tva-`, `tra-`). Ak neplatí, deliaci bod
+sa posúva doprava, kým to platiť nezačne: v slove `alžbetínska` by prvá
+spoluhláska nechala zvyšok `žb-`, ktorým sa pred samohláskou nezačína ani jedno
+slovenské slovo, takže sa delí `alž|betínska`, nie `al|žbetínska`. Rovnako
+`úst|na`, `zamest|návať`, `gang|ster`.
+
+Toto pravidlo sa netýka skupiny dvoch spoluhlások: tam podľa 4.2 zostáva jedna
+na každej strane a niet čo posúvať.
+
+Ak je hranica v skupine dvojznačná, ide o tretiu triedu z 3.5 a kodifikované sú
+oba body: `fun|kcia` aj `funk|cia`. Prednosť dostáva ten, ktorý spĺňa podmienku
+otvárania, druhý zostáva prípustný.
+
 ### 4.4 Dve susediace samohlásky
 
 Deliť možno medzi samohláskami, iba ak patria do dvoch rôznych slabík, napríklad

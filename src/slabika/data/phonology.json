@@ -138,5 +138,28 @@
     "zj", "zl", "zm", "zml", "zmr", "zn", "zr", "zv", "zľ",
     "žl", "žm", "žn", "žr", "žv", "žľ"
   ],
-  "onset_clusters_comment": "Consonant clusters that open a syllable. Every one of them is attested at the start of a Slovak word and rises in sonority; a cluster that begins a word without rising (st-, sk-, šp-, vl-, vz-) opens a word but not an inner syllable, which is why sestra divides ses-tra while Abraham divides A-bra-ham. Clusters occurring in fewer than three word forms of the reference corpus are left out as spellings of single names rather than facts about the language."
+  "onset_clusters_comment": "Consonant clusters that open a syllable. Every one of them is attested at the start of a Slovak word and rises in sonority; a cluster that begins a word without rising (st-, sk-, šp-, vl-, vz-) opens a word but not an inner syllable, which is why sestra divides ses-tra while Abraham divides A-bra-ham. Clusters occurring in fewer than three word forms of the reference corpus are left out as spellings of single names rather than facts about the language.",
+
+  "attested_onsets": [
+    "bd", "bh", "bl", "br", "bz", "bľ",
+    "chc", "chl", "chm", "chr", "cht", "chv", "chľ", "chň",
+    "cl", "cm", "cn", "cr", "ct", "cv",
+    "db", "dc", "dl", "dm", "dn", "dr", "dv", "dň",
+    "džb",
+    "fj", "fl", "fr", "fľ", "fň",
+    "gh", "gl", "gn", "gr", "gv",
+    "hl", "hm", "hml", "hn", "hr", "hv", "hľ",
+    "kd", "kh", "kl", "km", "kn", "kr", "ks", "kt", "kv", "kľ", "kň", "kš",
+    "mck", "mdl", "ml", "mn", "mr", "mst", "mzd", "mľ", "mň",
+    "pch", "pchj", "pd", "ph", "pl", "pn", "pr", "ps", "pstr", "pt", "pľ", "pň", "pš", "pštr",
+    "sc", "sch", "schl", "schm", "schn", "schr", "schv", "scr", "sf", "sh", "sk", "skl", "skr", "skv", "skľ", "sl", "sm", "smr", "sn", "sp", "spl", "spr", "spľ", "sr", "st", "stl", "stm", "str", "stv", "sv", "sč", "sľ", "sň", "sť",
+    "th", "tk", "tkv", "tl", "tm", "tr", "ts", "tsch", "tv", "tľ",
+    "vb", "vc", "vch", "vd", "vh", "vhn", "vhľ", "vj", "vk", "vkl", "vkr", "vl", "vm", "vn", "vp", "vpl", "vpr", "vr", "vs", "vsk", "vst", "vstr", "vt", "vtk", "vtl", "vtr", "vz", "vzb", "vzch", "vzd", "vzh", "vzhl", "vzhľ", "vzk", "vzkl", "vzkr", "vzl", "vzm", "vzn", "vzp", "vzpl", "vzpr", "vzr", "vzt", "vzď", "vzť", "vč", "včl", "vď", "vľ", "vš", "všt", "vť", "vž", "vžd",
+    "zb", "zbl", "zbr", "zc", "zd", "zdr", "zdv", "zg", "zh", "zhl", "zhm", "zhn", "zhr", "zj", "zl", "zm", "zml", "zmn", "zmr", "zn", "zr", "zv", "zvl", "zvn", "zvr", "zď", "zľ", "zž",
+    "čl", "čm", "čn", "čr", "čv", "čľ",
+    "ľst", "ľsť",
+    "šk", "škr", "škv", "škľ", "šl", "šm", "šn", "šp", "špl", "šr", "št", "štr", "štv", "šv", "šľ", "šť",
+    "žd", "žl", "žm", "žn", "žr", "žv", "žľ"
+  ],
+  "attested_onsets_comment": "Consonant clusters a Slovak word is written with before a vowel. This is a wider set than 'onset_clusters': it records what a syllable CAN open with, not what wins the sonority contest inside a word, so st-, sk-, vl- and vz- belong here and not there. Section 4.3 of the division rules needs exactly this: when three or more consonants stand between two nuclei the first closes the preceding syllable and the rest OPENS the next one, which presupposes that the rest is a possible opening. It is not always — al-žbetínska leaves žb-, and no Slovak word is written žb- before a vowel — so the point moves right until what follows it is listed here (alž-betínska). Derived from the reference corpus of 179 537 word forms: the consonant run before the first vowel nucleus of a word, kept when at least two forms attest it and every phoneme is a Slovak consonant. A run before a syllabic r/l is a different fact and is not recorded (žblnkot licenses žbl- before syllabic l, not žb- before a vowel). Every cluster here is derivable from that corpus and none is hand-added: gv- and žd- were missing from the sample and the words carrying them were entered into the corpus from the codifying handbook itself — PSP 2013 prints gvaš and Ždiar, Ždaňa, ždiarsky, and the Ortograficko-gramatický slovník (2022) adds gvardián, gvardiánsky, gvašový, gver, gvint, gvintovky. The criterion is how Slovak words are written, so the fix belongs in the sample and not in an exception list."
 }

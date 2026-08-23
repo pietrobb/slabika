@@ -39,7 +39,7 @@ _SK_PREFIXES = [
     # 5+ letter
     'medzi', 'proti', 'predo', 'trans',
     # 4 letter
-    'pred', 'bezo', 'nado', 'podo', 'vzo',
+    'pred', 'bezo', 'nado', 'podo', 'vzo', 'arci',
     # 3 letter — productive Slovak prefixes
     'naj', 'nad', 'pod', 'pre', 'pri', 'pro', 'roz', 'bez', 'odo', 'pra', 'sú', 'syn',
     # 2 letter
@@ -110,7 +110,7 @@ _SK_SUFFIXES_CONS = [
     'tva',    # pas·tva
     # 2 chars
     'sk',     # slo·ven·ský, Benát·ska, Holand·sko
-    'ný', 'ná', 'né',   # ze·me·pis·ný, pís·om·ný
+    'ný', 'ná', 'né', 'nú', 'ní',   # ze·me·pis·ný, pís·om·ný, mast·nú, počest·ní
     'ňa',
 ]
 
@@ -130,9 +130,27 @@ _SK_COMPOSITA = [
     'pseudo', 'semi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',
     'super', 'hyper', 'meta', 'multi', 'mini', 'maxi',
     # Slovak-specific composita
-    'modlo', 'rodo', 'jedno', 'stredo', 'brati', 'mäso',
+    'modlo', 'rodo', 'jedno', 'stredo', 'brati', 'mäso', 'krátko', 'krato',
     'veľ',   # veľ·kňaz, veľ·kolepý, veľ·mocný
 ]
+
+# Compositional second-parts. A multiplicative numeral is a compound of the
+# counting word and krát (dva·krát, koľko·krát, desať·sto·krát), so section 3.4
+# puts the break at that seam and not where the consonant count would fall
+# (dvak·rát). The seam is found before any prefix or first-part is stripped:
+# without that, ob· and veľ· match first and swallow the numeral's own vowel.
+_SK_COMPOUND_TAILS = ('krát',)
+
+# Bound second members of Greek origin. Section 3.4 divides a compound at its
+# seam and 3.5 makes recognisability the test, not etymology: a Slovak reader
+# sees the seam in demo|krat because the same member alternates in front of him
+# — demokrat/demokracia, aristokrat/aristokracia, byrokrat/byrokracia. The -o-
+# before it is the linking vowel of 3.4 and stays with the first part. The
+# member is bound, so it is searched inside the form and not at its end
+# (aristokratickými), and it needs a first part of its own: the s- of Sokrates
+# is not one, and neither is the word-initial krat- of kratochvíľa.
+_SK_BOUND_SECOND_MEMBERS = ('krat', 'krac')
+_LINKING_VOWEL = 'o'
 
 # These cited bound forms remain intact when a compositional boundary is made.
 _BOUND_COMPOSITA = frozenset({'geo', 'teo', 'video'})
@@ -141,12 +159,15 @@ _COMPOSITA_BY_LEN = _by_length(_SK_COMPOSITA)
 
 # Word-initial clusters that license a prefix boundary before a consonant that
 # is not followed by a vowel (vz·nik, roz·str·hnúť). Includes the digraph ch.
+# A cluster is listed because a Slovak word is written with it: vžd- is here
+# because vždy is one, which is what makes na·vždy a prefix seam and not the
+# consonant count of section 4.3 (nav·ždy).
 _VALID_ONSETS = frozenset({
     'bl', 'br', 'bz', 'ch', 'dr', 'fl', 'fr', 'gl', 'gr', 'kl', 'kr',
     'db', 'hľ', 'hv', 'mk', 'mn', 'pl', 'pr', 'sl', 'sm', 'sn', 'sp', 'sr', 'st',
     'sv', 'sk', 'tr', 'tl', 'vn', 'vr', 'vl', 'vz', 'zb', 'zl',
     'zm', 'zn', 'zr', 'zv', 'šk', 'šp', 'št', 'šť', 'šv', 'žd',
-    'pch', 'sch', 'vzd', 'vst', 'str', 'spr', 'skr',
+    'pch', 'sch', 'vzd', 'vst', 'str', 'spr', 'skr', 'vžd',
 })
 
 # What can be a nucleus at all — vowels plus the syllabic consonants, used to
@@ -157,6 +178,12 @@ _VOWELS_SK = set('aáäeéiíoóôuúyýrŕlĺ')
 # consonant however syllabic that consonant may become, and testing it against
 # the set above cost ne·roz·lú·čiť its prefix.
 _VOWEL_LETTERS = set('aáäeéiíoóôuúyý')
+
+# No Slovak morpheme begins with these graphemes, so a prefix candidate that
+# leaves one of them at the head of the remainder has not found a seam but a
+# spelling accident: ob·ývať cut the b off bývať because ý looked like a root.
+# ô is deliberately absent — ôsmy exists.
+_NEVER_INITIAL = set('äýĺŕ')
 
 
 def _starts_like_a_word(rem: str) -> bool:
@@ -178,6 +205,8 @@ def _starts_like_a_word(rem: str) -> bool:
 
 def _licenses_compositum(comp: str, rem: str) -> bool:
     reml = rem.lower()
+    if (comp + reml).startswith(_LEXICALIZED_STEMS):
+        return False
     if comp == 'mäso' and not reml.startswith('žrav'):
         return False
     return any(c in _VOWELS_SK for c in reml) and _starts_like_a_word(reml)
@@ -214,6 +243,8 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             if licensed is not None and not reml.startswith(licensed):
                 continue
             if not any(c in _VOWELS_SK for c in reml):
+                continue
+            if reml[0] in _NEVER_INITIAL:
                 continue
             if licensed is not None:
                 return w[:length], rem
@@ -293,6 +324,28 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     return None, None
 
 
+def _split_compound_tail(w: str) -> tuple[str, str] | None:
+    """Split a known compositional second part off the end of *w*."""
+    wl = w.lower()
+    for tail in _SK_COMPOUND_TAILS:
+        head = wl[:-len(tail)]
+        if wl.endswith(tail) and len(head) >= 2 and any(c in _VOWELS_SK for c in head):
+            return w[:len(head)], w[len(head):]
+    return None
+
+
+def _split_bound_second_member(w: str) -> tuple[str, str] | None:
+    """Split a bound Greek second member out of the middle of *w*."""
+    wl = w.lower()
+    for member in _SK_BOUND_SECOND_MEMBERS:
+        seam = wl.find(member)
+        if seam < 3 or wl[seam - 1] != _LINKING_VOWEL:
+            continue
+        if any(c in _VOWELS_SK for c in wl[:seam - 1]):
+            return w[:seam], w[seam:]
+    return None
+
+
 def _strip_grammatical_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     """Split -mi, -me, or -te only from a consonant-final stem."""
     wl = w.lower()
@@ -317,6 +370,16 @@ def get_morpheme_parts(word: str) -> list[str]:
     wl = word.lower()
     if wl in _LEXICAL_SYLLABIFICATIONS:
         return [word]
+
+    second = _split_compound_tail(word)
+    if second is not None:
+        first, tail = second
+        return [*get_morpheme_parts(first), tail]
+
+    bound = _split_bound_second_member(word)
+    if bound is not None:
+        first, rest = bound
+        return [*get_morpheme_parts(first), *get_morpheme_parts(rest)]
 
     if wl.startswith('naj') and 'tejš' in wl[3:]:
         return [word[:3], *get_morpheme_parts(word[3:])]

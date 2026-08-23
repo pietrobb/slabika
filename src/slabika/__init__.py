@@ -36,7 +36,7 @@ from .phonotactics import (
     is_phonotactically_valid,
 )
 from .syllabify import get_syllables as syllables
-from .typo import break_points, hyphenate
+from .typo import break_points, divisions, hyphenate
 
 __version__ = "0.1.0"
 
@@ -46,6 +46,7 @@ __all__ = [
     "break_points",
     "check_preposition_form",
     "check_rhythmic_law",
+    "divisions",
     "hyphenate",
     "is_consonant",
     "is_diphthong",
