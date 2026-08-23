@@ -38,6 +38,9 @@ if str(_ROOT / "src") not in sys.path:
 from slabika import __version__ as ENGINE_VERSION  # noqa: E402
 from slabika import hyphenate, syllables  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tex_patterns import tex_hyphenate  # noqa: E402
+
 UI_PATH = Path(__file__).resolve().parent / "ui.html"
 
 OUTPUT_ACTIONS = ("confirm", "correct")
@@ -138,13 +141,33 @@ def _engine(form: str) -> tuple[str, str, str | None]:
         return form, form, f"{type(error).__name__}: {error}"
 
 
+def _load_blind(path: Path | None) -> dict[str, dict]:
+    """Verdicts of the independent blind audit, keyed by lowercase form."""
+    if path is None or not path.exists():
+        return {}
+    connection = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    rows = connection.execute(
+        "SELECT form, assessment, expected_variants_json, confidence FROM decisions"
+    ).fetchall()
+    connection.close()
+    return {
+        form: {
+            "assessment": assessment,
+            "variants": [v.replace("|", "·") for v in json.loads(variants or "[]")],
+            "confidence": confidence,
+        }
+        for form, assessment, variants, confidence in rows
+    }
+
+
 class Corpus:
     """Read-only view of the inventory plus a writable decision store."""
 
-    def __init__(self, inventory: Path, decisions: Path) -> None:
+    def __init__(self, inventory: Path, decisions: Path, blind: Path | None = None) -> None:
         self.lock = threading.Lock()
         self.inventory_path = inventory
         self.decisions_path = decisions
+        self.blind = _load_blind(blind)
 
         self.inventory = sqlite3.connect(
             f"file:{inventory.as_posix()}?mode=ro", uri=True, check_same_thread=False
@@ -373,12 +396,26 @@ class Corpus:
                 return mine[field]
             return ai[field] if ai else None
 
+        blind = self.blind.get(review_form.lower(), {})
+        blind_variants = [
+            _recase_marked(variant, review_form) for variant in blind.get("variants", [])
+        ]
+        try:
+            tex = _recase_marked(tex_hyphenate(review_form.lower()), review_form)
+        except Exception:  # noqa: BLE001 - an advisory voice must never break a row
+            tex = None
+
         return {
             "form": form,
             "review_form": review_form,
             "hyphenation": hyphenation,
             "syllabification": syllabification,
             "engine_error": error,
+            "tex": tex,
+            "tex_disagrees": bool(tex) and tex != hyphenation,
+            "blind_assessment": blind.get("assessment"),
+            "blind_variants": blind_variants,
+            "blind_disagrees": bool(blind_variants) and hyphenation not in blind_variants,
             "ai_status": ai["review_status"] if ai else "pending",
             "ai_expected": ai_expected,
             "ai_reason": ai["reason"] if ai else "",
@@ -1074,6 +1111,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="slabika review console")
     parser.add_argument("--db", type=Path, required=True, help="inventory sqlite (read-only)")
     parser.add_argument("--decisions", type=Path, help="decision store (default: next to --db)")
+    parser.add_argument(
+        "--blind",
+        type=Path,
+        default=_ROOT / "tests/data/blind_word_division_5000_v1/results.sqlite",
+        help="blind audit results (read-only, optional third voice)",
+    )
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--no-browser", action="store_true")
     arguments = parser.parse_args()
@@ -1082,11 +1125,12 @@ def main() -> int:
         parser.error(f"inventory not found: {arguments.db}")
     decisions = arguments.decisions or arguments.db.with_name("review_decisions.sqlite")
 
-    Handler.corpus = Corpus(arguments.db, decisions)
+    Handler.corpus = Corpus(arguments.db, decisions, arguments.blind)
     server = ThreadingHTTPServer(("127.0.0.1", arguments.port), Handler)
     url = f"http://127.0.0.1:{arguments.port}/"
     print(f"inventory  {arguments.db}  ({len(Handler.corpus.forms)} forms, read-only)")
     print(f"decisions  {decisions}  ({len(Handler.corpus.decided)} already decided)")
+    print(f"blind      {arguments.blind}  ({len(Handler.corpus.blind)} audited)")
     print(f"engine     slabika {ENGINE_VERSION}")
     print(f"console    {url}   (Ctrl+C to stop)")
     if not arguments.no_browser:

@@ -34,7 +34,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .spacer { flex: 1; }
 
   .grid { display: grid;
-          grid-template-columns: 46px 190px 220px 300px 430px;
+          grid-template-columns: 46px 180px 210px 250px 250px 430px;
           gap: 0 8px; align-items: center; width: max-content; }
   .hint { padding: 5px 12px; color: var(--dim); background: var(--panel);
           border-bottom: 1px solid var(--line); font-size: 12px; }
@@ -67,6 +67,13 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .edit.diff { border-color: var(--warn); color: var(--warn); }
   .edit.bad { border-color: var(--bad); color: var(--bad); }
   .edit:focus { outline: none; border-color: var(--accent); }
+  .voices { font-family: Consolas, "Cascadia Mono", monospace; font-size: 11.5px;
+            line-height: 1.35; display: grid; grid-template-columns: 52px 1fr;
+            gap: 0 6px; overflow: hidden; }
+  .voices i { color: var(--dim); font-style: normal; text-align: right; }
+  .voices span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .voices .same { color: var(--good); }
+  .voices .diff { color: var(--warn); }
   .state { font-size: 11.5px; color: var(--dim); white-space: nowrap;
            overflow: hidden; text-overflow: ellipsis; }
   .state b { font-weight: 600; }
@@ -143,6 +150,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   <span style="text-align:right">#</span>
   <span>tvar</span>
   <span>delenie riadka (PSP)</span>
+  <span>hlasy</span>
   <span>stav</span>
   <span>akcia</span>
 </div>
@@ -247,6 +255,28 @@ const LABEL = {confirm: ["potvrdené", "var(--good)"], correct: ["opravené", "v
                flag: ["⚑ je to zle", "var(--bad)"], uncertain: ["neviem", "var(--accent)"],
                invalid: ["nie je slovo", "var(--grey)"]};
 
+// Every independent opinion on this form, side by side.  The engine is the
+// yardstick; each other voice is green when it lands on the same points and
+// amber when it does not.  None of them outranks PSP — they only show where
+// a human has to decide.
+const BLIND_LABEL = {uncertain: "neviem", invalid: "nie je slovo"};
+
+function voicesHtml(it) {
+  const engine = engineText(it);
+  const lines = [["engine", engine, null]];
+  if (it.my_expected) lines.push(["človek", it.my_expected, it.my_disagrees]);
+  if (it.ai_expected) lines.push(["AI", it.ai_expected, it.ai_disagrees]);
+  if (it.blind_variants && it.blind_variants.length)
+    lines.push(["slepý AI", it.blind_variants.join("  "), it.blind_disagrees]);
+  else if (it.blind_assessment)
+    lines.push(["slepý AI", BLIND_LABEL[it.blind_assessment] || it.blind_assessment, null]);
+  if (it.tex) lines.push(["TeX", it.tex, it.tex_disagrees]);
+
+  return lines.map(([label, text, differs]) =>
+    `<i>${label}</i><span class="${differs === null ? "" : differs ? "diff" : "same"}"` +
+    ` title="${esc(text)}">${esc(text)}</span>`).join("");
+}
+
 function paint(row, it) {
   const classified = it.my_classification || it.corrected_form ||
     Object.values(it.flags).some(Boolean);
@@ -259,6 +289,8 @@ function paint(row, it) {
     input.classList.toggle("diff", input.value !== engineText(it));
     input.classList.toggle("bad", !isValid(it, input));
   });
+
+  row.querySelector(".voices").innerHTML = voicesHtml(it);
 
   const parts = [];
   const action = myAction(it);
@@ -297,6 +329,7 @@ function makeRow(it, i) {
     `<span class="idx">${S.offset + i + 1}</span>` +
     `<span class="form" title="${esc(it.review_form)}">${formText}</span>` +
     `<input class="edit" data-field="h" title="typografické delenie podľa PSP" spellcheck="false" autocomplete="off">` +
+    `<span class="voices"></span>` +
     `<span class="state"></span>` +
     `<span class="acts">` +
       `<button data-a="flag" title="je to zle (Ctrl+Enter)">⚑</button>` +
