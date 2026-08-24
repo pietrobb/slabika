@@ -27,6 +27,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
            font-size: 14px; font-family: inherit; }
   button { cursor: pointer; }
   button:hover { border-color: var(--accent); }
+  .voice-filter.on { border-color: var(--warn); color: var(--warn); background: #302817; }
   #q { width: 220px; }
   #q:focus, select:focus { outline: none; border-color: var(--accent); }
   .stat { color: var(--dim); font-size: 12.5px; }
@@ -68,7 +69,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .edit.bad { border-color: var(--bad); color: var(--bad); }
   .edit:focus { outline: none; border-color: var(--accent); }
   .voices { font-family: Consolas, "Cascadia Mono", monospace; font-size: 11.5px;
-            line-height: 1.35; display: grid; grid-template-columns: 52px 1fr;
+            line-height: 1.35; display: grid; grid-template-columns: 78px 1fr;
             gap: 0 6px; overflow: hidden; }
   .voices i { color: var(--dim); font-style: normal; text-align: right; }
   .voices span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -104,7 +105,8 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 <body>
 
 <header>
-  <input type="text" id="q" placeholder="filter…  (/)" autocomplete="off">
+  <input type="text" id="q" placeholder="hľadať tvar…  (/)" autocomplete="off"
+         title="hľadá sa v tvare slova z korpusu">
   <select id="mode" title="kde sa hľadá">
     <option value="prefix">od začiatku</option>
     <option value="any">kdekoľvek v slove</option>
@@ -132,6 +134,10 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
     <option value="verified">overené ľuďmi (import)</option>
     <option value="engine_error">engine spadol</option>
   </select>
+  <button id="tex-diff" class="voice-filter" aria-pressed="false"
+          title="ponechá iba tvary, pri ktorých sa engine a Chlebíkovej TeX líšia">Engine ≠ Chlebíková</button>
+  <button id="blind-human-diff" class="voice-filter" aria-pressed="false"
+          title="ponechá iba tvary, pri ktorých sa delenie slepého AI a človeka líši">Slepý AI ≠ človek</button>
   <select id="limit" title="koľko riadkov naraz">
     <option>200</option><option selected>500</option>
     <option>1000</option><option>2000</option>
@@ -188,8 +194,10 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 <script>
 const S = {
   items: [], total: 0, offset: 0, limit: 500, focus: 0, pending: false,
-  q: "", mode: "prefix", status: "all", loadVersion: 0,
-  applied: {q: "", mode: "prefix", status: "all", limit: 500},
+  q: "", mode: "prefix", status: "all", texDiff: false, blindHumanDiff: false,
+  loadVersion: 0,
+  applied: {q: "", mode: "prefix", status: "all", limit: 500,
+            texDiff: false, blindHumanDiff: false},
 };
 
 const $ = id => document.getElementById(id);
@@ -240,13 +248,22 @@ const entriesFor = (row, it, requiredField = null) => [...row.querySelectorAll("
 function setPending(value) {
   if (value) ++S.loadVersion;
   S.pending = value;
-  for (const id of ["q", "mode", "status", "limit", "undo", "bulk", "prev", "next"])
+  for (const id of ["q", "mode", "status", "tex-diff", "blind-human-diff", "limit",
+                    "undo", "bulk", "prev", "next"])
     $(id).disabled = value;
   document.querySelectorAll(".edit").forEach(input => { input.disabled = value; });
+}
+function syncVoiceFilters() {
+  for (const [id, active] of [["tex-diff", S.texDiff],
+                              ["blind-human-diff", S.blindHumanDiff]]) {
+    $(id).classList.toggle("on", active);
+    $(id).setAttribute("aria-pressed", String(active));
+  }
 }
 function restoreAppliedFilters() {
   Object.assign(S, S.applied);
   for (const id of ["q", "mode", "status", "limit"]) $(id).value = S[id];
+  syncVoiceFilters();
 }
 
 // -- rendering ---------------------------------------------------------
@@ -270,7 +287,7 @@ function voicesHtml(it) {
     lines.push(["slepý AI", it.blind_variants.join("  "), it.blind_disagrees]);
   else if (it.blind_assessment)
     lines.push(["slepý AI", BLIND_LABEL[it.blind_assessment] || it.blind_assessment, null]);
-  if (it.tex) lines.push(["TeX", it.tex, it.tex_disagrees]);
+  if (it.tex) lines.push(["Chlebíková", it.tex, it.tex_disagrees]);
 
   return lines.map(([label, text, differs]) =>
     `<i>${label}</i><span class="${differs === null ? "" : differs ? "diff" : "same"}"` +
@@ -431,8 +448,12 @@ async function load(offset = 0, focus = 0, field = "h") {
     document.querySelectorAll(".edit").forEach(input => { input.value = input._committed; });
     [...$("rows").children].forEach((row, i) => paint(row, S.items[i]));
   }
-  const request = {q: S.q, mode: S.mode, status: S.status, limit: S.limit};
-  const p = new URLSearchParams({...request, offset: Math.max(0, offset)});
+  const request = {q: S.q, mode: S.mode, status: S.status, limit: S.limit,
+                   texDiff: S.texDiff, blindHumanDiff: S.blindHumanDiff};
+  const p = new URLSearchParams({q: request.q, mode: request.mode,
+    status: request.status, limit: request.limit, offset: Math.max(0, offset),
+    tex_diff: request.texDiff ? 1 : 0,
+    blind_human_diff: request.blindHumanDiff ? 1 : 0});
   const data = await api("/api/list?" + p);
   if (version !== S.loadVersion) return;
   if (hasDirty() || S.pending) {
@@ -605,6 +626,12 @@ $("q").addEventListener("keydown", ev => {
 });
 $("mode").addEventListener("change", () => { S.mode = $("mode").value; load(0); });
 $("status").addEventListener("change", () => { S.status = $("status").value; load(0); });
+$("tex-diff").addEventListener("click", () => {
+  S.texDiff = !S.texDiff; syncVoiceFilters(); load(0);
+});
+$("blind-human-diff").addEventListener("click", () => {
+  S.blindHumanDiff = !S.blindHumanDiff; syncVoiceFilters(); load(0);
+});
 $("limit").addEventListener("change", () => { S.limit = +$("limit").value; load(0); });
 $("bulk").addEventListener("click", bulkConfirm);
 $("undo").addEventListener("click", undo);

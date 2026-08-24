@@ -151,8 +151,8 @@ alone.
 
 The `.tex` suffix describes the source syntax, not the only environment in which
 the patterns can be used. The payload is standard Liang pattern data: it can be
-loaded by TeX-compatible tooling, repackaged as a libhyphen/Hunspell-style
-hyphenation dictionary for applications such as LibreOffice, OpenOffice,
+loaded by TeX-compatible tooling, repackaged as a Hunspell-style hyphenation
+dictionary for applications such as LibreOffice, OpenOffice,
 Scribus or Pyphen, or converted to the pattern format of a JavaScript Liang
 engine such as Hyphenopoly. Each target still needs its own encoding and minima
 metadata, wrapper or compiled format, language registration and testing; merely

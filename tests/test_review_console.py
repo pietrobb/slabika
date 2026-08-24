@@ -130,6 +130,12 @@ def test_ui_reviews_only_typographic_word_division():
     assert "slabiky (výslovnosť)" not in html
     for label in ("Meno", "Cudzie", "Skratka", "Opraviť", "Vymazať"):
         assert f">{label}</button>" in html
+    assert 'id="tex-diff"' in html
+    assert 'id="blind-human-diff"' in html
+    assert "Engine ≠ Chlebíková" in html
+    assert "Slepý AI ≠ človek" in html
+    assert 'placeholder="hľadať tvar…  (/)"' in html
+    assert '["Chlebíková", it.tex, it.tex_disagrees]' in html
 
 
 def test_ui_uses_editable_correction_dialog_and_ignores_stale_filter_results():
@@ -266,6 +272,54 @@ def test_hyphenation_filters_ignore_legacy_syllable_only_decisions(corpus):
     corpus.decide({"form": "okno", "action": "flag", "reason": "wrong"})
     assert "okno" not in corpus._filter_status(corpus.forms, "undecided")
     assert corpus.stats()["reviewed"] == 1
+
+
+def test_voice_disagreement_filters_compose_with_query_and_status(corpus, monkeypatch):
+    engine = {"maslo": "mas·lo", "okno": "ok·no"}
+    tex = {"maslo": "ma·slo", "okno": "ok·no"}
+    monkeypatch.setattr(
+        REVIEW, "_engine", lambda form: (engine.get(form, form), form, None)
+    )
+    tex_calls = 0
+
+    def tex_voice(form):
+        nonlocal tex_calls
+        tex_calls += 1
+        return tex.get(form, form)
+
+    monkeypatch.setattr(REVIEW, "tex_hyphenate", tex_voice)
+
+    for form, marked in (("maslo", "mas-lo"), ("okno", "ok-no")):
+        corpus.decide(
+            {"form": form, "action": "confirm", "field": "hyphenation", "text": marked}
+        )
+    corpus.blind = {
+        "maslo": {"assessment": "resolved", "variants": ["ma·slo"]},
+        "okno": {"assessment": "resolved", "variants": ["ok·no"]},
+        "iphone": {"assessment": "uncertain", "variants": []},
+    }
+    tex_calls = 0
+
+    tex_page = corpus.page("m", "prefix", "confirm", 0, 10, tex_diff=True)
+    assert tex_page["total"] == 1
+    assert [item["review_form"] for item in tex_page["items"]] == ["maslo"]
+    cached_tex_calls = tex_calls
+    assert cached_tex_calls == len(corpus.forms) + 1
+
+    blind_page = corpus.page(
+        "", "prefix", "confirm", 0, 10, blind_human_diff=True
+    )
+    assert blind_page["total"] == 1
+    assert [item["review_form"] for item in blind_page["items"]] == ["maslo"]
+    assert corpus.page(
+        "ok", "prefix", "confirm", 0, 10, blind_human_diff=True
+    )["total"] == 0
+
+    combined = corpus.page(
+        "m", "prefix", "confirm", 0, 10, tex_diff=True, blind_human_diff=True
+    )
+    assert [item["review_form"] for item in combined["items"]] == ["maslo"]
+    assert tex_calls == cached_tex_calls + 2
 
 
 def test_migration_and_second_output_preserve_first_output(corpus):

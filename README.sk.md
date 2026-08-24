@@ -226,7 +226,7 @@ zverejneného repozitára ich ešte nemožno nanovo vygenerovať.
 Prípona `.tex` označuje zdrojový zápis, nie jediné prostredie, v ktorom sa vzory
 dajú použiť. Samotný obsah tvoria štandardné Liangove vzory: možno ich načítať
 nástrojmi kompatibilnými s TeXom, prebaliť do deliaceho slovníka vo formáte
-libhyphen/Hunspell pre aplikácie ako LibreOffice, OpenOffice, Scribus či Pyphen,
+Hunspell pre aplikácie ako LibreOffice, OpenOffice, Scribus či Pyphen,
 alebo skonvertovať do formátu Liangovho JavaScriptového enginu, napríklad
 Hyphenopoly. Každé cieľové prostredie ešte potrebuje vlastné údaje o kódovaní a
 minimách, obal alebo skompilovaný formát, registráciu jazyka a otestovanie;

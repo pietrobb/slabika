@@ -206,20 +206,7 @@ SEAM_KEEPS_THE_VOWELS_APART = {
 
 
 @pytest.mark.parametrize(
-    ("word", "expected"),
-    [
-        pytest.param(
-            word,
-            expected,
-            marks=pytest.mark.xfail(
-                word in ("neurológ", "nautika"),
-                reason="a loan whose opening looks like ne-/na-; needs the "
-                       "word-identity layer, not a list",
-                strict=True,
-            ),
-        )
-        for word, expected in FALLING_DIPHTHONG_IS_ONE_NUCLEUS.items()
-    ],
+    ("word", "expected"), FALLING_DIPHTHONG_IS_ONE_NUCLEUS.items()
 )
 def test_au_eu_ou_are_one_nucleus_inside_a_morpheme(word, expected):
     assert get_syllables(word) == expected

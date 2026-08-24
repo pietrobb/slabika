@@ -27,7 +27,7 @@ SPDX-License-Identifier = "Apache-2.0 OR MIT"
 # tests/test_provenance.py instead, where it produces a readable failure.
 # ---------------------------------------------------------------------------
 [[annotations]]
-path = ["data/**", "src/slabika/data/**"]
+path = ["data/**", "src/slabika/data/**", "tests/data/**"]
 precedence = "closest"
 SPDX-FileCopyrightText = "2026 Peter Bezemek"
 SPDX-License-Identifier = "CC0-1.0 OR MIT"

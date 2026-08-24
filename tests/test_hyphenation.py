@@ -12,6 +12,11 @@ from slabika import (
     split_into_phonemes,
     syllables as get_syllables,
 )
+from tools.liang_experiment import (
+    cardinal_parts,
+    cardinal_word,
+    generate_numeral_training_words,
+)
 
 
 def test_slovak_hyphenation_golden_cases():
@@ -30,6 +35,9 @@ def test_slovak_hyphenation_golden_cases():
         "pohľadom": "po·hľa·dom",
         "pohľady": "po·hľa·dy",
         "Opatrnosť": "Opa·tr·nosť",
+        "krátkosti": "krát·kos·ti",
+        "krátkostí": "krát·kos·tí",
+        "krátkozraký": "krát·ko·zra·ký",
         "dôkladne": "dô·klad·ne",
         "ohrada": "ohra·da",
         "ohradený": "ohra·de·ný",
@@ -54,6 +62,20 @@ def test_slovak_hyphenation_golden_cases():
         "najnešťastnejší": "naj·ne·šťast·nej·ší",
         "najprostejšiu": "naj·pros·tej·šiu",
         "najistejšiu": "naj·is·tej·šiu",
+        "neurológ": "neu·ro·lóg",
+        "neurológovia": "neu·ro·ló·go·via",
+        "neukrátené": "ne·u·krá·te·né",
+        "afrodiziakum": "af·ro·di·zi·a·kum",
+        "akciami": "ak·ci·ami",
+        "funkciami": "funk·ci·ami",
+        "aeronauti": "ae·ro·nau·ti",
+        "aeronautika": "ae·ro·nau·ti·ka",
+        "naučiť": "na·učiť",
+        "nautešujú": "na·ute·šu·jú",
+        "arciposlami": "ar·ci·pos·la·mi",
+        "arciposlovia": "ar·ci·pos·lo·via",
+        "mahagónovohneda": "ma·ha·gó·no·vo·hne·da",
+        "mastnoksichtej": "mast·no·ksich·tej",
     }
 
     assert {word: hyphenate(word) for word in expected} == expected
@@ -89,6 +111,8 @@ def test_syllabification_and_typographic_hyphenation_are_separate_layers():
     assert get_syllables("choroba") == ["cho", "ro", "ba"]
     assert get_syllables("Slovensko") == ["slo", "ven", "sko"]
     assert get_syllables("odpornosťou") == ["od", "por", "nos", "ťou"]
+    assert get_syllables("akciami") == ["ak", "ci", "a", "mi"]
+    assert get_syllables("aeronauti") == ["a", "e", "ro", "nau", "ti"]
 
     # The same spelling can have a sonority boundary and a different PSP break.
     assert get_syllables("maslo") == ["ma", "slo"]
@@ -343,10 +367,51 @@ def test_compound_seam_of_the_multiplicative_numeral():
         "dvanásťkrát": "dva·násť·krát",
         "desaťstokrát": "de·sať·sto·krát",
         "tristošesťdesiatpäťkrát": "tri·sto·šesť·de·siat·päť·krát",
+        "štyristokrát": "šty·ri·sto·krát",
+        "štyristotisíckrát": "šty·ri·sto·ti·síc·krát",
+        "podruhýkrát": "po·dru·hý·krát",
+        "šestnásťkrát": "šest·násť·krát",
         "nekonečnekrát": "ne·ko·neč·ne·krát",
     }
 
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_every_cardinal_through_one_thousand_keeps_its_component_seams():
+    for number in range(1, 1001):
+        parts = cardinal_parts(number)
+        word = cardinal_word(number)
+        expected = "·".join(hyphenate(part) for part in parts)
+        assert hyphenate(word) == expected, (number, word, parts, hyphenate(word))
+    assert hyphenate("dvestopätnástky") == "dve·sto·pät·nást·ky"
+
+
+def test_generated_numerals_cover_decimal_places_through_milliards():
+    words = generate_numeral_training_words()
+
+    assert len(words) == 1035
+    assert {cardinal_word(number) for number in range(1, 1001)} <= words
+    for place in (1, 10, 100):
+        for digit in range(1, 10):
+            count = digit * place
+            expected = "tisíc" if count == 1 else cardinal_word(count) + "tisíc"
+            assert expected in words
+            if count != 1:
+                parts = cardinal_parts(count) + ("tisíc",)
+                assert hyphenate(expected) == "·".join(hyphenate(part) for part in parts)
+    assert {
+        "jedna", "jedno", "dve",
+        "milión", "milióny", "miliónov",
+        "miliarda", "miliardy", "miliárd",
+    } <= words
+    assert {
+        word: hyphenate(word)
+        for word in ("miliarda", "miliardy", "miliárd")
+    } == {
+        "miliarda": "mi·li·ar·da",
+        "miliardy": "mi·li·ar·dy",
+        "miliárd": "mi·li·árd",
+    }
 
 
 def test_grammatical_suffix_precedes_a_compound_lookalike():
@@ -357,6 +422,8 @@ def test_arci_is_a_prefix_and_arch_lexicalizes_before_a_borrowed_stem():
     expected = {
         "arcikňazov": "ar·ci·kňa·zov",
         "arcizloduch": "ar·ci·zlo·duch",
+        "arciaristokrat": "ar·ci·aris·to·krat",
+        "arciesejca": "ar·ci·esej·ca",
         "archanjel": "arch·an·jel",
         "krátkozraký": "krát·ko·zra·ký",
         "kratochvíle": "kra·to·chví·le",
@@ -365,11 +432,6 @@ def test_arci_is_a_prefix_and_arch_lexicalizes_before_a_borrowed_stem():
     assert {word: hyphenate(word) for word in expected} == expected
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="arch- is a seam in archanjel and not in archív; the difference is "
-           "etymological and no rule derives it yet",
-)
 def test_arch_keeps_its_seam_only_where_the_second_part_is_a_word():
     assert hyphenate("archívu") == "ar·chí·vu"
     assert hyphenate("archeológ") == "ar·che·o·lóg"

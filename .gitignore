@@ -14,3 +14,17 @@ scratch/
 ClaudeSupervisor*
 models.yaml
 skills/
+
+# Local review/audit working artefacts
+/corpora/
+/review-layout-check.png
+/submission-worker-*.json
+docs/pravidla-delenia-slov-????????.md
+tests/data/blind_word_division_*/submission-*.json
+tests/data/blind_word_division_*/reconciliation.json
+/tex/hyph-cs.tex
+/tex/hyph-la.tex
+
+# Signed blind-audit state is project data, not a disposable SQLite cache.
+!tests/data/blind_word_division_5000_v1/manifest.sqlite
+!tests/data/blind_word_division_5000_v1/results.sqlite

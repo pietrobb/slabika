@@ -898,6 +898,8 @@ def test_reuse_resolves_every_file_to_the_licence_of_its_layer():
     # a pattern file in a format not yet listed fail as unclassifiable. A browser
     # interface is source too, so its markup and scripts count as code.
     def expected_licences(name):
+        if name == "tex/hyph-sk.tex":
+            return frozenset({"MIT"})
         under_data = any(part in ("data", "patterns") for part in Path(name).parts[:-1])
         is_code = Path(name).suffix in (".py", ".toml", ".html", ".css", ".js") and not under_data
         return frozenset((CODE_LICENCE if is_code else DATA_LICENCE).split(" OR "))

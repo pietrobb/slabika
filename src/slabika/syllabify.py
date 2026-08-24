@@ -76,7 +76,8 @@ _LEXICAL_PREFIX_ROOTS = (
     # po·drobiť (rozdrobiť) against pod·robiť (podmaniť) — the two are spelled
     # alike and only the sense tells them apart. PSP prints po-drobný, and the
     # adjective and its adverbs are the frequent reading of the string.
-    ('po', ('drob',)),
+    ('po', ('drob', 'druh')),
+    ('u', ('krát',)),
 )
 
 # Vocalized prefix variants (bezo-, nado-, podo-, predo-) exist only to break up
@@ -142,21 +143,36 @@ _SK_K_SUFFIX_ENDINGS = frozenset({
 
 # Compositional first-parts that act as hard split boundaries (troj·uholník, viac·hlasný...)
 _SK_COMPOSITA = [
-    'video', 'šesť', 'zeme', 'vrti',
-    'troj', 'tri', 'viac', 'geo', 'teo', 'bio', 'foto', 'auto', 'euro',
+    'deväťdesiat', 'osemdesiat', 'sedemdesiat', 'šesťdesiat', 'päťdesiat',
+    'štyridsať', 'tridsať', 'dvadsať',
+    'devätnásť', 'osemnásť', 'sedemnásť', 'šestnásť', 'pätnásť',
+    'štrnásť', 'trinásť', 'dvanásť', 'jedenásť',
+    'video', 'deväť', 'sedem', 'osem', 'šesť', 'šest', 'päť', 'zeme', 'vrti',
+    'troj', 'tri', 'dve', 'štyri', 'sto', 'viac', 'geo', 'teo', 'bio', 'foto', 'auto', 'euro',
     'agro', 'agri', 'astro', 'aero', 'anti', 'archi', 'arch',
-    'hydro', 'termo', 'elektro', 'mikro', 'makro', 'mono', 'poly',
+    'hydro', 'termo', 'elektro', 'mikro', 'makro', 'mono', 'neuro', 'poly',
     'pseudo', 'semi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',
     'super', 'hyper', 'meta', 'multi', 'mini', 'maxi',
     # Slovak-specific composita
-    'modlo', 'rodo', 'jedno', 'stredo', 'brati', 'mäso', 'krátko', 'krato',
+    'modlo', 'rodo', 'jedno', 'stredo', 'brati', 'mäso', 'mast', 'krátko', 'krato',
     'veľ',   # veľ·kňaz, veľ·kolepý, veľ·mocný
     'seba',  # seba·vedomie, seba·kritika, seba·určenie
     # First parts that are only recognisable in front of a vowel — see
     # _VOWEL_SEAM_COMPOSITA.
-    'bystro', 'dlho', 'hore', 'mnoho', 'mravo', 'novo', 'polo', 'viero',
+    'bystro', 'dlho', 'hore', 'mnoho', 'mravo', 'novo', 'no', 'polo', 'viero',
     'vše', 'vysoko',
 ]
+
+_CARDINAL_UNITS = ('jeden', 'dva', 'tri', 'štyri', 'päť', 'šesť', 'sedem', 'osem', 'deväť')
+_CARDINAL_TEENS = (
+    'desať', 'jedenásť', 'dvanásť', 'trinásť', 'štrnásť',
+    'pätnásť', 'šestnásť', 'sedemnásť', 'osemnásť', 'devätnásť',
+)
+_CARDINAL_TENS = (
+    'dvadsať', 'tridsať', 'štyridsať', 'päťdesiat',
+    'šesťdesiat', 'sedemdesiat', 'osemdesiat', 'deväťdesiat',
+)
+_HUNDRED_MULTIPLIERS = ('dve', 'tri', 'štyri', 'päť', 'sedem', 'osem', 'deväť')
 
 # A compositional first part ending in the linking vowel of section 3.4 is not
 # always one: hore·kovanie is no compound of hore, and vše·tkého no compound of
@@ -175,7 +191,7 @@ _VOWEL_SEAM_COMPOSITA = frozenset({
 # without that, ob· and veľ· match first and swallow the numeral's own vowel.
 _SK_COMPOUND_TAILS = ('krát',)
 
-# Bound second members of Greek origin. Section 3.4 divides a compound at its
+# Bound compositional second members. Section 3.4 divides a compound at its
 # seam and 3.5 makes recognisability the test, not etymology: a Slovak reader
 # sees the seam in demo|krat because the same member alternates in front of him
 # — demokrat/demokracia, aristokrat/aristokracia, byrokrat/byrokracia. The -o-
@@ -183,7 +199,7 @@ _SK_COMPOUND_TAILS = ('krát',)
 # member is bound, so it is searched inside the form and not at its end
 # (aristokratickými), and it needs a first part of its own: the s- of Sokrates
 # is not one, and neither is the word-initial krat- of kratochvíľa.
-_SK_BOUND_SECOND_MEMBERS = ('krat', 'krac')
+_SK_BOUND_SECOND_MEMBERS = ('krat', 'krac', 'hned', 'naut')
 _LINKING_VOWEL = 'o'
 
 # These cited bound forms remain intact when a compositional boundary is made.
@@ -255,7 +271,26 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         return False
     if comp == 'mäso' and not reml.startswith('žrav'):
         return False
-    if comp == 'tri' and not reml.startswith('sto'):
+    if comp in _HUNDRED_MULTIPLIERS and not reml.startswith('sto'):
+        return False
+    if comp in _CARDINAL_TENS and not reml.startswith(_CARDINAL_UNITS + ('tisíc',)):
+        return False
+    if comp == 'šest' and not reml.startswith('nás'):
+        return False
+    if comp == 'mast':
+        return reml.startswith('no')
+    if comp == 'no':
+        return reml.startswith('ksicht')
+    if comp == 'sto' and not reml.startswith(
+        _CARDINAL_UNITS + _CARDINAL_TEENS + _CARDINAL_TENS + ('tisíc',)
+    ):
+        return False
+    if comp == 'arch' and not reml.startswith(('anjel', 'ae')):
+        return False
+    if comp == 'neuro' and not reml.startswith(('lóg', 'log', 'tic', 'tič')):
+        return False
+    # krátk-osti/-ostí is an inflected -osť noun, not krátko + a second member.
+    if comp == 'krátko' and reml in ('sti', 'stí'):
         return False
     return any(c in _VOWELS_SK for c in reml) and _starts_like_a_word(reml)
 
@@ -280,7 +315,7 @@ def _is_vowel_seam(pfx: str, reml: str) -> bool:
         for root in roots
     ):
         return True
-    return reml[0] == 'u'
+    return pfx == 'arci' or reml[0] == 'u'
 
 
 def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
@@ -296,6 +331,23 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     by a vowel-like character (to avoid 'pri' + 'atelstvo' → bad split).
     """
     wl = w.lower()
+
+    # A longer recognised first part outranks a shorter prefix lookalike:
+    # neuro·lóg is not ne·urológ and polo·vodič is not po·lovodič.
+    for length, group in _COMPOSITA_BY_LEN:
+        comp = wl[:length]
+        if comp in group and len(w) == length:
+            return None, None
+        if comp in group and len(w) > length + 2:
+            rem = w[length:]
+            if _licenses_compositum(comp, rem):
+                return None, None
+
+    # The learned stem nauti- (nautika, nautilus) only looks like na|u-.
+    # Its au is one nucleus; native na|utešovať remains a genuine prefix form.
+    if wl.startswith('nauti'):
+        return None, None
+
     for pfx, roots in _LEXICAL_PREFIX_ROOTS:
         if any(wl.startswith(pfx + root) for root in roots):
             return w[:len(pfx)], w[len(pfx):]
@@ -306,6 +358,9 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             rem = w[length:]
             reml = rem.lower()
             if len(rem) < 3:
+                continue
+            # posl- is a root family (posol, poslať, poslúchať), not po- + sl-.
+            if pfx == 'po' and reml.startswith('sl'):
                 continue
             licensed = _VOCALIZED_ONLY_BEFORE.get(pfx)
             if licensed is not None and not reml.startswith(licensed):
@@ -472,6 +527,8 @@ def get_morpheme_parts(word: str) -> list[str]:
     bound = _split_bound_second_member(word)
     if bound is not None:
         first, rest = bound
+        if rest.casefold().startswith('naut'):
+            return [*get_morpheme_parts(first), rest]
         return [*get_morpheme_parts(first), *get_morpheme_parts(rest)]
 
     if wl.startswith('naj') and 'tejš' in wl[3:]:
@@ -535,6 +592,10 @@ def get_syllables(word: str) -> list[str]:
             "Slovak syllabification cannot be applied to a foreign spelling "
             "without knowing its pronunciation (PSP §5.4)."
         )
+
+    bound = _split_bound_second_member(word)
+    if bound is not None and bound[1].casefold().startswith('naut'):
+        return _syllabify_simple(word)
 
     # Split superlative naj- before applying the comparative -stejší- boundary.
     if wl.startswith('naj') and 'tejš' in wl[3:]:
@@ -619,6 +680,9 @@ def _resolve_hiatus(phonemes: list[str]) -> list[str]:
 
     * ``-ium`` in absolute final position — no native Slovak ending has this
       shape, so the i is always a separate nucleus (akvá·ri·um, štú·di·um);
+    * learned final ``-iakum``, whose ``i`` and ``a`` are separate nuclei;
+    * the learned ``miliard-`` family, whose ``i`` and ``a`` are separate nuclei;
+    * instrumental plural ``-ciami``, where ``-ami`` begins after the ``i``;
     * a diphthong standing after a long syllable and one of
       :data:`_HIATUS_TRIGGERS` — the rhythmic law bars a native diphthong there,
       so the word is a loan and the sequence is bisyllabic (Á·zi·a, bio·ló·gi·a).
@@ -640,7 +704,25 @@ def _resolve_hiatus(phonemes: list[str]) -> list[str]:
                 and i > 0
                 and phonemes[i - 1] in _HIATUS_TRIGGERS
             )
-            if latin_neuter or after_long:
+            learned_iakum = (
+                ph == 'ia'
+                and phonemes[i + 1:] == ['k', 'u', 'm']
+            )
+            learned_milliard = (
+                ph == 'ia'
+                and phonemes[max(0, i - 3):i] == ['m', 'i', 'l']
+                and phonemes[i + 1:i + 3] == ['r', 'd']
+            )
+            cia_instrumental = (
+                ph == 'ia'
+                and i > 0
+                and phonemes[i - 1] == 'c'
+                and phonemes[i + 1:] == ['m', 'i']
+            )
+            if (
+                latin_neuter or after_long or learned_iakum
+                or learned_milliard or cia_instrumental
+            ):
                 out.extend([ph[0], ph[1]])
                 continue
         out.append(ph)

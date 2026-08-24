@@ -280,6 +280,7 @@ class Corpus:
         )
         self.folded: list[str] = [_fold(form) for form in self.forms]
         self.form_set: set[str] = set(self.review_forms)
+        self._tex_disagreements: frozenset[str] | None = None
 
     # -- reading ---------------------------------------------------------
 
@@ -553,8 +554,64 @@ class Corpus:
             if form in rows and rows[form]["review_status"] == status
         ]
 
-    def page(self, query: str, mode: str, status: str, offset: int, limit: int) -> dict:
+    def precompute_voice_filters(self) -> None:
+        if self._tex_disagreements is not None:
+            return
+        matching = set()
+        for form in self.forms:
+            review_form = self.review_forms[form]
+            try:
+                tex = _recase_marked(tex_hyphenate(review_form.lower()), review_form)
+            except Exception:  # noqa: BLE001 - an unavailable voice is not a disagreement
+                continue
+            if tex != _engine(review_form)[0]:
+                matching.add(form)
+        self._tex_disagreements = frozenset(matching)
+
+    def _filter_voice_disagreements(
+        self, forms: list[str], tex_diff: bool, blind_human_diff: bool
+    ) -> list[str]:
+        if tex_diff:
+            self.precompute_voice_filters()
+            forms = [form for form in forms if form in self._tex_disagreements]
+        if blind_human_diff:
+            forms = [
+                form
+                for form in forms
+                if self.review_forms[form].lower() in self.blind
+            ]
+            rows = self._decision_rows(forms)
+            matching = []
+            for form in forms:
+                review_form = self.review_forms[form]
+                mine = rows.get(form)
+                human = _recase_marked(
+                    mine["expected_hyphenation"] if mine else None, review_form
+                )
+                blind = self.blind.get(review_form.lower(), {})
+                variants = [
+                    _recase_marked(variant, review_form)
+                    for variant in blind.get("variants", [])
+                ]
+                if human and variants and human not in variants:
+                    matching.append(form)
+            forms = matching
+        return forms
+
+    def page(
+        self,
+        query: str,
+        mode: str,
+        status: str,
+        offset: int,
+        limit: int,
+        tex_diff: bool = False,
+        blind_human_diff: bool = False,
+    ) -> dict:
         candidate = self._filter_status(self.matches(query, mode), status)
+        candidate = self._filter_voice_disagreements(
+            candidate, tex_diff, blind_human_diff
+        )
         window = candidate[offset : offset + limit]
         ai = self._ai_rows(window)
         mine = self._decision_rows(window)
@@ -1062,6 +1119,8 @@ class Handler(BaseHTTPRequestHandler):
                         query.get("status", ["all"])[0],
                         int(query.get("offset", ["0"])[0]),
                         min(int(query.get("limit", ["500"])[0]), 2000),
+                        query.get("tex_diff", ["0"])[0] == "1",
+                        query.get("blind_human_diff", ["0"])[0] == "1",
                     )
                 )
             except Exception as error:  # noqa: BLE001
@@ -1126,6 +1185,7 @@ def main() -> int:
     decisions = arguments.decisions or arguments.db.with_name("review_decisions.sqlite")
 
     Handler.corpus = Corpus(arguments.db, decisions, arguments.blind)
+    Handler.corpus.precompute_voice_filters()
     server = ThreadingHTTPServer(("127.0.0.1", arguments.port), Handler)
     url = f"http://127.0.0.1:{arguments.port}/"
     print(f"inventory  {arguments.db}  ({len(Handler.corpus.forms)} forms, read-only)")

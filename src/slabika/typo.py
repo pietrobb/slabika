@@ -239,6 +239,16 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         ):
             variants.add(seam - 1)
 
+    # Instrumental plural -ciami has the inflectional seam ci|ami. Its raw
+    # syllable points also contain cia|mi, but offering both together would
+    # isolate the one-letter syllable a; the morpheme seam is the preferred one.
+    if word.casefold().endswith('ciami'):
+        instrumental_seam = len(word) - 3
+        points.add(instrumental_seam)
+        points.discard(instrumental_seam + 1)
+        variants.discard(instrumental_seam + 1)
+        contextual.discard(instrumental_seam + 1)
+
     # The two edges are not the same rule. Leaving a one-letter syllable at the
     # end of a word is barred outright (section 9, basic level), so that point
     # is dropped from every level. Detaching a one-letter opening syllable is

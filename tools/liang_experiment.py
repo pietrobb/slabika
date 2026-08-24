@@ -35,6 +35,72 @@ ENGINE_MODES = {
     "permissive": {"all_points": True, "contextual": True},
 }
 
+_CARDINAL_UNITS = ("", "jeden", "dva", "tri", "štyri", "päť", "šesť", "sedem", "osem", "deväť")
+_CARDINAL_TEENS = (
+    "desať", "jedenásť", "dvanásť", "trinásť", "štrnásť",
+    "pätnásť", "šestnásť", "sedemnásť", "osemnásť", "devätnásť",
+)
+_CARDINAL_TENS = (
+    "", "", "dvadsať", "tridsať", "štyridsať",
+    "päťdesiat", "šesťdesiat", "sedemdesiat", "osemdesiat", "deväťdesiat",
+)
+_CARDINAL_HUNDREDS = (
+    "", "sto", "dvesto", "tristo", "štyristo",
+    "päťsto", "šesťsto", "sedemsto", "osemsto", "deväťsto",
+)
+_SCALE_WORDS = {
+    "jedna", "jedno", "dve",
+    "milión", "milióny", "miliónov",
+    "miliarda", "miliardy", "miliárd",
+}
+
+
+def cardinal_parts(number: int) -> tuple[str, ...]:
+    """Return the written components of a Slovak cardinal from 1 through 1000."""
+    if not 1 <= number <= 1000:
+        raise ValueError("cardinal number must be between 1 and 1000")
+    if number == 1000:
+        return ("tisíc",)
+
+    parts = []
+    hundreds, remainder = divmod(number, 100)
+    if hundreds:
+        hundred = _CARDINAL_HUNDREDS[hundreds]
+        if hundreds == 1:
+            parts.append(hundred)
+        else:
+            parts.extend((hundred[:-3], "sto"))
+    if remainder >= 20:
+        tens, units = divmod(remainder, 10)
+        parts.append(_CARDINAL_TENS[tens])
+        if units:
+            parts.append(_CARDINAL_UNITS[units])
+    elif remainder >= 10:
+        parts.append(_CARDINAL_TEENS[remainder - 10])
+    elif remainder:
+        parts.append(_CARDINAL_UNITS[remainder])
+    return tuple(parts)
+
+
+def cardinal_word(number: int) -> str:
+    return "".join(cardinal_parts(number))
+
+
+def generate_numeral_training_words() -> set[str]:
+    """Generate exhaustive small cardinals and bounded decimal-place probes."""
+    words = {cardinal_word(number) for number in range(1, 1001)}
+
+    # Thousands are one orthographic word, so train every non-zero digit in the
+    # units, tens and hundreds position before -tisíc. Millions and milliards
+    # are separate nouns; their count words are already exhaustive above, and
+    # only the singular/few/many scale forms have to be added separately.
+    for place in (1, 10, 100):
+        for digit in range(1, 10):
+            count = digit * place
+            words.add("tisíc" if count == 1 else cardinal_word(count) + "tisíc")
+    words.update(_SCALE_WORDS)
+    return words
+
 
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -268,14 +334,23 @@ def main() -> int:
         type=Path,
         help="Reuse the words from an existing PATGEN dictionary and relabel them.",
     )
+    parser.add_argument(
+        "--own-training-weight",
+        type=int,
+        default=1,
+        help="PATGEN multiplicity of in-domain training forms (default: 1).",
+    )
     parser.add_argument("--patgen", default="patgen")
     args = parser.parse_args()
 
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     words, corpus_stats = load_words(args.database)
-    base_train = [word for word in words if not _split_is_test(word)]
-    test = [word for word in words if _split_is_test(word)]
+    numeral_words = generate_numeral_training_words()
+    numeral_source_words = numeral_words & set(words)
+    numeral_test_words = {word for word in numeral_source_words if _split_is_test(word)}
+    base_train = [word for word in words if not _split_is_test(word) or word in numeral_words]
+    test = [word for word in words if _split_is_test(word) and word not in numeral_words]
     train = (
         load_training_words(args.training_dictionary)
         if args.training_dictionary
@@ -283,6 +358,11 @@ def main() -> int:
     )
     test_words = set(test)
     train = [word for word in train if word not in test_words]
+    train = sorted(set(train) | numeral_words)
+    if args.own_training_weight < 1:
+        parser.error("--own-training-weight must be at least 1")
+    if args.own_training_weight > 1:
+        train.extend(base_train * (args.own_training_weight - 1))
 
     dictionary, initial, translate = write_training_files(train, output_dir, args.mode)
     raw_patterns, seconds = run_patgen(args.patgen, dictionary, initial, translate, output_dir)
@@ -295,8 +375,16 @@ def main() -> int:
         "split": {
             "method": "SHA-256 salted word hash; first byte < 51 is test",
             "salt": SPLIT_SALT,
-            "train_words": len(train),
+            "train_words": len(set(train)),
+            "train_rows": len(train),
+            "own_training_weight": args.own_training_weight,
             "test_words": len(test),
+        },
+        "generated_numerals": {
+            "training_words": len(numeral_words),
+            "cardinals_1_through_1000": 1000,
+            "corpus_words_forced_from_test_to_training": len(numeral_test_words),
+            "largest_covered_scale": "miliarda",
         },
         "corpus": corpus_stats,
         "engine_mode": {
