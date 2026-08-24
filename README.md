@@ -77,8 +77,19 @@ one, and two defects are known and not fixed in this release:
   the caller cannot presently tell that refusal apart from "this word has no
   legal break point at all".
 
-The pattern-generation layer and the released word list are not in this
-repository yet.
+### Experimental Liang patterns
+
+[`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) is the first
+published **work-in-progress** pattern set. PATGEN learned its 6,376 patterns
+from 702,438 forms labelled by the current `slabika` engine; the fixed test set
+was excluded from training. On 33,734 held-out words, under the common TeX
+minima 2/3, it reproduced the engine exactly for 98.7075% of words, versus
+86.7997% for Jana Chlebíková's 1992 patterns.
+
+This measures fidelity to the current engine, not independent correctness under
+PSP. The file is therefore published for testing and review; it is not yet the
+project's final pattern release and is not used by the Python package. The
+training word list and complete generation pipeline are not published yet.
 
 ## Licensing
 

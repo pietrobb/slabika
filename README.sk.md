@@ -151,8 +151,19 @@ známe a v tomto vydaní neopravené:
   lenže volajúci zatiaľ nerozlíši toto odmietnutie od „toto slovo nemá žiadny
   prípustný deliaci bod“.
 
-Vrstva generovania vzorov a zverejnený zoznam slov v tomto repozitári zatiaľ
-nie sú.
+### Experimentálne Liangove vzory
+
+[`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) je prvá
+zverejnená **pracovná verzia** vzorov. PATGEN sa naučil jej 6 376 vzorov zo
+702 438 tvarov označených súčasným enginom `slabika`; pevná testovacia množina
+bola z tréningu vylúčená. Na 33 734 odložených slovách pri spoločných minimách
+TeXu 2/3 presne reprodukovala engine v 98,7075 % slov oproti 86,7997 % pri
+vzoroch Jany Chlebíkovej z roku 1992.
+
+Tieto čísla merajú vernosť súčasnému enginu, nie nezávislú správnosť podľa PSP.
+Súbor je preto zverejnený na skúšanie a pripomienkovanie; zatiaľ nejde o finálne
+vydanie vzorov a balík Python ho nepoužíva. Tréningový zoznam slov ani úplná
+pipeline generovania zatiaľ zverejnené nie sú.
 
 ## Autor
 
