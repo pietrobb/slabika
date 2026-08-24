@@ -148,11 +148,17 @@ príkazom `python -m pip install -e .`.
 | pracovné dáta slov a revízií | **sú** — SQLite snapshoty v `tests/data/` obsahujú izolované tvary a stav kontroly, nie súvislý text |
 | revízna konzola | **čiastočne** — server a UI sú verzované, ale pomocný modul na porovnanie s TeXom ešte nie je zverejnený, takže čistý checkout nespustí celú konzolu |
 | zdrojový prozaický korpus | **nie je zverejnený** — repozitár neobsahuje vety, poradie slov ani štruktúru zdrojových textov |
-| experimentálne Liangove vzory | **sú** — `patterns/hyph-sk-slabika.tex`, výslovne označené ako rozpracované |
+| experimentálne Liangove vzory | **sú** — preferovaný a permisívny súbor v `patterns/`, výslovne označené ako rozpracované |
 | úplný vstup a pipeline k zverejneným vzorom | **zatiaľ nie sú** — samotný repozitár nevie zopakovať experiment so 702 438 tvarmi |
 | používanie Liangových vzorov balíkom Python | **nie je implementované** — balík spúšťa priamo pravidlový engine |
 | nezávislý PSP gold benchmark alebo certifikovaná celková presnosť | **zatiaľ nie sú** |
 | finálne vydanie vzorov a integrácie pre prehliadače, kancelárske či sadzobné systémy | **zatiaľ nie sú** |
+
+Tieto tri úrovne sú reálne odlišné výstupy toho istého algoritmu. Napríklad
+`hyphenate("všeobecne")` vráti preferované `vše·obec·ne`, kým
+`hyphenate("všeobecne", contextual=True)` pridá aj prípustný, ale nepreferovaný
+bod a vráti `vše·o·bec·ne`. Druhý výsledok neznamená opravu prvého: iba
+sprístupňuje bod, ktorý môže sadzba použiť, keď preferované body nestačia.
 
 Verzované testy enginu a proveniencie pokrývajú jazykové pravidlá, hraničné
 triedy, verejné API a licenčné obmedzenia. Testy revíznej konzoly sú tiež
@@ -183,25 +189,39 @@ presnosti pravidlového enginu.
 
 ### Experimentálne Liangove vzory
 
-[`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) je prvá
-zverejnená **pracovná verzia** vzorov. Obsahuje 6 376 vzorov a ani jednu výnimku
-celého slova. PATGEN sa ich naučil zo 702 438 tvarov označených predvolenými
-bodmi súčasného enginu `slabika`; pevná testovacia množina bola z tréningu
-vylúčená.
+Projekt zverejňuje dve **pracovné verzie** vzorov, naučené z rovnakých 702 438
+tvarov; pevná testovacia množina bola z oboch tréningov vylúčená:
+
+- [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) je predvolený
+  preferovaný súbor (6 357 vzorov), trénovaný z `break_points(word)`;
+- [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
+  je permisívny súbor pre úzku sadzbu (5 796 vzorov), trénovaný z
+  `break_points(word, all_points=True, contextual=True)`.
+
+Oba súbory sú bez výnimiek celého slova. Na vstup aj vyhodnotenie sa uplatnili
+okrajové minimá TeXu 2/3.
+
+Štandardný Liangov súbor sprístupňuje iba jednu nerozlíšenú množinu bodov; nevie
+zachovať informáciu „tento bod preferuj, tento použi iba v úzkej sadzbe“.
+Rozlíšenie preto nesú dva samostatné súbory. Bežná sadzba má používať preferovaný
+súbor. Permisívny súbor navyše sprístupňuje rovnocenné kodifikované varianty aj
+prípustné, ale nepreferované kontextové body; oba súbory sa nemajú načítať naraz.
 
 Na 33 734 odložených slovách pri rovnakých ľavých/pravých minimách TeXu 2/3 pre
 oba súbory aj cieľ vyšiel tento výsledok:
 
 | vzory | presné celé slová | precision bodov | recall bodov |
 | --- | ---: | ---: | ---: |
-| **slabika WIP (6 376 vzorov)** | **98,7075 %** (33 298/33 734) | **99,8194 %** | **99,4032 %** |
-| Jana Chlebíková 1992 | 86,7997 % | 94,7457 % | 93,6176 % |
+| **slabika preferovaný (6 357 vzorov)** | **98,7342 %** (33 307/33 734) | **99,8179 %** | **99,4140 %** |
+| Jana Chlebíková 1992 proti preferovanému cieľu | 86,8086 % | 94,7520 % | 93,6268 % |
+| **slabika permisívny (5 796 vzorov)** | **98,8380 %** (33 342/33 734) | **99,8243 %** | **99,4793 %** |
+| Jana Chlebíková 1992 proti permisívnemu cieľu | 86,3194 % | 95,3403 % | 93,3471 % |
 
 Je to benchmark **vernosti súčasnému pravidlovému enginu**, nie nezávislý
 benchmark správnosti podľa PSP. Body enginu mimo spoločných miním TeXu sa
-nehodnotili. Súbor sa už dá skúšať a použiť v nadväzujúcich experimentoch, ale
-nie je finálnym vydaním, balík Python ho zatiaľ nepoužíva a zo samotného
-zverejneného repozitára ho ešte nemožno nanovo vygenerovať.
+nehodnotili. Súbory sa už dajú skúšať a použiť v nadväzujúcich experimentoch,
+ale nie sú finálnym vydaním, balík Python ich zatiaľ nepoužíva a zo samotného
+zverejneného repozitára ich ešte nemožno nanovo vygenerovať.
 
 Prípona `.tex` označuje zdrojový zápis, nie jediné prostredie, v ktorom sa vzory
 dajú použiť. Samotný obsah tvoria štandardné Liangove vzory: možno ich načítať

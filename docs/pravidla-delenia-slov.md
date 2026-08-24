@@ -252,6 +252,23 @@ Z toho vyplýva, že referenčné dáta môžu pri niektorých slovách obsahova
 než jeden prípustný výsledok. Test by v takom prípade nemal bez ďalšieho dôvodu
 vyhlásiť jeden kodifikovaný variant za jediný správny.
 
+### 9.1 Mapovanie na výstupy enginu a Liangove vzory
+
+Aktuálne API vracia predvolene iba preferovanú úroveň. Napríklad
+`hyphenate("všeobecne")` dá `vše·obec·ne`. Volanie s `contextual=True` pridá aj
+prípustný, ale nepreferovaný slabičný bod `všeo|becne`, takže výsledkom je
+`vše·o·bec·ne`. Parameter `all_points=True` osobitne pridáva rovnocenné varianty
+kodifikované v časti 3.5.
+
+Projekt preto zverejňuje dva pracovné Liangove súbory. Predvolený
+`patterns/hyph-sk-slabika.tex` sa učí z preferovaných bodov volania
+`break_points(word)`. Súbor `patterns/hyph-sk-slabika-permissive.tex` sa učí zo
+zjednotenia všetkých troch úrovní cez
+`break_points(word, all_points=True, contextual=True)` a je určený pre úzku
+sadzbu. Bežný formát Liangových vzorov nevie zachovať prioritu medzi bodmi: bod
+je pri použití buď sprístupnený, alebo zakázaný. Preto sa význam úrovní zachováva
+dvoma samostatnými súbormi a tieto súbory sa nemajú načítať naraz.
+
 ## 10. Zdroj a spôsob použitia
 
 Normatívnym podkladom sú *Pravidlá slovenského pravopisu*, 3., upravené a

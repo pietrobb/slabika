@@ -72,11 +72,17 @@ What the published repository currently contains — and does not contain:
 | working word/review data | **present** — the SQLite snapshots in `tests/data/` contain isolated forms and review state, not running text |
 | review console | **partial** — the server and UI are tracked, but their TeX comparison helper is not published yet, so a clean checkout cannot run the complete console |
 | source prose corpus | **not published** — no sentences, word order or source-text structure are shipped |
-| experimental Liang patterns | **present** — `patterns/hyph-sk-slabika.tex`, explicitly marked work in progress |
+| experimental Liang patterns | **present** — preferred and permissive sets in `patterns/`, explicitly marked work in progress |
 | complete input and pipeline for the published pattern set | **not published yet** — the repository alone cannot regenerate the 702,438-form experiment |
 | use of Liang patterns by the Python package | **not implemented** — the package runs the rule engine directly |
 | independent PSP gold benchmark or certified overall accuracy | **not available yet** |
 | final TeX release and integrations for browsers, office suites or typesetters | **not available yet** |
+
+These three levels are genuinely different outputs of the same algorithm. For
+example, `hyphenate("všeobecne")` returns the preferred `vše·obec·ne`, while
+`hyphenate("všeobecne", contextual=True)` also exposes the legal but discouraged
+point and returns `vše·o·bec·ne`. The latter does not correct the former: it
+merely makes a point available when the preferred points do not fit the measure.
 
 The tracked engine and provenance tests cover the language rules, boundary
 classes, public API and licensing constraints. Review-console tests are also
@@ -107,24 +113,39 @@ overall accuracy claim for the rule engine today.
 
 ### Experimental Liang patterns
 
-[`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) is the first
-published **work-in-progress** pattern set. It contains 6,376 patterns and no
-whole-word exceptions. PATGEN learned it from 702,438 forms labelled with the
-preferred points of the current `slabika` engine; the fixed test set was excluded
-from training.
+The project publishes two **work-in-progress** pattern sets learned from the same
+702,438 forms; the fixed test set was excluded from both training runs:
+
+- [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) is the default
+  preferred set (6,357 patterns), trained from `break_points(word)`;
+- [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
+  is the permissive set for narrow measures (5,796 patterns), trained from
+  `break_points(word, all_points=True, contextual=True)`.
+
+Both sets contain no whole-word exceptions. TeX edge minima 2/3 were applied to
+both the input and evaluation.
+
+A standard Liang pattern file exposes one undifferentiated set of points; it
+cannot retain the instruction “prefer this point, use that one only in a narrow
+measure”. Two separate files therefore carry that distinction. Normal typesetting
+should use the preferred set. The permissive set additionally exposes equally
+codified variants and legal but discouraged contextual points; the two sets must
+not be loaded together.
 
 On 33,734 held-out words, with the same TeX left/right minima of 2/3 applied to
 both competitors and to the target, the result was:
 
 | patterns | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| **slabika WIP (6,376 patterns)** | **98.7075%** (33,298/33,734) | **99.8194%** | **99.4032%** |
-| Jana Chlebíková 1992 | 86.7997% | 94.7457% | 93.6176% |
+| **slabika preferred (6,357 patterns)** | **98.7342%** (33,307/33,734) | **99.8179%** | **99.4140%** |
+| Jana Chlebíková 1992 against the preferred target | 86.8086% | 94.7520% | 93.6268% |
+| **slabika permissive (5,796 patterns)** | **98.8380%** (33,342/33,734) | **99.8243%** | **99.4793%** |
+| Jana Chlebíková 1992 against the permissive target | 86.3194% | 95.3403% | 93.3471% |
 
 This is a benchmark of **fidelity to the current rule engine**, not an
 independent PSP correctness benchmark. Engine points outside the common TeX
-minima were excluded from scoring. The file is useful for testing and downstream
-experiments, but it is not a final pattern release, is not yet wired into the
+minima were excluded from scoring. The files are useful for testing and downstream
+experiments, but they are not a final pattern release, are not yet wired into the
 Python package, and cannot yet be regenerated from the published repository
 alone.
 
