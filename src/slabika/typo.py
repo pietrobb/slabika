@@ -45,6 +45,13 @@ MIDDLE_DOT = '\u00b7'
 #: Soft hyphen — what you want when the output goes into rendered text.
 SOFT_HYPHEN = '\u00ad'
 
+#: Inflected forms of productive -nosť whose seam belongs only to typographic
+#: morphology. Splitting them before linguistic syllabification hides a short
+#: syllabic r/l at the edge of the stem (opatrnosť: o-pa-tr-nosť).
+_TYPOGRAPHIC_NOST_FORMS = (
+    'nosťami', 'nostiach', 'nostiam', 'nosťou', 'ností', 'nosti', 'nosť',
+)
+
 
 def _nucleus_spans(word: str) -> tuple[list[str], list[int], list[tuple[int, int]]]:
     """Return phonemes, offsets, and logical nucleus spans for PSP division."""
@@ -120,6 +127,23 @@ def _variant_crosses_seam(left: str, right: str) -> bool:
     ) or rightl.startswith('cia')
 
 
+def _typographic_nost_seams(parts: list[str]) -> list[int]:
+    """Return productive -nosť/-nost- seams without changing syllabification."""
+    seams = []
+    offset = 0
+    for part in parts:
+        folded = part.casefold()
+        for form in _TYPOGRAPHIC_NOST_FORMS:
+            if folded.endswith(form):
+                stem_length = len(part) - len(form)
+                stem = part[:stem_length]
+                if stem_length >= 3 and any(is_vowel(char) for char in stem):
+                    seams.append(offset + stem_length)
+                break
+        offset += len(part)
+    return seams
+
+
 def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     """Return (preferred, variant, contextual) break offsets for *word*.
 
@@ -158,6 +182,28 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         if index < len(parts) - 1:
             points.add(pos)
             seams.append((pos, part, parts[index + 1]))
+
+    # Productive -nosť belongs to typographic morphology, but must not split the
+    # input to linguistic syllabification: opatr|nosť still contains syllabic r.
+    # Its seam replaces only a competing point inside the same consonant run.
+    nost_seams = _typographic_nost_seams(parts)
+    if nost_seams:
+        _, offsets, nuclei = phoneme_layout(word)
+        nucleus_offsets = {offsets[index] for index in nuclei}
+        for seam in nost_seams:
+            points = {
+                point for point in points
+                if point == seam
+                or any(
+                    offset in nucleus_offsets
+                    for offset in range(min(point, seam), max(point, seam))
+                )
+                or not all(
+                    is_consonant(char)
+                    for char in word[min(point, seam):max(point, seam)]
+                )
+            }
+            points.add(seam)
 
     # PSP explicitly permits both the morphemic point and the competing
     # syllabic point in these structural classes. The raw whole-word rule gives

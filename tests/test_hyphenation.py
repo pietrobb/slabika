@@ -144,6 +144,20 @@ def test_psp_cluster_boundaries_are_independent_of_syllabification():
     assert {word: hyphenate(word) for word in expected} == expected
 
 
+def test_typographic_nost_seam_preserves_syllabic_r():
+    expected = {
+        "absurdnosť": "ab·surd·nosť",
+        "počestnosť": "po·čest·nosť",
+        "počestnosťou": "po·čest·nos·ťou",
+        "opatrnosť": "opa·tr·nosť",
+        "opatrnosti": "opa·tr·nos·ti",
+    }
+
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert get_syllables("opatrnosť") == ["o", "pa", "tr", "nosť"]
+    assert hyphenate("mäsovosť") == "mä·so·vosť"
+
+
 def test_psp_doublets_offer_both_break_points():
     expected = {
         "lietadlo": {5, 6},
