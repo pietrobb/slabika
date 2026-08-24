@@ -143,7 +143,7 @@ _SK_K_SUFFIX_ENDINGS = frozenset({
 # Compositional first-parts that act as hard split boundaries (troj·uholník, viac·hlasný...)
 _SK_COMPOSITA = [
     'video', 'šesť', 'zeme', 'vrti',
-    'troj', 'viac', 'geo', 'teo', 'bio', 'foto', 'auto', 'euro',
+    'troj', 'tri', 'viac', 'geo', 'teo', 'bio', 'foto', 'auto', 'euro',
     'agro', 'agri', 'astro', 'aero', 'anti', 'archi', 'arch',
     'hydro', 'termo', 'elektro', 'mikro', 'makro', 'mono', 'poly',
     'pseudo', 'semi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',
@@ -254,6 +254,8 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
     if comp in _VOWEL_SEAM_COMPOSITA and reml[0] not in _VOWEL_LETTERS:
         return False
     if comp == 'mäso' and not reml.startswith('žrav'):
+        return False
+    if comp == 'tri' and not reml.startswith('sto'):
         return False
     return any(c in _VOWELS_SK for c in reml) and _starts_like_a_word(reml)
 
@@ -487,16 +489,16 @@ def get_morpheme_parts(word: str) -> list[str]:
     if pfx is not None:
         return [pfx, *get_morpheme_parts(rem)]
 
+    stem, sfx = _strip_grammatical_suffix(word)
+    if stem is not None:
+        return [*get_morpheme_parts(stem), sfx]
+
     for length, group in _COMPOSITA_BY_LEN:
         comp = wl[:length]
         if comp in group and len(word) > length + 2:
             rem = word[length:]
             if _licenses_compositum(comp, rem):
                 return [word[:length], *get_morpheme_parts(rem)]
-
-    stem, sfx = _strip_grammatical_suffix(word)
-    if stem is not None:
-        return [*get_morpheme_parts(stem), sfx]
 
     stem, sfx = _strip_suffix(word)
     if stem is not None:

@@ -292,12 +292,14 @@ def test_the_three_levels_of_section_9_are_kept_apart():
     one-letter opening syllable (step 7 of section 8) are legal points the norm
     tells the typesetter to leave alone unless the measure forces his hand.
     """
-    for word in ("poučiť", "neužil", "trojuholník", "ideál"):
+    for word in ("poučiť", "neužil", "trojuholník", "všeobecne", "ideál"):
         assert break_points(word) == break_points(word, all_points=True), word
         assert set(break_points(word)) < set(break_points(word, contextual=True)), word
 
     assert hyphenate("poučiť") == "po·učiť"
     assert hyphenate("poučiť", contextual=True) == "po·u·čiť"
+    assert hyphenate("všeobecne") == "vše·obec·ne"
+    assert hyphenate("všeobecne", contextual=True) == "vše·o·bec·ne"
     assert hyphenate("ideál") == "ide·ál"
     assert hyphenate("ideál", contextual=True) == "i·de·ál"
 
@@ -340,10 +342,15 @@ def test_compound_seam_of_the_multiplicative_numeral():
         "koľkokrát": "koľ·ko·krát",
         "dvanásťkrát": "dva·násť·krát",
         "desaťstokrát": "de·sať·sto·krát",
+        "tristošesťdesiatpäťkrát": "tri·sto·šesť·de·siat·päť·krát",
         "nekonečnekrát": "ne·ko·neč·ne·krát",
     }
 
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_grammatical_suffix_precedes_a_compound_lookalike():
+    assert hyphenate("autormi") == "au·tor·mi"
 
 
 def test_arci_is_a_prefix_and_arch_lexicalizes_before_a_borrowed_stem():
