@@ -18,16 +18,15 @@ samostatné výsledky založené na spoločnej hláskovej a morfematickej analý
 
 ## Prečo to vzniklo
 
-Otvorte si ľubovoľnú slovenskú knihu vysádzanú za posledných dvadsať rokov a
-pozrite sa na úzky stĺpec. Nájdete tam `pos-tavil`, `dopo-ludnia`, `je-dnotka`.
-To nie sú preklepy sadzača — to je to, čo mu ponúkol program.
+Slovenčina nie je bez vlastných deliacich vzorov: Jana Chlebíková zverejnila
+slovenské vzory pre TeX už v roku 1992. Tento projekt si preto nenárokuje
+prvenstvo; rieši užší problém: vytvoriť moderný a testovateľný pravidlový
+engine a z jednej konzistentnej analýzy odvodiť otvorene použiteľné Liangove
+vzory.
 
-Dôvod je prozaický: slovenčina nikdy nedostala vlastné delenie. To, čo je vo
-Worde, v LibreOffice, v prehliadačoch aj v profesionálnych sadzobných
-systémoch, vzniklo buď z českých vzorov, alebo z malého a vnútorne
-nekonzistentného zoznamu slov. Čeština a slovenčina si sú blízke práve tak, aby
-sa to na prvý pohľad zdalo v poriadku — a práve tak vzdialené, aby to bolo
-zle: `ô`, `ä`, dvojhlásky `ia/ie/iu`, `ľ`, `ŕ`, `ĺ`, rytmický zákon.
+Liangov algoritmus ani `patgen` nie sú spornou časťou. Kvalitu vzorov ohraničuje
+kvalita a konzistentnosť označených slov použitých na tréning; rozporné delenia
+vo vstupných zoznamoch sa môžu preniesť aj do výsledných vzorov.
 
 ## V čom je tento projekt iný
 
@@ -40,13 +39,14 @@ Bežný postup je taký, že sa zoznam **pozbiera** — z voľných slovníkov, 
 existujúcich zdrojov. Tým sa do vzorov prenesú aj všetky nedôslednosti tých
 zdrojov.
 
-Tento projekt zoznam **generuje**. Slabiky aj typografické deliace body sa
-počítajú z explicitného modelu jazyka: z vokalických a diftongických jadier, zo
-slabikotvorných `ŕ`, `ĺ`, `r`, `l`, zo spoluhláskových skupín a zo švíkov medzi
-morfémami. Typografická vetva navyše samostatne uplatňuje pravidlá PSP; tvary sa
-dopĺňajú morfologickým rozvinutím. Generovaný zoznam môže byť ľubovoľne veľký a
-je z podstaty veci bezosporný. Existujúci text slúži len na to, aby sa vedelo,
-akú slovnú zásobu treba pokryť — nie ako zdroj dát.
+Tento projekt vytvára tréningové delenia **výpočtom**. Súčasný Python engine
+počíta slabiky aj typografické deliace body z explicitného modelu vokalických a
+diftongických jadier, slabikotvorných `ŕ`, `ĺ`, `r`, `l`, spoluhláskových skupín
+a rozpoznaných švíkov medzi morfémami. Experimentálne Liangove vzory sa potom
+učia z tvarov označených týmto enginom, nie zo zozbieraného slovníka delenia.
+Označenia sú preto vnútorne konzistentné s enginom; to však **automaticky
+neznamená**, že sú správne podľa PSP. Existujúci text slúži len na určenie
+slovnej zásoby, ktorú treba pokryť — nie ako zdroj hotových delení.
 
 Architektúra má spoločný základ a dva samostatné výstupy:
 
@@ -54,7 +54,7 @@ Architektúra má spoločný základ a dva samostatné výstupy:
 | --- | --- |
 | `slabika.phonology` | spoločný inventár foném: dĺžka, znelosť, miesto a spôsob artikulácie, mäkkosť |
 | `slabika.syllabify` | fonotaktické členenie vysloveného slova na slabiky |
-| `slabika.typo` | prípustné miesta rozdelenia napísaného slova podľa PSP a typografických obmedzení |
+| `slabika.typo` | deliace body napísaného slova podľa projektovej interpretácie PSP a typografických obmedzení |
 | `slabika.phonotactics` | správnosť tvaru, rytmický zákon, vokalizácia predložiek |
 
 `slabika.syllabify` a `slabika.typo` netvoria potrubie, v ktorom druhý modul iba
@@ -80,10 +80,10 @@ Všetko nad inventárom foném — slabikovanie, morfematické švíky, typograf
 konvencia, slovný materiál aj generovanie vzorov — je pôvodná práca tohto
 projektu. Páleš sa rozdeľovaním slov nezaoberá.
 
-Zhoda s normou sa meria voči *Pravidlám slovenského pravopisu* (JÚĽŠ SAV),
+Normatívnou autoritou projektu sú *Pravidlá slovenského pravopisu* (JÚĽŠ SAV),
 kapitola **V. Rozdeľovanie slov**. Samostatne formulovanú projektovú referenciu
 obsahuje dokument [`docs/pravidla-delenia-slov.md`](docs/pravidla-delenia-slov.md).
-PSP sa používajú ako vyjadrenie toho, čo je správny výsledok — nie ako zdroj dát.
+PSP určujú, čo má byť správny výsledok — nepoužívajú sa ako zdroj dát.
 Tento projekt nie je nijako spojený s JÚĽŠ SAV a nie je ním schválený.
 
 ## Licencia po slovensky
@@ -131,39 +131,93 @@ MIT**. Kto CC0 nesmie použiť (a takých firemných pravidiel je viac, než by 
 čakalo), zoberie si na všetko MIT. Kto chce nulové podmienky — alebo komu ide o
 právo k databáze, ktoré MIT nerieši — zoberie si CC0. Nikto nie je blokovaný.
 
-## Stav
+## Súčasný stav
 
-Rané štádium — a je to tak zámerne. Knižnica funguje, má 167 testov a bola
-prehnaná celou slovnou zásobou, ktorej má slúžiť: 197 749 rôznych tvarov z
-vlastných prekladov držiteľa autorských práv (59 diel, 6,4 milióna tokenov;
-samotný korpus tu zverejnený nie je). Na žiadnom z nich nespadla, pri asi
-30 µs na tvar, a zopakovala všetkých 486 delení, ktoré sú ručne overené alebo
-potvrdené pri kontrole — 486 zo 486.
+`slabika` je **alfa verzia** (`0.1.0`) balíka pre Python 3.10 a novší. Nemá
+žiadne závislosti potrebné za behu a z pracovnej kópie sa dá nainštalovať
+príkazom `python -m pip install -e .`.
 
-To je celý dôkaz. Ostatné tvary jeden po druhom overené nie sú a dve chyby sú
-známe a v tomto vydaní neopravené:
+Čo dnes zverejnený repozitár obsahuje — a čo neobsahuje:
 
-- prvá časť zloženiny `geo` sa zámerne nedelí (`geo·ló·gia`) a spúšťa sa aj na
-  cudzích vlastných menách, ktoré sa tak len začínajú (`George` → `Geo·r·ge`);
-  tá istá vetva ako jediná neprevádza výstup na malé písmená;
-- 666 tvarov, väčšinou francúzskych a anglických mien, nedostane deliaci bod,
-  hoci prípustný existuje. Odmietnuť deliť cudziu fonotaktiku je obhájiteľné,
-  lenže volajúci zatiaľ nerozlíši toto odmietnutie od „toto slovo nemá žiadny
-  prípustný deliaci bod“.
+| súčasť | dnešný stav |
+| --- | --- |
+| pravidlový Python engine | **je** — slabikovanie a typografické delenie sú implementované a testované oddelene |
+| verejné API | **je** — `syllables`, `break_points`, `divisions` a `hyphenate` |
+| úrovne výstupu podľa projektovej interpretácie PSP | **sú** — predvolené body, kodifikované dublety cez `all_points=True`, neodporúčané, ale prípustné body cez `contextual=True` |
+| slovník výnimiek celých slov | **nie je, zámerne** — reprezentatívne známe nevyriešené prípady zostávajú ako padajúce špecifikácie `xfail`, kým ich nevysvetlí pravidlo |
+| pracovné dáta slov a revízií | **sú** — SQLite snapshoty v `tests/data/` obsahujú izolované tvary a stav kontroly, nie súvislý text |
+| revízna konzola | **čiastočne** — server a UI sú verzované, ale pomocný modul na porovnanie s TeXom ešte nie je zverejnený, takže čistý checkout nespustí celú konzolu |
+| zdrojový prozaický korpus | **nie je zverejnený** — repozitár neobsahuje vety, poradie slov ani štruktúru zdrojových textov |
+| experimentálne Liangove vzory | **sú** — `patterns/hyph-sk-slabika.tex`, výslovne označené ako rozpracované |
+| úplný vstup a pipeline k zverejneným vzorom | **zatiaľ nie sú** — samotný repozitár nevie zopakovať experiment so 702 438 tvarmi |
+| používanie Liangových vzorov balíkom Python | **nie je implementované** — balík spúšťa priamo pravidlový engine |
+| nezávislý PSP gold benchmark alebo certifikovaná celková presnosť | **zatiaľ nie sú** |
+| finálne vydanie vzorov a integrácie pre prehliadače, kancelárske či sadzobné systémy | **zatiaľ nie sú** |
+
+Verzované testy enginu a proveniencie pokrývajú jazykové pravidlá, hraničné
+triedy, verejné API a licenčné obmedzenia. Testy revíznej konzoly sú tiež
+verzované, ale čistý checkout ich dnes nevie ani načítať, pretože chýba pomocný
+modul uvedený vyššie. Známe nevyriešené jazykové prípady zostávajú viditeľné ako
+striktné očakávané zlyhania namiesto toho, aby ich zakryl zoznam slov. Pracovný
+inventár 179 537 tvarov sa používal
+aj na kontroly robustnosti vo veľkom, väčšina týchto tvarov však nebola
+nezávisle posúdená. To, že spracovanie nespadne, dokazuje robustnosť, nie
+správnosť každého delenia. Projekt preto dnes neuvádza percento celkovej
+presnosti pravidlového enginu.
+
+### Známe hranice Python enginu
+
+- Zo zápisu sa nedá vždy určiť identita ani výslovnosť slova. Zdanlivé predpony,
+  ktoré už zlexikalizovali, prevzaté vokalické skupiny a neadaptované cudzie mená
+  stále obsahujú známe nevyriešené prípady.
+- Tabuľka opráv celých slov zámerne neexistuje. Chýbajúce jazykové rozlíšenie
+  zostáva otvorenou regresiou, kým ho nemožno vyjadriť pravidlom alebo
+  odôvodnenou budúcou vrstvou jazykových dát.
+- `hyphenate` ponechá nepodporovaný zápis bez zmeny, kým `syllables` pri
+  alfabetických znakoch mimo analyzovateľného inventára vyvolá `ValueError`.
+  Prázdny výsledok `break_points` nerozlišuje nepodporovaný zápis od slova bez
+  prípustného deliaceho bodu.
+- Morfematická analýza enginu je pravidlová a zámerne neúplná. Nie je to
+  všeobecný morfologický analyzátor slovenčiny a nepozná jazyk ani výslovnosť
+  ľubovoľného cudzieho slova.
 
 ### Experimentálne Liangove vzory
 
 [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) je prvá
-zverejnená **pracovná verzia** vzorov. PATGEN sa naučil jej 6 376 vzorov zo
-702 438 tvarov označených súčasným enginom `slabika`; pevná testovacia množina
-bola z tréningu vylúčená. Na 33 734 odložených slovách pri spoločných minimách
-TeXu 2/3 presne reprodukovala engine v 98,7075 % slov oproti 86,7997 % pri
-vzoroch Jany Chlebíkovej z roku 1992.
+zverejnená **pracovná verzia** vzorov. Obsahuje 6 376 vzorov a ani jednu výnimku
+celého slova. PATGEN sa ich naučil zo 702 438 tvarov označených predvolenými
+bodmi súčasného enginu `slabika`; pevná testovacia množina bola z tréningu
+vylúčená.
 
-Tieto čísla merajú vernosť súčasnému enginu, nie nezávislú správnosť podľa PSP.
-Súbor je preto zverejnený na skúšanie a pripomienkovanie; zatiaľ nejde o finálne
-vydanie vzorov a balík Python ho nepoužíva. Tréningový zoznam slov ani úplná
-pipeline generovania zatiaľ zverejnené nie sú.
+Na 33 734 odložených slovách pri rovnakých ľavých/pravých minimách TeXu 2/3 pre
+oba súbory aj cieľ vyšiel tento výsledok:
+
+| vzory | presné celé slová | precision bodov | recall bodov |
+| --- | ---: | ---: | ---: |
+| **slabika WIP (6 376 vzorov)** | **98,7075 %** (33 298/33 734) | **99,8194 %** | **99,4032 %** |
+| Jana Chlebíková 1992 | 86,7997 % | 94,7457 % | 93,6176 % |
+
+Je to benchmark **vernosti súčasnému pravidlovému enginu**, nie nezávislý
+benchmark správnosti podľa PSP. Body enginu mimo spoločných miním TeXu sa
+nehodnotili. Súbor sa už dá skúšať a použiť v nadväzujúcich experimentoch, ale
+nie je finálnym vydaním, balík Python ho zatiaľ nepoužíva a zo samotného
+zverejneného repozitára ho ešte nemožno nanovo vygenerovať.
+
+Prípona `.tex` označuje zdrojový zápis, nie jediné prostredie, v ktorom sa vzory
+dajú použiť. Samotný obsah tvoria štandardné Liangove vzory: možno ich načítať
+nástrojmi kompatibilnými s TeXom, prebaliť do deliaceho slovníka vo formáte
+libhyphen/Hunspell pre aplikácie ako LibreOffice, OpenOffice, Scribus či Pyphen,
+alebo skonvertovať do formátu Liangovho JavaScriptového enginu, napríklad
+Hyphenopoly. Každé cieľové prostredie ešte potrebuje vlastné údaje o kódovaní a
+minimách, obal alebo skompilovaný formát, registráciu jazyka a otestovanie;
+samotné skopírovanie tohto súboru do aplikácie alebo na web ho nenainštaluje.
+Prehliadače neposkytujú webové API, ktorým by stránka vložila ľubovoľný vlastný
+súbor vzorov do CSS `hyphens: auto`.
+
+Vzory robia iba jednu vec: predpovedajú typografické deliace body v slovách.
+Nevracajú jazykové slabiky, morfematickú analýzu ani tri úrovne výstupu
+pravidlového enginu a nerozlišujú nepodporovaný zápis od podporovaného slova bez
+dostupného deliaceho bodu.
 
 ## Autor
 
