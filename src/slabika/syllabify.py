@@ -413,6 +413,17 @@ def _is_inflection(tail: str) -> bool:
     return tail[0] in _VOWELS_SK or tail in _CONSONANT_INITIAL_INFLECTIONS
 
 
+def _final_sonorant_needs_following_context(stem: str, following: str) -> bool:
+    """Whether short stem-final r/l is syllabic before the next morpheme."""
+    return (
+        len(stem) >= 2
+        and stem[-1].casefold() in ('r', 'l')
+        and is_consonant(stem[-2])
+        and bool(following)
+        and is_consonant(following[0])
+    )
+
+
 def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     """Return (stem, rest) if w carries a known consonant-initial suffix and
     the split produces a valid morpheme boundary. Else (None, None).
@@ -642,7 +653,12 @@ def get_syllables(word: str) -> list[str]:
     # Suffix-aware split: strip known consonant-initial derivational suffixes
     stem, sfx = _strip_suffix(word)
     if stem is not None:
-        return get_syllables(stem) + _syllabify_simple(sfx)
+        if _final_sonorant_needs_following_context(stem, sfx):
+            stem_syllables = get_syllables(stem + sfx[0])
+            stem_syllables[-1] = stem_syllables[-1][:-1]
+        else:
+            stem_syllables = get_syllables(stem)
+        return stem_syllables + _syllabify_simple(sfx)
 
     return _syllabify_simple(word)
 

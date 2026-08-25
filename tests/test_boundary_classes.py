@@ -154,6 +154,27 @@ def test_dostoj_family_is_not_split_after_prefix_shaped_do():
     } == expected
 
 
+def test_suffix_context_preserves_a_stem_final_syllabic_sonorant():
+    expected_hyphenation = {
+        "jadrná": "ja·dr·ná",
+        "opatrný": "opa·tr·ný",
+        "jadrstvo": "ja·dr·stvo",
+        "zmysluplný": "zmys·lu·pl·ný",
+    }
+    expected_syllabification = {
+        "jadrná": "ja·dr·ná",
+        "opatrný": "o·pa·tr·ný",
+        "jadrstvo": "ja·dr·stvo",
+        "zmysluplný": "zmy·slu·pl·ný",
+    }
+    assert {
+        word: hyphenate(word) for word in expected_hyphenation
+    } == expected_hyphenation
+    assert {
+        word: "·".join(get_syllables(word)) for word in expected_syllabification
+    } == expected_syllabification
+
+
 # --------------------------------------------------------------------------
 # Class 3 — diphthong against hiatus
 # --------------------------------------------------------------------------

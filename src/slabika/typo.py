@@ -31,6 +31,7 @@ from .phonology import (
 from .syllabify import (
     _SK_PREFIXES,
     _SK_SUFFIXES_CONS,
+    _final_sonorant_needs_following_context,
     get_morpheme_parts,
     phoneme_layout,
 )
@@ -177,7 +178,14 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     seams: list[tuple[int, str, str]] = []
     pos = 0
     for index, part in enumerate(parts):
-        points.update(_psp_points(part, pos))
+        next_part = parts[index + 1] if index < len(parts) - 1 else ''
+        if _final_sonorant_needs_following_context(part, next_part):
+            points.update(
+                point for point in _psp_points(part + next_part[0], pos)
+                if point < pos + len(part)
+            )
+        else:
+            points.update(_psp_points(part, pos))
         pos += len(part)
         if index < len(parts) - 1:
             points.add(pos)
