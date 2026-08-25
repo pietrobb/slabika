@@ -141,29 +141,39 @@ def _engine(form: str) -> tuple[str, str, str | None]:
         return form, form, f"{type(error).__name__}: {error}"
 
 
-def _load_blind(path: Path | None) -> dict[str, dict]:
-    """Verdicts of the independent blind audit, keyed by lowercase form."""
-    if path is None or not path.exists():
-        return {}
-    connection = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
-    rows = connection.execute(
-        "SELECT form, assessment, expected_variants_json, confidence FROM decisions"
-    ).fetchall()
-    connection.close()
-    return {
-        form: {
-            "assessment": assessment,
-            "variants": [v.replace("|", "·") for v in json.loads(variants or "[]")],
-            "confidence": confidence,
-        }
-        for form, assessment, variants, confidence in rows
-    }
+def _load_blind(paths: Path | list[Path] | tuple[Path, ...] | None) -> dict[str, dict]:
+    """Verdicts of independent blind audits, keyed by lowercase form."""
+    if isinstance(paths, Path):
+        paths = (paths,)
+    verdicts = {}
+    for path in paths or ():
+        if not path.exists():
+            continue
+        connection = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+        rows = connection.execute(
+            "SELECT form, assessment, expected_variants_json, confidence FROM decisions"
+        ).fetchall()
+        connection.close()
+        verdicts.update({
+            form: {
+                "assessment": assessment,
+                "variants": [v.replace("|", "·") for v in json.loads(variants or "[]")],
+                "confidence": confidence,
+            }
+            for form, assessment, variants, confidence in rows
+        })
+    return verdicts
 
 
 class Corpus:
     """Read-only view of the inventory plus a writable decision store."""
 
-    def __init__(self, inventory: Path, decisions: Path, blind: Path | None = None) -> None:
+    def __init__(
+        self,
+        inventory: Path,
+        decisions: Path,
+        blind: Path | list[Path] | tuple[Path, ...] | None = None,
+    ) -> None:
         self.lock = threading.Lock()
         self.inventory_path = inventory
         self.decisions_path = decisions
@@ -1173,8 +1183,8 @@ def main() -> int:
     parser.add_argument(
         "--blind",
         type=Path,
-        default=_ROOT / "tests/data/blind_word_division_5000_v1/results.sqlite",
-        help="blind audit results (read-only, optional third voice)",
+        action="append",
+        help="blind audit results; repeat to merge multiple read-only audits",
     )
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--no-browser", action="store_true")
@@ -1183,14 +1193,20 @@ def main() -> int:
     if not arguments.db.exists():
         parser.error(f"inventory not found: {arguments.db}")
     decisions = arguments.decisions or arguments.db.with_name("review_decisions.sqlite")
+    blind = arguments.blind or [
+        _ROOT / "tests/data/blind_word_division_5000_v1/results.sqlite",
+        _ROOT / "tests/data/blind_human_recheck_100_v1/results.sqlite",
+        _ROOT / "tests/data/blind_human_recheck_1000_v2/results.sqlite",
+        _ROOT / "tests/data/blind_human_recheck_2000_v3/results.sqlite",
+    ]
 
-    Handler.corpus = Corpus(arguments.db, decisions, arguments.blind)
+    Handler.corpus = Corpus(arguments.db, decisions, blind)
     Handler.corpus.precompute_voice_filters()
     server = ThreadingHTTPServer(("127.0.0.1", arguments.port), Handler)
     url = f"http://127.0.0.1:{arguments.port}/"
     print(f"inventory  {arguments.db}  ({len(Handler.corpus.forms)} forms, read-only)")
     print(f"decisions  {decisions}  ({len(Handler.corpus.decided)} already decided)")
-    print(f"blind      {arguments.blind}  ({len(Handler.corpus.blind)} audited)")
+    print(f"blind      {', '.join(map(str, blind))}  ({len(Handler.corpus.blind)} audited)")
     print(f"engine     slabika {ENGINE_VERSION}")
     print(f"console    {url}   (Ctrl+C to stop)")
     if not arguments.no_browser:

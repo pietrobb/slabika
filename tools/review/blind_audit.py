@@ -279,7 +279,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
             if (
                 form
                 and form.isalpha()
-                and not form[:1].isupper()
+                and (getattr(args, "include_uppercase", False) or not form[:1].isupper())
                 and form not in excluded
                 and folded not in seen
             ):
@@ -319,6 +319,7 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
         "excluded_set_sha256": _sha256_lines(sorted(excluded)),
         "candidate_count": str(len(candidates)),
         "excluded_count": str(len(excluded)),
+        "include_uppercase": str(getattr(args, "include_uppercase", False)).lower(),
         "item_count": str(args.count),
         "batch_size": str(args.batch_size),
         "batch_count": str(len(batches)),
@@ -501,7 +502,7 @@ def next_batch(args: argparse.Namespace) -> dict[str, object]:
         results.commit()
         if busy_batches:
             return {"busy": True, "claimed_batches": busy_batches}
-        return {"complete": True, "message": "všetkých 50 dávok je uložených"}
+        return {"complete": True, "message": "všetky dávky sú uložené"}
     except Exception:
         results.rollback()
         raise
@@ -751,6 +752,7 @@ def _parser() -> argparse.ArgumentParser:
     prepare_parser.add_argument("--seed", default="slabika-blind-5000-v1")
     prepare_parser.add_argument("--count", type=int, default=5000)
     prepare_parser.add_argument("--batch-size", type=int, default=100)
+    prepare_parser.add_argument("--include-uppercase", action="store_true")
     prepare_parser.set_defaults(handler=prepare)
 
     for name, handler in (("next", next_batch), ("status", status), ("report", report)):

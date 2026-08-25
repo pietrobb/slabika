@@ -28,3 +28,9 @@ tests/data/blind_word_division_*/reconciliation.json
 # Signed blind-audit state is project data, not a disposable SQLite cache.
 !tests/data/blind_word_division_5000_v1/manifest.sqlite
 !tests/data/blind_word_division_5000_v1/results.sqlite
+!tests/data/blind_human_recheck_100_v1/manifest.sqlite
+!tests/data/blind_human_recheck_100_v1/results.sqlite
+!tests/data/blind_human_recheck_1000_v2/manifest.sqlite
+!tests/data/blind_human_recheck_1000_v2/results.sqlite
+!tests/data/blind_human_recheck_2000_v3/manifest.sqlite
+!tests/data/blind_human_recheck_2000_v3/results.sqlite

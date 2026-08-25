@@ -122,6 +122,30 @@ def test_marked_output_may_only_change_boundaries():
         REVIEW._parse_marked("maslo", "ma-x-slo")
 
 
+def test_multiple_blind_audits_are_merged(tmp_path):
+    paths = []
+    for index, (form, marked) in enumerate((("maslo", "mas|lo"), ("okno", "ok|no"))):
+        path = tmp_path / f"blind-{index}.sqlite"
+        connection = sqlite3.connect(path)
+        connection.execute(
+            """CREATE TABLE decisions (
+                   form TEXT, assessment TEXT, expected_variants_json TEXT, confidence TEXT
+               )"""
+        )
+        connection.execute(
+            "INSERT INTO decisions VALUES (?, 'resolved', ?, 'high')",
+            (form, json.dumps([marked])),
+        )
+        connection.commit()
+        connection.close()
+        paths.append(path)
+
+    assert REVIEW._load_blind(paths) == {
+        "maslo": {"assessment": "resolved", "variants": ["mas·lo"], "confidence": "high"},
+        "okno": {"assessment": "resolved", "variants": ["ok·no"], "confidence": "high"},
+    }
+
+
 def test_ui_reviews_only_typographic_word_division():
     html = REVIEW.UI_PATH.read_text(encoding="utf-8")
     assert html.count('<input class="edit"') == 1
