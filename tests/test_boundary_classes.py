@@ -137,6 +137,23 @@ def test_a_lexicalized_prefix_forms_no_boundary(word, expected):
     assert get_syllables(word) == expected
 
 
+def test_dostoj_family_is_not_split_after_prefix_shaped_do():
+    expected = {
+        "dôstoj": "dôs·toj",
+        "dôstojný": "dôs·toj·ný",
+        "dôstojnosť": "dôs·toj·nosť",
+        "dôstojník": "dôs·toj·ník",
+        "dôstojnícky": "dôs·toj·níc·ky",
+        "nedôstojný": "ne·dôs·toj·ný",
+        "najdôstojnejší": "naj·dôs·toj·nej·ší",
+        "poddôstojník": "pod·dôs·toj·ník",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert {
+        word: "·".join(get_syllables(word)) for word in expected
+    } == expected
+
+
 # --------------------------------------------------------------------------
 # Class 3 — diphthong against hiatus
 # --------------------------------------------------------------------------

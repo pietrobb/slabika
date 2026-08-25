@@ -19,6 +19,7 @@ Standard library only:
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import re
 import sqlite3
@@ -1121,6 +1122,10 @@ class Corpus:
         return self.item(form, ai, mine)
 
 
+class ReviewHTTPServer(ThreadingHTTPServer):
+    allow_reuse_address = False
+
+
 class Handler(BaseHTTPRequestHandler):
     corpus: Corpus
 
@@ -1201,6 +1206,16 @@ class Handler(BaseHTTPRequestHandler):
         self._json({"error": "not found"}, 404)
 
 
+def _bind_server(port: int) -> ThreadingHTTPServer:
+    try:
+        return ReviewHTTPServer(("127.0.0.1", port), Handler)
+    except OSError as error:
+        if port == 0 or error.errno != errno.EADDRINUSE:
+            raise
+        print(f"port      {port} is already in use; using a free local port")
+        return ReviewHTTPServer(("127.0.0.1", 0), Handler)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="slabika review console")
     parser.add_argument(
@@ -1230,9 +1245,8 @@ def main() -> int:
     blind = arguments.blind or DEFAULT_BLIND
 
     Handler.corpus = Corpus(arguments.db, decisions, blind)
-    Handler.corpus.precompute_voice_filters()
-    server = ThreadingHTTPServer(("127.0.0.1", arguments.port), Handler)
-    url = f"http://127.0.0.1:{arguments.port}/"
+    server = _bind_server(arguments.port)
+    url = f"http://127.0.0.1:{server.server_address[1]}/"
     print(f"inventory  {arguments.db}  ({len(Handler.corpus.forms)} forms, read-only)")
     print(f"decisions  {decisions}  ({len(Handler.corpus.decided)} already decided)")
     print(f"blind      {', '.join(map(str, blind))}  ({len(Handler.corpus.blind)} audited)")

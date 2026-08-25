@@ -362,6 +362,10 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             # posl- is a root family (posol, poslať, poslúchať), not po- + sl-.
             if pfx == 'po' and reml.startswith('sl'):
                 continue
+            # dôstoj- is a lexicalized stem, not the productive prefix dô- plus
+            # stoj-. PSP therefore applies its syllabic st division: dôs·toj-.
+            if pfx == 'dô' and reml.startswith('stoj'):
+                continue
             licensed = _VOCALIZED_ONLY_BEFORE.get(pfx)
             if licensed is not None and not reml.startswith(licensed):
                 continue

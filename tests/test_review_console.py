@@ -114,6 +114,16 @@ def test_default_review_assets_are_available():
     assert REVIEW.tex_hyphenate("maslo")
 
 
+def test_server_uses_a_free_port_when_default_is_occupied():
+    occupied = REVIEW.ThreadingHTTPServer(("127.0.0.1", 0), REVIEW.Handler)
+    server = REVIEW._bind_server(occupied.server_address[1])
+    try:
+        assert server.server_address[1] != occupied.server_address[1]
+    finally:
+        server.server_close()
+        occupied.server_close()
+
+
 def test_marked_output_may_only_change_boundaries():
     assert REVIEW._parse_marked("maslo", "ma-slo") == "ma·slo"
     assert REVIEW._parse_marked("maslo", " mas--lo ") == "mas·lo"
