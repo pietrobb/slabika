@@ -135,7 +135,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
     <option value="engine_error">engine spadol</option>
   </select>
   <button id="tex-diff" class="voice-filter" aria-pressed="false"
-          title="ponechá iba tvary, pri ktorých sa engine a Chlebíkovej TeX líšia">Engine ≠ Chlebíková</button>
+          title="porovná engine a Chlebíkovú s rovnakým TeX minimom 2 znaky vľavo a 3 vpravo">Engine (TeX 2/3) ≠ Chlebíková</button>
   <button id="blind-human-diff" class="voice-filter" aria-pressed="false"
           title="ponechá iba tvary, pri ktorých sa delenie slepého AI a človeka líši">Slepý AI ≠ človek</button>
   <select id="limit" title="koľko riadkov naraz">
@@ -281,6 +281,8 @@ const BLIND_LABEL = {uncertain: "neviem", invalid: "nie je slovo"};
 function voicesHtml(it) {
   const engine = engineText(it);
   const lines = [["engine", engine, null]];
+  if (it.engine_tex !== it.hyphenation)
+    lines.push(["engine (TeX 2/3)", dash(it.engine_tex), null]);
   if (it.my_expected) lines.push(["človek", it.my_expected, it.my_disagrees]);
   if (it.ai_expected) lines.push(["AI", it.ai_expected, it.ai_disagrees]);
   if (it.blind_variants && it.blind_variants.length)

@@ -165,9 +165,10 @@ def test_ui_reviews_only_typographic_word_division():
         assert f">{label}</button>" in html
     assert 'id="tex-diff"' in html
     assert 'id="blind-human-diff"' in html
-    assert "Engine ≠ Chlebíková" in html
+    assert "Engine (TeX 2/3) ≠ Chlebíková" in html
     assert "Slepý AI ≠ človek" in html
     assert 'placeholder="hľadať tvar…  (/)"' in html
+    assert '["engine (TeX 2/3)", dash(it.engine_tex), null]' in html
     assert '["Chlebíková", it.tex, it.tex_disagrees]' in html
 
 
@@ -309,7 +310,7 @@ def test_hyphenation_filters_ignore_legacy_syllable_only_decisions(corpus):
 
 def test_voice_disagreement_filters_compose_with_query_and_status(corpus, monkeypatch):
     engine = {"maslo": "mas·lo", "okno": "ok·no"}
-    tex = {"maslo": "ma·slo", "okno": "ok·no"}
+    tex = {"maslo": "ma·slo", "okno": "okno"}
     monkeypatch.setattr(
         REVIEW, "_engine", lambda form: (engine.get(form, form), form, None)
     )
@@ -336,8 +337,14 @@ def test_voice_disagreement_filters_compose_with_query_and_status(corpus, monkey
     tex_page = corpus.page("m", "prefix", "confirm", 0, 10, tex_diff=True)
     assert tex_page["total"] == 1
     assert [item["review_form"] for item in tex_page["items"]] == ["maslo"]
+    assert tex_page["items"][0]["engine_tex"] == "maslo"
+    assert tex_page["items"][0]["tex_disagrees"] is True
+    okno = corpus.page("okno", "exact", "confirm", 0, 10)["items"][0]
+    assert okno["hyphenation"] == "ok·no"
+    assert okno["engine_tex"] == okno["tex"] == "okno"
+    assert okno["tex_disagrees"] is False
     cached_tex_calls = tex_calls
-    assert cached_tex_calls == len(corpus.forms) + 1
+    assert cached_tex_calls == len(corpus.forms) + 2
 
     blind_page = corpus.page(
         "", "prefix", "confirm", 0, 10, blind_human_diff=True

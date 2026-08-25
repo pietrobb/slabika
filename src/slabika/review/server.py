@@ -160,6 +160,25 @@ def _recase_marked(text: str | None, form: str) -> str | None:
     return _recase(text.split("·"), form) if text is not None else None
 
 
+def _tex_mode(marked: str, form: str, left_min: int = 2, right_min: int = 3) -> str:
+    """Apply TeX edge minima to an already hyphenated engine result."""
+    parts = marked.split("·")
+    offsets = []
+    offset = 0
+    for part in parts[:-1]:
+        offset += len(part)
+        if left_min <= offset <= len(form) - right_min:
+            offsets.append(offset)
+
+    out = []
+    previous = 0
+    for offset in offsets:
+        out.append(form[previous:offset])
+        previous = offset
+    out.append(form[previous:])
+    return "·".join(out)
+
+
 def _engine(form: str) -> tuple[str, str, str | None]:
     try:
         return hyphenate(form), _recase(syllables(form), form), None
@@ -416,6 +435,7 @@ class Corpus:
     def item(self, form: str, ai: sqlite3.Row | None, mine: sqlite3.Row | None) -> dict:
         review_form = self.review_forms[form]
         hyphenation, syllabification, error = _engine(review_form)
+        engine_tex = _tex_mode(hyphenation, review_form)
         ai_expected = _recase_marked(
             ai["expected_hyphenation"] if ai else None, review_form
         )
@@ -446,10 +466,11 @@ class Corpus:
             "form": form,
             "review_form": review_form,
             "hyphenation": hyphenation,
+            "engine_tex": engine_tex,
             "syllabification": syllabification,
             "engine_error": error,
             "tex": tex,
-            "tex_disagrees": bool(tex) and tex != hyphenation,
+            "tex_disagrees": bool(tex) and tex != engine_tex,
             "blind_assessment": blind.get("assessment"),
             "blind_variants": blind_variants,
             "blind_disagrees": bool(blind_variants) and hyphenation not in blind_variants,
@@ -600,7 +621,8 @@ class Corpus:
                 tex = _recase_marked(tex_hyphenate(review_form.lower()), review_form)
             except Exception:  # noqa: BLE001 - an unavailable voice is not a disagreement
                 continue
-            if tex != _engine(review_form)[0]:
+            engine_tex = _tex_mode(_engine(review_form)[0], review_form)
+            if tex != engine_tex:
                 matching.add(form)
         self._tex_disagreements = frozenset(matching)
 
