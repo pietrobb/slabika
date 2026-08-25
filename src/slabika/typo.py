@@ -29,7 +29,8 @@ from .phonology import (
     native_spelling,
 )
 from .syllabify import (
-    _SK_PREFIXES,
+    _DLO_INFLECTIONS,
+    _PREFIXES,
     _SK_SUFFIXES_CONS,
     _final_sonorant_needs_following_context,
     get_morpheme_parts,
@@ -113,12 +114,15 @@ def _variant_crosses_seam(left: str, right: str) -> bool:
     happens to be spelled alike. TeX offers nas|kladať; PSP does not, so neither
     do we.
     """
-    if left.casefold() in _SK_PREFIXES:
+    if left.casefold() in _PREFIXES:
         return False
     _, _, right_nuclei = _nucleus_spans(right)
     initial_cluster = right_nuclei[0][0] if right_nuclei else 0
     leftl, rightl = left.casefold(), right.casefold()
-    suffix_cluster = any(rightl.startswith(suffix) for suffix in _SK_SUFFIXES_CONS)
+    suffix_cluster = any(
+        rightl.startswith(suffix)
+        for suffix in (*_SK_SUFFIXES_CONS, *_DLO_INFLECTIONS)
+    )
     unclear_compound = leftl == 'jedno' and rightl.startswith('tl')
     return (
         bool(left)

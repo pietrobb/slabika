@@ -51,6 +51,11 @@ _SK_PREFIXES = [
     'do', 'dô', 'na', 'ne', 'ob', 'od', 'po', 'so', 'vo', 'vy', 'vý', 'za', 'zo',
 ]
 
+# Foreign prefixes are recognised only when their written boundary is familiar
+# enough to be useful in Slovak text. This is morphology, not a language profile.
+_FOREIGN_PREFIXES = ['auf']
+_PREFIXES = [*_SK_PREFIXES, *_FOREIGN_PREFIXES]
+
 
 def _by_length(forms):
     """Group fixed morpheme forms into (length, set) pairs, longest first.
@@ -65,7 +70,7 @@ def _by_length(forms):
     return tuple((n, frozenset(f for f in forms if len(f) == n)) for n in lengths)
 
 
-_PREFIXES_BY_LEN = _by_length(_SK_PREFIXES)
+_PREFIXES_BY_LEN = _by_length(_PREFIXES)
 
 _LEXICAL_PREFIX_ROOTS = (
     ('porno', ('graf',)),
@@ -73,6 +78,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('o', ('hra', 'hrá')),
     ('in', ('štruk',)),
     ('šéf', ('lekár',)),
+    ('pa', ('kľúč',)),
+    ('para', ('fráz', 'graf')),
     # po·drobiť (rozdrobiť) against pod·robiť (podmaniť) — the two are spelled
     # alike and only the sense tells them apart. PSP prints po-drobný, and the
     # adjective and its adverbs are the frequent reading of the string.
@@ -124,6 +131,9 @@ _SK_SUFFIXES_CONS = [
 ]
 
 _SUFFIXES_BY_LEN = _by_length(_SK_SUFFIXES_CONS)
+
+_DLO_INFLECTIONS = ('dlami', 'dlách', 'dlom', 'dlám', 'diel', 'dla', 'dle', 'dlu', 'dlá')
+_DLO_PARADIGM_STEMS = frozenset({'páči'})
 
 # Short grammatical suffixes are boundaries only after consonant-final stems.
 # Keep these separate from derivational suffixes to avoid treating every final
@@ -224,7 +234,10 @@ _VALID_ONSETS = frozenset({
 # written as a single letter (ô). Derived from the inventory rather than spelled
 # out, so that adding a grapheme to data/phonology.json is enough to teach the
 # whole package about it.
-_VOWEL_LETTERS = ALL_VOWELS | {d for d in DIPHTHONGS if len(d) == 1}
+_VOWEL_LETTERS = (
+    ALL_VOWELS | PRONOUNCED_FOREIGN_VOWELS
+    | {d for d in DIPHTHONGS if len(d) == 1}
+)
 
 # What can be a nucleus at all — the above plus the syllabic consonants, used to
 # check that a remainder is pronounceable. A root beginning with r- or l- still
@@ -433,6 +446,11 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     cluster (ohyzd·ný, vlast·ný).
     """
     wl = w.lower()
+    for suffix in _DLO_INFLECTIONS:
+        if wl.endswith(suffix) and wl[:-len(suffix)] in _DLO_PARADIGM_STEMS:
+            start = len(w) - len(suffix)
+            return w[:start], w[start:]
+
     for length, group in _SUFFIXES_BY_LEN:
         for tail_length in range(_MAX_INFLECTION + 1):
             start = len(w) - length - tail_length

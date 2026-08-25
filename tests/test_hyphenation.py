@@ -32,6 +32,12 @@ def test_slovak_hyphenation_golden_cases():
         "MODLOSLUŽOBNÍČKA": "MOD·LO·SLU·ŽOB·NÍČ·KA",
         "stredoamerický": "stre·do·ame·ric·ký",
         "pohľad": "po·hľad",
+        "pakľúč": "pa·kľúč",
+        "pakľúčov": "pa·kľú·čov",
+        "parafráza": "pa·ra·frá·za",
+        "parafrázované": "pa·ra·frá·zo·va·né",
+        "paragraf": "pa·ra·graf",
+        "paragrafoch": "pa·ra·gra·foch",
         "pohľadom": "po·hľa·dom",
         "pohľady": "po·hľa·dy",
         "Opatrnosť": "Opa·tr·nosť",
@@ -81,6 +87,20 @@ def test_slovak_hyphenation_golden_cases():
     assert {word: hyphenate(word) for word in expected} == expected
 
 
+def test_pa_prefix_is_limited_to_the_pakluc_family():
+    assert hyphenate("pakľúč") == "pa·kľúč"
+    assert hyphenate("pakľúčov") == "pa·kľú·čov"
+    assert hyphenate("pahreba") == "pah·re·ba"
+
+
+def test_para_prefix_is_limited_to_known_families():
+    assert hyphenate("paragraf") == "pa·ra·graf"
+    assert hyphenate("paragrafov") == "pa·ra·gra·fov"
+    assert hyphenate("parafráza") == "pa·ra·frá·za"
+    assert hyphenate("paradajka") == "pa·ra·daj·ka"
+    assert hyphenate("parazit") == "pa·ra·zit"
+
+
 def test_syllabification_and_typographic_hyphenation_are_separate_layers():
     assert get_syllables("Evanjeliá") == ["e", "van", "je", "li", "á"]
     assert hyphenate("Evanjeliá") == "Evan·je·liá"
@@ -89,6 +109,7 @@ def test_syllabification_and_typographic_hyphenation_are_separate_layers():
     assert hyphenate("dychtivosťou") == "dych·ti·vos·ťou"
     assert get_syllables("ženou") == ["že", "nou"]
     assert get_syllables("použiť") == ["po", "u", "žiť"]
+    assert get_syllables("pakľúč") == ["pa", "kľúč"]
     assert get_syllables("ohrada") == ["o", "hra", "da"]
     assert get_syllables("ohradený") == ["o", "hra", "de", "ný"]
     assert get_syllables("ohradzovať") == ["o", "hra", "dzo", "vať"]
@@ -196,6 +217,27 @@ def test_psp_doublets_offer_both_break_points():
     for word, points in expected.items():
         assert points <= set(break_points(word, all_points=True))
         assert len(points & set(break_points(word))) == 1
+
+
+def test_dlo_suffix_keeps_its_preferred_seam_through_inflection():
+    expected = {
+        "páčidlo": "pá·či·dlo",
+        "páčidla": "pá·či·dla",
+        "páčidlu": "pá·či·dlu",
+        "páčidle": "pá·či·dle",
+        "páčidlom": "pá·či·dlom",
+        "páčidlá": "pá·či·dlá",
+        "páčidiel": "pá·či·diel",
+        "páčidlám": "pá·či·dlám",
+        "páčidlách": "pá·či·dlách",
+        "páčidlami": "pá·či·dla·mi",
+    }
+
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert ["pá", "či", "dlá"] == get_syllables("páčidlá")
+    assert {4, 5} <= set(break_points("páčidlá", all_points=True))
+    assert 4 in break_points("páčidlá")
+    assert 5 not in break_points("páčidlá")
 
 
 def test_cluster_tail_of_43_must_be_able_to_open_a_syllable():
@@ -546,28 +588,34 @@ def test_latin_qu_is_an_onset_and_not_a_syllable_of_its_own():
 def test_a_foreign_spelling_is_refused_rather_than_guessed_at():
     """What §5.4 forbids is applying the rules without knowing the pronunciation.
 
-    ç has no fixed sound value in Slovak text, so façade is refused: reading it
-    would be a guess. The refusal is about the sound value, not about the word
-    being foreign — see the test below for the letters whose value is known.
+    Unknown foreign letters are refused rather than assigned a guessed sound.
+    The refusal is about the sound value, not about the word being foreign —
+    see the test below for the letters whose value is known.
     """
-    for word in ("façade", "gâteau", "Ærø"):
-        with pytest.raises(ValueError, match="not spelled in Slovak"):
-            get_syllables(word)
-
-    assert hyphenate("façade") == "façade"
+    with pytest.raises(ValueError, match="not spelled in Slovak"):
+        get_syllables("Ærø")
 
 
 def test_a_foreign_letter_with_a_known_sound_is_divided_by_slovak_rules():
     """§5.4 is a prohibition, not a referral to the foreign norm.
 
-    ě, ů and ř stand for one sound each, so there is no group to tear apart and
-    nothing left to guess; the word is then divided by §3 and §4 like any other
-    word in a Slovak sentence. This is not a Czech hyphenator — ÚJČ would print
+    The listed letters each occupy one known vowel or consonant slot, so there
+    is no group to tear apart; the word is then divided by §3 and §4 like any
+    other word in a Slovak sentence. This is not a Czech hyphenator — ÚJČ would print
     ak-cio-nář where §4.4 gives ak·ci·o·nář, and PSP is what binds here.
     """
     assert get_syllables("měsíc") == ["mě", "síc"]
     assert get_syllables("vůle") == ["vů", "le"]
     assert hyphenate("Dvořák") == "Dvo·řák"
+    assert hyphenate("auflösen") == "auf·lö·sen"
+    assert get_syllables("auflösen") == ["auf", "lö", "sen"]
+    assert hyphenate("Alençon") == "Alen·çon"
+    assert get_syllables("Alençon") == ["a", "len", "çon"]
+    assert hyphenate("München") == "Mün·chen"
+    assert hyphenate("Straße") == "Stra·ße"
+    assert hyphenate("Noël") == "No·ël"
+    assert hyphenate("Compiègne") == "Com·pi·èg·ne"
+    assert hyphenate("Neufchâteau") == "Ne·uf·châ·te·au"
 
     # ř fills the r slot, so a cluster containing it divides where the one
     # written with r does — the tables list what Slovak words are written with.
@@ -610,7 +658,11 @@ def test_a_prefix_before_a_u_root_keeps_its_seam():
     assert hyphenate("doučiť") == "do·učiť"
 
 
-def test_a_umlaut_is_a_short_vowel_and_hyphenation_nucleus():
+def test_german_and_french_vowel_letters_are_hyphenation_nuclei():
+    for vowel in "àâæèêëěîïöœùûüůÿ":
+        assert is_vowel(vowel)
+        assert hyphenate(f"b{vowel}ba") == f"b{vowel}·ba"
+
     assert is_vowel("ä")
     assert hyphenate("mäkký") == "mäk·ký"
 
@@ -620,7 +672,7 @@ def test_terminal_dz_is_one_phoneme():
 
 
 def test_uncertain_non_slovak_tokens_are_not_hyphenated():
-    for token in ("d’Arc", "L'Arbre", "Saint-Denis", "Neufchâteau", "Compiègne"):
+    for token in ("d’Arc", "L'Arbre", "Saint-Denis"):
         assert hyphenate(token) == token
 
 
@@ -642,6 +694,6 @@ def test_separator_is_configurable():
 
 
 def test_unbreakable_words_have_no_break_points():
-    for word in ("vlk", "prst", "Saint-Denis", "Compiègne"):
+    for word in ("vlk", "prst", "Saint-Denis", "d’Arc"):
         assert break_points(word) == []
         assert hyphenate(word) == word
