@@ -101,6 +101,82 @@ def test_para_prefix_is_limited_to_known_families():
     assert hyphenate("parazit") == "pa·ra·zit"
 
 
+def test_pri_prefix_is_recognised_in_the_stup_and_krat_families():
+    assert hyphenate("prístup") == "prí·stup"
+    assert hyphenate("neprístupný") == "ne·prí·stup·ný"
+    assert hyphenate("príkratko") == "prí·krat·ko"
+
+
+def test_pri_prefix_is_recognised_in_the_slov_and_slus_families():
+    assert hyphenate("príslovie") == "prí·slo·vie"
+    assert hyphenate("príslovka") == "prí·slov·ka"
+    assert hyphenate("príslušný") == "prí·sluš·ný"
+
+
+def test_podob_and_podiv_do_not_gain_a_false_pod_prefix():
+    assert hyphenate("podoba") == "po·do·ba"
+    assert hyphenate("napodobenie") == "na·po·do·be·nie"
+    assert hyphenate("podivný") == "po·div·ný"
+
+
+def test_dobr_family_does_not_gain_a_false_do_prefix():
+    assert hyphenate("dobro") == "dob·ro"
+    assert hyphenate("dobrom") == "dob·rom"
+    assert hyphenate("dobrý") == "dob·rý"
+    assert hyphenate("dobrota") == "dob·ro·ta"
+    assert hyphenate("dobrák") == "dob·rák"
+    assert hyphenate("dobrácka") == "dob·rác·ka"
+    assert get_syllables("dobrom") == ["do", "brom"]
+    assert hyphenate("dobrať") == "do·brať"
+    assert hyphenate("dobrúsiť") == "do·brú·siť"
+
+
+def test_dobro_compounds_keep_their_compositional_seam():
+    assert hyphenate("dobroprajnosť") == "dob·ro·praj·nosť"
+    assert hyphenate("dobrodruh") == "dob·ro·druh"
+    assert get_syllables("dobroprajnosť") == ["do", "bro", "praj", "nosť"]
+
+
+def test_nut_suffix_preserves_the_consonant_final_stem():
+    assert hyphenate("pumpnúť") == "pump·núť"
+    assert hyphenate("dotknúť") == "dotk·núť"
+    assert hyphenate("risknúť") == "risk·núť"
+
+
+def test_liv_suffix_preserves_the_consonant_final_stem():
+    assert hyphenate("hanblivý") == "hanb·li·vý"
+    assert hyphenate("kostlivec") == "kost·li·vec"
+    assert hyphenate("trpezlivý") == "tr·pez·li·vý"
+    assert hyphenate("palivo") == "pa·li·vo"
+    assert hyphenate("jednotlivý") == "jed·no·tli·vý"
+    assert hyphenate("ošklivý") == "oš·kli·vý"
+
+
+def test_nik_suffix_precedes_prefix_lookalikes():
+    expected = {
+        "pomník": "pom·ník",
+        "podvodník": "pod·vod·ník",
+        "protivník": "pro·tiv·ník",
+        "povozník": "po·voz·ník",
+        "predchodník": "pred·chod·ník",
+        "podnik": "pod·nik",
+        "podnikať": "pod·ni·kať",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert get_syllables("podvodník") == ["pod", "vod", "ník"]
+
+
+def test_one_letter_o_prefix_is_recognised_only_in_known_families():
+    assert hyphenate("oslobodiť") == "oslo·bo·diť"
+    assert hyphenate("oslabiť") == "osla·biť"
+    assert hyphenate("ospravedlniť") == "ospra·ve·dl·niť"
+    assert hyphenate("osvietiť") == "osvie·tiť"
+    assert hyphenate("osvojiť") == "osvo·jiť"
+    assert hyphenate("ostro") == "os·tro"
+    assert hyphenate("ospalý") == "os·pa·lý"
+    assert hyphenate("osemdesiat") == "osem·de·siat"
+
+
 def test_syllabification_and_typographic_hyphenation_are_separate_layers():
     assert get_syllables("Evanjeliá") == ["e", "van", "je", "li", "á"]
     assert hyphenate("Evanjeliá") == "Evan·je·liá"

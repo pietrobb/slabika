@@ -115,7 +115,7 @@ LEXICALIZED_FORMS = {
 #: Forms the lexicalized-stem list used to answer for. The list is gone, so
 #: these are open regressions: the expectation is PSP-correct and stays here as
 #: the specification a rule has to meet, not as a word that may be listed.
-_NEEDS_A_RULE = frozenset(LEXICALIZED_FORMS) - {"rozum", "obed", "obec"}
+_NEEDS_A_RULE = frozenset(LEXICALIZED_FORMS) - {"rozum", "obed", "obec", "obuvník"}
 
 
 @pytest.mark.parametrize(

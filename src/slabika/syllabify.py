@@ -72,18 +72,28 @@ def _by_length(forms):
 
 _PREFIXES_BY_LEN = _by_length(_PREFIXES)
 
+_DOBR_INFLECTIONS = frozenset({
+    'a', 'ami', 'e', 'ej', 'o', 'om', 'ou', 'u',
+    'á', 'ách', 'ám', 'é', 'ého', 'ému', 'í', 'ú', 'ý', 'ých', 'ým', 'ými',
+})
+
 _LEXICAL_PREFIX_ROOTS = (
     ('porno', ('graf',)),
     ('rozo', ('br', 'ber')),   # rozo·brať, rozo·berať — not roz·ob·rať
-    ('o', ('hra', 'hrá')),
+    ('o', (
+        'hra', 'hrá', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
+        'smel', 'spev', 'spra', 'sved', 'svet', 'svie', 'svoj', 'sídl',
+    )),
     ('in', ('štruk',)),
     ('šéf', ('lekár',)),
     ('pa', ('kľúč',)),
     ('para', ('fráz', 'graf')),
+    ('prí', ('krat', 'slov', 'sluš', 'stup')),
     # po·drobiť (rozdrobiť) against pod·robiť (podmaniť) — the two are spelled
     # alike and only the sense tells them apart. PSP prints po-drobný, and the
     # adjective and its adverbs are the frequent reading of the string.
-    ('po', ('drob', 'druh')),
+    ('pod', ('oblas',)),
+    ('po', ('dob', 'div', 'drob', 'druh')),
     ('u', ('krát',)),
 )
 
@@ -120,6 +130,8 @@ _SK_SUFFIXES_CONS = [
     'ník', 'níc', 'nil', 'kár',   # dl·žník, robot·ní·ci, účast·nil, tajnost·kár
     'ným', 'nej', 'nou', 'nom',   # ohrad·ným — the rest of the ·ný paradigm
     'dlo',    # mera·dlo
+    'liv',    # hanb·livý, kost·livec
+    'núť',    # dotk·núť, pump·núť
     # No 'tva'. It is not a suffix — pas·tva is section 4.3 doing its job,
     # because tv- opens tvoj and the point never has to move. Listed here it
     # outranked the real suffix in ·stva (mužs|tva for muž|stva) and overrode
@@ -164,7 +176,7 @@ _SK_COMPOSITA = [
     'pseudo', 'semi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',
     'super', 'hyper', 'meta', 'multi', 'mini', 'maxi',
     # Slovak-specific composita
-    'modlo', 'rodo', 'jedno', 'stredo', 'brati', 'mäso', 'mast', 'krátko', 'krato',
+    'modlo', 'rodo', 'jedno', 'stredo', 'brati', 'mäso', 'mast', 'krátko', 'krato', 'dobro',
     'veľ',   # veľ·kňaz, veľ·kolepý, veľ·mocný
     'seba',  # seba·vedomie, seba·kritika, seba·určenie
     # First parts that are only recognisable in front of a vowel — see
@@ -375,6 +387,15 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             # posl- is a root family (posol, poslať, poslúchať), not po- + sl-.
             if pfx == 'po' and reml.startswith('sl'):
                 continue
+            # dobr- is the lexical base of dobrý, dobro and dobrota, not do- +
+            # br-. Keep genuine prefixed verbs such as do·brať and do·brúsiť.
+            if pfx == 'do' and reml.startswith('br'):
+                dobr_tail = reml[2:]
+                if (
+                    dobr_tail in _DOBR_INFLECTIONS
+                    or dobr_tail.startswith(('ák', 'ác', 'ot'))
+                ):
+                    continue
             # dôstoj- is a lexicalized stem, not the productive prefix dô- plus
             # stoj-. PSP therefore applies its syllabic st division: dôs·toj-.
             if pfx == 'dô' and reml.startswith('stoj'):
@@ -460,6 +481,8 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
                 continue
             steml = wl[:start]
             if wl[start:start + length] == 'kár' and not steml.endswith('st'):
+                continue
+            if wl[start:start + length] == 'liv' and steml == 'ošk':
                 continue
             if not any(c in _VOWELS_SK for c in steml):
                 continue
@@ -575,6 +598,10 @@ def get_morpheme_parts(word: str) -> list[str]:
     if comparative_t > 0:
         return [*get_morpheme_parts(word[:comparative_t]), word[comparative_t:]]
 
+    stem, sfx = _strip_suffix(word)
+    if stem is not None and sfx.casefold().startswith(('ník', 'níc')):
+        return [*get_morpheme_parts(stem), sfx]
+
     pfx, rem = _strip_prefix(word)
     if pfx is not None:
         return [pfx, *get_morpheme_parts(rem)]
@@ -644,6 +671,10 @@ def get_syllables(word: str) -> list[str]:
     comparative_t = wl.find('tejš')
     if comparative_t > 0:
         return get_syllables(word[:comparative_t]) + _syllabify_simple(word[comparative_t:])
+
+    stem, sfx = _strip_suffix(word)
+    if stem is not None and sfx.casefold().startswith(('ník', 'níc')):
+        return get_syllables(stem) + _syllabify_simple(sfx)
 
     # Prefix-aware split: recursively strip prefixes and syllabify remainder
     pfx, rem = _strip_prefix(word)
