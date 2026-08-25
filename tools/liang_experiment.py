@@ -20,7 +20,7 @@ sys.path.insert(0, str(ROOT))
 
 from slabika import break_points as engine_break_points  # noqa: E402
 from slabika.phonology import HYPHENATABLE_LETTERS  # noqa: E402
-from tools.review.tex_patterns import break_points, load_tex  # noqa: E402
+from slabika.review.tex_patterns import break_points, load_tex  # noqa: E402
 
 SPLIT_SALT = "slabika-liang-v1"
 PROFILE = (

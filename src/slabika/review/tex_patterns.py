@@ -121,8 +121,9 @@ _CACHE: dict[str, tuple[dict[str, str], dict[str, list[int]]]] = {}
 
 def for_language(lang: str = "sk"):
     if lang not in _CACHE:
-        root = Path(__file__).resolve().parents[2]
-        _CACHE[lang] = load_tex(root / "tex" / f"hyph-{lang}.tex")
+        source = Path(__file__).resolve().parents[3] / "tex" / f"hyph-{lang}.tex"
+        packaged = Path(__file__).resolve().parent / "tex" / f"hyph-{lang}.tex"
+        _CACHE[lang] = load_tex(source if source.exists() else packaged)
     return _CACHE[lang]
 
 

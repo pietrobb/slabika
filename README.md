@@ -70,7 +70,7 @@ What the published repository currently contains — and does not contain:
 | output levels in the project's PSP interpretation | **present** — preferred points by default, codified doublets with `all_points=True`, discouraged-but-legal points with `contextual=True` |
 | whole-word exception dictionary | **absent by design** — representative known unresolved cases remain failing `xfail` specifications until a rule can account for them |
 | working word/review data | **present** — the SQLite snapshots in `tests/data/` contain isolated forms and review state, not running text |
-| review console | **partial** — the server and UI are tracked, but their TeX comparison helper is not published yet, so a clean checkout cannot run the complete console |
+| review console | **present** — the local editor, inventory and advisory audit data ship in the Python package |
 | source prose corpus | **not published** — no sentences, word order or source-text structure are shipped |
 | experimental Liang patterns | **present** — preferred and permissive sets in `patterns/`, explicitly marked work in progress |
 | complete input and pipeline for the published pattern set | **not published yet** — the repository alone cannot regenerate the 702,438-form experiment |
@@ -78,17 +78,31 @@ What the published repository currently contains — and does not contain:
 | independent PSP gold benchmark or certified overall accuracy | **not available yet** |
 | final TeX release and integrations for browsers, office suites or typesetters | **not available yet** |
 
+### Local review editor
+
+After installing the package, start the editor with one command:
+
+```console
+slabika-review
+```
+
+It opens a local address in the default browser. The bundled inventory is
+read-only; your work is stored in `review_decisions.sqlite` in the directory from
+which you run the command. Use `--decisions` to choose another decision store or
+`--db` to review another inventory. On Windows, a source checkout also provides
+`run_review.bat` in the repository root for double-click startup against the
+project's tracked local review data.
+
 These three levels are genuinely different outputs of the same algorithm. For
 example, `hyphenate("všeobecne")` returns the preferred `vše·obec·ne`, while
 `hyphenate("všeobecne", contextual=True)` also exposes the legal but discouraged
 point and returns `vše·o·bec·ne`. The latter does not correct the former: it
 merely makes a point available when the preferred points do not fit the measure.
 
-The tracked engine and provenance tests cover the language rules, boundary
-classes, public API and licensing constraints. Review-console tests are also
-tracked, but a clean checkout cannot currently collect them because the helper
-noted above is missing. Known unresolved language cases stay visible as strict
-expected failures instead of being hidden in a word list. The 179,537-form
+The tracked engine, review-console and provenance tests cover the language
+rules, boundary classes, public API, local editor and licensing constraints, and
+they run from a clean checkout. Known unresolved language cases stay visible as
+strict expected failures instead of being hidden in a word list. The 180,408-form
 working inventory has also been used for
 corpus-scale robustness checks, but most of those forms have not been
 independently adjudicated. A run without exceptions is evidence of robustness,

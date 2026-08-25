@@ -2,21 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 """Regression tests for independent review of both engine outputs."""
 
-import importlib.util
 import json
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
 
 import pytest
 
-
-ROOT = Path(__file__).resolve().parent.parent
-SPEC = importlib.util.spec_from_file_location(
-    "slabika_review_server", ROOT / "tools" / "review" / "server.py"
-)
-REVIEW = importlib.util.module_from_spec(SPEC)
-SPEC.loader.exec_module(REVIEW)
+from slabika.review import server as REVIEW
 
 OLD_DECISION_SCHEMA = """
 CREATE TABLE decisions (
@@ -113,6 +105,13 @@ def corpus(tmp_path):
     yield value
     value.inventory.close()
     value.store.close()
+
+
+def test_default_review_assets_are_available():
+    assert REVIEW.DEFAULT_INVENTORY.exists()
+    assert all(path.exists() for path in REVIEW.DEFAULT_BLIND)
+    assert REVIEW.UI_PATH.exists()
+    assert REVIEW.tex_hyphenate("maslo")
 
 
 def test_marked_output_may_only_change_boundaries():

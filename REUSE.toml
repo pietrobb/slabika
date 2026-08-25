@@ -11,7 +11,7 @@ SPDX-PackageDownloadLocation = "https://github.com/pietrobb/slabika"
 # Source code — dual licensed, user's choice (see LICENSING.md §1)
 # ---------------------------------------------------------------------------
 [[annotations]]
-path = ["src/**", "tools/**", "tests/**", "pyproject.toml"]
+path = ["src/**", "tools/**", "tests/**", "pyproject.toml", "run_review.bat"]
 precedence = "closest"
 SPDX-FileCopyrightText = "2026 Peter Bezemek"
 SPDX-License-Identifier = "Apache-2.0 OR MIT"

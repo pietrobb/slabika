@@ -146,7 +146,7 @@ príkazom `python -m pip install -e .`.
 | úrovne výstupu podľa projektovej interpretácie PSP | **sú** — predvolené body, kodifikované dublety cez `all_points=True`, neodporúčané, ale prípustné body cez `contextual=True` |
 | slovník výnimiek celých slov | **nie je, zámerne** — reprezentatívne známe nevyriešené prípady zostávajú ako padajúce špecifikácie `xfail`, kým ich nevysvetlí pravidlo |
 | pracovné dáta slov a revízií | **sú** — SQLite snapshoty v `tests/data/` obsahujú izolované tvary a stav kontroly, nie súvislý text |
-| revízna konzola | **čiastočne** — server a UI sú verzované, ale pomocný modul na porovnanie s TeXom ešte nie je zverejnený, takže čistý checkout nespustí celú konzolu |
+| revízna konzola | **je** — lokálny editor, inventár aj poradné auditné dáta sú súčasťou Python balíka |
 | zdrojový prozaický korpus | **nie je zverejnený** — repozitár neobsahuje vety, poradie slov ani štruktúru zdrojových textov |
 | experimentálne Liangove vzory | **sú** — preferovaný a permisívny súbor v `patterns/`, výslovne označené ako rozpracované |
 | úplný vstup a pipeline k zverejneným vzorom | **zatiaľ nie sú** — samotný repozitár nevie zopakovať experiment so 702 438 tvarmi |
@@ -154,18 +154,32 @@ príkazom `python -m pip install -e .`.
 | nezávislý PSP gold benchmark alebo certifikovaná celková presnosť | **zatiaľ nie sú** |
 | finálne vydanie vzorov a integrácie pre prehliadače, kancelárske či sadzobné systémy | **zatiaľ nie sú** |
 
+### Lokálny revízny editor
+
+Po inštalácii balíka spustí editor jediný príkaz:
+
+```console
+slabika-review
+```
+
+Otvorí lokálnu adresu v predvolenom prehliadači. Pribalený inventár sa číta iba na
+čítanie; vaše zásahy sa ukladajú do `review_decisions.sqlite` v priečinku, z
+ktorého ste príkaz spustili. Cestu možno zmeniť voľbou `--decisions`, vlastný
+inventár voľbou `--db`. V pracovnej kópii na Windows možno namiesto inštalácie
+dvojklikom spustiť koreňový súbor `run_review.bat`; ten pracuje priamo s
+verzovanými lokálnymi revíznymi dátami projektu.
+
 Tieto tri úrovne sú reálne odlišné výstupy toho istého algoritmu. Napríklad
 `hyphenate("všeobecne")` vráti preferované `vše·obec·ne`, kým
 `hyphenate("všeobecne", contextual=True)` pridá aj prípustný, ale nepreferovaný
 bod a vráti `vše·o·bec·ne`. Druhý výsledok neznamená opravu prvého: iba
 sprístupňuje bod, ktorý môže sadzba použiť, keď preferované body nestačia.
 
-Verzované testy enginu a proveniencie pokrývajú jazykové pravidlá, hraničné
-triedy, verejné API a licenčné obmedzenia. Testy revíznej konzoly sú tiež
-verzované, ale čistý checkout ich dnes nevie ani načítať, pretože chýba pomocný
-modul uvedený vyššie. Známe nevyriešené jazykové prípady zostávajú viditeľné ako
-striktné očakávané zlyhania namiesto toho, aby ich zakryl zoznam slov. Pracovný
-inventár 179 537 tvarov sa používal
+Verzované testy enginu, revíznej konzoly a proveniencie pokrývajú jazykové
+pravidlá, hraničné triedy, verejné API, lokálny editor a licenčné obmedzenia a
+fungujú aj z čistého checkoutu. Známe nevyriešené jazykové prípady zostávajú
+viditeľné ako striktné očakávané zlyhania namiesto toho, aby ich zakryl zoznam
+slov. Pracovný inventár 180 408 tvarov sa používal
 aj na kontroly robustnosti vo veľkom, väčšina týchto tvarov však nebola
 nezávisle posúdená. To, že spracovanie nespadne, dokazuje robustnosť, nie
 správnosť každého delenia. Projekt preto dnes neuvádza percento celkovej

@@ -13,7 +13,7 @@ the audited inventory artifact is never touched by the console.
 
 Standard library only:
 
-    python tools/review/server.py --db path/to/inventory.sqlite
+    slabika-review
 """
 
 from __future__ import annotations
@@ -22,7 +22,6 @@ import argparse
 import json
 import re
 import sqlite3
-import sys
 import threading
 import unicodedata
 import webbrowser
@@ -31,17 +30,43 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-_ROOT = Path(__file__).resolve().parents[2]
-if str(_ROOT / "src") not in sys.path:
-    sys.path.insert(0, str(_ROOT / "src"))
+from slabika import __version__ as ENGINE_VERSION
+from slabika import hyphenate, syllables
 
-from slabika import __version__ as ENGINE_VERSION  # noqa: E402
-from slabika import hyphenate, syllables  # noqa: E402
+from .tex_patterns import tex_hyphenate
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from tex_patterns import tex_hyphenate  # noqa: E402
+_PACKAGE_DIR = Path(__file__).resolve().parent
+_SOURCE_ROOT = _PACKAGE_DIR.parents[2]
+_SOURCE_DATA = _SOURCE_ROOT / "tests" / "data"
+_PACKAGE_DATA = _PACKAGE_DIR / "data"
+UI_PATH = _PACKAGE_DIR / "ui.html"
 
-UI_PATH = Path(__file__).resolve().parent / "ui.html"
+
+def _data_path(source: Path, packaged_name: str) -> Path:
+    return source if source.exists() else _PACKAGE_DATA / packaged_name
+
+
+DEFAULT_INVENTORY = _data_path(
+    _SOURCE_DATA / "translatemaster_hyphenation_working.sqlite", "inventory.sqlite"
+)
+DEFAULT_BLIND = [
+    _data_path(
+        _SOURCE_DATA / "blind_word_division_5000_v1" / "results.sqlite",
+        "blind-word-division-5000.sqlite",
+    ),
+    _data_path(
+        _SOURCE_DATA / "blind_human_recheck_100_v1" / "results.sqlite",
+        "blind-human-recheck-100.sqlite",
+    ),
+    _data_path(
+        _SOURCE_DATA / "blind_human_recheck_1000_v2" / "results.sqlite",
+        "blind-human-recheck-1000.sqlite",
+    ),
+    _data_path(
+        _SOURCE_DATA / "blind_human_recheck_2000_v3" / "results.sqlite",
+        "blind-human-recheck-2000.sqlite",
+    ),
+]
 
 OUTPUT_ACTIONS = ("confirm", "correct")
 ROW_ACTIONS = ("flag", "uncertain", "invalid")
@@ -1178,8 +1203,17 @@ class Handler(BaseHTTPRequestHandler):
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="slabika review console")
-    parser.add_argument("--db", type=Path, required=True, help="inventory sqlite (read-only)")
-    parser.add_argument("--decisions", type=Path, help="decision store (default: next to --db)")
+    parser.add_argument(
+        "--db",
+        type=Path,
+        default=DEFAULT_INVENTORY,
+        help="inventory sqlite (default: inventory bundled with slabika)",
+    )
+    parser.add_argument(
+        "--decisions",
+        type=Path,
+        help="decision store (default: review_decisions.sqlite in the current directory)",
+    )
     parser.add_argument(
         "--blind",
         type=Path,
@@ -1192,13 +1226,8 @@ def main() -> int:
 
     if not arguments.db.exists():
         parser.error(f"inventory not found: {arguments.db}")
-    decisions = arguments.decisions or arguments.db.with_name("review_decisions.sqlite")
-    blind = arguments.blind or [
-        _ROOT / "tests/data/blind_word_division_5000_v1/results.sqlite",
-        _ROOT / "tests/data/blind_human_recheck_100_v1/results.sqlite",
-        _ROOT / "tests/data/blind_human_recheck_1000_v2/results.sqlite",
-        _ROOT / "tests/data/blind_human_recheck_2000_v3/results.sqlite",
-    ]
+    decisions = arguments.decisions or Path.cwd() / "review_decisions.sqlite"
+    blind = arguments.blind or DEFAULT_BLIND
 
     Handler.corpus = Corpus(arguments.db, decisions, blind)
     Handler.corpus.precompute_voice_filters()
