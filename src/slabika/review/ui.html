@@ -78,6 +78,10 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .state { font-size: 11.5px; color: var(--dim); white-space: nowrap;
            overflow: hidden; text-overflow: ellipsis; }
   .state b { font-weight: 600; }
+  .psp-audit { white-space: normal; color: var(--text); }
+  .psp-audit summary { color: var(--accent); cursor: pointer; font-weight: 600; }
+  .psp-audit div { margin-top: 4px; padding: 6px; border: 1px solid var(--line);
+                   border-radius: 5px; background: var(--panel); line-height: 1.45; }
   .acts { display: flex; gap: 3px; flex-wrap: wrap; }
   .acts button { padding: 2px 7px; font-size: 12px; line-height: 1.3; }
   .acts button.on { border-color: #b58cff; color: #d7c2ff; background: #2b213a; }
@@ -129,6 +133,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
     <option value="corrected_form">slovo má opravený tvar</option>
     <option value="deleted">označené na vymazanie</option>
     <option value="engine_disagree">moje ≠ engine</option>
+    <option value="psp_comparison">má PSP porovnanie s Chlebíkovou</option>
     <option value="ai_disagree">AI má iné delenie slov</option>
     <option value="human_review">AI: rozpor alebo neistota</option>
     <option value="verified">overené ľuďmi (import)</option>
@@ -271,6 +276,7 @@ function restoreAppliedFilters() {
 const LABEL = {confirm: ["potvrdené", "var(--good)"], correct: ["opravené", "var(--warn)"],
                flag: ["⚑ je to zle", "var(--bad)"], uncertain: ["neviem", "var(--accent)"],
                invalid: ["nie je slovo", "var(--grey)"]};
+const PSP_VERDICT = {correct: "SPRÁVNE", incorrect: "NESPRÁVNE", unresolved: "NEROZHODNUTÉ"};
 
 // Every independent opinion on this form, side by side.  The engine is the
 // yardstick; each other voice is green when it lands on the same points and
@@ -289,7 +295,14 @@ function voicesHtml(it) {
     lines.push(["slepý AI", it.blind_variants.join("  "), it.blind_disagrees]);
   else if (it.blind_assessment)
     lines.push(["slepý AI", BLIND_LABEL[it.blind_assessment] || it.blind_assessment, null]);
-  if (it.tex) lines.push(["Chlebíková", it.tex, it.tex_disagrees]);
+  if (it.psp_comparison) {
+    const p = it.psp_comparison;
+    lines.push(["PSP (TeX 2/3)", dash(p.psp_tex),
+                p.engine_current_verdict !== "correct"]);
+    lines.push(["Chleb. audit", dash(p.chlebikova),
+                p.chlebikova_verdict !== "correct"]);
+  }
+  if (it.tex) lines.push(["Chlebíková teraz", it.tex, it.tex_disagrees]);
 
   return lines.map(([label, text, differs]) =>
     `<i>${label}</i><span class="${differs === null ? "" : differs ? "diff" : "same"}"` +
@@ -335,6 +348,22 @@ function paint(row, it) {
   if (it.flags.deleted) parts.push("<b>označené na vymazanie</b>");
   else if (it.my_flags.deleted === 0) parts.push("ponechať v korpuse");
   if (it.engine_error) parts.push(`<span style="color:var(--bad)">engine spadol</span>`);
+  if (it.psp_comparison) {
+    const p = it.psp_comparison;
+    const note = p.comparison_note ? `<br><b>Záver:</b> ${esc(p.comparison_note)}` : "";
+    parts.push(
+      `<details class="psp-audit"><summary>Dôkaz podľa PSP: ${esc(p.psp_reference)}</summary>` +
+      `<div><b>Rodina:</b> ${esc(p.family)}` +
+      `<br><b>Aktuálny engine (${p.left_min}/${p.right_min}):</b> ${esc(dash(p.engine_tex_after))}` +
+      ` — <b>${PSP_VERDICT[p.engine_current_verdict]}</b>` +
+      `<br><b>Chlebíková (${p.left_min}/${p.right_min}):</b> ${esc(dash(p.chlebikova))}` +
+      ` — <b>${PSP_VERDICT[p.chlebikova_verdict]}</b>` +
+      `<br><b>Správne podľa PSP (${p.left_min}/${p.right_min}):</b> ${esc((p.psp_tex_variants || [p.psp_tex]).map(dash).join(" / "))}` +
+      `<br><b>Pravidlo a dôvod:</b> ${esc(p.reason)}${note}` +
+      `<br><b>Historická zmena enginu:</b> ${esc(dash(p.engine_before))} → ${esc(dash(p.engine_after))}` +
+      `</div></details>`
+    );
+  }
   row.querySelector(".state").innerHTML = parts.join(" · ") || "—";
 }
 
@@ -349,7 +378,7 @@ function makeRow(it, i) {
     `<span class="form" title="${esc(it.review_form)}">${formText}</span>` +
     `<input class="edit" data-field="h" title="typografické delenie podľa PSP" spellcheck="false" autocomplete="off">` +
     `<span class="voices"></span>` +
-    `<span class="state"></span>` +
+    `<div class="state"></div>` +
     `<span class="acts">` +
       `<button data-a="flag" title="je to zle (Ctrl+Enter)">⚑</button>` +
       `<button data-a="uncertain" title="neviem">?</button>` +
@@ -475,12 +504,17 @@ async function load(offset = 0, focus = 0, field = "h") {
 async function stats() {
   const s = await api("/api/stats");
   const pct = (100 * s.reviewed / s.total).toFixed(2);
+  const audit = s.psp_audit
+    ? ` · PSP audit <b>${s.psp_audit.adjudicated.toLocaleString("sk")}` +
+      ` / ${s.psp_audit.total.toLocaleString("sk")}</b>` +
+      (s.psp_audit.next_batch ? ` · ďalšia dávka <b>${s.psp_audit.next_batch}</b>` : "")
+    : "";
   $("totals").innerHTML =
     `korpus <b>${s.total.toLocaleString("sk")}</b> · skontrolované ` +
     `<b>${s.reviewed.toLocaleString("sk")}</b> (${pct} %)` +
     ` · delenie opravené <b>${s.correct}</b> · zlé <b>${s.flag}</b>` +
     ` · mená <b>${s.proper}</b> · cudzie <b>${s.foreign}</b>` +
-    ` · skratky <b>${s.abbreviation}</b> · na vymazanie <b>${s.deleted}</b>`;
+    ` · skratky <b>${s.abbreviation}</b> · na vymazanie <b>${s.deleted}</b>${audit}`;
   const store = $("store");
   store.textContent = "uložené do " + s.decisions_path.split(/[\\/]/).pop();
   store.title = s.decisions_path + "  (engine slabika " + s.engine_version + ")";

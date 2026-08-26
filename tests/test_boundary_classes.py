@@ -301,13 +301,12 @@ def test_k_suffix_outranks_43_but_leaves_the_sk_suffix_alone():
     """·k· is a morpheme boundary, so section 3 decides before section 4.3.
 
     Without it the cluster ntk goes to 4.3, which moves the point left of the
-    whole tk- because tk- opens tkáč: klien|tka. A stem ending in a sibilant is
-    not this suffix — there the k belongs to ·sk· and reading it as ·k· would
-    strand the s.
+    whole tk- because tk- opens tkáč: klien|tka. A real ·sk· suffix is consumed
+    first; otherwise ·k· may also follow a sibilant-final noun stem.
     """
     assert get_morpheme_parts("klientka") == ["klient", "ka"]
-    assert hyphenate("klientka") == "klient·ka"
-    assert hyphenate("klientkou") == "klient·kou"
+    assert hyphenate("klientka") == "kli·ent·ka"
+    assert hyphenate("klientkou") == "kli·ent·kou"
     assert hyphenate("poistky") == "po·ist·ky"
     assert hyphenate("veštkyňa") == "vešt·ky·ňa"
 

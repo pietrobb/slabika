@@ -169,7 +169,13 @@ def test_ui_reviews_only_typographic_word_division():
     assert "Slepý AI ≠ človek" in html
     assert 'placeholder="hľadať tvar…  (/)"' in html
     assert '["engine (TeX 2/3)", dash(it.engine_tex), null]' in html
-    assert '["Chlebíková", it.tex, it.tex_disagrees]' in html
+    assert '["Chlebíková teraz", it.tex, it.tex_disagrees]' in html
+    assert 'value="psp_comparison"' in html
+    assert '<details class="psp-audit">' in html
+    assert "Aktuálny engine (" in html
+    assert "Správne podľa PSP (" in html
+    assert 'correct: "SPRÁVNE"' in html
+    assert 'incorrect: "NESPRÁVNE"' in html
 
 
 def test_ui_uses_editable_correction_dialog_and_ignores_stale_filter_results():
@@ -360,6 +366,259 @@ def test_voice_disagreement_filters_compose_with_query_and_status(corpus, monkey
     )
     assert [item["review_form"] for item in combined["items"]] == ["maslo"]
     assert tex_calls == cached_tex_calls + 2
+
+
+def test_psp_comparison_is_persistent_filterable_and_separate_from_human_review(corpus):
+    corpus.store.execute(
+        """INSERT INTO psp_comparisons VALUES (
+               'maslo', 'audit-2026-08-25', 'maslo family', 'ma·slo',
+               'ma·slo', 'mas·lo', 'ma·slo', 'mas·lo', 'mas·lo',
+               'mas·lo', '["mas·lo"]', 'correct', 'incorrect', 'engine_only',
+               'engine_corrected', 'PSP V.2.b / §4.2',
+               'Dve spoluhlásky sa delia medzi sebou.',
+               'Chlebíková zostáva odlišná.', 2, 3,
+               'old-ref', 'new-ref', '2026-08-25T16:00:00+00:00'
+           )"""
+    )
+    corpus.store.commit()
+
+    page = corpus.page("", "prefix", "psp_comparison", 0, 10)
+    assert [item["review_form"] for item in page["items"]] == ["maslo"]
+    comparison = page["items"][0]["psp_comparison"]
+    assert comparison == {
+        "audit_id": "audit-2026-08-25",
+        "family": "maslo family",
+        "chlebikova": "ma·slo",
+        "engine_before": "ma·slo",
+        "engine_after": "mas·lo",
+        "engine_tex_before": "ma·slo",
+        "engine_tex_after": "mas·lo",
+        "psp": "mas·lo",
+        "psp_tex": "mas·lo",
+        "psp_variants": ["mas·lo"],
+        "psp_tex_variants": ["maslo"],
+        "engine_current_verdict": "correct",
+        "chlebikova_verdict": "incorrect",
+        "comparison_outcome": "engine_only",
+        "verdict": "engine_corrected",
+        "psp_reference": "PSP V.2.b / §4.2",
+        "reason": "Dve spoluhlásky sa delia medzi sebou.",
+        "comparison_note": "Chlebíková zostáva odlišná.",
+        "left_min": 2,
+        "right_min": 3,
+        "engine_before_ref": "old-ref",
+        "engine_after_ref": "new-ref",
+        "audited_at": "2026-08-25T16:00:00+00:00",
+    }
+    assert page["items"][0]["my_expected"] is None
+    assert corpus.stats()["psp_comparisons"] == 1
+    assert corpus.store.execute("SELECT COUNT(*) FROM decisions").fetchone()[0] == 1
+
+
+def test_psp_audit_freezes_every_difference_and_keeps_human_review_separate(
+    corpus, monkeypatch
+):
+    engine = {
+        "aaah": "Aa·ah",
+        "iphone": "iph·one",
+        "maslo": "mas·lo",
+        "okno": "ok·no",
+    }
+    chlebikova = {
+        "aaah": "Aaah",
+        "iphone": "ip·hone",
+        "maslo": "ma·slo",
+        "okno": "okno",
+    }
+
+    def engine_voice(form):
+        marked = REVIEW._recase_marked(engine[form.lower()], form)
+        return marked, form, None
+
+    def tex_voice(form):
+        return chlebikova[form.lower()]
+
+    monkeypatch.setattr(REVIEW, "_engine", engine_voice)
+    monkeypatch.setattr(REVIEW, "tex_hyphenate", tex_voice)
+    before_human = corpus.store.execute("SELECT COUNT(*) FROM decisions").fetchone()[0]
+    before_log = corpus.store.execute("SELECT COUNT(*) FROM decision_log").fetchone()[0]
+
+    progress = corpus.freeze_psp_audit("audit-1", "engine-ref", "chlebikova-ref")
+
+    assert progress["batch_size"] == 100
+    assert progress["total"] == 4
+    assert progress["batches"] == 1
+    assert progress["adjudicated"] == 0
+    assert progress["next_batch"] == 1
+    batch = corpus.psp_audit_batch("audit-1", 1)
+    assert [item["position"] for item in batch["items"]] == [1, 2, 3, 4]
+    assert [item["form"] for item in batch["items"]] == [
+        "iPhone", "iphone", "MASLO", "maslo"
+    ]
+    assert all(
+        item["engine_tex_hyphenation"] != item["chlebikova_hyphenation"]
+        for item in batch["items"]
+    )
+
+    monkeypatch.setattr(
+        REVIEW, "_engine", lambda form: (form, form, None)
+    )
+    assert corpus.psp_audit_batch("audit-1", 1)["items"] == batch["items"]
+    with pytest.raises(sqlite3.IntegrityError, match="immutable"):
+        corpus.store.execute(
+            "UPDATE psp_audit_items SET form = 'zmena' WHERE audit_id = 'audit-1'"
+        )
+    with pytest.raises(sqlite3.IntegrityError, match="immutable"):
+        corpus.store.execute(
+            "DELETE FROM psp_audit_items WHERE audit_id = 'audit-1'"
+        )
+    with pytest.raises(sqlite3.IntegrityError, match="immutable"):
+        corpus.store.execute(
+            "UPDATE psp_audit_runs SET total_items = 999 WHERE audit_id = 'audit-1'"
+        )
+    corpus.store.rollback()
+
+    monkeypatch.setattr(
+        REVIEW, "_engine", lambda form: (form, form, "test engine failure")
+    )
+    with pytest.raises(RuntimeError, match="engine zlyhal"):
+        corpus.adjudicate_psp(
+            {
+                "audit_id": "audit-1",
+                "form": "maslo",
+                "psp_hyphenation": "mas-lo",
+                "psp_reference": "PSP V.2.b / §4.2",
+                "reason": "Dve spoluhlásky medzi jadrami sa delia medzi sebou.",
+            }
+        )
+    assert corpus.store.execute(
+        "SELECT COUNT(*) FROM psp_comparisons WHERE audit_id = 'audit-1'"
+    ).fetchone()[0] == 0
+    monkeypatch.setattr(REVIEW, "_engine", lambda form: (form, form, None))
+
+    result = corpus.adjudicate_psp(
+        {
+            "audit_id": "audit-1",
+            "form": "maslo",
+            "psp_hyphenation": "mas-lo",
+            "psp_reference": "PSP V.2.b / §4.2",
+            "reason": "Dve spoluhlásky medzi jadrami sa delia medzi sebou.",
+        }
+    )
+    assert result["progress"]["adjudicated"] == 1
+    comparison = corpus.store.execute(
+        "SELECT * FROM psp_comparisons WHERE audit_id = 'audit-1' AND form = 'maslo'"
+    ).fetchone()
+    assert comparison["engine_current_verdict"] == "correct"
+    assert comparison["chlebikova_verdict"] == "incorrect"
+    assert comparison["comparison_outcome"] == "engine_only"
+
+    corpus.adjudicate_psp(
+        {
+            "audit_id": "audit-1",
+            "form": "maslo",
+            "psp_hyphenation": "mas-lo",
+            "psp_variants": ["ma-slo"],
+            "psp_reference": "PSP V.3 / §3.5",
+            "reason": "PSP pripúšťajú dva variantné body.",
+            "replace": True,
+        }
+    )
+    comparison = corpus.store.execute(
+        "SELECT * FROM psp_comparisons WHERE audit_id = 'audit-1' AND form = 'maslo'"
+    ).fetchone()
+    assert comparison["comparison_outcome"] == "both_correct"
+    assert json.loads(comparison["psp_variants"]) == ["mas·lo", "ma·slo"]
+
+    monkeypatch.setattr(REVIEW, "_engine", engine_voice)
+    corpus.adjudicate_psp(
+        {
+            "audit_id": "audit-1",
+            "form": "iPhone",
+            "psp_hyphenation": "i-Pho-ne",
+            "psp_reference": "PSP V.4 / §5.4",
+            "reason": "Test samostatného výsledku, pri ktorom nesedí ani jeden hlas.",
+        }
+    )
+    assert corpus.store.execute(
+        """SELECT comparison_outcome FROM psp_comparisons
+           WHERE audit_id = 'audit-1' AND form = 'iPhone'"""
+    ).fetchone()[0] == "both_incorrect"
+    assert corpus.store.execute("SELECT COUNT(*) FROM decisions").fetchone()[0] == before_human
+    assert corpus.store.execute("SELECT COUNT(*) FROM decision_log").fetchone()[0] == before_log
+
+
+def test_psp_audit_can_store_unresolved_engine_failure(corpus, monkeypatch):
+    corpus.store.execute(
+        """INSERT INTO psp_audit_runs VALUES
+           ('audit-foreign', 'engine', 'chlebikova', 2, 3, 100, 0,
+            'building', '2026-08-25T19:00:00+00:00')"""
+    )
+    corpus.store.execute(
+        """INSERT INTO psp_audit_items VALUES
+           ('audit-foreign', 1, 'Español', 'Español', 'Español', 'Es·pañol')"""
+    )
+    corpus.store.execute(
+        """UPDATE psp_audit_runs
+           SET total_items = 1, status = 'frozen'
+           WHERE audit_id = 'audit-foreign'"""
+    )
+    corpus.store.commit()
+    monkeypatch.setattr(
+        REVIEW,
+        "_engine",
+        lambda form: (form, form, "ValueError: neznáma cudzia graféma ñ"),
+    )
+
+    corpus.adjudicate_psp(
+        {
+            "audit_id": "audit-foreign",
+            "form": "Español",
+            "psp_hyphenation": None,
+            "psp_reference": "PSP V.4 / §5.4",
+            "reason": "Bez doloženej výslovnosti nemožno cudzie písanie rozhodnúť.",
+        }
+    )
+
+    row = corpus.store.execute(
+        """SELECT * FROM psp_comparisons
+           WHERE audit_id = 'audit-foreign' AND form = 'Español'"""
+    ).fetchone()
+    assert row["engine_after_hyphenation"] == "Español"
+    assert row["engine_current_verdict"] == "unresolved"
+    assert "neznáma cudzia graféma ñ" in row["comparison_note"]
+
+
+def test_psp_audit_batches_are_fixed_groups_of_one_hundred(corpus):
+    corpus.store.execute(
+        """INSERT INTO psp_audit_runs VALUES
+           ('audit-205', 'engine', 'chlebikova', 2, 3, 100, 0,
+            'building', '2026-08-25T19:00:00+00:00')"""
+    )
+    corpus.store.executemany(
+        """INSERT INTO psp_audit_items VALUES
+           ('audit-205', ?, ?, ?, ?, ?)""",
+        [
+            (position, f"slovo{position}", f"slo·vo{position}",
+             f"slo·vo{position}", f"slov·o{position}")
+            for position in range(1, 206)
+        ],
+    )
+    corpus.store.execute(
+        """UPDATE psp_audit_runs
+           SET total_items = 205, status = 'frozen'
+           WHERE audit_id = 'audit-205'"""
+    )
+    corpus.store.commit()
+
+    progress = corpus.psp_audit_progress("audit-205")
+    assert progress["batches"] == 3
+    assert [
+        len(corpus.psp_audit_batch("audit-205", batch)["items"])
+        for batch in (1, 2, 3)
+    ] == [100, 100, 5]
+    assert corpus.psp_audit_batch("audit-205", 2)["items"][0]["position"] == 101
+    assert corpus.psp_audit_batch("audit-205", 3)["items"][-1]["position"] == 205
 
 
 def test_migration_and_second_output_preserve_first_output(corpus):

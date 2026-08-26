@@ -22,11 +22,9 @@ or call :func:`break_points` for raw character offsets.
 """
 
 from .phonology import (
-    ATTESTED_ONSETS,
     HYPHENATABLE_LETTERS,
     is_consonant,
     is_vowel,
-    native_spelling,
 )
 from .syllabify import (
     _DLO_INFLECTIONS,
@@ -62,14 +60,8 @@ def _nucleus_spans(word: str) -> tuple[list[str], list[int], list[tuple[int, int
     return phonemes, offsets, spans
 
 
-def _psp_points(word: str, base: int = 0, mechanical: bool = False) -> list[int]:
-    """Apply PSP 2a–2d inside one morphological unit.
-
-    With *mechanical* the cluster rule is read without the opening test of
-    section 4.3 — the point falls after the first consonant whatever follows it.
-    That is the reading PSP prints as the competing member of a 3.5 doublet
-    (``fun|kcia`` beside ``funk|cia``), and nothing else wants it.
-    """
+def _psp_points(word: str, base: int = 0) -> list[int]:
+    """Apply PSP 2a–2d inside one morphological unit."""
     phonemes, offsets, nuclei = _nucleus_spans(word)
     points = []
     for (_, previous_end), (next_start, _) in zip(nuclei, nuclei[1:]):
@@ -79,29 +71,9 @@ def _psp_points(word: str, base: int = 0, mechanical: bool = False) -> list[int]
         elif len(between) == 1:
             point = offsets[between[0]]          # 2a: before the consonant
         else:
-            index = 1 if mechanical else _opening_consonant(phonemes, between, next_start)
-            point = offsets[between[index]]      # 2b/2c: after the first
+            point = offsets[between[1]]          # 2b/2c: after the first
         points.append(base + point)
     return points
-
-
-def _opening_consonant(phonemes: list[str], between: list[int], next_start: int) -> int:
-    """Which consonant of *between* starts the next syllable, per section 4.3.
-
-    Two consonants divide between them and there is nothing to decide. Three or
-    more leave the first with the preceding syllable and give the rest to the
-    next one — but the rule says the rest *opens* that syllable, and a cluster
-    only opens a syllable if Slovak words are written with it. ``al|žbetínska``
-    hands over ``žb``, which opens no Slovak word before a vowel, so the point
-    moves right until what follows it does: ``alž|betínska``. The same reading
-    keeps ``ses|tra``, ``pas|tva`` and ``zaj|tra`` exactly where PSP prints them.
-
-    A single consonant always opens a syllable, so the search terminates.
-    """
-    for index in range(1, len(between)):
-        if native_spelling(''.join(phonemes[between[index]:next_start])) in ATTESTED_ONSETS:
-            return index
-    return len(between) - 1
 
 
 def _variant_crosses_seam(left: str, right: str) -> bool:
@@ -134,19 +106,16 @@ def _variant_crosses_seam(left: str, right: str) -> bool:
 
 def _typographic_nost_seams(parts: list[str]) -> list[int]:
     """Return productive -nosť/-nost- seams without changing syllabification."""
-    seams = []
-    offset = 0
-    for part in parts:
-        folded = part.casefold()
-        for form in _TYPOGRAPHIC_NOST_FORMS:
-            if folded.endswith(form):
-                stem_length = len(part) - len(form)
-                stem = part[:stem_length]
-                if stem_length >= 3 and any(is_vowel(char) for char in stem):
-                    seams.append(offset + stem_length)
-                break
-        offset += len(part)
-    return seams
+    word = "".join(parts)
+    folded = word.casefold()
+    for form in _TYPOGRAPHIC_NOST_FORMS:
+        if folded.endswith(form):
+            seam = len(word) - len(form)
+            stem = word[:seam]
+            if seam >= 3 and any(is_vowel(char) for char in stem):
+                return [seam]
+            break
+    return []
 
 
 def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
@@ -220,7 +189,7 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     # PSP explicitly permits both the morphemic point and the competing
     # syllabic point in these structural classes. The raw whole-word rule gives
     # that second point; only a consonant-only shift across the seam is admitted.
-    raw_points = _psp_points(word, mechanical=True)
+    raw_points = _psp_points(word)
     for seam, left, right in seams:
         # Section 3.4 keeps the second part's initial vowel off the first part
         # "podľa možnosti" — a preference, not a ban. Section 3.5 does not name

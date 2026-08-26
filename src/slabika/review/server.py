@@ -119,6 +119,106 @@ CREATE TABLE IF NOT EXISTS decision_log (
 );
 
 CREATE INDEX IF NOT EXISTS decisions_action ON decisions(action);
+
+CREATE TABLE IF NOT EXISTS psp_comparisons (
+    form TEXT NOT NULL,
+    audit_id TEXT NOT NULL,
+    family TEXT NOT NULL,
+    chlebikova_hyphenation TEXT NOT NULL,
+    engine_before_hyphenation TEXT NOT NULL,
+    engine_after_hyphenation TEXT NOT NULL,
+    engine_tex_before_hyphenation TEXT NOT NULL,
+    engine_tex_after_hyphenation TEXT NOT NULL,
+    psp_hyphenation TEXT NOT NULL,
+    psp_tex_hyphenation TEXT NOT NULL,
+    psp_variants TEXT NOT NULL DEFAULT '[]',
+    engine_current_verdict TEXT NOT NULL CHECK(engine_current_verdict IN
+        ('correct', 'incorrect', 'unresolved')),
+    chlebikova_verdict TEXT NOT NULL CHECK(chlebikova_verdict IN
+        ('correct', 'incorrect', 'unresolved')),
+    comparison_outcome TEXT NOT NULL CHECK(comparison_outcome IN
+        ('both_correct', 'engine_only', 'chlebikova_only',
+         'both_incorrect', 'unresolved')),
+    verdict TEXT NOT NULL CHECK(verdict IN
+        ('engine_corrected', 'engine_matches_psp', 'chlebikova_matches_psp',
+         'both_match_psp', 'unresolved')),
+    psp_reference TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    comparison_note TEXT NOT NULL DEFAULT '',
+    left_min INTEGER NOT NULL,
+    right_min INTEGER NOT NULL,
+    engine_before_ref TEXT NOT NULL,
+    engine_after_ref TEXT NOT NULL,
+    audited_at TEXT NOT NULL,
+    PRIMARY KEY(form, audit_id),
+    CHECK(reason <> ''),
+    CHECK(psp_reference <> '')
+) WITHOUT ROWID;
+
+CREATE INDEX IF NOT EXISTS psp_comparisons_form ON psp_comparisons(form);
+
+CREATE TABLE IF NOT EXISTS psp_audit_runs (
+    audit_id TEXT PRIMARY KEY,
+    engine_ref TEXT NOT NULL,
+    chlebikova_ref TEXT NOT NULL,
+    left_min INTEGER NOT NULL,
+    right_min INTEGER NOT NULL,
+    batch_size INTEGER NOT NULL CHECK(batch_size = 100),
+    total_items INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL CHECK(status IN ('building', 'frozen')),
+    frozen_at TEXT NOT NULL
+) WITHOUT ROWID;
+
+CREATE TABLE IF NOT EXISTS psp_audit_items (
+    audit_id TEXT NOT NULL REFERENCES psp_audit_runs(audit_id) ON DELETE RESTRICT,
+    position INTEGER NOT NULL CHECK(position >= 1),
+    form TEXT NOT NULL,
+    engine_hyphenation TEXT NOT NULL,
+    engine_tex_hyphenation TEXT NOT NULL,
+    chlebikova_hyphenation TEXT NOT NULL,
+    PRIMARY KEY(audit_id, position),
+    UNIQUE(audit_id, form),
+    CHECK(engine_tex_hyphenation <> chlebikova_hyphenation)
+) WITHOUT ROWID;
+
+CREATE TRIGGER IF NOT EXISTS psp_audit_items_insert_only_while_building
+BEFORE INSERT ON psp_audit_items
+WHEN COALESCE((SELECT status FROM psp_audit_runs WHERE audit_id = NEW.audit_id), '') <> 'building'
+BEGIN
+    SELECT RAISE(ABORT, 'PSP audit is frozen');
+END;
+
+CREATE TRIGGER IF NOT EXISTS psp_audit_items_no_update
+BEFORE UPDATE ON psp_audit_items
+BEGIN
+    SELECT RAISE(ABORT, 'PSP audit snapshot is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS psp_audit_items_no_delete
+BEFORE DELETE ON psp_audit_items
+BEGIN
+    SELECT RAISE(ABORT, 'PSP audit snapshot is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS psp_audit_runs_no_reopen
+BEFORE UPDATE OF status ON psp_audit_runs
+WHEN OLD.status = 'frozen'
+BEGIN
+    SELECT RAISE(ABORT, 'PSP audit is frozen');
+END;
+
+CREATE TRIGGER IF NOT EXISTS psp_audit_runs_no_update_when_frozen
+BEFORE UPDATE ON psp_audit_runs
+WHEN OLD.status = 'frozen'
+BEGIN
+    SELECT RAISE(ABORT, 'PSP audit snapshot is immutable');
+END;
+
+CREATE TRIGGER IF NOT EXISTS psp_audit_runs_no_delete
+BEFORE DELETE ON psp_audit_runs
+BEGIN
+    SELECT RAISE(ABORT, 'PSP audit snapshot is immutable');
+END;
 """
 
 
@@ -232,6 +332,46 @@ class Corpus:
         self.store = sqlite3.connect(decisions, check_same_thread=False)
         self.store.row_factory = sqlite3.Row
         self.store.executescript(DECISION_SCHEMA)
+        psp_columns = {
+            row[1] for row in self.store.execute("PRAGMA table_info(psp_comparisons)")
+        }
+        if "psp_variants" not in psp_columns:
+            self.store.execute(
+                "ALTER TABLE psp_comparisons ADD COLUMN "
+                "psp_variants TEXT NOT NULL DEFAULT '[]'"
+            )
+            rows = self.store.execute(
+                """SELECT form, audit_id, psp_hyphenation
+                   FROM psp_comparisons
+                   WHERE engine_current_verdict <> 'unresolved'"""
+            ).fetchall()
+            self.store.executemany(
+                """UPDATE psp_comparisons SET psp_variants = ?
+                   WHERE form = ? AND audit_id = ?""",
+                [
+                    (json.dumps([row["psp_hyphenation"]], ensure_ascii=False),
+                     row["form"], row["audit_id"])
+                    for row in rows
+                ],
+            )
+        if "comparison_outcome" not in psp_columns:
+            self.store.execute(
+                """ALTER TABLE psp_comparisons ADD COLUMN comparison_outcome TEXT
+                   NOT NULL DEFAULT 'unresolved' CHECK(comparison_outcome IN
+                   ('both_correct', 'engine_only', 'chlebikova_only',
+                    'both_incorrect', 'unresolved'))"""
+            )
+            self.store.execute(
+                """UPDATE psp_comparisons SET comparison_outcome = CASE
+                       WHEN engine_current_verdict = 'unresolved'
+                         OR chlebikova_verdict = 'unresolved' THEN 'unresolved'
+                       WHEN engine_current_verdict = 'correct'
+                         AND chlebikova_verdict = 'correct' THEN 'both_correct'
+                       WHEN engine_current_verdict = 'correct' THEN 'engine_only'
+                       WHEN chlebikova_verdict = 'correct' THEN 'chlebikova_only'
+                       ELSE 'both_incorrect'
+                   END"""
+            )
         columns = {row[1] for row in self.store.execute("PRAGMA table_info(decisions)")}
         for column in (
             "row_action",
@@ -432,7 +572,35 @@ class Corpus:
             if rows
         }
 
-    def item(self, form: str, ai: sqlite3.Row | None, mine: sqlite3.Row | None) -> dict:
+    def _psp_rows(self, forms: list[str]) -> dict[str, sqlite3.Row]:
+        source_forms = sorted({alias for form in forms for alias in self._alias_forms(form)})
+        source_rows: dict[str, sqlite3.Row] = {}
+        for start in range(0, len(source_forms), 800):
+            chunk = source_forms[start : start + 800]
+            placeholders = ",".join("?" * len(chunk))
+            for row in self.store.execute(
+                f"""SELECT * FROM psp_comparisons
+                    WHERE form IN ({placeholders})
+                    ORDER BY audited_at, audit_id""",
+                chunk,
+            ):
+                source_rows[row["form"]] = row
+        return {
+            form: max(
+                (source_rows[alias] for alias in self._alias_forms(form) if alias in source_rows),
+                key=lambda row: (row["audited_at"], row["audit_id"]),
+            )
+            for form in forms
+            if any(alias in source_rows for alias in self._alias_forms(form))
+        }
+
+    def item(
+        self,
+        form: str,
+        ai: sqlite3.Row | None,
+        mine: sqlite3.Row | None,
+        psp: sqlite3.Row | None = None,
+    ) -> dict:
         review_form = self.review_forms[form]
         hyphenation, syllabification, error = _engine(review_form)
         engine_tex = _tex_mode(hyphenation, review_form)
@@ -461,6 +629,49 @@ class Corpus:
             tex = _recase_marked(tex_hyphenate(review_form.lower()), review_form)
         except Exception:  # noqa: BLE001 - an advisory voice must never break a row
             tex = None
+        psp_comparison = None
+        if psp:
+            psp_variants = [
+                _recase_marked(variant, review_form)
+                for variant in json.loads(psp["psp_variants"])
+            ]
+            psp_comparison = {
+                "audit_id": psp["audit_id"],
+                "family": psp["family"],
+                "chlebikova": _recase_marked(
+                    psp["chlebikova_hyphenation"], review_form
+                ),
+                "engine_before": _recase_marked(
+                    psp["engine_before_hyphenation"], review_form
+                ),
+                "engine_after": _recase_marked(
+                    psp["engine_after_hyphenation"], review_form
+                ),
+                "engine_tex_before": _recase_marked(
+                    psp["engine_tex_before_hyphenation"], review_form
+                ),
+                "engine_tex_after": _recase_marked(
+                    psp["engine_tex_after_hyphenation"], review_form
+                ),
+                "psp": _recase_marked(psp["psp_hyphenation"], review_form),
+                "psp_tex": _recase_marked(psp["psp_tex_hyphenation"], review_form),
+                "psp_variants": psp_variants,
+                "psp_tex_variants": [
+                    _tex_mode(variant, review_form) for variant in psp_variants
+                ],
+                "engine_current_verdict": psp["engine_current_verdict"],
+                "chlebikova_verdict": psp["chlebikova_verdict"],
+                "comparison_outcome": psp["comparison_outcome"],
+                "verdict": psp["verdict"],
+                "psp_reference": psp["psp_reference"],
+                "reason": psp["reason"],
+                "comparison_note": psp["comparison_note"],
+                "left_min": psp["left_min"],
+                "right_min": psp["right_min"],
+                "engine_before_ref": psp["engine_before_ref"],
+                "engine_after_ref": psp["engine_after_ref"],
+                "audited_at": psp["audited_at"],
+            }
 
         return {
             "form": form,
@@ -471,6 +682,7 @@ class Corpus:
             "engine_error": error,
             "tex": tex,
             "tex_disagrees": bool(tex) and tex != engine_tex,
+            "psp_comparison": psp_comparison,
             "blind_assessment": blind.get("assessment"),
             "blind_variants": blind_variants,
             "blind_disagrees": bool(blind_variants) and hyphenation not in blind_variants,
@@ -574,6 +786,9 @@ class Corpus:
                 "corrected_form": "corrected_form",
             }[status]
             return [form for form in forms if form in rows and rows[form][field]]
+        if status == "psp_comparison":
+            rows = self._psp_rows(forms)
+            return [form for form in forms if form in rows]
         if status == "mine":
             rows = self._decision_rows(forms)
             return [form for form in forms if form in rows and self._is_reviewed(rows[form])]
@@ -626,6 +841,289 @@ class Corpus:
                 matching.add(form)
         self._tex_disagreements = frozenset(matching)
 
+    def freeze_psp_audit(
+        self,
+        audit_id: str,
+        engine_ref: str,
+        chlebikova_ref: str,
+    ) -> dict:
+        """Freeze every alphabetic Engine–Chlebíková difference in batches of 100."""
+        if not audit_id or not engine_ref or not chlebikova_ref:
+            raise ValueError("audit_id, engine_ref a chlebikova_ref sú povinné")
+        if self.store.execute(
+            "SELECT 1 FROM psp_audit_runs WHERE audit_id = ?", (audit_id,)
+        ).fetchone():
+            raise ValueError(f"PSP audit {audit_id!r} už existuje")
+
+        rows = []
+        forms = sorted(
+            (form for form in self.form_set if form.isalpha()),
+            key=lambda form: (_fold(form), form),
+        )
+        for form in forms:
+            engine_hyphenation, _, engine_error = _engine(form)
+            if engine_error:
+                raise RuntimeError(
+                    f"engine zlyhal pri zmrazovaní PSP auditu pre {form!r}: "
+                    f"{engine_error}"
+                )
+            engine_hyphenation = _recase_marked(engine_hyphenation, form)
+            engine_tex = _tex_mode(engine_hyphenation, form)
+            try:
+                chlebikova = _recase_marked(tex_hyphenate(form.lower()), form)
+            except Exception:  # noqa: BLE001 - unavailable advice is not a difference
+                continue
+            if engine_tex != chlebikova:
+                rows.append((audit_id, len(rows) + 1, form, engine_hyphenation,
+                             engine_tex, chlebikova))
+
+        frozen_at = _now()
+        with self.lock:
+            self.store.execute("BEGIN IMMEDIATE")
+            try:
+                self.store.execute(
+                    """INSERT INTO psp_audit_runs
+                       (audit_id, engine_ref, chlebikova_ref, left_min, right_min,
+                        batch_size, total_items, status, frozen_at)
+                       VALUES (?, ?, ?, 2, 3, 100, 0, 'building', ?)""",
+                    (audit_id, engine_ref, chlebikova_ref, frozen_at),
+                )
+                self.store.executemany(
+                    """INSERT INTO psp_audit_items
+                       (audit_id, position, form, engine_hyphenation,
+                        engine_tex_hyphenation, chlebikova_hyphenation)
+                       VALUES (?, ?, ?, ?, ?, ?)""",
+                    rows,
+                )
+                self.store.execute(
+                    """UPDATE psp_audit_runs
+                       SET total_items = ?, status = 'frozen'
+                       WHERE audit_id = ?""",
+                    (len(rows), audit_id),
+                )
+                self.store.commit()
+            except BaseException:
+                self.store.rollback()
+                raise
+        return self.psp_audit_progress(audit_id)
+
+    def psp_audit_progress(self, audit_id: str | None = None) -> dict | None:
+        if audit_id is None:
+            run = self.store.execute(
+                """SELECT * FROM psp_audit_runs
+                   WHERE status = 'frozen'
+                   ORDER BY frozen_at DESC, audit_id DESC LIMIT 1"""
+            ).fetchone()
+        else:
+            run = self.store.execute(
+                "SELECT * FROM psp_audit_runs WHERE audit_id = ?", (audit_id,)
+            ).fetchone()
+        if run is None:
+            return None
+
+        counts = self.store.execute(
+            """SELECT
+                   COUNT(c.form) AS adjudicated,
+                   SUM(c.engine_current_verdict = 'correct'
+                       AND c.chlebikova_verdict = 'correct') AS both_correct,
+                   SUM(c.engine_current_verdict = 'correct'
+                       AND c.chlebikova_verdict = 'incorrect') AS engine_only,
+                   SUM(c.engine_current_verdict = 'incorrect'
+                       AND c.chlebikova_verdict = 'correct') AS chlebikova_only,
+                   SUM(c.engine_current_verdict = 'incorrect'
+                       AND c.chlebikova_verdict = 'incorrect') AS both_incorrect,
+                   SUM(c.engine_current_verdict = 'unresolved'
+                       OR c.chlebikova_verdict = 'unresolved') AS unresolved
+               FROM psp_audit_items AS i
+               LEFT JOIN psp_comparisons AS c
+                 ON c.audit_id = i.audit_id AND c.form = i.form
+               WHERE i.audit_id = ?""",
+            (run["audit_id"],),
+        ).fetchone()
+        next_row = self.store.execute(
+            """SELECT MIN(i.position)
+               FROM psp_audit_items AS i
+               LEFT JOIN psp_comparisons AS c
+                 ON c.audit_id = i.audit_id AND c.form = i.form
+               WHERE i.audit_id = ? AND c.form IS NULL""",
+            (run["audit_id"],),
+        ).fetchone()
+        next_position = next_row[0]
+        total = run["total_items"]
+        batch_size = run["batch_size"]
+        return {
+            "audit_id": run["audit_id"],
+            "engine_ref": run["engine_ref"],
+            "chlebikova_ref": run["chlebikova_ref"],
+            "left_min": run["left_min"],
+            "right_min": run["right_min"],
+            "batch_size": batch_size,
+            "total": total,
+            "batches": (total + batch_size - 1) // batch_size,
+            "adjudicated": counts["adjudicated"],
+            "both_correct": counts["both_correct"] or 0,
+            "engine_only": counts["engine_only"] or 0,
+            "chlebikova_only": counts["chlebikova_only"] or 0,
+            "both_incorrect": counts["both_incorrect"] or 0,
+            "unresolved": counts["unresolved"] or 0,
+            "next_batch": (
+                (next_position - 1) // batch_size + 1
+                if next_position is not None else None
+            ),
+            "frozen_at": run["frozen_at"],
+        }
+
+    def psp_audit_batch(self, audit_id: str, batch: int) -> dict:
+        progress = self.psp_audit_progress(audit_id)
+        if progress is None:
+            raise ValueError(f"neznámy PSP audit {audit_id!r}")
+        if batch < 1 or batch > progress["batches"]:
+            raise ValueError(f"dávka musí byť od 1 do {progress['batches']}")
+        start = (batch - 1) * progress["batch_size"] + 1
+        stop = start + progress["batch_size"]
+        rows = self.store.execute(
+            """SELECT i.*, c.psp_hyphenation, c.psp_tex_hyphenation,
+                      c.psp_variants, c.engine_current_verdict, c.chlebikova_verdict,
+                      c.comparison_outcome, c.psp_reference, c.reason,
+                      c.comparison_note, c.audited_at
+               FROM psp_audit_items AS i
+               LEFT JOIN psp_comparisons AS c
+                 ON c.audit_id = i.audit_id AND c.form = i.form
+               WHERE i.audit_id = ? AND i.position >= ? AND i.position < ?
+               ORDER BY i.position""",
+            (audit_id, start, stop),
+        ).fetchall()
+        return {
+            "progress": progress,
+            "batch": batch,
+            "items": [dict(row) for row in rows],
+        }
+
+    def adjudicate_psp(self, payload: dict) -> dict:
+        audit_id = payload.get("audit_id")
+        form = payload.get("form")
+        item = self.store.execute(
+            """SELECT i.*, r.engine_ref, r.batch_size
+               FROM psp_audit_items AS i
+               JOIN psp_audit_runs AS r USING (audit_id)
+               WHERE i.audit_id = ? AND i.form = ? AND r.status = 'frozen'""",
+            (audit_id, form),
+        ).fetchone()
+        if item is None:
+            raise ValueError("tvar nie je v zmrazenom PSP audite")
+        psp_reference = (payload.get("psp_reference") or "").strip()
+        reason = (payload.get("reason") or "").strip()
+        if not psp_reference or not reason:
+            raise ValueError("PSP odkaz a stručný dôvod sú povinné")
+
+        psp_input = payload.get("psp_hyphenation")
+        unresolved = psp_input is None
+        raw_variants = payload.get("psp_variants") or []
+        if not isinstance(raw_variants, list):
+            raise ValueError("PSP varianty musia byť zoznam")
+        if unresolved and raw_variants:
+            raise ValueError("nerozhodnutá položka nemôže mať PSP varianty")
+        psp_hyphenation = form if unresolved else _parse_marked(form, psp_input)
+        psp_variants = [] if unresolved else list(dict.fromkeys([
+            psp_hyphenation,
+            *(_parse_marked(form, variant) for variant in raw_variants),
+        ]))
+        psp_tex = _tex_mode(psp_hyphenation, form)
+        psp_tex_variants = {_tex_mode(variant, form) for variant in psp_variants}
+        engine_after, _, engine_error = _engine(form)
+        if engine_error and not unresolved:
+            raise RuntimeError(
+                f"engine zlyhal pri PSP rozhodovaní pre {form!r}: {engine_error}"
+            )
+        engine_after = _recase_marked(engine_after, form)
+        engine_tex_after = _tex_mode(engine_after, form)
+        comparison_note = payload.get("comparison_note") or ""
+        if engine_error:
+            comparison_note = (
+                f"{comparison_note}\nAktuálny engine zlyhal: {engine_error}"
+            ).strip()
+        if unresolved:
+            engine_verdict = chlebikova_verdict = "unresolved"
+            outcome = "unresolved"
+            verdict = "unresolved"
+        else:
+            engine_verdict = (
+                "correct" if engine_tex_after in psp_tex_variants else "incorrect"
+            )
+            chlebikova_verdict = (
+                "correct"
+                if item["chlebikova_hyphenation"] in psp_tex_variants
+                else "incorrect"
+            )
+            if engine_verdict == chlebikova_verdict == "correct":
+                outcome = "both_correct"
+                verdict = "both_match_psp"
+            elif engine_verdict == "correct":
+                outcome = "engine_only"
+                verdict = "engine_matches_psp"
+            elif chlebikova_verdict == "correct":
+                outcome = "chlebikova_only"
+                verdict = "chlebikova_matches_psp"
+            else:
+                outcome = "both_incorrect"
+                verdict = "unresolved"
+
+        values = (
+            form,
+            audit_id,
+            payload.get("family") or form,
+            item["chlebikova_hyphenation"],
+            item["engine_hyphenation"],
+            engine_after,
+            item["engine_tex_hyphenation"],
+            engine_tex_after,
+            psp_hyphenation,
+            psp_tex,
+            json.dumps(psp_variants, ensure_ascii=False),
+            engine_verdict,
+            chlebikova_verdict,
+            outcome,
+            verdict,
+            psp_reference,
+            reason,
+            comparison_note,
+            2,
+            3,
+            item["engine_ref"],
+            payload.get("engine_after_ref") or f"slabika {ENGINE_VERSION}",
+            _now(),
+        )
+        with self.lock:
+            self.store.execute("BEGIN IMMEDIATE")
+            try:
+                if payload.get("replace"):
+                    self.store.execute(
+                        "DELETE FROM psp_comparisons WHERE form = ? AND audit_id = ?",
+                        (form, audit_id),
+                    )
+                self.store.execute(
+                    """INSERT INTO psp_comparisons
+                       (form, audit_id, family, chlebikova_hyphenation,
+                        engine_before_hyphenation, engine_after_hyphenation,
+                        engine_tex_before_hyphenation, engine_tex_after_hyphenation,
+                        psp_hyphenation, psp_tex_hyphenation, psp_variants,
+                        engine_current_verdict, chlebikova_verdict,
+                        comparison_outcome, verdict, psp_reference, reason,
+                        comparison_note, left_min, right_min, engine_before_ref,
+                        engine_after_ref, audited_at)
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                               ?, ?, ?, ?, ?, ?)""",
+                    values,
+                )
+                self.store.commit()
+            except BaseException:
+                self.store.rollback()
+                raise
+        return self.psp_audit_batch(
+            audit_id,
+            (item["position"] - 1) // item["batch_size"] + 1,
+        )
+
     def _filter_voice_disagreements(
         self, forms: list[str], tex_diff: bool, blind_human_diff: bool
     ) -> list[str]:
@@ -673,10 +1171,14 @@ class Corpus:
         window = candidate[offset : offset + limit]
         ai = self._ai_rows(window)
         mine = self._decision_rows(window)
+        psp = self._psp_rows(window)
         return {
             "total": len(candidate),
             "offset": offset,
-            "items": [self.item(form, ai.get(form), mine.get(form)) for form in window],
+            "items": [
+                self.item(form, ai.get(form), mine.get(form), psp.get(form))
+                for form in window
+            ],
         }
 
     def stats(self) -> dict:
@@ -732,6 +1234,8 @@ class Corpus:
                 for row in decisions
             ),
             "ai_review_queue": ai_review_queue,
+            "psp_comparisons": len(self._psp_rows(self.forms)),
+            "psp_audit": self.psp_audit_progress(),
             "decisions_path": str(self.decisions_path),
             "engine_version": ENGINE_VERSION,
         }
@@ -1141,7 +1645,8 @@ class Corpus:
     def _fresh(self, form: str) -> dict:
         ai = self._ai_rows([form]).get(form)
         mine = self._decision_rows([form]).get(form)
-        return self.item(form, ai, mine)
+        psp = self._psp_rows([form]).get(form)
+        return self.item(form, ai, mine, psp)
 
 
 class ReviewHTTPServer(ThreadingHTTPServer):
@@ -1191,6 +1696,18 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/stats":
             self._json(self.corpus.stats())
             return
+        if parsed.path == "/api/psp-audit/batch":
+            query = parse_qs(parsed.query)
+            try:
+                self._json(
+                    self.corpus.psp_audit_batch(
+                        query.get("audit_id", [""])[0],
+                        int(query.get("batch", ["1"])[0]),
+                    )
+                )
+            except Exception as error:  # noqa: BLE001
+                self._json({"error": str(error)}, 400)
+            return
         self._json({"error": "not found"}, 404)
 
     def do_POST(self) -> None:  # noqa: N802
@@ -1221,6 +1738,18 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if parsed.path == "/api/undo":
                 self._json(self.corpus.undo_last())
+                return
+            if parsed.path == "/api/psp-audit/freeze":
+                self._json(
+                    self.corpus.freeze_psp_audit(
+                        payload.get("audit_id", ""),
+                        payload.get("engine_ref", ""),
+                        payload.get("chlebikova_ref", ""),
+                    )
+                )
+                return
+            if parsed.path == "/api/psp-audit/adjudicate":
+                self._json(self.corpus.adjudicate_psp(payload))
                 return
         except Exception as error:  # noqa: BLE001
             self._json({"error": f"{type(error).__name__}: {error}"}, 400)
