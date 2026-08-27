@@ -82,16 +82,24 @@ _LEXICAL_PREFIX_ROOTS = (
     ('hoci', ('ktor',)),
     ('hvezdo', ('prav',)),
     ('hrozo', ('straš',)),
+    ('miesto', ('kráľ',)),
+    ('mimo', ('priestor',)),
+    ('zimo', ('mrav',)),
+    ('zvero', ('kruh',)),
     ('kde', ('ktor',)),
     ('nie', ('ktor',)),
     ('kladko', ('stroj',)),
     ('nanebo', ('vstúp',)),
     ('ob', ('oznám',)),
-    ('ohňo', ('stroj',)),
+    ('od', ('opier', 'umier')),
+    ('odo', ('hráv',)),
+    ('ohňo', ('stroj', 'žrút')),
     ('okolo', ('stoj',)),
     ('oro', ('graf',)),
     ('steno', ('graf',)),
+    ('sto', ('stop',)),
     ('tele', ('graf',)),
+    ('telo', ('cvik',)),
     ('topo', ('graf',)),
     ('typo', ('graf',)),
     ('práce', ('schop',)),
@@ -100,7 +108,9 @@ _LEXICAL_PREFIX_ROOTS = (
     ('vďaky', ('vzdan',)),
     ('života', ('schop',)),
     ('životo', ('správ',)),
+    ('časo', ('priestor',)),
     ('činu', ('schop',)),
+    ('človeko', ('zviera',)),
     ('dva', ('uhol',)),
     ('dvoj', ('uch',)),
     ('päť', ('uhol',)),
@@ -108,24 +118,31 @@ _LEXICAL_PREFIX_ROOTS = (
     ('štvor', ('uhol',)),
     ('porno', ('graf',)),
     ('prvo', ('tlač',)),
-    ('rozo', ('br', 'ber', 'sta', 'strel', 'stret', 'stup', 'stúp', 'zvu', 'zna', 'zná')),  # rozo·staviť, rozo·znať — not roz·os-
-    ('samo', ('hlás', 'spravod', 'svet', 'vlád', 'vrav', 'vytvor')),
+    ('rozo', ('br', 'ber', 'smej', 'sta', 'strel', 'stret', 'stup', 'stúp', 'zvo', 'zvu', 'zna', 'zná')),  # rozo·staviť, rozo·znať — not roz·os-
+    ('samo', ('hlás', 'spravod', 'stvoriteľ', 'svet', 'sviet', 'vlád', 'vrav', 'vytvor')),
+    ('sedmo', ('spáč',)),
     ('slovo', ('sled',)),
-    ('polo', ('brat', 'hlas', 'pravdiv', 'slep', 'svet', 'zrel')),
+    ('polo', ('brat', 'hlas', 'pravdiv', 'slep', 'svet', 'zrel', 'zviera')),
     ('pohano', ('kresťan',)),
+    ('písmeno', ('žrút',)),
+    ('pre', ('diabol', 'dier', 'duchov')),
     ('pol', ('ostrov',)),
     ('plno', ('zvuč',)),
     ('rovno', ('zvuč',)),
-    ('spolu', ('blíž', 'brat', 'hlás', 'kresťan', 'plod', 'posvät', 'prac', 'sláv', 'slúž', 'sprav', 'správ', 'tvor', 'vlast', 'vlád', 'zvuč')),
+    ('spolu', ('blíž', 'brat', 'hlás', 'hráč', 'kráľ', 'kresťan', 'kňaz', 'plod', 'posvät', 'prac', 'sláv', 'slúž', 'sprav', 'správ', 'stolov', 'tvor', 'vlast', 'vlád', 'vzruš', 'zľutov', 'znič', 'zvuč')),
     ('staro', ('sláv', 'svet', 'zná')),
+    ('sveta', ('skúsen',)),
     ('sveto', ('slep', 'vlád', 'zná')),
     ('sväto', ('svät',)),
     ('tisíc', ('hlas',)),
     ('tisíco', ('hlas',)),
+    ('veľko', ('kráľ',)),
+    ('vice', ('kráľ',)),
+    ('uza', ('vrel',)),
     ('vele', ('zrad',)),
     ('víťazo', ('sláv',)),
     ('vlasti', ('zrad',)),
-    ('vše', ('spravod', 'svet', 'svät', 'vlád')),
+    ('vše', ('spravod', 'svet', 'svät', 'vlád', 'zľutov', 'žrút')),
     ('znovu', ('navrát', 'stret')),
     ('žalo', ('spev',)),
     ('žido', ('kresťan',)),
@@ -139,11 +156,11 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pa', ('kľúč',)),
     ('para', ('fráz', 'graf')),
     ('pra', ('arch',)),
-    ('prie', ('hľad', 'hrad', 'strel', 'stup', 'svit')),
-    ('prí', ('klad', 'krat', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'stup', 'tlač', 'tvrd', 'vlast')),
+    ('prie', ('hľad', 'hrad', 'klep', 'strel', 'stup', 'svit', 'zrač')),
+    ('prí', ('klad', 'krat', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zvuk')),
     ('naj', ('všestran',)),
-    ('ne', ('vhod', 'vďač', 'zhod')),
-    ('novo', ('stan', 'vznik', 'vysvät')),
+    ('ne', ('sťaž', 'vhod', 'vkus', 'vďač', 'zhas', 'zhod')),
+    ('novo', ('prij', 'stan', 'vznik', 'vysvät', 'zjav')),
     ('ono', ('svet',)),
     ('na', (
         'dan', 'darm', 'dáv', 'del', 'deľ', 'dikt', 'divok', 'dobr',
@@ -152,19 +169,19 @@ _LEXICAL_PREFIX_ROOTS = (
         'jedia', 'jedl', 'jedo', 'jedz', 'jeme', 'jemn', 'jesť', 'jež', 'jím', 'stup',
     )),
     ('nade', ('všet',)),
-    ('ná', ('cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'prav', 'stup')),
+    ('ná', ('cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'prav', 'skok', 'stup', 'vnad', 'znak')),
     ('sprí', ('stup',)),
     ('spo', ('plat', 'zná')),
     # po·drobiť (rozdrobiť) against pod·robiť (podmaniť) — the two are spelled
     # alike and only the sense tells them apart. PSP prints po-drobný, and the
     # adjective and its adverbs are the frequent reading of the string.
     ('pod', ('oblas',)),
-    ('po', ('diel', 'dob', 'div', 'dotk', 'dozr', 'drob', 'druh', 'slúž', 'sluš', 'vďač', 'zdrav')),
+    ('po', ('diel', 'dob', 'div', 'dotk', 'dozr', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'zdrav', 'zhas')),
     ('pre', ('vďač',)),
     ('u', ('hrad', 'krát', 'sporiad')),
     ('vy', ('chlad',)),
     ('za', ('vďač',)),
-    ('zá', ('blesk', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'stup')),
+    ('zá', ('blesk', 'chvat', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup')),
     ('ú', ('hrad', 'plat', 'stup')),
 )
 
@@ -309,8 +326,23 @@ _SK_COMPOUND_TAILS = ('krát',)
 # The member is searched inside the form
 # (aristokratickými), and it needs a first part of its own: the s- of Sokrates
 # is not one, and neither is the word-initial krat- of kratochvíľa.
-_SK_BOUND_SECOND_MEMBERS = ('krat', 'krac', 'hrad', 'hned', 'naut', 'tvor')
+_SK_BOUND_SECOND_MEMBERS = ('krat', 'krac', 'hrad', 'hned', 'naut', 'tvor', 'plav', 'vrah', 'zlat', 'zvyk', 'zver', 'znič', 'vlas')
 _BOUND_SECOND_MEMBER_HEADS = {
+    'vlas': frozenset({
+        'ohnivo', 'plamenno', 'plavo', 'prosto', 'sivo', 'striebro', 'tmavo', 'žlto',
+    }),
+    'vrah': frozenset({'matko', 'otco', 'samo'}),
+    'zlat': frozenset({
+        'bledozeleno', 'ryšavo', 'svetlo', 'tmavo', 'trávovo', 'zelenkasto',
+        'zeleno',
+    }),
+    'zvyk': frozenset({'zlo'}),
+    'zver': frozenset({'novo', 'polo'}),
+    'znič': frozenset({'polo'}),
+    'plav': frozenset({
+        'pieskovo', 'ryšavo', 'sivo', 'svetlo', 'svetlozlato', 'tmavo',
+        'tmavozlato', 'vzducho', 'zlato', 'špinavo',
+    }),
     'tvor': frozenset({
         'formo', 'miero', 'novo', 'obrazo', 'samo', 'tóno', 'všetko', 'zemo',
         'zázrako', 'čino', 'žlčo',
@@ -389,11 +421,11 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
     reml = rem.lower()
     if comp in _VOWEL_SEAM_COMPOSITA and reml[0] not in _VOWEL_LETTERS:
         consonant_composita = {
-            'bystro': ('zrak',),
+            'bystro': ('sluch', 'zrak'),
             'novo': ('nastup', 'postav', 'stav', 'vytvor'),
-            'polo': ('prie', 'vyprah'),
+            'polo': ('krot', 'prie', 'vyprah'),
             'vše': ('stran', 'stred'),
-            'vysoko': ('postav',),
+            'vysoko': ('postav', 'škol'),
             'mnoho': (
                 'hlav', 'hran', 'skúsen', 'sľub', 'štít', 'stran', 'strom',
                 'tlam', 'tvár', 'vlád', 'vrav', 'žrút',
@@ -432,7 +464,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         'rovno': ('stup', 'práv', 'znač'),
         'svetsko': ('práv',),
         'veľa': ('sľub', 'vrav'),
-        'veľko': ('slúž', 'vlád', 'zvuč'),
+        'veľko': ('slúž', 'špekulant', 'vlád', 'zvuč'),
     }
     if comp in guarded_compounds and not reml.startswith(guarded_compounds[comp]):
         return False
@@ -515,6 +547,11 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     by a vowel-like character (to avoid 'pri' + 'atelstvo' → bad split).
     """
     wl = w.lower()
+
+    if wl.startswith('veľkokráľ'):
+        return w[:5], w[5:]
+    if wl.startswith('predobr') and wl[7:] in _DOBR_INFLECTIONS:
+        return w[:3], w[3:]
 
     # A longer recognised first part outranks a shorter prefix lookalike:
     # neuro·lóg is not ne·urológ and polo·vodič is not po·lovodič.
