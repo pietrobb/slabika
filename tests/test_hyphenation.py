@@ -125,10 +125,23 @@ def test_pri_prefix_is_recognised_in_the_stup_and_krat_families():
     assert hyphenate("príkratko") == "prí·krat·ko"
 
 
+def test_prost_short_comparative_is_not_misread_as_pro_prefix():
+    assert hyphenate("prostší") == "prost·ší"
+    assert hyphenate("najprostšia") == "naj·prost·šia"
+
+
+def test_superlatives_keep_the_naj_prefix_and_compound_stem_seams():
+    assert hyphenate("najranejší") == "naj·ra·nej·ší"
+    assert hyphenate("najprvotriednejšieho") == "naj·pr·vo·tried·nej·šie·ho"
+
+
 def test_lengthened_na_and_za_prefixes_keep_lexical_root_seams():
     expected = {
         "náklad": "ná·klad",
         "nákladnými": "ná·klad·ný·mi",
+        "náklaďákov": "ná·kla·ďá·kov",
+        "náklaďáku": "ná·kla·ďá·ku",
+        "náklaďáky": "ná·kla·ďá·ky",
         "nástup": "ná·stup",
         "nástupníctvo": "ná·stup·ní·ctvo",
         "prazáklad": "pra·zá·klad",
@@ -634,6 +647,8 @@ def test_twenty_fourth_discovered_family_batch_keeps_only_clear_compound_seams()
         "samovravu": "sa·mo·vra·vu",
         "veľavravne": "ve·ľa·vrav·ne",
         "veľavravnými": "ve·ľa·vrav·ný·mi",
+        "veľadôstojní": "ve·ľa·dôs·toj·ní",
+        "najveľadôstojnejší": "naj·ve·ľa·dôs·toj·nej·ší",
         "stočlenná": "sto·člen·ná",
         "stočlennou": "sto·člen·nou",
         "ostrihané": "os·tri·ha·né",
@@ -2297,6 +2312,21 @@ def test_batch_42_nested_one_letter_prefixes_keep_guarded_root_seams():
     assert hyphenate("uspávanka") == "us·pá·van·ka"
 
 
+def test_batch_52_nested_u_prefix_keeps_guarded_root_seams():
+    expected = {
+        "najupokojujúcejšiu": "naj·u·po·ko·ju·jú·cej·šiu",
+        "najurodzenejších": "naj·u·ro·dze·nej·ších",
+        "najuspokojivejšie": "naj·u·spo·ko·ji·vej·šie",
+        "najušľachtilejšie": "naj·u·šľach·ti·lej·šie",
+        "najutajenejšia": "naj·u·ta·je·nej·šia",
+        "najutláčanejší": "naj·u·tlá·ča·nej·ší",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("usilovný") == "usi·lov·ný"
+    assert hyphenate("urputný") == "ur·put·ný"
+    assert hyphenate("užitočný") == "uži·toč·ný"
+
+
 def test_batch_43_y_cannot_start_a_prefix_remainder():
     expected = {
         "obyčaj": "oby·čaj",
@@ -2380,6 +2410,41 @@ def test_batch_46_lexical_stems_and_pravdo_compound_keep_their_seams():
     assert hyphenate("pokročilý") == "po·kro·či·lý"
     assert hyphenate("posvätný") == "po·svät·ný"
     assert hyphenate("pradávny") == "pra·dáv·ny"
+
+
+def test_batch_56_lexical_stems_keep_their_documented_boundaries():
+    assert hyphenate("napospas") == "na·pos·pas"
+    assert hyphenate("napospol") == "na·pos·pol"
+    assert hyphenate("naozajstný") == "na·o·zaj·stný"
+    assert hyphenate("naozajstnými") == "na·o·zaj·stný·mi"
+    assert hyphenate("naozaj") == "na·o·zaj"
+    assert hyphenate("pospať") == "po·spať"
+    assert hyphenate("pozdravil") == "po·zdra·vil"
+
+
+def test_batch_57_guarded_na_prefix_families_keep_their_seams():
+    expected = {
+        "nasťahoval": "na·sťa·ho·val",
+        "nasťahovať": "na·sťa·ho·vať",
+        "nástenné": "ná·sten·né",
+        "nástennými": "ná·sten·ný·mi",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("naschvál") == "na·schvál"
+    assert hyphenate("nástojčivý") == "nás·toj·či·vý"
+
+
+def test_batch_58_guarded_prefix_families_keep_their_seams():
+    expected = {
+        "nátlakovým": "ná·tla·ko·vým",
+        "návratom": "ná·vra·tom",
+        "naukladaného": "na·u·kla·da·né·ho",
+        "neukladajú": "ne·u·kla·da·jú",
+        "poukladaných": "po·u·kla·da·ných",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("ukladať") == "uk·la·dať"
+    assert hyphenate("nástroj") == "nás·troj"
 
 
 def test_audited_lexical_compounds_keep_their_morpheme_seams():

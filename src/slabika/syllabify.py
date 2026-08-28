@@ -90,6 +90,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('nie', ('ktor',)),
     ('kladko', ('stroj',)),
     ('nanebo', ('vstúp',)),
+    ('naozaj', ('stn',)),
     ('ob', ('oznám',)),
     ('od', ('opier', 'umier')),
     ('odo', ('hráv',)),
@@ -117,7 +118,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('sedem', ('uhol',)),
     ('štvor', ('uhol',)),
     ('porno', ('graf',)),
-    ('prvo', ('tlač',)),
+    ('prvo', ('tlač', 'tried')),
     ('rozo', ('br', 'ber', 'smej', 'sta', 'strel', 'stret', 'stup', 'stúp', 'zvo', 'zvu', 'zna', 'zná')),  # rozo·staviť, rozo·znať — not roz·os-
     ('samo', ('hlás', 'spravod', 'stvoriteľ', 'svet', 'sviet', 'vlád', 'vrav', 'vytvor')),
     ('sedmo', ('spáč',)),
@@ -166,10 +167,10 @@ _LEXICAL_PREFIX_ROOTS = (
         'dan', 'darm', 'dáv', 'del', 'deľ', 'dikt', 'divok', 'dobr',
         'dobud', 'dobúd', 'doďak', 'doj', 'dopov', 'doraz', 'dostač',
         'drob', 'duj', 'dul', 'dur', 'dut', 'dúv', 'jal', 'jat', 'jav', 'jazd',
-        'jedia', 'jedl', 'jedo', 'jedz', 'jeme', 'jemn', 'jesť', 'jež', 'jím', 'stup',
+        'jedia', 'jedl', 'jedo', 'jedz', 'jeme', 'jemn', 'jesť', 'jež', 'jím', 'stup', 'sťah',
     )),
     ('nade', ('všet',)),
-    ('ná', ('cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'prav', 'skok', 'stup', 'vnad', 'znak')),
+    ('ná', ('cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'klaď', 'prav', 'skok', 'sten', 'stup', 'tlak', 'vnad', 'vrat', 'znak')),
     ('sprí', ('stup',)),
     ('spo', ('plat', 'zná')),
     # po·drobiť (rozdrobiť) against pod·robiť (podmaniť) — the two are spelled
@@ -178,11 +179,15 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pod', ('oblas',)),
     ('po', ('diel', 'dob', 'div', 'dotk', 'dozr', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'zdrav', 'zhas')),
     ('pre', ('vďač',)),
-    ('u', ('hrad', 'krát', 'sporiad')),
+    ('u', ('hrad', 'krát', 'pokoj', 'rod', 'spokoj', 'sporiad', 'šľacht', 'taj', 'tláč')),
     ('vy', ('chlad',)),
     ('za', ('vďač',)),
     ('zá', ('blesk', 'chvat', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup')),
     ('ú', ('hrad', 'plat', 'stup')),
+)
+
+_NESTED_PREFIX_ROOTS = (
+    ('u', ('klad',)),
 )
 
 # Vocalized prefix variants (bezo-, nado-, podo-, predo-) exist only to break up
@@ -248,6 +253,9 @@ _TINA_NUMERAL_STEMS = frozenset({'miliard'})
 # Keep these separate from derivational suffixes to avoid treating every final
 # -mi, -me, or -te sequence as morphology.
 _SK_GRAMMATICAL_SUFFIXES_CONS = ('mi', 'me', 'te', 'ne', 'la', 'li', 'lo')
+_SHORT_COMPARATIVE_INFLECTIONS = (
+    'šieho', 'šiemu', 'šími', 'šej', 'ších', 'šia', 'šie', 'ším', 'šiu', 'šom', 'šou', 'ší',
+)
 
 # The nominal suffix ·k· cannot be listed above, because the vowel that follows
 # it belongs to the ending, not to the suffix: klient·ka, klient·ky, klient·kou.
@@ -463,7 +471,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         'právo': ('plat',),
         'rovno': ('stup', 'práv', 'znač'),
         'svetsko': ('práv',),
-        'veľa': ('sľub', 'vrav'),
+        'veľa': ('dôstoj', 'sľub', 'vrav'),
         'veľko': ('slúž', 'špekulant', 'vlád', 'zvuč'),
     }
     if comp in guarded_compounds and not reml.startswith(guarded_compounds[comp]):
@@ -583,8 +591,8 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             # posl- is a root family (posol, poslať, poslúchať), not po- + sl-.
             if pfx == 'po' and reml.startswith('sl'):
                 continue
-            # Pospolit- and potreb- are lexical stems, not productive po- forms.
-            if pfx == 'po' and reml.startswith(('spoli', 'treb')):
+            # Pospas-, pospol- and potreb- are lexical stems, not productive po- forms.
+            if pfx == 'po' and reml.startswith(('spas', 'spol', 'treb')):
                 continue
             # Prakt- is a borrowed stem, not the Slovak ancestor prefix pra-.
             if pfx == 'pra' and reml.startswith('kt'):
@@ -609,8 +617,8 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             # stoj-. PSP therefore applies its syllabic st division: dôs·toj-.
             if pfx == 'dô' and reml.startswith('stoj'):
                 continue
-            # Problém is a borrowed stem, not the Slovak prefix pro- plus blém.
-            if pfx == 'pro' and reml.startswith('blém'):
+            # Problém and prostší have lexical stems, not the prefix pro-.
+            if pfx == 'pro' and reml.startswith(('blém', 'stš')):
                 continue
             # Nadácia is a borrowed lexical stem, not nad- plus ácia.
             if pfx == 'nad' and reml.startswith('áci'):
@@ -645,6 +653,14 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                     return w[:length], rem
                 # invalid onset after prefix — not a real prefix boundary
                 continue
+    return None, None
+
+
+def _strip_nested_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
+    wl = w.casefold()
+    for pfx, roots in _NESTED_PREFIX_ROOTS:
+        if any(wl.startswith(pfx + root) for root in roots):
+            return w[:len(pfx)], w[len(pfx):]
     return None, None
 
 
@@ -697,6 +713,12 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
 
     for suffix in _RHYTHMIC_SHORT_NY_SUFFIXES:
         if wl.endswith(suffix) and wl[:-len(suffix)] in _RHYTHMIC_SHORT_NY_STEMS:
+            start = len(w) - len(suffix)
+            return w[:start], w[start:]
+
+    for suffix in _SHORT_COMPARATIVE_INFLECTIONS:
+        stem = wl[:-len(suffix)]
+        if wl.endswith(suffix) and stem.endswith('st') and any(c in _VOWELS_SK for c in stem):
             start = len(w) - len(suffix)
             return w[:start], w[start:]
 
@@ -875,7 +897,7 @@ def get_morpheme_parts(word: str) -> list[str]:
             return [*get_morpheme_parts(first), rest]
         return [*get_morpheme_parts(first), *get_morpheme_parts(rest)]
 
-    if wl.startswith('naj') and 'tejš' in wl[3:]:
+    if wl.startswith('naj') and any(part in wl[3:] for part in ('nejš', 'tejš')):
         return [word[:3], *get_morpheme_parts(word[3:])]
 
     comparative_n = wl.find('nejš')
@@ -905,6 +927,9 @@ def get_morpheme_parts(word: str) -> list[str]:
         return [*get_morpheme_parts(grammatical_stem), grammatical_sfx]
 
     if pfx is not None:
+        nested_pfx, nested_rem = _strip_nested_prefix(rem)
+        if nested_pfx is not None:
+            return [pfx, nested_pfx, *get_morpheme_parts(nested_rem)]
         return [pfx, *get_morpheme_parts(rem)]
 
     if grammatical_stem is not None:
@@ -961,7 +986,7 @@ def get_syllables(word: str) -> list[str]:
         return _syllabify_simple(word)
 
     # Split superlative naj- before applying the comparative -stejší- boundary.
-    if wl.startswith('naj') and 'tejš' in wl[3:]:
+    if wl.startswith('naj') and any(part in wl[3:] for part in ('nejš', 'tejš')):
         return _syllabify_simple(word[:3]) + get_syllables(word[3:])
 
     # Comparative -nejš- is a consonant-initial suffix and keeps the adjective
@@ -996,6 +1021,9 @@ def get_syllables(word: str) -> list[str]:
     # Prefix-aware split: recursively strip prefixes and syllabify remainder
     if pfx is not None:
         pfx_syls = _syllabify_simple(pfx)
+        nested_pfx, nested_rem = _strip_nested_prefix(rem)
+        if nested_pfx is not None:
+            return pfx_syls + _syllabify_simple(nested_pfx) + get_syllables(nested_rem)
         rem_syls = get_syllables(rem)  # recursive — handles naj·ne·... stacks
         return pfx_syls + rem_syls
 
