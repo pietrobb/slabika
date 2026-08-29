@@ -71,6 +71,7 @@ def test_slovak_hyphenation_golden_cases():
         "neurológ": "neu·ro·lóg",
         "neurológovia": "neu·ro·ló·go·via",
         "neukrátené": "ne·u·krá·te·né",
+        "úkryt": "úkryt",
         "afrodiziakum": "af·ro·di·zi·a·kum",
         "akciami": "ak·ci·ami",
         "funkciami": "funk·ci·ami",

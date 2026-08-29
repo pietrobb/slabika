@@ -183,7 +183,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('vy', ('chlad',)),
     ('za', ('vďač',)),
     ('zá', ('blesk', 'chvat', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup')),
-    ('ú', ('hrad', 'plat', 'stup')),
+    ('ú', ('hrad', 'kryt', 'plat', 'stup')),
 )
 
 _NESTED_PREFIX_ROOTS = (
