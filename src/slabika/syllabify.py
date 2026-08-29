@@ -89,6 +89,9 @@ _POSTA_INFLECTIONS = frozenset({
     'a', 'e', 'ou', 'u', 'y', 'ovú', 'ovej', 'ovom', 'ovou', 'ová', 'ové',
     'ového', 'oví', 'ový', 'ových', 'ár', 'ára', 'árov',
 })
+_PRACH_INFLECTIONS = frozenset({'', 'mi', 'och', 'om', 'ov', 'u', 'y'})
+_PRAHNUT_CONTRACTED_PAST = frozenset({'prahla', 'prahli', 'prahlo'})
+_PRAK_INFLECTIONS = frozenset({'', 'mi', 'och', 'om', 'ov', 'u', 'y'})
 _NOVOCAIN_INFLECTIONS = frozenset({'', 'a', 'e', 'om', 'u'})
 _OBAL_INFLECTIONS = frozenset({
     '', 'e', 'enej', 'enia', 'ená', 'ené', 'eného', 'ením', 'ený', 'enými',
@@ -245,9 +248,9 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pod', ('oblas',)),
     # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
     ('do', ('čk',)),
-    ('po', ('čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas')),
+    ('po', ('čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dáv', 'vďač')),
-    ('u', ('hrad', 'krát', 'pokoj', 'rod', 'spokoj', 'sporiad', 'šľacht', 'taj', 'tláč')),
+    ('u', ('hrad', 'krát', 'kry', 'krý', 'pokoj', 'rod', 'spokoj', 'sporiad', 'šľacht', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad')),
     ('za', ('obíd', 'obiš', 'vďač')),
     ('zá', ('blesk', 'chvat', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup')),
@@ -772,9 +775,15 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             # Posteľ-/postel-/postieľ- is one lexical stem, not po- plus st-.
             if pfx == 'po' and wl.startswith(('posteľ', 'postel', 'postieľ')):
                 continue
-            # Prakt- is borrowed; prask- and prahn- are lexical stems. None
-            # contains the Slovak ancestor prefix pra-.
-            if pfx == 'pra' and reml.startswith(('hn', 'kt', 'sk')):
+            # Prakt- and prask- are lexical stems. Prach and prak keep their
+            # closed noun paradigms, and prahnúť has contracted past forms;
+            # none contains the Slovak ancestor prefix pra-.
+            if pfx == 'pra' and (
+                reml.startswith(('hn', 'kt', 'sk'))
+                or (wl.startswith('prach') and wl[5:] in _PRACH_INFLECTIONS)
+                or wl in _PRAHNUT_CONTRACTED_PAST
+                or (wl.startswith('prak') and wl[4:] in _PRAK_INFLECTIONS)
+            ):
                 continue
             # dobr- is the lexical base of dobrý, dobro and dobrota, not do- +
             # br-. Keep genuine prefixed verbs such as do·brať and do·brúsiť.

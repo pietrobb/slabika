@@ -107,6 +107,34 @@ def test_aleut_hiatus_does_not_split_later_ou_endings():
     assert get_syllables("Aleutkou") == ["a", "le", "ut", "kou"]
 
 
+def test_u_prefix_keeps_the_kryt_root_cluster_intact():
+    expected = {
+        "ukryť": "ukryť",
+        "ukrytú": "ukry·tú",
+        "ukrytý": "ukry·tý",
+        "ukrývať": "ukrý·vať",
+        "ukrývali": "ukrý·va·li",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("úkrytu") == "úkry·tu"
+    assert hyphenate("krytý") == "kry·tý"
+
+
+def test_pra_lookalikes_keep_lexical_stems_and_true_prefix_contrasts():
+    expected = {
+        "prachmi": "prach·mi",
+        "prahla": "prah·la",
+        "prahli": "prah·li",
+        "prahlo": "prah·lo",
+        "prakmi": "prak·mi",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("prahistorický") == "pra·his·to·ric·ký"
+    assert hyphenate("prakmeň") == "pra·kmeň"
+    assert hyphenate("prakrajania") == "pra·kra·ja·nia"
+    assert hyphenate("praskali") == "pras·ka·li"
+
+
 def test_pa_prefix_is_limited_to_the_pakluc_family():
     assert hyphenate("pakľúč") == "pa·kľúč"
     assert hyphenate("pakľúčov") == "pa·kľú·čov"
@@ -3484,6 +3512,21 @@ def test_batch_138_distinguishes_lexical_povraz_from_po_vrazdit():
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("povracal") == "po·vra·cal"
     assert hyphenate("povodiť") == "po·vo·diť"
+
+
+def test_batch_140_keeps_po_before_nonsyllabic_z_prefix_families():
+    expected = {
+        "pozháňal": "po·zhá·ňal",
+        "pozhovárajme": "po·zho·vá·raj·me",
+        "pozhovárali": "po·zho·vá·ra·li",
+        "pozhovárať": "po·zho·vá·rať",
+        "pozhŕňa": "po·zhŕ·ňa",
+        "pozhŕňali": "po·zhŕ·ňa·li",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("pozvanie") == "po·zva·nie"
+    assert hyphenate("požičať") == "po·ži·čať"
+    assert hyphenate("pozhasínal") == "po·zha·sí·nal"
 
 
 def test_podrobnost_inflections_do_not_trigger_drobno_compounds():
