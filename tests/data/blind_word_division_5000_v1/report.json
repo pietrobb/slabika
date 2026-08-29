@@ -1,0 +1,5469 @@
+{
+  "summary": {
+    "batches_completed": 50,
+    "batches_total": 50,
+    "items_saved": 5000,
+    "items_total": 5000,
+    "complete": true,
+    "compared_at": "2026-08-29T14:09:11.373791+00:00",
+    "engine_version": "0.1.0",
+    "git_commit": "84a9d2aa63ab8e0f80583c5ca4b391539b2a44a5",
+    "prepared_git_commit": "26952b9f7bfefa62faed3af74dff6ff17b9bc42a",
+    "prepared_engine_tree_sha256": "e328833a1e4bfa3829f8d50987b7f2fc951cd3672e3ab90db40e0731f5889d87",
+    "current_engine_tree_sha256": "6cd17e30d3d9fe3aa586716f6b844aa4c76b499ce85667e2595b31c0ead4acb3",
+    "match": 3390,
+    "mismatch": 473,
+    "unscored": 1137
+  },
+  "mismatches": [
+    {
+      "batch_id": 1,
+      "position": 2,
+      "form": "upravuje",
+      "expected": [
+        "upra·vu·je"
+      ],
+      "engine": "up·ra·vu·je",
+      "confidence": "high",
+      "reason": "Slabičné hranice; jednopísmenová začiatočná slabika sa neoddeľuje."
+    },
+    {
+      "batch_id": 1,
+      "position": 42,
+      "form": "ustaraná",
+      "expected": [
+        "usta·ra·ná"
+      ],
+      "engine": "us·ta·ra·ná",
+      "confidence": "high",
+      "reason": "Jednopísmenová začiatočná slabika sa neoddeľuje; ďalšie hranice sú pravidelné."
+    },
+    {
+      "batch_id": 1,
+      "position": 45,
+      "form": "otrávení",
+      "expected": [
+        "otrá·ve·ní"
+      ],
+      "engine": "ot·rá·ve·ní",
+      "confidence": "high",
+      "reason": "Jednopísmenová začiatočná slabika sa neoddeľuje; ďalšie hranice sú pravidelné."
+    },
+    {
+      "batch_id": 1,
+      "position": 75,
+      "form": "okľuky",
+      "expected": [
+        "okľu·ky"
+      ],
+      "engine": "ok·ľu·ky",
+      "confidence": "high",
+      "reason": "Jednopísmenová začiatočná slabika sa neoddeľuje; ďalšia hranica je pravidelná."
+    },
+    {
+      "batch_id": 2,
+      "position": 29,
+      "form": "zneužije",
+      "expected": [
+        "zne·u·ži·je"
+      ],
+      "engine": "zne·uži·je",
+      "confidence": "high",
+      "reason": "Zreteľná hranica predpony a skutočný hiát e-u sú deliteľné; ďalšie hranice sú pred jedinou spoluhláskou."
+    },
+    {
+      "batch_id": 2,
+      "position": 67,
+      "form": "neuniklo",
+      "expected": [
+        "ne·u·nik·lo"
+      ],
+      "engine": "ne·unik·lo",
+      "confidence": "high",
+      "reason": "Predpona ne- a skutočný hiát e-u dávajú hranicu; skupina kl sa delí medzi spoluhláskami."
+    },
+    {
+      "batch_id": 4,
+      "position": 1,
+      "form": "fušerstvom",
+      "expected": [
+        "fu·šerstvom",
+        "fušer·stvom"
+      ],
+      "engine": "fu·šer·stvom",
+      "confidence": "high",
+      "reason": "Slabičné hranice fu-šer-stvom; druhá je aj zreteľná hranica základu a prípony."
+    },
+    {
+      "batch_id": 4,
+      "position": 2,
+      "form": "dymivá",
+      "expected": [
+        "dy·mivá",
+        "dymi·vá"
+      ],
+      "engine": "dy·mi·vá",
+      "confidence": "high",
+      "reason": "Jedna spoluhláska medzi slabičnými jadrami patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 4,
+      "position": 3,
+      "form": "unavený",
+      "expected": [
+        "una·vený",
+        "unave·ný"
+      ],
+      "engine": "una·ve·ný",
+      "confidence": "high",
+      "reason": "Slabiky u-na-ve-ný; jednopísmenová začiatočná slabika sa predvolene neoddeľuje."
+    },
+    {
+      "batch_id": 4,
+      "position": 5,
+      "form": "atribútoch",
+      "expected": [
+        "atri·bútoch",
+        "atribú·toch"
+      ],
+      "engine": "at·ri·bú·toch",
+      "confidence": "high",
+      "reason": "Slabiky a-tri-bú-toch; jednopísmenové úvodné a sa neoddeľuje."
+    },
+    {
+      "batch_id": 4,
+      "position": 6,
+      "form": "poldruhatisíc",
+      "expected": [
+        "pol·druhatisíc",
+        "poldru·hatisíc",
+        "poldruha·tisíc",
+        "poldruhati·síc"
+      ],
+      "engine": "pol·dru·ha·ti·síc",
+      "confidence": "high",
+      "reason": "Zreteľná zloženina a pravidelné slabičné hranice pol-dru-ha-ti-síc."
+    },
+    {
+      "batch_id": 4,
+      "position": 8,
+      "form": "príjazdovú",
+      "expected": [
+        "prí·jazdovú",
+        "príjaz·dovú",
+        "príjazdo·vú"
+      ],
+      "engine": "prí·jaz·do·vú",
+      "confidence": "high",
+      "reason": "Slabiky prí-jaz-do-vú; prí- je zároveň zreteľná predpona."
+    },
+    {
+      "batch_id": 4,
+      "position": 10,
+      "form": "vycvičujú",
+      "expected": [
+        "vy·cvičujú",
+        "vycvi·čujú",
+        "vycviču·jú"
+      ],
+      "engine": "vy·cvi·ču·jú",
+      "confidence": "high",
+      "reason": "Zreteľná predpona vy- a pravidelné slabiky cvi-ču-jú."
+    },
+    {
+      "batch_id": 4,
+      "position": 11,
+      "form": "vývojovou",
+      "expected": [
+        "vý·vojovou",
+        "vývo·jovou",
+        "vývojo·vou"
+      ],
+      "engine": "vý·vo·jo·vou",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie vý-vo-jo-vou."
+    },
+    {
+      "batch_id": 4,
+      "position": 12,
+      "form": "podšité",
+      "expected": [
+        "pod·šité",
+        "podši·té"
+      ],
+      "engine": "pod·ši·té",
+      "confidence": "high",
+      "reason": "Zreteľná predpona pod- a slabičná hranica pred t."
+    },
+    {
+      "batch_id": 4,
+      "position": 13,
+      "form": "líšiakom",
+      "expected": [
+        "lí·šiakom",
+        "líšia·kom"
+      ],
+      "engine": "lí·šia·kom",
+      "confidence": "high",
+      "reason": "Slabiky lí-šia-kom; dvojhláska ia sa nerozdeľuje."
+    },
+    {
+      "batch_id": 4,
+      "position": 14,
+      "form": "gryfovi",
+      "expected": [
+        "gry·fovi",
+        "gryfo·vi"
+      ],
+      "engine": "gry·fo·vi",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie gry-fo-vi."
+    },
+    {
+      "batch_id": 4,
+      "position": 15,
+      "form": "suchopárna",
+      "expected": [
+        "su·chopárna",
+        "sucho·párna",
+        "suchopár·na"
+      ],
+      "engine": "su·cho·pár·na",
+      "confidence": "high",
+      "reason": "Slabiky su-cho-pár-na; ch zostáva ako jedna hláska a zloženinová hranica je po sucho-."
+    },
+    {
+      "batch_id": 4,
+      "position": 17,
+      "form": "nevkladaj",
+      "expected": [
+        "ne·vkladaj",
+        "nevkla·daj"
+      ],
+      "engine": "ne·vkla·daj",
+      "confidence": "high",
+      "reason": "Zreteľná predpona ne- a pravidelná ďalšia slabičná hranica."
+    },
+    {
+      "batch_id": 4,
+      "position": 20,
+      "form": "zbojnícki",
+      "expected": [
+        "zboj·nícki",
+        "zbojníc·ki"
+      ],
+      "engine": "zboj·níc·ki",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné hranice zboj-níc-ki."
+    },
+    {
+      "batch_id": 4,
+      "position": 22,
+      "form": "obydlia",
+      "expected": [
+        "oby·dlia"
+      ],
+      "engine": "obyd·lia",
+      "confidence": "high",
+      "reason": "Slabiky o-by-dlia; počiatočné o sa neoddeľuje a dvojhláska ia zostáva spolu."
+    },
+    {
+      "batch_id": 4,
+      "position": 23,
+      "form": "vnútrozemí",
+      "expected": [
+        "vnút·rozemí",
+        "vnútro·zemí",
+        "vnútroze·mí"
+      ],
+      "engine": "vnút·ro·ze·mí",
+      "confidence": "high",
+      "reason": "Prípustná slabičná hranica v skupine tr, zreteľný švík zloženiny vnútro-zemie a ďalšia slabika."
+    },
+    {
+      "batch_id": 4,
+      "position": 24,
+      "form": "ustáliť",
+      "expected": [
+        "ustá·liť"
+      ],
+      "engine": "us·tá·liť",
+      "confidence": "high",
+      "reason": "Slabiky u-stá-liť; jednopísmenová počiatočná slabika sa predvolene neoddeľuje."
+    },
+    {
+      "batch_id": 4,
+      "position": 25,
+      "form": "decilióny",
+      "expected": [
+        "de·cilióny",
+        "deci·lióny",
+        "decili·óny",
+        "decilió·ny"
+      ],
+      "engine": "de·ci·li·ó·ny",
+      "confidence": "medium",
+      "reason": "Ustálená výslovnosť de-ci-li-ó-ny; ió je hiát a nie slovenská dvojhláska."
+    },
+    {
+      "batch_id": 4,
+      "position": 26,
+      "form": "ocitáte",
+      "expected": [
+        "oci·táte",
+        "ocitá·te"
+      ],
+      "engine": "oci·tá·te",
+      "confidence": "high",
+      "reason": "Slabiky o-ci-tá-te; jednopísmenové úvodné o sa neoddeľuje."
+    },
+    {
+      "batch_id": 4,
+      "position": 27,
+      "form": "sírové",
+      "expected": [
+        "sí·rové",
+        "síro·vé"
+      ],
+      "engine": "sí·ro·vé",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie sí-ro-vé."
+    },
+    {
+      "batch_id": 4,
+      "position": 28,
+      "form": "peňažné",
+      "expected": [
+        "pe·ňažné",
+        "peňaž·né"
+      ],
+      "engine": "pe·ňaž·né",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie pe-ňaž-né."
+    },
+    {
+      "batch_id": 4,
+      "position": 30,
+      "form": "ukončenú",
+      "expected": [
+        "ukon·čenú",
+        "ukonče·nú"
+      ],
+      "engine": "ukon·če·nú",
+      "confidence": "high",
+      "reason": "Slabiky u-kon-če-nú; počiatočné u sa neoddeľuje."
+    },
+    {
+      "batch_id": 4,
+      "position": 31,
+      "form": "zapcháme",
+      "expected": [
+        "za·pcháme",
+        "zapchá·me"
+      ],
+      "engine": "za·pchá·me",
+      "confidence": "high",
+      "reason": "Zreteľná predpona za- a pravidelná hranica pchá-me."
+    },
+    {
+      "batch_id": 4,
+      "position": 32,
+      "form": "konglomerát",
+      "expected": [
+        "kon·glomerát",
+        "konglo·merát",
+        "konglome·rát"
+      ],
+      "engine": "kon·glo·me·rát",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie kon-glo-me-rát."
+    },
+    {
+      "batch_id": 4,
+      "position": 33,
+      "form": "zohriatemu",
+      "expected": [
+        "zo·hriatemu",
+        "zohria·temu",
+        "zohriate·mu"
+      ],
+      "engine": "zo·hria·te·mu",
+      "confidence": "high",
+      "reason": "Slabiky zo-hria-te-mu; dvojhláska ia zostáva spolu."
+    },
+    {
+      "batch_id": 4,
+      "position": 35,
+      "form": "nevnikne",
+      "expected": [
+        "ne·vnikne",
+        "nevnik·ne"
+      ],
+      "engine": "ne·vnik·ne",
+      "confidence": "high",
+      "reason": "Zreteľná predpona ne- a slabičná hranica vnik-ne."
+    },
+    {
+      "batch_id": 4,
+      "position": 39,
+      "form": "rozštiepi",
+      "expected": [
+        "roz·štiepi",
+        "rozštie·pi"
+      ],
+      "engine": "roz·štie·pi",
+      "confidence": "high",
+      "reason": "Zreteľná predpona roz-; dvojhláska ie zostáva spolu."
+    },
+    {
+      "batch_id": 4,
+      "position": 40,
+      "form": "odnedávna",
+      "expected": [
+        "od·nedávna",
+        "odne·dávna",
+        "odnedáv·na"
+      ],
+      "engine": "od·ne·dáv·na",
+      "confidence": "high",
+      "reason": "Zreteľná predpona od- a pravidelné slabičné hranice ne-dáv-na."
+    },
+    {
+      "batch_id": 4,
+      "position": 43,
+      "form": "hypotéz",
+      "expected": [
+        "hy·potéz",
+        "hypo·téz"
+      ],
+      "engine": "hy·po·téz",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie hy-po-téz."
+    },
+    {
+      "batch_id": 4,
+      "position": 44,
+      "form": "rodové",
+      "expected": [
+        "ro·dové",
+        "rodo·vé"
+      ],
+      "engine": "ro·do·vé",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie ro-do-vé."
+    },
+    {
+      "batch_id": 4,
+      "position": 46,
+      "form": "pokynieš",
+      "expected": [
+        "po·kynieš",
+        "poky·nieš"
+      ],
+      "engine": "po·ky·nieš",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie po-ky-nieš; ie zostáva spolu."
+    },
+    {
+      "batch_id": 4,
+      "position": 47,
+      "form": "lístkov",
+      "expected": [
+        "lís·tkov"
+      ],
+      "engine": "líst·kov",
+      "confidence": "high",
+      "reason": "V skupine troch spoluhlások prvá uzatvára predchádzajúcu slabiku."
+    },
+    {
+      "batch_id": 4,
+      "position": 49,
+      "form": "vynorilo",
+      "expected": [
+        "vy·norilo",
+        "vyno·rilo",
+        "vynori·lo"
+      ],
+      "engine": "vy·no·ri·lo",
+      "confidence": "high",
+      "reason": "Zreteľná predpona vy- a pravidelné slabiky no-ri-lo."
+    },
+    {
+      "batch_id": 4,
+      "position": 54,
+      "form": "znaková",
+      "expected": [
+        "zna·ková",
+        "znako·vá"
+      ],
+      "engine": "zna·ko·vá",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie zna-ko-vá."
+    },
+    {
+      "batch_id": 4,
+      "position": 55,
+      "form": "prikrýval",
+      "expected": [
+        "pri·krýval",
+        "prikrý·val"
+      ],
+      "engine": "pri·krý·val",
+      "confidence": "high",
+      "reason": "Zreteľná predpona pri- a pravidelná hranica krý-val."
+    },
+    {
+      "batch_id": 4,
+      "position": 57,
+      "form": "speváčka",
+      "expected": [
+        "spe·váčka",
+        "speváč·ka"
+      ],
+      "engine": "spe·váč·ka",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie spe-váč-ka."
+    },
+    {
+      "batch_id": 4,
+      "position": 61,
+      "form": "nazreli",
+      "expected": [
+        "na·zreli",
+        "nazre·li"
+      ],
+      "engine": "na·zre·li",
+      "confidence": "high",
+      "reason": "Zreteľná predpona na- a pravidelná hranica zre-li."
+    },
+    {
+      "batch_id": 4,
+      "position": 64,
+      "form": "istiacom",
+      "expected": [
+        "is·tiacom",
+        "istia·com"
+      ],
+      "engine": "is·tia·com",
+      "confidence": "high",
+      "reason": "Dve spoluhlásky medzi jadrami sa delia medzi sebou; dvojhláska ia zostáva spolu."
+    },
+    {
+      "batch_id": 4,
+      "position": 67,
+      "form": "dokrivkal",
+      "expected": [
+        "do·krivkal",
+        "dokriv·kal"
+      ],
+      "engine": "do·kriv·kal",
+      "confidence": "high",
+      "reason": "Zreteľná predpona do- a pravidelná hranica kriv-kal."
+    },
+    {
+      "batch_id": 4,
+      "position": 68,
+      "form": "pomôcky",
+      "expected": [
+        "po·môcky",
+        "pomôc·ky"
+      ],
+      "engine": "po·môc·ky",
+      "confidence": "high",
+      "reason": "Zreteľná predpona po- a pravidelné slabičné členenie môc-ky."
+    },
+    {
+      "batch_id": 4,
+      "position": 69,
+      "form": "viacerí",
+      "expected": [
+        "via·cerí",
+        "viace·rí"
+      ],
+      "engine": "viac·erí",
+      "confidence": "high",
+      "reason": "Pravidelné slabiky via-ce-rí; dvojhláska ia zostáva spolu."
+    },
+    {
+      "batch_id": 4,
+      "position": 70,
+      "form": "diplomatické",
+      "expected": [
+        "dip·lomatické",
+        "diplo·matické",
+        "diploma·tické",
+        "diplomatic·ké"
+      ],
+      "engine": "dip·lo·ma·tic·ké",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie dip-lo-ma-tic-ké."
+    },
+    {
+      "batch_id": 4,
+      "position": 73,
+      "form": "kolégiách",
+      "expected": [
+        "ko·légiách",
+        "kolé·giách",
+        "kolégi·ách"
+      ],
+      "engine": "ko·lé·gi·ách",
+      "confidence": "medium",
+      "reason": "Slabiky ko-lé-gi-ách; iá je hiát, nie slovenská dvojhláska."
+    },
+    {
+      "batch_id": 4,
+      "position": 74,
+      "form": "robievam",
+      "expected": [
+        "ro·bievam",
+        "robie·vam"
+      ],
+      "engine": "ro·bie·vam",
+      "confidence": "high",
+      "reason": "Pravidelné slabiky ro-bie-vam; dvojhláska ie zostáva spolu."
+    },
+    {
+      "batch_id": 4,
+      "position": 76,
+      "form": "útrape",
+      "expected": [
+        "útra·pe"
+      ],
+      "engine": "út·ra·pe",
+      "confidence": "high",
+      "reason": "Slabiky ú-tra-pe; jednopísmenová počiatočná slabika sa predvolene neoddeľuje."
+    },
+    {
+      "batch_id": 4,
+      "position": 83,
+      "form": "obžercom",
+      "expected": [
+        "ob·žercom",
+        "obžer·com"
+      ],
+      "engine": "ob·žer·com",
+      "confidence": "high",
+      "reason": "Zreteľná predpona ob- a pravidelná hranica žer-com."
+    },
+    {
+      "batch_id": 4,
+      "position": 86,
+      "form": "hojila",
+      "expected": [
+        "ho·jila",
+        "hoji·la"
+      ],
+      "engine": "ho·ji·la",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie ho-ji-la."
+    },
+    {
+      "batch_id": 4,
+      "position": 89,
+      "form": "zatĺkol",
+      "expected": [
+        "za·tĺkol",
+        "zatĺ·kol"
+      ],
+      "engine": "za·tĺ·kol",
+      "confidence": "high",
+      "reason": "Zreteľná predpona za-; slabikotvorné ĺ tvorí jadro ďalšej slabiky."
+    },
+    {
+      "batch_id": 4,
+      "position": 91,
+      "form": "súčasnom",
+      "expected": [
+        "sú·časnom",
+        "súčas·nom"
+      ],
+      "engine": "sú·čas·nom",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie sú-čas-nom."
+    },
+    {
+      "batch_id": 4,
+      "position": 92,
+      "form": "mimoriadnym",
+      "expected": [
+        "mi·moriadnym",
+        "mimo·riadnym",
+        "mimoriad·nym"
+      ],
+      "engine": "mi·mo·riad·nym",
+      "confidence": "high",
+      "reason": "Pravidelné členenie mi-mo-riad-nym; ia zostáva spolu a mimo- je zreteľná prvá časť."
+    },
+    {
+      "batch_id": 4,
+      "position": 95,
+      "form": "ulúpená",
+      "expected": [
+        "ulú·pená",
+        "ulúpe·ná"
+      ],
+      "engine": "ulú·pe·ná",
+      "confidence": "high",
+      "reason": "Slabiky u-lú-pe-ná; jednopísmenové počiatočné u sa neoddeľuje."
+    },
+    {
+      "batch_id": 4,
+      "position": 98,
+      "form": "katedrála",
+      "expected": [
+        "ka·tedrála",
+        "kated·rála",
+        "katedrá·la"
+      ],
+      "engine": "ka·ted·rá·la",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné členenie ka-ted-rá-la podľa delenia dvoch spoluhlások."
+    },
+    {
+      "batch_id": 4,
+      "position": 99,
+      "form": "gladiátori",
+      "expected": [
+        "gla·diátori",
+        "gladi·átori",
+        "gladiá·tori",
+        "gladiáto·ri"
+      ],
+      "engine": "gla·di·á·to·ri",
+      "confidence": "medium",
+      "reason": "Ustálená výslovnosť gla-di-á-to-ri; iá je hiát."
+    },
+    {
+      "batch_id": 4,
+      "position": 100,
+      "form": "bezočivci",
+      "expected": [
+        "be·zočivci",
+        "bez·očivci",
+        "bezo·čivci",
+        "bezočiv·ci"
+      ],
+      "engine": "bez·očiv·ci",
+      "confidence": "high",
+      "reason": "Prípustné je slabičné be- aj zreteľná morfematická hranica bez-očivý; ďalšie hranice sú pravidelné."
+    },
+    {
+      "batch_id": 5,
+      "position": 1,
+      "form": "stoosemdesiat",
+      "expected": [
+        "sto·o·sem·de·siat"
+      ],
+      "engine": "sto·osem·de·siat",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 5,
+      "position": 3,
+      "form": "potrubia",
+      "expected": [
+        "pot·ru·bia"
+      ],
+      "engine": "po·tru·bia",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 5,
+      "position": 11,
+      "form": "ušľachtilejšou",
+      "expected": [
+        "uš·ľach·ti·lej·šou"
+      ],
+      "engine": "ušľach·ti·lej·šou",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 5,
+      "position": 28,
+      "form": "neučia",
+      "expected": [
+        "ne·u·čia"
+      ],
+      "engine": "ne·učia",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 5,
+      "position": 37,
+      "form": "presláviť",
+      "expected": [
+        "pres·lá·viť"
+      ],
+      "engine": "pre·slá·viť",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 5,
+      "position": 47,
+      "form": "vyspevujú",
+      "expected": [
+        "vys·pe·vu·jú"
+      ],
+      "engine": "vy·spe·vu·jú",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 5,
+      "position": 52,
+      "form": "nahradilo",
+      "expected": [
+        "nah·ra·di·lo"
+      ],
+      "engine": "na·hra·di·lo",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 5,
+      "position": 64,
+      "form": "elegantne",
+      "expected": [
+        "ele·gan·tne"
+      ],
+      "engine": "ele·gant·ne",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 5,
+      "position": 72,
+      "form": "vydláždil",
+      "expected": [
+        "vyd·láž·dil"
+      ],
+      "engine": "vy·dláž·dil",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 5,
+      "position": 99,
+      "form": "krstná",
+      "expected": [
+        "krs·tná"
+      ],
+      "engine": "krst·ná",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 6,
+      "position": 67,
+      "form": "všedobrého",
+      "expected": [
+        "vše·do·bré·ho"
+      ],
+      "engine": "vše·dob·ré·ho",
+      "confidence": "high",
+      "reason": "Zreteľná hranica častí zloženiny a pravidelné slabiky."
+    },
+    {
+      "batch_id": 6,
+      "position": 77,
+      "form": "veľavýznamný",
+      "expected": [
+        "ve·ľa·vý·znam·ný"
+      ],
+      "engine": "veľ·avýz·nam·ný",
+      "confidence": "high",
+      "reason": "Zreteľná hranica zloženiny a pravidelné slabičné/morfematické hranice."
+    },
+    {
+      "batch_id": 6,
+      "position": 82,
+      "form": "netrvácny",
+      "expected": [
+        "ne·trvác·ny"
+      ],
+      "engine": "ne·tr·vác·ny",
+      "confidence": "high",
+      "reason": "Predponová hranica a zreteľná príponová hranica pred -ny."
+    },
+    {
+      "batch_id": 7,
+      "position": 11,
+      "form": "fuchtľu",
+      "expected": [
+        "fuc·htľu"
+      ],
+      "engine": "fuch·tľu",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 17,
+      "form": "zvreskla",
+      "expected": [
+        "zvres·kla"
+      ],
+      "engine": "zvresk·la",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 31,
+      "form": "zažni",
+      "expected": [
+        "za·ž·ni"
+      ],
+      "engine": "za·žni",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 33,
+      "form": "podliezaním",
+      "expected": [
+        "po·d·lie·za·ním"
+      ],
+      "engine": "pod·lie·za·ním",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 34,
+      "form": "pozlátka",
+      "expected": [
+        "po·z·lát·ka"
+      ],
+      "engine": "po·zlát·ka",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 41,
+      "form": "zotmelej",
+      "expected": [
+        "zot·me·lej"
+      ],
+      "engine": "zo·tme·lej",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 50,
+      "form": "ukrytí",
+      "expected": [
+        "uk·ry·tí"
+      ],
+      "engine": "ukry·tí",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 52,
+      "form": "psychiatriu",
+      "expected": [
+        "psyc·hiat·riu"
+      ],
+      "engine": "psy·chiat·riu",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 56,
+      "form": "brilantnú",
+      "expected": [
+        "bri·lan·tnú"
+      ],
+      "engine": "bri·lant·nú",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 57,
+      "form": "zahryzávate",
+      "expected": [
+        "za·h·ry·zá·va·te"
+      ],
+      "engine": "za·hry·zá·va·te",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 65,
+      "form": "elýzium",
+      "expected": [
+        "elý·zium"
+      ],
+      "engine": "elý·zi·um",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 69,
+      "form": "nervovými",
+      "expected": [
+        "ne·r·vo·vý·mi"
+      ],
+      "engine": "ner·vo·vý·mi",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 71,
+      "form": "nedráždi",
+      "expected": [
+        "ne·d·ráž·di"
+      ],
+      "engine": "ne·dráž·di",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 78,
+      "form": "programe",
+      "expected": [
+        "prog·ra·me"
+      ],
+      "engine": "pro·gra·me",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 89,
+      "form": "pozhovárať",
+      "expected": [
+        "po·z·ho·vá·rať"
+      ],
+      "engine": "po·zho·vá·rať",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 94,
+      "form": "oslobodzujúceho",
+      "expected": [
+        "os·lo·bod·zu·jú·ce·ho"
+      ],
+      "engine": "oslo·bo·dzu·jú·ce·ho",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 95,
+      "form": "hrôzostrašným",
+      "expected": [
+        "hr·ô·zos·traš·ným"
+      ],
+      "engine": "hrô·zo·straš·ným",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 7,
+      "position": 100,
+      "form": "nepreskúmateľnosť",
+      "expected": [
+        "ne·p·res·kú·ma·teľ·nosť"
+      ],
+      "engine": "ne·pre·skú·ma·teľ·nosť",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 8,
+      "position": 55,
+      "form": "platinovoblond",
+      "expected": [
+        "pla·ti·no·vo·blond"
+      ],
+      "engine": "pla·ti·no·vob·lond",
+      "confidence": "medium",
+      "reason": "Časti zloženiny sa delia na hranici platinovo|blond; v prvej časti sú bežné slabičné hranice."
+    },
+    {
+      "batch_id": 8,
+      "position": 81,
+      "form": "návnad",
+      "expected": [
+        "náv·nad"
+      ],
+      "engine": "ná·vnad",
+      "confidence": "high",
+      "reason": "Dvojica vn medzi jadrami sa delí medzi spoluhláskami."
+    },
+    {
+      "batch_id": 9,
+      "position": 14,
+      "form": "poznatkom",
+      "expected": [
+        "poz·nat·kom"
+      ],
+      "engine": "po·znat·kom",
+      "confidence": "high",
+      "reason": "Pri synchronicky nejasnej prefixovej stavbe sa použije pravidelné slabičné delenie skupín z-n a t-k."
+    },
+    {
+      "batch_id": 9,
+      "position": 39,
+      "form": "respiráciou",
+      "expected": [
+        "re·spi·rá·ci·ou"
+      ],
+      "engine": "res·pi·rá·ci·ou",
+      "confidence": "medium",
+      "reason": "V ustálenom odbornom slove sa zachováva slabičná stavba základu a hiát medzi i a inštrumentálovou príponou -ou."
+    },
+    {
+      "batch_id": 9,
+      "position": 55,
+      "form": "uchráni",
+      "expected": [
+        "uchrá·ni"
+      ],
+      "engine": "uch·rá·ni",
+      "confidence": "high",
+      "reason": "Jednopísmenová začiatočná slabika u sa predvolene neoddeľuje; ďalšia hranica je pred n."
+    },
+    {
+      "batch_id": 9,
+      "position": 58,
+      "form": "oslavou",
+      "expected": [
+        "osla·vou"
+      ],
+      "engine": "os·la·vou",
+      "confidence": "high",
+      "reason": "Úvodná jednopísmenová slabika o sa neoddeľuje; ďalšia jediná spoluhláska otvára slabiku."
+    },
+    {
+      "batch_id": 9,
+      "position": 61,
+      "form": "vodnatieľke",
+      "expected": [
+        "vod·na·tieľ·ke"
+      ],
+      "engine": "vo·dna·tieľ·ke",
+      "confidence": "medium",
+      "reason": "Skupina d-n sa delí, dvojhláska ie zostáva celá a skupina ľ-k sa delí medzi spoluhláskami."
+    },
+    {
+      "batch_id": 9,
+      "position": 82,
+      "form": "zákryty",
+      "expected": [
+        "zá·kry·ty"
+      ],
+      "engine": "zák·ry·ty",
+      "confidence": "high",
+      "reason": "Zreteľná predponová hranica a ďalšie jednoduché slabičné hranice určujú delenie."
+    },
+    {
+      "batch_id": 9,
+      "position": 86,
+      "form": "vylhaný",
+      "expected": [
+        "vy·lha·ný"
+      ],
+      "engine": "vyl·ha·ný",
+      "confidence": "high",
+      "reason": "Predpona vy- sa oddeľuje a ďalšie jednoduché slabičné hranice sú pravidelné."
+    },
+    {
+      "batch_id": 9,
+      "position": 90,
+      "form": "začneme",
+      "expected": [
+        "zač·ne·me"
+      ],
+      "engine": "za·čne·me",
+      "confidence": "high",
+      "reason": "Dvojica č-n sa delí medzi spoluhláskami a m otvára poslednú slabiku."
+    },
+    {
+      "batch_id": 10,
+      "position": 2,
+      "form": "zašla",
+      "expected": [
+        "za·š·la"
+      ],
+      "engine": "za·šla",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 9,
+      "form": "zhadzujú",
+      "expected": [
+        "zhad·zu·jú"
+      ],
+      "engine": "zha·dzu·jú",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 11,
+      "form": "nadlaktia",
+      "expected": [
+        "na·d·lak·tia"
+      ],
+      "engine": "nad·lak·tia",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 14,
+      "form": "ozajstný",
+      "expected": [
+        "ozaj·stný"
+      ],
+      "engine": "ozajst·ný",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 32,
+      "form": "vyvstanú",
+      "expected": [
+        "vy·v·sta·nú"
+      ],
+      "engine": "vy·vsta·nú",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 33,
+      "form": "zanevrel",
+      "expected": [
+        "za·nev·rel"
+      ],
+      "engine": "za·ne·vrel",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 37,
+      "form": "poučil",
+      "expected": [
+        "po·u·čil"
+      ],
+      "engine": "po·učil",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 41,
+      "form": "faunou",
+      "expected": [
+        "fa·u·nou"
+      ],
+      "engine": "fau·nou",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 45,
+      "form": "poltuctom",
+      "expected": [
+        "po·l·tuc·tom"
+      ],
+      "engine": "pol·tuc·tom",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 46,
+      "form": "zatknúť",
+      "expected": [
+        "za·t·knúť"
+      ],
+      "engine": "za·tknúť",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 52,
+      "form": "miliónovú",
+      "expected": [
+        "mi·lió·no·vú"
+      ],
+      "engine": "mi·li·ó·no·vú",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 58,
+      "form": "ochladol",
+      "expected": [
+        "oc·hla·dol"
+      ],
+      "engine": "och·la·dol",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 69,
+      "form": "mladíctva",
+      "expected": [
+        "mla·díc·tva"
+      ],
+      "engine": "mla·dí·ctva",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 83,
+      "form": "kouto",
+      "expected": [
+        "ko·u·to"
+      ],
+      "engine": "kou·to",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 85,
+      "form": "dojčiat",
+      "expected": [
+        "do·j·čiat"
+      ],
+      "engine": "doj·čiat",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 10,
+      "position": 89,
+      "form": "poslíček",
+      "expected": [
+        "po·s·lí·ček"
+      ],
+      "engine": "pos·lí·ček",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 11,
+      "position": 5,
+      "form": "nefrit",
+      "expected": [
+        "ne·frit"
+      ],
+      "engine": "nef·rit",
+      "confidence": "high",
+      "reason": "Ustálená dvojslabičná výslovnosť s jednou medzislabičnou spoluhláskou."
+    },
+    {
+      "batch_id": 11,
+      "position": 40,
+      "form": "útrobnej",
+      "expected": [
+        "útrob·nej"
+      ],
+      "engine": "út·rob·nej",
+      "confidence": "high",
+      "reason": "Úvodná jednopísmenová slabika sa neoddeľuje; hranica pred príponou -nej je morfematická aj slabičná."
+    },
+    {
+      "batch_id": 11,
+      "position": 57,
+      "form": "osvojené",
+      "expected": [
+        "os·vo·je·né"
+      ],
+      "engine": "osvo·je·né",
+      "confidence": "high",
+      "reason": "Dvojica sv sa delí medzi sebou, ďalšie hranice sú pri jednej spoluhláske."
+    },
+    {
+      "batch_id": 11,
+      "position": 78,
+      "form": "námorníctvom",
+      "expected": [
+        "ná·mor·níc·tvom"
+      ],
+      "engine": "ná·mor·ní·ctvom",
+      "confidence": "high",
+      "reason": "Pravidelné hranice a pri trojici ctv prvá spoluhláska uzatvára predchádzajúcu slabiku."
+    },
+    {
+      "batch_id": 12,
+      "position": 4,
+      "form": "ohňu",
+      "expected": [
+        "ohňu"
+      ],
+      "engine": "oh·ňu",
+      "confidence": "high",
+      "reason": "Jediná slabičná hranica by oddelila jednopísmenovú začiatočnú slabiku."
+    },
+    {
+      "batch_id": 12,
+      "position": 22,
+      "form": "ostaň",
+      "expected": [
+        "ostaň"
+      ],
+      "engine": "os·taň",
+      "confidence": "high",
+      "reason": "Jediná hranica by oddelila jednopísmenovú začiatočnú slabiku."
+    },
+    {
+      "batch_id": 12,
+      "position": 23,
+      "form": "osvetleniu",
+      "expected": [
+        "os·vet·le·niu"
+      ],
+      "engine": "osvet·le·niu",
+      "confidence": "high",
+      "reason": "Slabičné delenie podľa dvojíc spoluhlások; iu zostáva dvojhláskou."
+    },
+    {
+      "batch_id": 12,
+      "position": 28,
+      "form": "oslávencovi",
+      "expected": [
+        "os·lá·ven·co·vi"
+      ],
+      "engine": "oslá·ven·co·vi",
+      "confidence": "high",
+      "reason": "Začiatočné o sa samostatne neoddeľuje; ostatné body vyplývajú zo slabičnej stavby."
+    },
+    {
+      "batch_id": 12,
+      "position": 64,
+      "form": "najobyčajnejšia",
+      "expected": [
+        "naj·o·by·čaj·nej·šia",
+        "na·jo·by·čaj·nej·šia"
+      ],
+      "engine": "naj·oby·čaj·nej·šia",
+      "confidence": "high",
+      "reason": "Morfematické delenie po naj- aj slabičné delenie pri jednej spoluhláske sú prípustné; ia je dvojhláska."
+    },
+    {
+      "batch_id": 12,
+      "position": 72,
+      "form": "neuberá",
+      "expected": [
+        "ne·u·be·rá"
+      ],
+      "engine": "ne·ube·rá",
+      "confidence": "high",
+      "reason": "Predpona ne- stojí pred samohláskou a u-e tvorí hiát; ďalšie body sú pravidelné."
+    },
+    {
+      "batch_id": 12,
+      "position": 88,
+      "form": "obídu",
+      "expected": [
+        "ob·í·du",
+        "obí·du"
+      ],
+      "engine": "ob·ídu",
+      "confidence": "high",
+      "reason": "Morfematická hranica po ob- je prípustná; slabičná hranica po začiatočnom o sa neponúka, ďalší bod je pravidelný."
+    },
+    {
+      "batch_id": 13,
+      "position": 15,
+      "form": "nerozpoznala",
+      "expected": [
+        "ne·roz·poz·na·la"
+      ],
+      "engine": "ne·roz·po·zna·la",
+      "confidence": "high",
+      "reason": "Zreteľné predponové a pravidelné slabičné hranice."
+    },
+    {
+      "batch_id": 13,
+      "position": 23,
+      "form": "sakramentské",
+      "expected": [
+        "sa·kra·ment·ské"
+      ],
+      "engine": "sak·ra·ment·ské",
+      "confidence": "high",
+      "reason": "Slabičné hranice a zreteľná prípona -ské."
+    },
+    {
+      "batch_id": 13,
+      "position": 39,
+      "form": "vtedajškom",
+      "expected": [
+        "vte·daj·škom"
+      ],
+      "engine": "vte·dajš·kom",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné hranice pred jedinou spoluhláskou."
+    },
+    {
+      "batch_id": 13,
+      "position": 61,
+      "form": "amfiteátrom",
+      "expected": [
+        "am·fi·te·á·trom"
+      ],
+      "engine": "am·fi·te·át·rom",
+      "confidence": "high",
+      "reason": "Slabičné delenie vrátane skutočného hiátu e-á."
+    },
+    {
+      "batch_id": 13,
+      "position": 65,
+      "form": "sivobradého",
+      "expected": [
+        "si·vo·bra·dé·ho"
+      ],
+      "engine": "si·vob·ra·dé·ho",
+      "confidence": "high",
+      "reason": "Zachová sa hranica zloženia sivo- a ostatné pravidelné slabičné hranice."
+    },
+    {
+      "batch_id": 13,
+      "position": 97,
+      "form": "štedrosť",
+      "expected": [
+        "šte·drosť"
+      ],
+      "engine": "šted·rosť",
+      "confidence": "high",
+      "reason": "Jediná spoluhláska medzi jadrami patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 14,
+      "position": 5,
+      "form": "vybral",
+      "expected": [
+        "vyb·ral"
+      ],
+      "engine": "vy·bral",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 9,
+      "form": "žltli",
+      "expected": [
+        "žltli"
+      ],
+      "engine": "žlt·li",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 15,
+      "form": "krčmu",
+      "expected": [
+        "krčmu"
+      ],
+      "engine": "krč·mu",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 16,
+      "form": "vyšťuchla",
+      "expected": [
+        "vyš·ťuch·la"
+      ],
+      "engine": "vy·šťuch·la",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 33,
+      "form": "zadržím",
+      "expected": [
+        "zad·ržím"
+      ],
+      "engine": "za·dr·žím",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 37,
+      "form": "týždne",
+      "expected": [
+        "týž·dne"
+      ],
+      "engine": "týžd·ne",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 43,
+      "form": "vŕzgať",
+      "expected": [
+        "vŕzgať"
+      ],
+      "engine": "vŕz·gať",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 45,
+      "form": "naznačenej",
+      "expected": [
+        "naz·na·če·nej"
+      ],
+      "engine": "na·zna·če·nej",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 48,
+      "form": "neskáču",
+      "expected": [
+        "nes·ká·ču"
+      ],
+      "engine": "ne·ská·ču",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 55,
+      "form": "vyšla",
+      "expected": [
+        "vyš·la"
+      ],
+      "engine": "vy·šla",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 63,
+      "form": "vrchu",
+      "expected": [
+        "vrchu"
+      ],
+      "engine": "vr·chu",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 70,
+      "form": "rôznom",
+      "expected": [
+        "rôznom"
+      ],
+      "engine": "rôz·nom",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 74,
+      "form": "odoslať",
+      "expected": [
+        "odos·lať"
+      ],
+      "engine": "odo·slať",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 79,
+      "form": "hltači",
+      "expected": [
+        "hlta·či"
+      ],
+      "engine": "hl·ta·či",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 80,
+      "form": "pretvára",
+      "expected": [
+        "pret·vá·ra"
+      ],
+      "engine": "pre·tvá·ra",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 82,
+      "form": "prevliekla",
+      "expected": [
+        "prev·liek·la"
+      ],
+      "engine": "pre·vliek·la",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 14,
+      "position": 86,
+      "form": "dodržala",
+      "expected": [
+        "dod·rža·la"
+      ],
+      "engine": "do·dr·ža·la",
+      "confidence": "medium",
+      "reason": "Delenie podľa slabičných jadier a spoluhláskovej skupiny; nedeliteľné dvojhlásky a ch/dz/dž zachované."
+    },
+    {
+      "batch_id": 15,
+      "position": 18,
+      "form": "decentný",
+      "expected": [
+        "de·cen·tný"
+      ],
+      "engine": "de·cent·ný",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 15,
+      "position": 21,
+      "form": "záplat",
+      "expected": [
+        "záp·lat"
+      ],
+      "engine": "zá·plat",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 15,
+      "position": 54,
+      "form": "trojicu",
+      "expected": [
+        "tro·ji·cu"
+      ],
+      "engine": "troj·icu",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 15,
+      "position": 63,
+      "form": "moreplavbe",
+      "expected": [
+        "mo·rep·lav·be"
+      ],
+      "engine": "mo·re·plav·be",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 15,
+      "position": 67,
+      "form": "zasľúbil",
+      "expected": [
+        "zas·ľú·bil"
+      ],
+      "engine": "za·sľú·bil",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 15,
+      "position": 75,
+      "form": "pôstnici",
+      "expected": [
+        "pôstni·ci"
+      ],
+      "engine": "pôst·ni·ci",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 15,
+      "position": 83,
+      "form": "vypchať",
+      "expected": [
+        "vyp·chať"
+      ],
+      "engine": "vy·pchať",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 15,
+      "position": 94,
+      "form": "nazvi",
+      "expected": [
+        "naz·vi"
+      ],
+      "engine": "na·zvi",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 15,
+      "position": 97,
+      "form": "podriemkaval",
+      "expected": [
+        "pod·riem·ka·val"
+      ],
+      "engine": "po·driem·ka·val",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 16,
+      "position": 16,
+      "form": "vyzrel",
+      "expected": [
+        "vyz·rel"
+      ],
+      "engine": "vy·zrel",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 16,
+      "position": 27,
+      "form": "pôsobiacim",
+      "expected": [
+        "pôso·bia·cim"
+      ],
+      "engine": "pô·so·bia·cim",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 16,
+      "position": 38,
+      "form": "pôdou",
+      "expected": [
+        "pôdou"
+      ],
+      "engine": "pô·dou",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 16,
+      "position": 39,
+      "form": "neuveď",
+      "expected": [
+        "ne·u·veď"
+      ],
+      "engine": "ne·uveď",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 16,
+      "position": 44,
+      "form": "zabratá",
+      "expected": [
+        "zab·ra·tá"
+      ],
+      "engine": "za·bra·tá",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 16,
+      "position": 57,
+      "form": "výklenkoch",
+      "expected": [
+        "výk·len·koch"
+      ],
+      "engine": "vý·klen·koch",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 16,
+      "position": 73,
+      "form": "poskytujte",
+      "expected": [
+        "pos·ky·tuj·te"
+      ],
+      "engine": "po·sky·tuj·te",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 16,
+      "position": 92,
+      "form": "nevzdelaný",
+      "expected": [
+        "nev·zde·la·ný"
+      ],
+      "engine": "ne·vzde·la·ný",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 16,
+      "position": 98,
+      "form": "nezdvorilo",
+      "expected": [
+        "nez·dvo·ri·lo"
+      ],
+      "engine": "ne·zdvo·ri·lo",
+      "confidence": "medium",
+      "reason": "Slabičné delenie podľa jadier a medzijadrovej spoluhláskovej skupiny; nedeliteľné celky zachované."
+    },
+    {
+      "batch_id": 17,
+      "position": 2,
+      "form": "neušetrím",
+      "expected": [
+        "ne·u·šet·rím"
+      ],
+      "engine": "ne·ušet·rím",
+      "confidence": "high",
+      "reason": "Predponové a slabičné hranice; vnútorná samohlásková slabika sa môže oddeliť."
+    },
+    {
+      "batch_id": 17,
+      "position": 40,
+      "form": "mocichtivá",
+      "expected": [
+        "mo·ci·chti·vá"
+      ],
+      "engine": "mo·cich·ti·vá",
+      "confidence": "high",
+      "reason": "Zloženinová hranica moci- plus chtivá sa zhoduje so slabičnou; ch zostáva spolu."
+    },
+    {
+      "batch_id": 17,
+      "position": 45,
+      "form": "uspokojením",
+      "expected": [
+        "us·po·ko·je·ním"
+      ],
+      "engine": "uspo·ko·je·ním",
+      "confidence": "high",
+      "reason": "Jednopísmenová začiatočná slabika sa neoddeľuje; skupina sp a ďalšie slabiky dávajú uvedené body."
+    },
+    {
+      "batch_id": 17,
+      "position": 86,
+      "form": "dôvtipu",
+      "expected": [
+        "dôv·ti·pu"
+      ],
+      "engine": "dô·vti·pu",
+      "confidence": "high",
+      "reason": "Skupina vt sa delí medzi spoluhláskami; ďalšia jednoduchá spoluhláska začína slabiku."
+    },
+    {
+      "batch_id": 18,
+      "position": 3,
+      "form": "letohrádok",
+      "expected": [
+        "le·to·hrá·dok"
+      ],
+      "engine": "le·toh·rá·dok",
+      "confidence": "high",
+      "reason": "PSP: hranica zloženiny leto|hrádok a vnútorné slabičné hranice."
+    },
+    {
+      "batch_id": 18,
+      "position": 25,
+      "form": "neuzná",
+      "expected": [
+        "ne·uz·ná"
+      ],
+      "engine": "ne·u·zná",
+      "confidence": "high",
+      "reason": "PSP: zreteľná predpona ne-, samohlásky tvoria hiát a zn je delené podľa slabík."
+    },
+    {
+      "batch_id": 18,
+      "position": 30,
+      "form": "najdrzejších",
+      "expected": [
+        "naj·drzej·ších"
+      ],
+      "engine": "naj·dr·zej·ších",
+      "confidence": "high",
+      "reason": "PSP: zreteľná predpona naj- a príponová/slabičná hranica."
+    },
+    {
+      "batch_id": 18,
+      "position": 55,
+      "form": "gangster",
+      "expected": [
+        "gang·ster"
+      ],
+      "engine": "gan·gster",
+      "confidence": "medium",
+      "reason": "PSP: ustálené prevzaté slovo sa pri známej slovenskej výslovnosti delí gang|ster."
+    },
+    {
+      "batch_id": 18,
+      "position": 60,
+      "form": "neuhasne",
+      "expected": [
+        "ne·u·has·ne"
+      ],
+      "engine": "ne·uhas·ne",
+      "confidence": "high",
+      "reason": "PSP: predpona ne-, skutočný hiát a ďalšie slabičné hranice."
+    },
+    {
+      "batch_id": 18,
+      "position": 64,
+      "form": "zavdať",
+      "expected": [
+        "za·vdať"
+      ],
+      "engine": "zav·dať",
+      "confidence": "high",
+      "reason": "PSP: zreteľná slabičná predpona za- sa oddeľuje od základu."
+    },
+    {
+      "batch_id": 18,
+      "position": 67,
+      "form": "cyprusy",
+      "expected": [
+        "cy·pru·sy"
+      ],
+      "engine": "cyp·ru·sy",
+      "confidence": "medium",
+      "reason": "PSP: pri ustálenej slovenskej výslovnosti sa tvar delí podľa slabík."
+    },
+    {
+      "batch_id": 18,
+      "position": 68,
+      "form": "obráň",
+      "expected": [
+        "obráň"
+      ],
+      "engine": "ob·ráň",
+      "confidence": "medium",
+      "reason": "PSP: jediná slabičná hranica by oddelila začiatočnú jednopísmenovú slabiku, preto sa predvolene neponúka."
+    },
+    {
+      "batch_id": 18,
+      "position": 70,
+      "form": "tridsaťosmičky",
+      "expected": [
+        "trid·sať·os·mič·ky"
+      ],
+      "engine": "trid·sa·ťos·mič·ky",
+      "confidence": "high",
+      "reason": "PSP: hranica častí číslovkovej zloženiny a slabičné delenie spoluhláskových skupín."
+    },
+    {
+      "batch_id": 18,
+      "position": 73,
+      "form": "oplodňuje",
+      "expected": [
+        "op·lod·ňu·je"
+      ],
+      "engine": "oplod·ňu·je",
+      "confidence": "medium",
+      "reason": "PSP: začiatočná jednopísmenová morféma sa neoddeľuje; ostatné body vyplývajú zo slabičnej stavby."
+    },
+    {
+      "batch_id": 18,
+      "position": 89,
+      "form": "paliatívna",
+      "expected": [
+        "pa·li·a·tív·na"
+      ],
+      "engine": "pa·lia·tív·na",
+      "confidence": "medium",
+      "reason": "PSP: v ustálenej výslovnosti prevzatého slova i a a tvoria hiát; ďalšie hranice sú slabičné."
+    },
+    {
+      "batch_id": 19,
+      "position": 20,
+      "form": "voskovým",
+      "expected": [
+        "vos·ko·vým",
+        "vosk·o·vým"
+      ],
+      "engine": "vo·sko·vým",
+      "confidence": "medium",
+      "reason": "Prípustné je pravidelné slabičné delenie aj zreteľná hranica základu vosk- a prípony -ový."
+    },
+    {
+      "batch_id": 19,
+      "position": 35,
+      "form": "bezúčelný",
+      "expected": [
+        "bez·ú·čel·ný"
+      ],
+      "engine": "bez·účel·ný",
+      "confidence": "high",
+      "reason": "Zreteľná predpona bez- a prípona -ný; ú a č patria do rozdielnych slabík."
+    },
+    {
+      "batch_id": 19,
+      "position": 39,
+      "form": "vydry",
+      "expected": [
+        "vyd·ry"
+      ],
+      "engine": "vy·dry",
+      "confidence": "high",
+      "reason": "Dve spoluhlásky dr medzi jadrami sa delia medzi sebou."
+    },
+    {
+      "batch_id": 19,
+      "position": 42,
+      "form": "akvarelov",
+      "expected": [
+        "akva·re·lov",
+        "akva·rel·ov"
+      ],
+      "engine": "ak·va·re·lov",
+      "confidence": "medium",
+      "reason": "Prípustné je slabičné delenie aj zreteľná hranica kmeňa akvarel- a pádovej prípony; úvodné a sa neoddeľuje."
+    },
+    {
+      "batch_id": 19,
+      "position": 51,
+      "form": "odovzdá",
+      "expected": [
+        "odov·zdá"
+      ],
+      "engine": "odo·vzdá",
+      "confidence": "medium",
+      "reason": "V trojčlennej skupine vzd prvá spoluhláska uzatvára predchádzajúcu slabiku; úvodné o sa neoddeľuje."
+    },
+    {
+      "batch_id": 19,
+      "position": 85,
+      "form": "písmoznalec",
+      "expected": [
+        "pís·mo·zna·lec",
+        "písmo·zna·lec"
+      ],
+      "engine": "pís·moz·na·lec",
+      "confidence": "medium",
+      "reason": "Prípustné je slabičné delenie aj zreteľná hranica zloženiny písmo-znalec."
+    },
+    {
+      "batch_id": 20,
+      "position": 21,
+      "form": "ospravedlniteľnej",
+      "expected": [
+        "os·pra·ve·dl·ni·teľ·nej"
+      ],
+      "engine": "ospra·ve·dl·ni·teľ·nej",
+      "confidence": "medium",
+      "reason": "PSP: slabičné delenie vrátane slabikotvorného l; pri troch spoluhláskach prvá uzatvára predošlú slabiku."
+    },
+    {
+      "batch_id": 20,
+      "position": 54,
+      "form": "oplakávanú",
+      "expected": [
+        "op·la·ká·va·nú"
+      ],
+      "engine": "opla·ká·va·nú",
+      "confidence": "high",
+      "reason": "PSP: jednopísmenová úvodná slabika sa neoddeľuje; skupina pl a ďalšie slabiky sa delia pravidelne."
+    },
+    {
+      "batch_id": 20,
+      "position": 78,
+      "form": "služobníctva",
+      "expected": [
+        "slu·žob·níc·tva"
+      ],
+      "engine": "slu·žob·ní·ctva",
+      "confidence": "high",
+      "reason": "PSP: pravidelné slabičné hranice; pri skupine ctv prvá spoluhláska uzatvára slabiku."
+    },
+    {
+      "batch_id": 21,
+      "position": 3,
+      "form": "kníhkupectvo",
+      "expected": [
+        "kníh·ku·pec·tvo"
+      ],
+      "engine": "kníh·ku·pe·ctvo",
+      "confidence": "high",
+      "reason": "Hranica zloženiny kníh- a slabično-morfematické hranice."
+    },
+    {
+      "batch_id": 21,
+      "position": 25,
+      "form": "ozná",
+      "expected": [
+        "ozná"
+      ],
+      "engine": "oz·ná",
+      "confidence": "medium",
+      "reason": "Jediná hranica by oddelila jednopísmenové začiatočné o, preto sa neponúka."
+    },
+    {
+      "batch_id": 21,
+      "position": 44,
+      "form": "alžbetínska",
+      "expected": [
+        "alž·be·tín·ska"
+      ],
+      "engine": "al·žbe·tín·ska",
+      "confidence": "high",
+      "reason": "Pravidelné slabičné delenie a hranica pred skupinou sk."
+    },
+    {
+      "batch_id": 21,
+      "position": 80,
+      "form": "ušla",
+      "expected": [
+        "ušla"
+      ],
+      "engine": "uš·la",
+      "confidence": "high",
+      "reason": "Jediná hranica by oddelila jednopísmenové začiatočné u."
+    },
+    {
+      "batch_id": 21,
+      "position": 87,
+      "form": "diagnózou",
+      "expected": [
+        "di·ag·nó·zou"
+      ],
+      "engine": "diag·nó·zou",
+      "confidence": "medium",
+      "reason": "V ustálenej cudzej výslovnosti i-a tvorí hiát; ďalšie hranice sú slabičné."
+    },
+    {
+      "batch_id": 22,
+      "position": 4,
+      "form": "sústružilo",
+      "expected": [
+        "sús·tru·ži·lo"
+      ],
+      "engine": "sú·stru·ži·lo",
+      "confidence": "high",
+      "reason": "V skupine str zostáva prvá spoluhláska vľavo (§ 4.3); ďalšie hranice určuje § 4.1."
+    },
+    {
+      "batch_id": 22,
+      "position": 76,
+      "form": "prízrakmi",
+      "expected": [
+        "prí·zrak·mi"
+      ],
+      "engine": "príz·rak·mi",
+      "confidence": "medium",
+      "reason": "Morfematická hranica prí||zrak je prípustná (§ 3.1); dvojica km sa delí podľa § 4.2."
+    },
+    {
+      "batch_id": 23,
+      "position": 32,
+      "form": "odopierala",
+      "expected": [
+        "od·o·pie·ra·la"
+      ],
+      "engine": "od·opie·ra·la",
+      "confidence": "high",
+      "reason": "Zreteľná predpona od- a následné slabičné hranice; dvojhláska ie zostáva spolu."
+    },
+    {
+      "batch_id": 23,
+      "position": 48,
+      "form": "doktorovho",
+      "expected": [
+        "dok·to·rov·ho"
+      ],
+      "engine": "do·kto·rov·ho",
+      "confidence": "high",
+      "reason": "Dvojice kt a vh sa delia medzi spoluhláskami; ostatné hranice sú slabičné."
+    },
+    {
+      "batch_id": 23,
+      "position": 96,
+      "form": "mrmľúc",
+      "expected": [
+        "mr·mľúc"
+      ],
+      "engine": "mrm·ľúc",
+      "confidence": "high",
+      "reason": "Slabikotvorné r tvorí prvé jadro; ďalšia časť sa začína spoluhláskovou skupinou mľ."
+    },
+    {
+      "batch_id": 24,
+      "position": 1,
+      "form": "podujatiu",
+      "expected": [
+        "po·dujatiu",
+        "podu·jatiu",
+        "poduja·tiu"
+      ],
+      "engine": "pod·uja·tiu",
+      "confidence": "high",
+      "reason": "Slabičné hranice po-du-ja-tiu; iu je dvojhláska."
+    },
+    {
+      "batch_id": 24,
+      "position": 2,
+      "form": "pachtárom",
+      "expected": [
+        "pach·tárom",
+        "pachtá·rom"
+      ],
+      "engine": "pach·tá·rom",
+      "confidence": "high",
+      "reason": "Delenie podľa slabík pach-tá-rom; ch je nedeliteľná spřežka."
+    },
+    {
+      "batch_id": 24,
+      "position": 3,
+      "form": "zapália",
+      "expected": [
+        "za·pália",
+        "zapá·lia"
+      ],
+      "engine": "za·pá·lia",
+      "confidence": "high",
+      "reason": "Slabičné hranice za-pá-lia; ia je dvojhláska."
+    },
+    {
+      "batch_id": 24,
+      "position": 6,
+      "form": "belavomodré",
+      "expected": [
+        "be·lavomodré",
+        "bela·vomodré",
+        "belavo·modré",
+        "belavomod·ré"
+      ],
+      "engine": "be·la·vo·mod·ré",
+      "confidence": "high",
+      "reason": "Slabičné a zloženinové hranice be-la-vo-mod-ré."
+    },
+    {
+      "batch_id": 24,
+      "position": 7,
+      "form": "asimilujú",
+      "expected": [
+        "asi·milujú",
+        "asimi·lujú",
+        "asimilu·jú"
+      ],
+      "engine": "asi·mi·lu·jú",
+      "confidence": "high",
+      "reason": "Slabičné hranice a-si-mi-lu-jú; počiatočná jednopísmenová časť sa neoddeľuje."
+    },
+    {
+      "batch_id": 24,
+      "position": 10,
+      "form": "zahliadla",
+      "expected": [
+        "za·hliadla",
+        "zahliad·la"
+      ],
+      "engine": "za·hliad·la",
+      "confidence": "high",
+      "reason": "Slabičné hranice za-hliad-la; ia je dvojhláska."
+    },
+    {
+      "batch_id": 24,
+      "position": 11,
+      "form": "očividnú",
+      "expected": [
+        "oči·vidnú",
+        "očivid·nú"
+      ],
+      "engine": "oči·vid·nú",
+      "confidence": "high",
+      "reason": "Slabičné hranice o-či-vid-nú; počiatočné o sa neoddeľuje."
+    },
+    {
+      "batch_id": 24,
+      "position": 13,
+      "form": "nebytím",
+      "expected": [
+        "ne·bytím",
+        "neby·tím"
+      ],
+      "engine": "ne·by·tím",
+      "confidence": "high",
+      "reason": "Slabičné hranice ne-by-tím."
+    },
+    {
+      "batch_id": 24,
+      "position": 14,
+      "form": "usadlíka",
+      "expected": [
+        "usa·dlíka",
+        "usadlí·ka"
+      ],
+      "engine": "usad·lí·ka",
+      "confidence": "high",
+      "reason": "Slabičné hranice u-sa-dlí-ka; počiatočné u sa neoddeľuje."
+    },
+    {
+      "batch_id": 24,
+      "position": 15,
+      "form": "tuleňmi",
+      "expected": [
+        "tu·leňmi",
+        "tuleň·mi"
+      ],
+      "engine": "tu·leň·mi",
+      "confidence": "high",
+      "reason": "Slabičné hranice tu-leň-mi."
+    },
+    {
+      "batch_id": 24,
+      "position": 19,
+      "form": "uposlúchnuť",
+      "expected": [
+        "upo·slúchnuť",
+        "uposlúch·nuť"
+      ],
+      "engine": "upos·lúch·nuť",
+      "confidence": "high",
+      "reason": "Slabičné hranice u-po-slúch-nuť; počiatočné u sa neoddeľuje."
+    },
+    {
+      "batch_id": 24,
+      "position": 20,
+      "form": "zanikni",
+      "expected": [
+        "za·nikni",
+        "zanik·ni"
+      ],
+      "engine": "za·nik·ni",
+      "confidence": "high",
+      "reason": "Slabičné hranice za-nik-ni."
+    },
+    {
+      "batch_id": 24,
+      "position": 21,
+      "form": "neblahej",
+      "expected": [
+        "ne·blahej",
+        "nebla·hej"
+      ],
+      "engine": "ne·bla·hej",
+      "confidence": "high",
+      "reason": "Slabičné hranice ne-bla-hej."
+    },
+    {
+      "batch_id": 24,
+      "position": 25,
+      "form": "obzerá",
+      "expected": [
+        "ob·zerá",
+        "obze·rá"
+      ],
+      "engine": "ob·ze·rá",
+      "confidence": "high",
+      "reason": "Predponová a slabičná stavba ob-ze-rá."
+    },
+    {
+      "batch_id": 24,
+      "position": 26,
+      "form": "dohodla",
+      "expected": [
+        "do·hodla",
+        "dohod·la"
+      ],
+      "engine": "do·hod·la",
+      "confidence": "high",
+      "reason": "Slabičné hranice do-hod-la."
+    },
+    {
+      "batch_id": 24,
+      "position": 28,
+      "form": "zapríčinil",
+      "expected": [
+        "za·príčinil",
+        "zaprí·činil",
+        "zapríči·nil"
+      ],
+      "engine": "za·prí·či·nil",
+      "confidence": "high",
+      "reason": "Slabičné hranice za-prí-či-nil."
+    },
+    {
+      "batch_id": 24,
+      "position": 29,
+      "form": "špirálu",
+      "expected": [
+        "špi·rálu",
+        "špirá·lu"
+      ],
+      "engine": "špi·rá·lu",
+      "confidence": "high",
+      "reason": "Slabičné hranice špi-rá-lu."
+    },
+    {
+      "batch_id": 24,
+      "position": 31,
+      "form": "ploskochodcov",
+      "expected": [
+        "plo·skochodcov",
+        "plosko·chodcov",
+        "ploskochod·cov"
+      ],
+      "engine": "plos·ko·chod·cov",
+      "confidence": "high",
+      "reason": "Slabičné hranice plo-sko-chod-cov vrátane švu zloženiny."
+    },
+    {
+      "batch_id": 24,
+      "position": 32,
+      "form": "nekryté",
+      "expected": [
+        "ne·kryté",
+        "nekry·té"
+      ],
+      "engine": "ne·kry·té",
+      "confidence": "high",
+      "reason": "Slabičné hranice ne-kry-té."
+    },
+    {
+      "batch_id": 24,
+      "position": 35,
+      "form": "nehlásate",
+      "expected": [
+        "ne·hlásate",
+        "nehlá·sate",
+        "nehlása·te"
+      ],
+      "engine": "ne·hlá·sa·te",
+      "confidence": "high",
+      "reason": "Slabičné hranice ne-hlá-sa-te."
+    },
+    {
+      "batch_id": 24,
+      "position": 36,
+      "form": "záhradníkmi",
+      "expected": [
+        "zá·hradníkmi",
+        "záhrad·níkmi",
+        "záhradník·mi"
+      ],
+      "engine": "zá·hrad·ník·mi",
+      "confidence": "high",
+      "reason": "Slabičné hranice zá-hrad-ník-mi."
+    },
+    {
+      "batch_id": 24,
+      "position": 37,
+      "form": "eskamotérsky",
+      "expected": [
+        "eska·motérsky",
+        "eskamo·térsky",
+        "eskamotér·sky"
+      ],
+      "engine": "es·ka·mo·tér·sky",
+      "confidence": "medium",
+      "reason": "Zdomácnený tvar má slabiky e-ska-mo-tér-sky; počiatočné e sa neoddeľuje."
+    },
+    {
+      "batch_id": 24,
+      "position": 39,
+      "form": "odpracú",
+      "expected": [
+        "od·pracú",
+        "odpra·cú"
+      ],
+      "engine": "od·pra·cú",
+      "confidence": "high",
+      "reason": "Predponová a slabičná stavba od-pra-cú."
+    },
+    {
+      "batch_id": 24,
+      "position": 40,
+      "form": "pudle",
+      "expected": [
+        "pu·dle"
+      ],
+      "engine": "pud·le",
+      "confidence": "medium",
+      "reason": "Skupina dl môže tvoriť nábeh slabiky, preto pu-dle."
+    },
+    {
+      "batch_id": 24,
+      "position": 42,
+      "form": "vysatý",
+      "expected": [
+        "vy·satý",
+        "vysa·tý"
+      ],
+      "engine": "vy·sa·tý",
+      "confidence": "high",
+      "reason": "Slabičné hranice vy-sa-tý."
+    },
+    {
+      "batch_id": 24,
+      "position": 44,
+      "form": "dohliadnem",
+      "expected": [
+        "do·hliadnem",
+        "dohliad·nem"
+      ],
+      "engine": "do·hliad·nem",
+      "confidence": "high",
+      "reason": "Slabičné hranice do-hliad-nem; ia je dvojhláska."
+    },
+    {
+      "batch_id": 24,
+      "position": 48,
+      "form": "obyvateľkou",
+      "expected": [
+        "oby·vateľkou",
+        "obyva·teľkou",
+        "obyvateľ·kou"
+      ],
+      "engine": "oby·va·teľ·kou",
+      "confidence": "high",
+      "reason": "Slabičné hranice o-by-va-teľ-kou; počiatočné o sa neoddeľuje."
+    },
+    {
+      "batch_id": 24,
+      "position": 49,
+      "form": "vypomstí",
+      "expected": [
+        "vy·pomstí",
+        "vypom·stí"
+      ],
+      "engine": "vy·pom·stí",
+      "confidence": "high",
+      "reason": "Predponová a slabičná stavba vy-pom-stí."
+    },
+    {
+      "batch_id": 24,
+      "position": 52,
+      "form": "spoznania",
+      "expected": [
+        "spo·znania",
+        "spozna·nia"
+      ],
+      "engine": "spoz·na·nia",
+      "confidence": "high",
+      "reason": "Slabičné hranice spo-zna-nia; ia je dvojhláska."
+    },
+    {
+      "batch_id": 24,
+      "position": 53,
+      "form": "odčítal",
+      "expected": [
+        "od·čítal",
+        "odčí·tal"
+      ],
+      "engine": "od·čí·tal",
+      "confidence": "high",
+      "reason": "Predponová a slabičná stavba od-čí-tal."
+    },
+    {
+      "batch_id": 24,
+      "position": 54,
+      "form": "nachytajú",
+      "expected": [
+        "na·chytajú",
+        "nachy·tajú",
+        "nachyta·jú"
+      ],
+      "engine": "na·chy·ta·jú",
+      "confidence": "high",
+      "reason": "Slabičné hranice na-chy-ta-jú; ch je nedeliteľná spřežka."
+    },
+    {
+      "batch_id": 24,
+      "position": 55,
+      "form": "toľkoto",
+      "expected": [
+        "toľ·koto",
+        "toľko·to"
+      ],
+      "engine": "toľ·ko·to",
+      "confidence": "high",
+      "reason": "Slabičné hranice toľ-ko-to."
+    },
+    {
+      "batch_id": 24,
+      "position": 56,
+      "form": "parohy",
+      "expected": [
+        "pa·rohy",
+        "paro·hy"
+      ],
+      "engine": "pa·ro·hy",
+      "confidence": "high",
+      "reason": "Slabičné hranice pa-ro-hy."
+    },
+    {
+      "batch_id": 24,
+      "position": 57,
+      "form": "nedodržiavame",
+      "expected": [
+        "ne·dodržiavame",
+        "nedo·držiavame",
+        "nedodr·žiavame",
+        "nedodržia·vame",
+        "nedodržiava·me"
+      ],
+      "engine": "ne·do·dr·žia·va·me",
+      "confidence": "high",
+      "reason": "Slabičné hranice ne-do-dr-žia-va-me; r je slabičné a ia je dvojhláska."
+    },
+    {
+      "batch_id": 24,
+      "position": 58,
+      "form": "necelú",
+      "expected": [
+        "ne·celú",
+        "nece·lú"
+      ],
+      "engine": "ne·ce·lú",
+      "confidence": "high",
+      "reason": "Slabičné hranice ne-ce-lú."
+    },
+    {
+      "batch_id": 24,
+      "position": 60,
+      "form": "babenka",
+      "expected": [
+        "ba·benka",
+        "baben·ka"
+      ],
+      "engine": "ba·ben·ka",
+      "confidence": "high",
+      "reason": "Slabičné hranice ba-ben-ka."
+    },
+    {
+      "batch_id": 24,
+      "position": 63,
+      "form": "úctyhodným",
+      "expected": [
+        "úc·tyhodným",
+        "úcty·hodným",
+        "úctyhod·ným"
+      ],
+      "engine": "úc·ty·hod·ným",
+      "confidence": "high",
+      "reason": "Slabičné hranice úc-ty-hod-ným vrátane švu zloženiny."
+    },
+    {
+      "batch_id": 24,
+      "position": 64,
+      "form": "zovňajšok",
+      "expected": [
+        "zo·vňajšok",
+        "zovňaj·šok"
+      ],
+      "engine": "zov·ňaj·šok",
+      "confidence": "high",
+      "reason": "Slabičné hranice zo-vňaj-šok."
+    },
+    {
+      "batch_id": 24,
+      "position": 67,
+      "form": "neužíval",
+      "expected": [
+        "ne·užíval",
+        "neu·žíval",
+        "neuží·val"
+      ],
+      "engine": "ne·uží·val",
+      "confidence": "high",
+      "reason": "Slabičné hranice ne-u-ží-val; e-u tvorí hiát."
+    },
+    {
+      "batch_id": 24,
+      "position": 68,
+      "form": "nepýtal",
+      "expected": [
+        "ne·pýtal",
+        "nepý·tal"
+      ],
+      "engine": "ne·pý·tal",
+      "confidence": "high",
+      "reason": "Slabičné hranice ne-pý-tal."
+    },
+    {
+      "batch_id": 24,
+      "position": 72,
+      "form": "tetrarcha",
+      "expected": [
+        "te·trarcha",
+        "tetrar·cha"
+      ],
+      "engine": "tet·rar·cha",
+      "confidence": "medium",
+      "reason": "Zdomácnený odborný tvar má slabiky te-trar-cha; ch je nedeliteľná spřežka."
+    },
+    {
+      "batch_id": 24,
+      "position": 73,
+      "form": "zoskupí",
+      "expected": [
+        "zo·skupí",
+        "zosku·pí"
+      ],
+      "engine": "zo·sku·pí",
+      "confidence": "high",
+      "reason": "Slabičné hranice zo-sku-pí."
+    },
+    {
+      "batch_id": 24,
+      "position": 77,
+      "form": "tŕnisto",
+      "expected": [
+        "tŕ·nisto",
+        "tŕnis·to"
+      ],
+      "engine": "tŕ·nis·to",
+      "confidence": "high",
+      "reason": "Slabičné hranice tŕ-nis-to; ŕ je jadrom prvej slabiky."
+    },
+    {
+      "batch_id": 24,
+      "position": 78,
+      "form": "odklony",
+      "expected": [
+        "od·klony",
+        "odklo·ny"
+      ],
+      "engine": "od·klo·ny",
+      "confidence": "high",
+      "reason": "Predponová a slabičná stavba od-klo-ny."
+    },
+    {
+      "batch_id": 24,
+      "position": 79,
+      "form": "závažnej",
+      "expected": [
+        "zá·važnej",
+        "závaž·nej"
+      ],
+      "engine": "zá·važ·nej",
+      "confidence": "high",
+      "reason": "Slabičné hranice zá-važ-nej."
+    },
+    {
+      "batch_id": 24,
+      "position": 80,
+      "form": "papizme",
+      "expected": [
+        "pa·pizme",
+        "papiz·me"
+      ],
+      "engine": "pa·piz·me",
+      "confidence": "medium",
+      "reason": "Zdomácnený tvar má slabičné hranice pa-piz-me."
+    },
+    {
+      "batch_id": 24,
+      "position": 81,
+      "form": "topila",
+      "expected": [
+        "to·pila",
+        "topi·la"
+      ],
+      "engine": "to·pi·la",
+      "confidence": "high",
+      "reason": "Slabičné hranice to-pi-la."
+    },
+    {
+      "batch_id": 24,
+      "position": 82,
+      "form": "prchavý",
+      "expected": [
+        "pr·chavý",
+        "prcha·vý"
+      ],
+      "engine": "pr·cha·vý",
+      "confidence": "high",
+      "reason": "Slabičné r tvorí prvú slabiku pr-cha-vý; ch je nedeliteľná spřežka."
+    },
+    {
+      "batch_id": 24,
+      "position": 83,
+      "form": "prinášať",
+      "expected": [
+        "pri·nášať",
+        "priná·šať"
+      ],
+      "engine": "pri·ná·šať",
+      "confidence": "high",
+      "reason": "Slabičné hranice pri-ná-šať."
+    },
+    {
+      "batch_id": 24,
+      "position": 85,
+      "form": "pôrodnou",
+      "expected": [
+        "pô·rodnou",
+        "pôrod·nou"
+      ],
+      "engine": "pô·rod·nou",
+      "confidence": "high",
+      "reason": "Slabičné hranice pô-rod-nou."
+    },
+    {
+      "batch_id": 24,
+      "position": 87,
+      "form": "temperament",
+      "expected": [
+        "tem·perament",
+        "tempe·rament",
+        "tempera·ment"
+      ],
+      "engine": "tem·pe·ra·ment",
+      "confidence": "high",
+      "reason": "Slabičné hranice tem-pe-ra-ment."
+    },
+    {
+      "batch_id": 24,
+      "position": 88,
+      "form": "hotela",
+      "expected": [
+        "ho·tela",
+        "hote·la"
+      ],
+      "engine": "ho·te·la",
+      "confidence": "high",
+      "reason": "Slabičné hranice ho-te-la."
+    },
+    {
+      "batch_id": 24,
+      "position": 90,
+      "form": "ktoroukoľvek",
+      "expected": [
+        "kto·roukoľvek",
+        "ktorou·koľvek",
+        "ktoroukoľ·vek"
+      ],
+      "engine": "kto·rou·koľ·vek",
+      "confidence": "high",
+      "reason": "Slabičné hranice kto-rou-koľ-vek."
+    },
+    {
+      "batch_id": 24,
+      "position": 91,
+      "form": "aritmetika",
+      "expected": [
+        "arit·metika",
+        "aritme·tika",
+        "aritmeti·ka"
+      ],
+      "engine": "arit·me·ti·ka",
+      "confidence": "high",
+      "reason": "Slabiky a-rit-me-ti-ka; počiatočné a sa neoddeľuje."
+    },
+    {
+      "batch_id": 24,
+      "position": 93,
+      "form": "preťažké",
+      "expected": [
+        "pre·ťažké",
+        "preťaž·ké"
+      ],
+      "engine": "pre·ťaž·ké",
+      "confidence": "high",
+      "reason": "Slabičné hranice pre-ťaž-ké."
+    },
+    {
+      "batch_id": 24,
+      "position": 95,
+      "form": "riziko",
+      "expected": [
+        "ri·ziko",
+        "rizi·ko"
+      ],
+      "engine": "ri·zi·ko",
+      "confidence": "high",
+      "reason": "Slabičné hranice ri-zi-ko."
+    },
+    {
+      "batch_id": 24,
+      "position": 96,
+      "form": "zabuchla",
+      "expected": [
+        "za·buchla",
+        "zabuch·la"
+      ],
+      "engine": "za·buch·la",
+      "confidence": "high",
+      "reason": "Slabičné hranice za-buch-la; ch je nedeliteľná spřežka."
+    },
+    {
+      "batch_id": 24,
+      "position": 98,
+      "form": "pramenili",
+      "expected": [
+        "pra·menili",
+        "prame·nili",
+        "prameni·li"
+      ],
+      "engine": "pra·me·ni·li",
+      "confidence": "high",
+      "reason": "Slabičné hranice pra-me-ni-li."
+    },
+    {
+      "batch_id": 24,
+      "position": 99,
+      "form": "prisahala",
+      "expected": [
+        "pri·sahala",
+        "prisa·hala",
+        "prisaha·la"
+      ],
+      "engine": "pri·sa·ha·la",
+      "confidence": "high",
+      "reason": "Slabičné hranice pri-sa-ha-la."
+    },
+    {
+      "batch_id": 25,
+      "position": 38,
+      "form": "takisto",
+      "expected": [
+        "tak·is·to"
+      ],
+      "engine": "ta·kis·to",
+      "confidence": "high",
+      "reason": "Zreteľná hranica zloženia tak|isto sa zachováva a skupina st sa delí medzi spoluhláskami podľa PSP §3.4 a §4.2."
+    },
+    {
+      "batch_id": 25,
+      "position": 44,
+      "form": "znetvoruje",
+      "expected": [
+        "znet·vo·ru·je"
+      ],
+      "engine": "zne·tvo·ru·je",
+      "confidence": "high",
+      "reason": "Neslabičná predpona z- sa samostatne neoddeľuje; skupina tv sa delí medzi spoluhláskami a ďalšie hranice sú podľa PSP §3.1 a §4."
+    },
+    {
+      "batch_id": 25,
+      "position": 62,
+      "form": "domnieva",
+      "expected": [
+        "do·mnie·va"
+      ],
+      "engine": "dom·nie·va",
+      "confidence": "high",
+      "reason": "Zreteľná predpona do- sa oddeľuje; slovenské ie zostáva celkom a v patrí doprava podľa PSP §3.1, §4.1 a §5.2."
+    },
+    {
+      "batch_id": 25,
+      "position": 75,
+      "form": "obozretní",
+      "expected": [
+        "oboz·ret·ní"
+      ],
+      "engine": "ob·oz·ret·ní",
+      "confidence": "high",
+      "reason": "Začiatočná jednopísmenová slabika o- sa neoddeľuje; zr a tn sa delia medzi spoluhláskami podľa PSP §4.2 a §6.2."
+    },
+    {
+      "batch_id": 26,
+      "position": 3,
+      "form": "otupelí",
+      "expected": [
+        "o·tu·pe·lí"
+      ],
+      "engine": "otu·pe·lí",
+      "confidence": "high",
+      "reason": "Jedna spoluhláska medzi samohláskami patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 26,
+      "position": 4,
+      "form": "alexandrijskú",
+      "expected": [
+        "a·le·xan·drij·skú"
+      ],
+      "engine": "ale·xan·drij·skú",
+      "confidence": "medium",
+      "reason": "Slabičné delenie prevzatého, výslovnostne priehľadného tvaru; pri skupinách sa prenáša vysloviteľný začiatok slabiky."
+    },
+    {
+      "batch_id": 26,
+      "position": 15,
+      "form": "exegéz",
+      "expected": [
+        "e·xe·géz"
+      ],
+      "engine": "exe·géz",
+      "confidence": "medium",
+      "reason": "Udomácnený odborný základ exegéz- sa delí slabične e-xe-géz."
+    },
+    {
+      "batch_id": 26,
+      "position": 20,
+      "form": "orientálnemu",
+      "expected": [
+        "o·ri·en·tál·ne·mu"
+      ],
+      "engine": "ori·en·tál·ne·mu",
+      "confidence": "high",
+      "reason": "Slabičné delenie udomácneného tvaru vrátane hiátu i-e."
+    },
+    {
+      "batch_id": 26,
+      "position": 29,
+      "form": "omámil",
+      "expected": [
+        "o·má·mil"
+      ],
+      "engine": "omá·mil",
+      "confidence": "high",
+      "reason": "Jedna spoluhláska medzi samohláskami patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 26,
+      "position": 31,
+      "form": "galéria",
+      "expected": [
+        "ga·lé·ri·a"
+      ],
+      "engine": "ga·lé·ria",
+      "confidence": "high",
+      "reason": "Slabičné delenie udomácneného slova; koncové i-a je hiát."
+    },
+    {
+      "batch_id": 26,
+      "position": 42,
+      "form": "úrokov",
+      "expected": [
+        "ú·ro·kov"
+      ],
+      "engine": "úro·kov",
+      "confidence": "high",
+      "reason": "Jedna intervokalická spoluhláska patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 26,
+      "position": 70,
+      "form": "ovládol",
+      "expected": [
+        "o·vlá·dol"
+      ],
+      "engine": "ov·lá·dol",
+      "confidence": "high",
+      "reason": "Jedna spoluhláska medzi samohláskami patrí k nasledujúcej slabike; vl je prípustný nábeh."
+    },
+    {
+      "batch_id": 26,
+      "position": 87,
+      "form": "udivený",
+      "expected": [
+        "u·di·ve·ný"
+      ],
+      "engine": "udi·ve·ný",
+      "confidence": "high",
+      "reason": "Jedna intervokalická spoluhláska patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 26,
+      "position": 92,
+      "form": "anonymné",
+      "expected": [
+        "a·no·nym·né"
+      ],
+      "engine": "ano·nym·né",
+      "confidence": "high",
+      "reason": "Slabičné delenie udomácneného slova; skupina mn sa delí m-n."
+    },
+    {
+      "batch_id": 26,
+      "position": 95,
+      "form": "osiny",
+      "expected": [
+        "o·si·ny"
+      ],
+      "engine": "osi·ny",
+      "confidence": "high",
+      "reason": "Jedna intervokalická spoluhláska patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 27,
+      "position": 24,
+      "form": "zaucha",
+      "expected": [
+        "za·u·cha"
+      ],
+      "engine": "za·ucha",
+      "confidence": "high",
+      "reason": "PSP §3.1 a §4.4: hranica za- a skutočný hiát sú deliteľné; ch zostáva jedným celkom."
+    },
+    {
+      "batch_id": 27,
+      "position": 25,
+      "form": "soška",
+      "expected": [
+        "soš·ka"
+      ],
+      "engine": "so·ška",
+      "confidence": "high",
+      "reason": "PSP §4.2: dvojica šk medzi jadrami sa delí medzi spoluhláskami."
+    },
+    {
+      "batch_id": 27,
+      "position": 58,
+      "form": "žoldniera",
+      "expected": [
+        "žold·nie·ra"
+      ],
+      "engine": "žol·dnie·ra",
+      "confidence": "medium",
+      "reason": "PSP §3.2 a §5.2: zreteľná odvodená hranica pred -nier sa zachováva, ie je dvojhláska a ďalšie r otvára slabiku."
+    },
+    {
+      "batch_id": 27,
+      "position": 83,
+      "form": "ublížiť",
+      "expected": [
+        "ublí·žiť"
+      ],
+      "engine": "ub·lí·žiť",
+      "confidence": "high",
+      "reason": "PSP §4.1 a §6.2: delí sa pred ž; jednopísmenová začiatočná slabika u- sa predvolene neoddeľuje."
+    },
+    {
+      "batch_id": 27,
+      "position": 92,
+      "form": "reumatizmy",
+      "expected": [
+        "re·u·ma·tiz·my"
+      ],
+      "engine": "reu·ma·tiz·my",
+      "confidence": "medium",
+      "reason": "PSP §4.4 a §4.1–4.2: eu je v ustálenej výslovnosti hiát, ďalšie hranice určujú jednotlivé spoluhlásky a dvojica zm."
+    },
+    {
+      "batch_id": 28,
+      "position": 3,
+      "form": "sotvačo",
+      "expected": [
+        "sot·va·čo"
+      ],
+      "engine": "so·tva·čo",
+      "confidence": "high",
+      "reason": "PSP §4.2 a §4.1: pri tv sa delí medzi spoluhláskami, č patrí k ďalšej slabike."
+    },
+    {
+      "batch_id": 28,
+      "position": 22,
+      "form": "odohráva",
+      "expected": [
+        "o·do·hrá·va"
+      ],
+      "engine": "odo·hrá·va",
+      "confidence": "high",
+      "reason": "PSP §3.1 a §4.1: vokalizovaná predpona odo- sa oddeľuje od základu hrávať; vnútorné body sú slabičné."
+    },
+    {
+      "batch_id": 29,
+      "position": 20,
+      "form": "hmlistú",
+      "expected": [
+        "hml·is·tú"
+      ],
+      "engine": "hmlis·tú",
+      "confidence": "medium",
+      "reason": "PSP §2, §4.2 a §4.4: l je slabikotvorné; susedné jadrá sa oddeľujú a st sa delí medzi sebou."
+    },
+    {
+      "batch_id": 29,
+      "position": 27,
+      "form": "ubytujú",
+      "expected": [
+        "u·by·tu·jú"
+      ],
+      "engine": "uby·tu·jú",
+      "confidence": "high",
+      "reason": "PSP §4.1: všetky medzijadrové skupiny tvorí jedna spoluhláska."
+    },
+    {
+      "batch_id": 29,
+      "position": 40,
+      "form": "obojstranná",
+      "expected": [
+        "o·boj·stran·ná"
+      ],
+      "engine": "oboj·stran·ná",
+      "confidence": "high",
+      "reason": "PSP §3.4, §4.1 a §4.2: zreteľná zloženina oboj-stranná a delenie nn."
+    },
+    {
+      "batch_id": 29,
+      "position": 51,
+      "form": "ochromel",
+      "expected": [
+        "o·chro·mel"
+      ],
+      "engine": "och·ro·mel",
+      "confidence": "high",
+      "reason": "PSP §3.1 a §5.1: zreteľná predpona o- pred základom chrom-; ch zostáva spolu."
+    },
+    {
+      "batch_id": 29,
+      "position": 52,
+      "form": "ochutnať",
+      "expected": [
+        "o·chut·nať"
+      ],
+      "engine": "ochut·nať",
+      "confidence": "high",
+      "reason": "PSP §3.1, §4.2 a §5.1: predpona o-, nerozdeliteľné ch a delenie tn."
+    },
+    {
+      "batch_id": 29,
+      "position": 53,
+      "form": "obytný",
+      "expected": [
+        "o·byt·ný"
+      ],
+      "engine": "obyt·ný",
+      "confidence": "high",
+      "reason": "PSP §4.1–4.2: b ide doprava a dvojica tn sa delí medzi sebou."
+    },
+    {
+      "batch_id": 29,
+      "position": 54,
+      "form": "uzavretím",
+      "expected": [
+        "u·za·vre·tím"
+      ],
+      "engine": "uzav·re·tím",
+      "confidence": "high",
+      "reason": "PSP §3.1 a §4.1: zreteľné slabičné predpony u- a za-, ďalšie hranice sú pravidelné."
+    },
+    {
+      "batch_id": 29,
+      "position": 63,
+      "form": "existujúc",
+      "expected": [
+        "e·xis·tu·júc"
+      ],
+      "engine": "exis·tu·júc",
+      "confidence": "medium",
+      "reason": "Ustálená slovenská výslovnosť prevzatého základu; PSP §4.1–4.2 dáva hranice e-x a s-t."
+    },
+    {
+      "batch_id": 29,
+      "position": 73,
+      "form": "okiadzať",
+      "expected": [
+        "o·kia·dzať"
+      ],
+      "engine": "okia·dzať",
+      "confidence": "high",
+      "reason": "PSP §3.1, §5.1 a §5.2: predpona o-, dvojhláska ia a nerozdeliteľná zložka dz."
+    },
+    {
+      "batch_id": 29,
+      "position": 84,
+      "form": "uja",
+      "expected": [
+        "u·ja"
+      ],
+      "engine": "uja",
+      "confidence": "high",
+      "reason": "PSP §4.1: jediná spoluhláska j medzi jadrami patrí k nasledujúcej časti."
+    },
+    {
+      "batch_id": 29,
+      "position": 89,
+      "form": "ústnymi",
+      "expected": [
+        "úst·ny·mi"
+      ],
+      "engine": "ús·tny·mi",
+      "confidence": "high",
+      "reason": "PSP §3.2 a §4.1: prípona -ný sa oddeľuje od základu úst-, ďalšie m ide doprava."
+    },
+    {
+      "batch_id": 29,
+      "position": 97,
+      "form": "zotrvať",
+      "expected": [
+        "zo·trvať"
+      ],
+      "engine": "zo·tr·vať",
+      "confidence": "high",
+      "reason": "PSP §3.1: zreteľná slabičná predpona zo- sa oddeľuje od jednoslabičného základu trvať."
+    },
+    {
+      "batch_id": 30,
+      "position": 1,
+      "form": "nezožneš",
+      "expected": [
+        "ne·zož·neš"
+      ],
+      "engine": "ne·zo·žneš",
+      "confidence": "high",
+      "reason": "Slabičná predpona ne- a potom delenie dvojice žn medzi spoluhláskami podľa PSP."
+    },
+    {
+      "batch_id": 30,
+      "position": 2,
+      "form": "neúprosne",
+      "expected": [
+        "ne·ú·pros·ne"
+      ],
+      "engine": "ne·úp·ros·ne",
+      "confidence": "high",
+      "reason": "Zreteľná hranica ne-|ú- a ďalšie hranice podľa slabičných jadier a skupín spoluhlások."
+    },
+    {
+      "batch_id": 30,
+      "position": 56,
+      "form": "ostňami",
+      "expected": [
+        "os·tňa·mi"
+      ],
+      "engine": "ost·ňa·mi",
+      "confidence": "high",
+      "reason": "Z trojice stň zostáva prvá spoluhláska vľavo; ďalšia m patrí doprava."
+    },
+    {
+      "batch_id": 30,
+      "position": 70,
+      "form": "hustnúca",
+      "expected": [
+        "hust·nú·ca"
+      ],
+      "engine": "hus·tnú·ca",
+      "confidence": "high",
+      "reason": "Dvojica tn sa delí medzi spoluhláskami a ďalšia jediná c patrí doprava."
+    },
+    {
+      "batch_id": 31,
+      "position": 2,
+      "form": "grácii",
+      "expected": [
+        "grá·ci·i"
+      ],
+      "engine": "grá·cii",
+      "confidence": "medium",
+      "reason": "PSP: prevzatý tvar má slabičnú hranicu pred c a hiát medzi koncovými i."
+    },
+    {
+      "batch_id": 31,
+      "position": 6,
+      "form": "audienčné",
+      "expected": [
+        "au·di·enč·né",
+        "au·di·en·čné"
+      ],
+      "engine": "au·dienč·né",
+      "confidence": "medium",
+      "reason": "PSP: pri odvodenine od typu -cia sú prípustné morfematické aj variantné členenie skupiny nčn."
+    },
+    {
+      "batch_id": 31,
+      "position": 8,
+      "form": "ochabnutia",
+      "expected": [
+        "o·chab·nu·tia"
+      ],
+      "engine": "ochab·nu·tia",
+      "confidence": "high",
+      "reason": "PSP: ch je jedna spoluhláska, bn sa delí medzi spoluhláskami a ia je dvojhláska."
+    },
+    {
+      "batch_id": 31,
+      "position": 11,
+      "form": "premiestnení",
+      "expected": [
+        "pre·miest·ne·ní"
+      ],
+      "engine": "pre·mies·tne·ní",
+      "confidence": "high",
+      "reason": "PSP: zreteľné morfematické členenie pre-|miestn- a pravidlo jednej spoluhlásky."
+    },
+    {
+      "batch_id": 31,
+      "position": 14,
+      "form": "ustlať",
+      "expected": [
+        "u·stlať"
+      ],
+      "engine": "us·tlať",
+      "confidence": "high",
+      "reason": "PSP: zreteľná predponová hranica u-|stlať má prednosť pred mechanickým delením skupiny."
+    },
+    {
+      "batch_id": 31,
+      "position": 17,
+      "form": "onou",
+      "expected": [
+        "o·nou"
+      ],
+      "engine": "onou",
+      "confidence": "high",
+      "reason": "PSP: jediná spoluhláska n medzi jadrami patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 31,
+      "position": 24,
+      "form": "dotkli",
+      "expected": [
+        "dot·kli"
+      ],
+      "engine": "do·tkli",
+      "confidence": "high",
+      "reason": "PSP: pri troch spoluhláskach tkl zostáva prvá vľavo a zvyšok ide doprava."
+    },
+    {
+      "batch_id": 31,
+      "position": 32,
+      "form": "uhovoriť",
+      "expected": [
+        "u·ho·vo·riť"
+      ],
+      "engine": "uho·vo·riť",
+      "confidence": "high",
+      "reason": "PSP: jednotlivé spoluhlásky medzi jadrami patria k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 31,
+      "position": 43,
+      "form": "neupustil",
+      "expected": [
+        "ne·u·pus·til"
+      ],
+      "engine": "ne·upus·til",
+      "confidence": "high",
+      "reason": "PSP: e-u je hiát; skupina st sa delí s|t a ostatné hranice sú jednos­poluhláskové."
+    },
+    {
+      "batch_id": 31,
+      "position": 47,
+      "form": "repríza",
+      "expected": [
+        "re·prí·za"
+      ],
+      "engine": "rep·rí·za",
+      "confidence": "high",
+      "reason": "PSP: jednotlivé spoluhlásky patria k nasledujúcim slabikám."
+    },
+    {
+      "batch_id": 31,
+      "position": 55,
+      "form": "utešujúcich",
+      "expected": [
+        "u·te·šu·jú·cich"
+      ],
+      "engine": "ute·šu·jú·cich",
+      "confidence": "high",
+      "reason": "PSP: jednotlivé spoluhlásky medzi jadrami patria k nasledujúcim slabikám."
+    },
+    {
+      "batch_id": 31,
+      "position": 58,
+      "form": "ozrejmil",
+      "expected": [
+        "o·zrej·mil"
+      ],
+      "engine": "oz·rej·mil",
+      "confidence": "high",
+      "reason": "PSP: zreteľná hranica o-|zrejm- a skupina jm sa delí j|m."
+    },
+    {
+      "batch_id": 31,
+      "position": 66,
+      "form": "uberie",
+      "expected": [
+        "u·be·rie"
+      ],
+      "engine": "ube·rie",
+      "confidence": "high",
+      "reason": "PSP: jednotlivé spoluhlásky patria doprava a ie je dvojhláska."
+    },
+    {
+      "batch_id": 31,
+      "position": 67,
+      "form": "aleju",
+      "expected": [
+        "a·le·ju"
+      ],
+      "engine": "ale·ju",
+      "confidence": "high",
+      "reason": "PSP: jednotlivé spoluhlásky l a j patria k nasledujúcim slabikám."
+    },
+    {
+      "batch_id": 31,
+      "position": 72,
+      "form": "opak",
+      "expected": [
+        "o·pak"
+      ],
+      "engine": "opak",
+      "confidence": "high",
+      "reason": "PSP: jediná spoluhláska p medzi jadrami patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 32,
+      "position": 1,
+      "form": "tekutá",
+      "expected": [
+        "te·kutá",
+        "teku·tá"
+      ],
+      "engine": "te·ku·tá",
+      "confidence": "high",
+      "reason": "PSP § 4.1–4.2: slabiky sa oddeľujú pred jedinou medzisamohláskovou spoluhláskou."
+    },
+    {
+      "batch_id": 32,
+      "position": 2,
+      "form": "neustálymi",
+      "expected": [
+        "ne·ustálymi",
+        "neu·stálymi",
+        "neustá·lymi",
+        "neustály·mi"
+      ],
+      "engine": "ne·us·tá·ly·mi",
+      "confidence": "high",
+      "reason": "PSP § 4.1–4.3: samohláskový hiát sa delí a skupina st tvorí nábeh nasledujúcej slabiky."
+    },
+    {
+      "batch_id": 32,
+      "position": 3,
+      "form": "krčiace",
+      "expected": [
+        "kr·čiace",
+        "krčia·ce"
+      ],
+      "engine": "kr·čia·ce",
+      "confidence": "high",
+      "reason": "PSP § 4.1–4.2: slabikotvorné r tvorí prvú slabiku, ia je dvojhláska a ďalej platí delenie pred jedinou spoluhláskou."
+    },
+    {
+      "batch_id": 32,
+      "position": 7,
+      "form": "vypínaču",
+      "expected": [
+        "vy·pínaču",
+        "vypí·naču",
+        "vypína·ču"
+      ],
+      "engine": "vy·pí·na·ču",
+      "confidence": "high",
+      "reason": "PSP § 4.2: medzi susednými samohláskovými jadrami je jediná spoluhláska, ktorá patrí k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 32,
+      "position": 9,
+      "form": "hlucháňovi",
+      "expected": [
+        "hlu·cháňovi",
+        "hluchá·ňovi",
+        "hlucháňo·vi"
+      ],
+      "engine": "hlu·chá·ňo·vi",
+      "confidence": "high",
+      "reason": "PSP § 4.2: jednotlivé medzisamohláskové spoluhlásky sa pripájajú k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 32,
+      "position": 10,
+      "form": "nehnuto",
+      "expected": [
+        "ne·hnuto",
+        "nehnu·to"
+      ],
+      "engine": "ne·hnu·to",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: hranice zodpovedajú slabikám ne-hnu-to; hn je prípustný nábeh."
+    },
+    {
+      "batch_id": 32,
+      "position": 11,
+      "form": "zmýšľaní",
+      "expected": [
+        "zmýš·ľaní",
+        "zmýšľa·ní"
+      ],
+      "engine": "zmýš·ľa·ní",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: hranica je pred ľ a potom pred jediným n; zachováva sa základ zmýšľ-."
+    },
+    {
+      "batch_id": 32,
+      "position": 13,
+      "form": "vlajúci",
+      "expected": [
+        "vla·júci",
+        "vlajú·ci"
+      ],
+      "engine": "vla·jú·ci",
+      "confidence": "high",
+      "reason": "PSP § 4.2: delenie prebieha pred jednotlivými medzisamohláskovými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 15,
+      "form": "bradavkám",
+      "expected": [
+        "bra·davkám",
+        "bradav·kám"
+      ],
+      "engine": "bra·dav·kám",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: prvá hranica je pred jedinou spoluhláskou a skupina vk sa delí pred k."
+    },
+    {
+      "batch_id": 32,
+      "position": 16,
+      "form": "serafínskou",
+      "expected": [
+        "se·rafínskou",
+        "sera·fínskou",
+        "serafín·skou"
+      ],
+      "engine": "se·ra·fín·skou",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: pravidelné slabiky se-ra-fín a skupina sk tvorí nábeh poslednej slabiky."
+    },
+    {
+      "batch_id": 32,
+      "position": 19,
+      "form": "bucľatá",
+      "expected": [
+        "buc·ľatá",
+        "bucľa·tá"
+      ],
+      "engine": "buc·ľa·tá",
+      "confidence": "high",
+      "reason": "PSP § 4.3 a § 4.2: skupina cľ sa rozdelí pred ľ, ďalšia hranica je pred jediným t."
+    },
+    {
+      "batch_id": 32,
+      "position": 21,
+      "form": "rozžeravene",
+      "expected": [
+        "roz·žeravene",
+        "rozže·ravene",
+        "rozžera·vene",
+        "rozžerave·ne"
+      ],
+      "engine": "roz·že·ra·ve·ne",
+      "confidence": "high",
+      "reason": "PSP § 4.4 a § 4.2: zachováva sa predpona roz-; zvyšok sa delí pred jednotlivými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 22,
+      "form": "uprú",
+      "expected": [
+        "u·prú"
+      ],
+      "engine": "up·rú",
+      "confidence": "high",
+      "reason": "PSP § 4.3: skupina pr tvorí prípustný nábeh druhej slabiky."
+    },
+    {
+      "batch_id": 32,
+      "position": 23,
+      "form": "rovnaké",
+      "expected": [
+        "rov·naké",
+        "rovna·ké"
+      ],
+      "engine": "rov·na·ké",
+      "confidence": "high",
+      "reason": "PSP § 4.3 a § 4.2: skupina vn sa delí pred n, ďalšia hranica je pred k."
+    },
+    {
+      "batch_id": 32,
+      "position": 25,
+      "form": "načechraná",
+      "expected": [
+        "na·čechraná",
+        "nače·chraná",
+        "načechra·ná"
+      ],
+      "engine": "na·čech·ra·ná",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: chr tvorí prípustný nábeh slabiky a ostatné hranice sú pred jedinými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 27,
+      "form": "hrdzavohnedé",
+      "expected": [
+        "hr·dzavohnedé",
+        "hrdza·vohnedé",
+        "hrdzavo·hnedé",
+        "hrdzavohne·dé"
+      ],
+      "engine": "hr·dza·vo·hne·dé",
+      "confidence": "high",
+      "reason": "PSP § 4.1–4.4: slabikotvorné r, nedeliteľné dz a hranica zložiek hrdzavo-hnedé určujú delenie."
+    },
+    {
+      "batch_id": 32,
+      "position": 28,
+      "form": "okradne",
+      "expected": [
+        "o·kradne",
+        "okrad·ne"
+      ],
+      "engine": "ok·rad·ne",
+      "confidence": "high",
+      "reason": "PSP § 4.3–4.4: kr tvorí nábeh po predpone o- a skupina dn sa delí pred n."
+    },
+    {
+      "batch_id": 32,
+      "position": 29,
+      "form": "vymýšľajú",
+      "expected": [
+        "vy·mýšľajú",
+        "vymýš·ľajú",
+        "vymýšľa·jú"
+      ],
+      "engine": "vy·mýš·ľa·jú",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.4: zachováva sa predpona vy- a základ zmýšľ-/mýšľ-; ďalšie hranice sú pravidelné."
+    },
+    {
+      "batch_id": 32,
+      "position": 30,
+      "form": "porežem",
+      "expected": [
+        "po·režem",
+        "pore·žem"
+      ],
+      "engine": "po·re·žem",
+      "confidence": "high",
+      "reason": "PSP § 4.2: jednotlivé medzisamohláskové spoluhlásky patria k nasledujúcim slabikám."
+    },
+    {
+      "batch_id": 32,
+      "position": 32,
+      "form": "záhaľčivých",
+      "expected": [
+        "zá·haľčivých",
+        "záhaľ·čivých",
+        "záhaľči·vých"
+      ],
+      "engine": "zá·haľ·či·vých",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: skupina ľč sa delí pred č a ostatné hranice sú pred jedinými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 34,
+      "form": "plagátov",
+      "expected": [
+        "pla·gátov",
+        "plagá·tov"
+      ],
+      "engine": "pla·gá·tov",
+      "confidence": "high",
+      "reason": "PSP § 4.2: hranice sú pred jednotlivými medzisamohláskovými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 37,
+      "form": "vytesávať",
+      "expected": [
+        "vy·tesávať",
+        "vyte·sávať",
+        "vytesá·vať"
+      ],
+      "engine": "vy·te·sá·vať",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.4: predpona vy- a jednotlivé medzisamohláskové spoluhlásky určujú hranice."
+    },
+    {
+      "batch_id": 32,
+      "position": 38,
+      "form": "železu",
+      "expected": [
+        "že·lezu",
+        "žele·zu"
+      ],
+      "engine": "že·le·zu",
+      "confidence": "high",
+      "reason": "PSP § 4.2: každá jediná medzisamohlásková spoluhláska sa pripája k nasledujúcej slabike."
+    },
+    {
+      "batch_id": 32,
+      "position": 39,
+      "form": "zamávaj",
+      "expected": [
+        "za·mávaj",
+        "zamá·vaj"
+      ],
+      "engine": "za·má·vaj",
+      "confidence": "high",
+      "reason": "PSP § 4.2: pravidelné delenie pred jedinými medzisamohláskovými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 41,
+      "form": "dcérami",
+      "expected": [
+        "dcé·rami",
+        "dcéra·mi"
+      ],
+      "engine": "dcé·ra·mi",
+      "confidence": "high",
+      "reason": "PSP § 4.2: po počiatočnej skupine dc sú hranice pred jednotlivými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 42,
+      "form": "národná",
+      "expected": [
+        "ná·rodná",
+        "národ·ná"
+      ],
+      "engine": "ná·rod·ná",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: prvá hranica je pred r a skupina dn sa delí pred n."
+    },
+    {
+      "batch_id": 32,
+      "position": 46,
+      "form": "novmesiac",
+      "expected": [
+        "nov·mesiac",
+        "novme·siac"
+      ],
+      "engine": "nov·me·siac",
+      "confidence": "high",
+      "reason": "PSP § 4.4 a § 4.2: zložené slovo sa delí na hranici nov-mesiac a potom pred jediným s; ia je dvojhláska."
+    },
+    {
+      "batch_id": 32,
+      "position": 48,
+      "form": "sexteto",
+      "expected": [
+        "sex·teto",
+        "sexte·to"
+      ],
+      "engine": "sex·te·to",
+      "confidence": "medium",
+      "reason": "PSP § 4.2–4.3: v zdomácnenom prevzatom slove sa skupina xt delí pred t, ďalej pred jediným t."
+    },
+    {
+      "batch_id": 32,
+      "position": 50,
+      "form": "zblúdilci",
+      "expected": [
+        "zblú·dilci",
+        "zblúdil·ci"
+      ],
+      "engine": "zblú·dil·ci",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: hranica je pred d a skupina lc sa delí pred c."
+    },
+    {
+      "batch_id": 32,
+      "position": 51,
+      "form": "domodlí",
+      "expected": [
+        "do·modlí",
+        "domod·lí"
+      ],
+      "engine": "do·mod·lí",
+      "confidence": "high",
+      "reason": "PSP § 4.3–4.4: zachováva sa predpona do- a skupina dl sa delí pred l."
+    },
+    {
+      "batch_id": 32,
+      "position": 52,
+      "form": "tečúca",
+      "expected": [
+        "te·čúca",
+        "tečú·ca"
+      ],
+      "engine": "te·čú·ca",
+      "confidence": "high",
+      "reason": "PSP § 4.2: jednotlivé medzisamohláskové spoluhlásky patria k nasledujúcim slabikám."
+    },
+    {
+      "batch_id": 32,
+      "position": 53,
+      "form": "vymršťuje",
+      "expected": [
+        "vy·mršťuje",
+        "vymrš·ťuje",
+        "vymršťu·je"
+      ],
+      "engine": "vy·mrš·ťu·je",
+      "confidence": "high",
+      "reason": "PSP § 4.1–4.4: predpona vy-, slabikotvorné r a morfematická hranica mršť-u určujú delenie."
+    },
+    {
+      "batch_id": 32,
+      "position": 57,
+      "form": "zhýralca",
+      "expected": [
+        "zhý·ralca",
+        "zhýral·ca"
+      ],
+      "engine": "zhý·ral·ca",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: po počiatočnej skupine zh je hranica pred r a skupina lc sa delí pred c."
+    },
+    {
+      "batch_id": 32,
+      "position": 61,
+      "form": "inkvizícií",
+      "expected": [
+        "in·kvizícií",
+        "inkvi·zícií",
+        "inkvizí·cií",
+        "inkvizíci·í"
+      ],
+      "engine": "in·kvi·zí·cií",
+      "confidence": "high",
+      "reason": "PSP § 4.1–4.3: skupina nk sa delí pred k, ďalšie jednoduché slabiky a koncový hiát i-í sa oddeľujú."
+    },
+    {
+      "batch_id": 32,
+      "position": 62,
+      "form": "zrazeninou",
+      "expected": [
+        "zra·zeninou",
+        "zraze·ninou",
+        "zrazeni·nou"
+      ],
+      "engine": "zra·ze·ni·nou",
+      "confidence": "high",
+      "reason": "PSP § 4.2: hranice sú pred jednotlivými medzisamohláskovými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 63,
+      "form": "vydesila",
+      "expected": [
+        "vy·desila",
+        "vyde·sila",
+        "vydesi·la"
+      ],
+      "engine": "vy·de·si·la",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.4: predpona vy- a pravidelné medzisamohláskové spoluhlásky určujú hranice."
+    },
+    {
+      "batch_id": 32,
+      "position": 66,
+      "form": "oddáme",
+      "expected": [
+        "od·dáme",
+        "oddá·me"
+      ],
+      "engine": "od·dá·me",
+      "confidence": "high",
+      "reason": "PSP § 4.4 a § 4.2: zdvojené d sa delí na hranici predpony od- a základu dať; ďalej pred m."
+    },
+    {
+      "batch_id": 32,
+      "position": 68,
+      "form": "tonážou",
+      "expected": [
+        "to·nážou",
+        "toná·žou"
+      ],
+      "engine": "to·ná·žou",
+      "confidence": "high",
+      "reason": "PSP § 4.2: hranice sú pred jednotlivými medzisamohláskovými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 71,
+      "form": "natiahnutej",
+      "expected": [
+        "na·tiahnutej",
+        "natiah·nutej",
+        "natiahnu·tej"
+      ],
+      "engine": "na·tiah·nu·tej",
+      "confidence": "high",
+      "reason": "PSP § 4.1–4.3: ia je dvojhláska, skupina hn sa delí pred n a ďalšie hranice sú pravidelné."
+    },
+    {
+      "batch_id": 32,
+      "position": 72,
+      "form": "chalúpkou",
+      "expected": [
+        "cha·lúpkou",
+        "chalúp·kou"
+      ],
+      "engine": "cha·lúp·kou",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: ch je jeden grafém, prvá hranica je pred l a skupina pk sa delí pred k."
+    },
+    {
+      "batch_id": 32,
+      "position": 75,
+      "form": "vykĺzne",
+      "expected": [
+        "vy·kĺzne",
+        "vykĺz·ne"
+      ],
+      "engine": "vy·kĺz·ne",
+      "confidence": "high",
+      "reason": "PSP § 4.1, § 4.3 a § 4.4: predpona vy-, slabikotvorné ĺ a hranica pred n určujú delenie."
+    },
+    {
+      "batch_id": 32,
+      "position": 78,
+      "form": "nespokojnica",
+      "expected": [
+        "ne·spokojnica",
+        "nespo·kojnica",
+        "nespokoj·nica",
+        "nespokojni·ca"
+      ],
+      "engine": "ne·spo·koj·ni·ca",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.4: zachováva sa predpona ne- a skupina jn sa delí pred n; ostatné hranice sú pred jednotlivými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 79,
+      "form": "puritáni",
+      "expected": [
+        "pu·ritáni",
+        "puri·táni",
+        "puritá·ni"
+      ],
+      "engine": "pu·ri·tá·ni",
+      "confidence": "high",
+      "reason": "PSP § 4.2: pravidelné delenie pred jednotlivými medzisamohláskovými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 80,
+      "form": "najľúbeznejšou",
+      "expected": [
+        "naj·ľúbeznejšou",
+        "najľú·beznejšou",
+        "najľúbez·nejšou",
+        "najľúbeznej·šou"
+      ],
+      "engine": "naj·ľú·bez·nej·šou",
+      "confidence": "high",
+      "reason": "PSP § 4.3–4.4: zachováva sa predpona naj- a skupiny zn a jš sa delia podľa morfematických a slabikových hraníc."
+    },
+    {
+      "batch_id": 32,
+      "position": 81,
+      "form": "popolom",
+      "expected": [
+        "po·polom",
+        "popo·lom"
+      ],
+      "engine": "po·po·lom",
+      "confidence": "high",
+      "reason": "PSP § 4.2: jednotlivé medzisamohláskové spoluhlásky patria k nasledujúcim slabikám."
+    },
+    {
+      "batch_id": 32,
+      "position": 83,
+      "form": "konármi",
+      "expected": [
+        "ko·nármi",
+        "konár·mi"
+      ],
+      "engine": "ko·nár·mi",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: prvá hranica je pred n a skupina rm sa delí pred m."
+    },
+    {
+      "batch_id": 32,
+      "position": 84,
+      "form": "toleruješ",
+      "expected": [
+        "to·leruješ",
+        "tole·ruješ",
+        "toleru·ješ"
+      ],
+      "engine": "to·le·ru·ješ",
+      "confidence": "high",
+      "reason": "PSP § 4.2: jednotlivé medzisamohláskové spoluhlásky sa pripájajú k nasledujúcim slabikám."
+    },
+    {
+      "batch_id": 32,
+      "position": 85,
+      "form": "vedro",
+      "expected": [
+        "ve·dro"
+      ],
+      "engine": "ved·ro",
+      "confidence": "high",
+      "reason": "PSP § 4.3: skupina dr tvorí prípustný nábeh nasledujúcej slabiky."
+    },
+    {
+      "batch_id": 32,
+      "position": 87,
+      "form": "prebúdzajúcimi",
+      "expected": [
+        "pre·búdzajúcimi",
+        "prebú·dzajúcimi",
+        "prebúdza·júcimi",
+        "prebúdzajú·cimi",
+        "prebúdzajúci·mi"
+      ],
+      "engine": "pre·bú·dza·jú·ci·mi",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.4: zachováva sa predpona pre-, dz je jeden grafém a ďalšie hranice sú pred jednotlivými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 89,
+      "form": "vyvrheli",
+      "expected": [
+        "vy·vrheli",
+        "vyvrhe·li"
+      ],
+      "engine": "vy·vr·he·li",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.4: predpona vy- a prípustný nábeh vrh určujú prvé hranice, potom sa delí pred l."
+    },
+    {
+      "batch_id": 32,
+      "position": 90,
+      "form": "veľrybích",
+      "expected": [
+        "veľ·rybích",
+        "veľry·bích"
+      ],
+      "engine": "veľ·ry·bích",
+      "confidence": "high",
+      "reason": "PSP § 4.3–4.4: zloženinový základ veľ-ryba a následná jediná spoluhláska určujú hranice."
+    },
+    {
+      "batch_id": 32,
+      "position": 91,
+      "form": "osiať",
+      "expected": [
+        "o·siať"
+      ],
+      "engine": "osiať",
+      "confidence": "high",
+      "reason": "PSP § 4.1–4.2: s patrí k nasledujúcej slabike a ia je nedeliteľná dvojhláska."
+    },
+    {
+      "batch_id": 32,
+      "position": 92,
+      "form": "obmedzene",
+      "expected": [
+        "ob·medzene",
+        "obme·dzene",
+        "obmedze·ne"
+      ],
+      "engine": "ob·me·dze·ne",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.4: zachováva sa predpona ob-, dz je jeden grafém a ostatné hranice sú pred jednotlivými spoluhláskami."
+    },
+    {
+      "batch_id": 32,
+      "position": 93,
+      "form": "vŕbami",
+      "expected": [
+        "vŕ·bami",
+        "vŕba·mi"
+      ],
+      "engine": "vŕ·ba·mi",
+      "confidence": "high",
+      "reason": "PSP § 4.1–4.2: slabikotvorné ŕ tvorí prvú slabiku; ďalšie hranice sú pred b a m."
+    },
+    {
+      "batch_id": 32,
+      "position": 94,
+      "form": "verklikárovu",
+      "expected": [
+        "ver·klikárovu",
+        "verkli·károvu",
+        "verkliká·rovu",
+        "verklikáro·vu"
+      ],
+      "engine": "ver·kli·ká·ro·vu",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: z medzisamohláskovej skupiny rkl tvorí kl nábeh a ďalšie hranice sú pravidelné."
+    },
+    {
+      "batch_id": 32,
+      "position": 95,
+      "form": "doľahla",
+      "expected": [
+        "do·ľahla",
+        "doľah·la"
+      ],
+      "engine": "do·ľah·la",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: prvá hranica je pred ľ a skupina hl sa delí pred l."
+    },
+    {
+      "batch_id": 32,
+      "position": 96,
+      "form": "ležoviska",
+      "expected": [
+        "le·žoviska",
+        "ležo·viska",
+        "ležovis·ka"
+      ],
+      "engine": "le·žo·vis·ka",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: jednoduché hranice sú pred ž a v, skupina sk sa tu delí na morfematickej hranici základu ležovisk-."
+    },
+    {
+      "batch_id": 32,
+      "position": 97,
+      "form": "súkačky",
+      "expected": [
+        "sú·kačky",
+        "súkač·ky"
+      ],
+      "engine": "sú·kač·ky",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: prvá hranica je pred k a skupina čk sa delí pred k."
+    },
+    {
+      "batch_id": 32,
+      "position": 99,
+      "form": "umenšujú",
+      "expected": [
+        "u·menšujú",
+        "umen·šujú",
+        "umenšu·jú"
+      ],
+      "engine": "umen·šu·jú",
+      "confidence": "high",
+      "reason": "PSP § 4.2–4.3: skupina nš sa delí pred š a ďalšie hranice sú pred jednotlivými spoluhláskami."
+    },
+    {
+      "batch_id": 33,
+      "position": 47,
+      "form": "samostatnejšieho",
+      "expected": [
+        "sa·mo·stat·nej·šie·ho"
+      ],
+      "engine": "sa·mos·tat·nej·šie·ho",
+      "confidence": "high",
+      "reason": "PSP § 3.4, § 3.2 a § 4.1: rešpektuje sa stavba samo|stat|nejší a jednoduché slabičné hranice."
+    },
+    {
+      "batch_id": 33,
+      "position": 85,
+      "form": "utvrdiť",
+      "expected": [
+        "utvr·diť"
+      ],
+      "engine": "ut·vr·diť",
+      "confidence": "high",
+      "reason": "PSP § 4.1 a § 6.2: d po slabikotvornom r začína ďalšiu slabiku; úvodné jednopísmenové u sa neoddelí."
+    },
+    {
+      "batch_id": 33,
+      "position": 88,
+      "form": "tiarách",
+      "expected": [
+        "ti·a·rách"
+      ],
+      "engine": "tia·rách",
+      "confidence": "high",
+      "reason": "PSP § 4.4 a § 4.1: i|a je vo výslovnosti hiát a r začína ďalšiu slabiku."
+    },
+    {
+      "batch_id": 39,
+      "position": 1,
+      "form": "podbruška",
+      "expected": [
+        "po·d·bruš·ka"
+      ],
+      "engine": "pod·bruš·ka",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 4,
+      "form": "kochajúcimi",
+      "expected": [
+        "koc·ha·jú·ci·mi"
+      ],
+      "engine": "ko·cha·jú·ci·mi",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 6,
+      "form": "coniugialis",
+      "expected": [
+        "co·niu·gia·lis"
+      ],
+      "engine": "co·niu·gi·a·lis",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 18,
+      "form": "vysmädli",
+      "expected": [
+        "vy·s·mäd·li"
+      ],
+      "engine": "vy·smäd·li",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 24,
+      "form": "úspechov",
+      "expected": [
+        "ús·pec·hov"
+      ],
+      "engine": "ús·pe·chov",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 29,
+      "form": "zastretom",
+      "expected": [
+        "za·s·tre·tom"
+      ],
+      "engine": "za·stre·tom",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 36,
+      "form": "tantiéma",
+      "expected": [
+        "tan·tié·ma"
+      ],
+      "engine": "tan·ti·é·ma",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 52,
+      "form": "prastredné",
+      "expected": [
+        "pras·tred·né"
+      ],
+      "engine": "pra·stred·né",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 54,
+      "form": "odio",
+      "expected": [
+        "od·io"
+      ],
+      "engine": "odio",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 73,
+      "form": "najčernejšej",
+      "expected": [
+        "na·j·čer·nej·šej"
+      ],
+      "engine": "naj·čer·nej·šej",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 74,
+      "form": "zvláštnom",
+      "expected": [
+        "zvláš·tnom"
+      ],
+      "engine": "zvlášt·nom",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 76,
+      "form": "vydýchol",
+      "expected": [
+        "vy·dýc·hol"
+      ],
+      "engine": "vy·dý·chol",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 77,
+      "form": "elfmi",
+      "expected": [
+        "el·fmi"
+      ],
+      "engine": "elf·mi",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 80,
+      "form": "práceschopným",
+      "expected": [
+        "prá·ces·chop·ným"
+      ],
+      "engine": "prá·ce·schop·ným",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 85,
+      "form": "bohuprisám",
+      "expected": [
+        "bo·hup·ri·sám"
+      ],
+      "engine": "bo·hu·pri·sám",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 39,
+      "position": 90,
+      "form": "stodvadsať",
+      "expected": [
+        "stod·vad·sať"
+      ],
+      "engine": "sto·dvad·sať",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 40,
+      "position": 6,
+      "form": "tentokrát",
+      "expected": [
+        "ten·tok·rát"
+      ],
+      "engine": "ten·to·krát",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 40,
+      "position": 34,
+      "form": "sociálnu",
+      "expected": [
+        "so·ciál·nu"
+      ],
+      "engine": "so·ci·ál·nu",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 40,
+      "position": 42,
+      "form": "podivuhodnej",
+      "expected": [
+        "po·d·i·vu·hod·nej"
+      ],
+      "engine": "po·di·vu·hod·nej",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 40,
+      "position": 62,
+      "form": "závistlivou",
+      "expected": [
+        "zá·vis·tli·vou"
+      ],
+      "engine": "zá·vist·li·vou",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 40,
+      "position": 63,
+      "form": "pančuchami",
+      "expected": [
+        "pan·čuc·ha·mi"
+      ],
+      "engine": "pan·ču·cha·mi",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 40,
+      "position": 75,
+      "form": "pritrafilo",
+      "expected": [
+        "pri·t·ra·fi·lo"
+      ],
+      "engine": "pri·tra·fi·lo",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 40,
+      "position": 78,
+      "form": "skvostmi",
+      "expected": [
+        "skvos·tmi"
+      ],
+      "engine": "skvost·mi",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 3,
+      "form": "synovec",
+      "expected": [
+        "sy·no·vec"
+      ],
+      "engine": "syn·ovec",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 5,
+      "form": "poprosíme",
+      "expected": [
+        "po·p·ro·sí·me"
+      ],
+      "engine": "po·pro·sí·me",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 11,
+      "form": "duchoch",
+      "expected": [
+        "duc·hoch"
+      ],
+      "engine": "du·choch",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 12,
+      "form": "odeté",
+      "expected": [
+        "od·e·té"
+      ],
+      "engine": "ode·té",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 15,
+      "form": "nermútia",
+      "expected": [
+        "ne·r·mú·tia"
+      ],
+      "engine": "ner·mú·tia",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 16,
+      "form": "uchytil",
+      "expected": [
+        "uc·hy·til"
+      ],
+      "engine": "uchy·til",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 19,
+      "form": "nezmôžem",
+      "expected": [
+        "ne·z·mô·žem"
+      ],
+      "engine": "ne·zmô·žem",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 20,
+      "form": "zaskriekal",
+      "expected": [
+        "za·s·krie·kal"
+      ],
+      "engine": "za·skrie·kal",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 27,
+      "form": "finančnú",
+      "expected": [
+        "fi·nan·čnú"
+      ],
+      "engine": "fi·nanč·nú",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 28,
+      "form": "postrčená",
+      "expected": [
+        "po·s·tr·če·ná"
+      ],
+      "engine": "po·str·če·ná",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 36,
+      "form": "nakreslí",
+      "expected": [
+        "na·k·res·lí"
+      ],
+      "engine": "na·kres·lí",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 42,
+      "form": "otrasie",
+      "expected": [
+        "ot·ra·sie"
+      ],
+      "engine": "otra·sie",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 49,
+      "form": "miestnosťami",
+      "expected": [
+        "mies·tnos·ťa·mi"
+      ],
+      "engine": "miest·nos·ťa·mi",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 53,
+      "form": "príslovia",
+      "expected": [
+        "prís·lo·via"
+      ],
+      "engine": "prí·slo·via",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 55,
+      "form": "obišla",
+      "expected": [
+        "obiš·la"
+      ],
+      "engine": "ob·iš·la",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 56,
+      "form": "podáte",
+      "expected": [
+        "po·d·á·te"
+      ],
+      "engine": "po·dá·te",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 70,
+      "form": "fantáziám",
+      "expected": [
+        "fan·tá·ziám"
+      ],
+      "engine": "fan·tá·zi·ám",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 76,
+      "form": "vyprosiť",
+      "expected": [
+        "vy·p·ro·siť"
+      ],
+      "engine": "vy·pro·siť",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 78,
+      "form": "herodiánov",
+      "expected": [
+        "he·ro·diá·nov"
+      ],
+      "engine": "he·ro·di·á·nov",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 92,
+      "form": "mediálni",
+      "expected": [
+        "me·diál·ni"
+      ],
+      "engine": "me·di·ál·ni",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 94,
+      "form": "šesťstoštyridsaťtisíc",
+      "expected": [
+        "šes·ťstoš·ty·rid·sať·ti·síc"
+      ],
+      "engine": "šesť·sto·šty·rid·sať·ti·síc",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 96,
+      "form": "sebapohŕ",
+      "expected": [
+        "se·ba·pohŕ"
+      ],
+      "engine": "se·ba·po·hŕ",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 97,
+      "form": "hôrd",
+      "expected": [
+        "hô·rd"
+      ],
+      "engine": "hôrd",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 99,
+      "form": "podenkám",
+      "expected": [
+        "po·d·en·kám"
+      ],
+      "engine": "po·den·kám",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 41,
+      "position": 100,
+      "form": "žltovlasé",
+      "expected": [
+        "žl·tov·la·sé"
+      ],
+      "engine": "žl·to·vla·sé",
+      "confidence": "medium",
+      "reason": "Body sú určené podľa slabičných jadier a počtu medzijadrových spoluhlások; jednopísmenové okraje sú chránené."
+    },
+    {
+      "batch_id": 43,
+      "position": 21,
+      "form": "všeobecnej",
+      "expected": [
+        "vše·o·bec·nej"
+      ],
+      "engine": "vše·obec·nej",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 43,
+      "position": 27,
+      "form": "zašklbal",
+      "expected": [
+        "zaš·kl·bal"
+      ],
+      "engine": "za·škl·bal",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 43,
+      "position": 33,
+      "form": "odievajú",
+      "expected": [
+        "odie·va·jú"
+      ],
+      "engine": "od·ie·va·jú",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 43,
+      "position": 34,
+      "form": "zatmie",
+      "expected": [
+        "zat·mie"
+      ],
+      "engine": "za·tmie",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 43,
+      "position": 70,
+      "form": "čarokrásna",
+      "expected": [
+        "ča·rok·rás·na"
+      ],
+      "engine": "ča·ro·krás·na",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 43,
+      "position": 75,
+      "form": "vyslovene",
+      "expected": [
+        "vys·lo·ve·ne"
+      ],
+      "engine": "vy·slo·ve·ne",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 44,
+      "position": 22,
+      "form": "prihlúpleho",
+      "expected": [
+        "prih·lúp·le·ho"
+      ],
+      "engine": "pri·hlúp·le·ho",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 44,
+      "position": 26,
+      "form": "zakvačil",
+      "expected": [
+        "zak·va·čil"
+      ],
+      "engine": "za·kva·čil",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 44,
+      "position": 28,
+      "form": "dosvedčovať",
+      "expected": [
+        "dos·ved·čo·vať"
+      ],
+      "engine": "do·sved·čo·vať",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 44,
+      "position": 43,
+      "form": "bojazlivo",
+      "expected": [
+        "bo·jaz·li·vo"
+      ],
+      "engine": "bo·ja·zli·vo",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 44,
+      "position": 68,
+      "form": "náustka",
+      "expected": [
+        "ná·us·tka"
+      ],
+      "engine": "ná·ust·ka",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 44,
+      "position": 73,
+      "form": "synagóge",
+      "expected": [
+        "sy·na·gó·ge"
+      ],
+      "engine": "syn·agó·ge",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 44,
+      "position": 89,
+      "form": "dočkáte",
+      "expected": [
+        "doč·ká·te"
+      ],
+      "engine": "do·čká·te",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 45,
+      "position": 14,
+      "form": "vytváraný",
+      "expected": [
+        "vyt·vá·ra·ný"
+      ],
+      "engine": "vy·tvá·ra·ný",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 45,
+      "position": 16,
+      "form": "zafňukal",
+      "expected": [
+        "zaf·ňu·kal"
+      ],
+      "engine": "za·fňu·kal",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 45,
+      "position": 35,
+      "form": "vyzdvihnutá",
+      "expected": [
+        "vyz·dvih·nu·tá"
+      ],
+      "engine": "vy·zdvih·nu·tá",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 45,
+      "position": 59,
+      "form": "dôjdete",
+      "expected": [
+        "dôjde·te"
+      ],
+      "engine": "dôj·de·te",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 45,
+      "position": 63,
+      "form": "opri",
+      "expected": [
+        "op·ri"
+      ],
+      "engine": "opri",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 45,
+      "position": 73,
+      "form": "zatláčaný",
+      "expected": [
+        "zat·lá·ča·ný"
+      ],
+      "engine": "za·tlá·ča·ný",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 45,
+      "position": 97,
+      "form": "nevrátilo",
+      "expected": [
+        "nev·rá·ti·lo"
+      ],
+      "engine": "ne·vrá·ti·lo",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 45,
+      "position": 99,
+      "form": "pauza",
+      "expected": [
+        "pa·u·za"
+      ],
+      "engine": "pau·za",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 2,
+      "form": "odnaučili",
+      "expected": [
+        "od·na·u·či·li"
+      ],
+      "engine": "od·na·uči·li",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 6,
+      "form": "neoslabia",
+      "expected": [
+        "ne·os·la·bia"
+      ],
+      "engine": "ne·o·sla·bia",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 7,
+      "form": "výplatnej",
+      "expected": [
+        "výp·lat·nej"
+      ],
+      "engine": "vý·plat·nej",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 14,
+      "form": "vzostupnom",
+      "expected": [
+        "vzos·tup·nom"
+      ],
+      "engine": "vzo·stup·nom",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 20,
+      "form": "krivoprísažne",
+      "expected": [
+        "kri·vop·rí·saž·ne"
+      ],
+      "engine": "kri·vo·prí·saž·ne",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 21,
+      "form": "pôžičku",
+      "expected": [
+        "pôžič·ku"
+      ],
+      "engine": "pô·žič·ku",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 26,
+      "form": "výkriku",
+      "expected": [
+        "výk·ri·ku"
+      ],
+      "engine": "vý·kri·ku",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 47,
+      "form": "faktmi",
+      "expected": [
+        "fak·tmi"
+      ],
+      "engine": "fakt·mi",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 57,
+      "form": "zovretých",
+      "expected": [
+        "zov·re·tých"
+      ],
+      "engine": "zo·vre·tých",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 59,
+      "form": "neulúpi",
+      "expected": [
+        "ne·u·lú·pi"
+      ],
+      "engine": "ne·ulú·pi",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 70,
+      "form": "dôraznú",
+      "expected": [
+        "dôraz·nú"
+      ],
+      "engine": "dô·raz·nú",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 71,
+      "form": "naskakovali",
+      "expected": [
+        "nas·ka·ko·va·li"
+      ],
+      "engine": "na·ska·ko·va·li",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 81,
+      "form": "zatrúbení",
+      "expected": [
+        "zat·rú·be·ní"
+      ],
+      "engine": "za·trú·be·ní",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 86,
+      "form": "výšky",
+      "expected": [
+        "výš·ky"
+      ],
+      "engine": "vý·šky",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 46,
+      "position": 90,
+      "form": "hŕstke",
+      "expected": [
+        "hŕs·tke"
+      ],
+      "engine": "hŕst·ke",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 9,
+      "form": "ozbrojencom",
+      "expected": [
+        "oz·bro·jen·com"
+      ],
+      "engine": "ozbro·jen·com",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 14,
+      "form": "čestnom",
+      "expected": [
+        "čes·tnom"
+      ],
+      "engine": "čest·nom",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 17,
+      "form": "ľanovlasým",
+      "expected": [
+        "ľa·nov·la·sým"
+      ],
+      "engine": "ľa·no·vla·sým",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 31,
+      "form": "vôňu",
+      "expected": [
+        "vôňu"
+      ],
+      "engine": "vô·ňu",
+      "confidence": "high",
+      "reason": "Jednoslabičné slovo sa podľa PSP typograficky nedelí."
+    },
+    {
+      "batch_id": 47,
+      "position": 54,
+      "form": "poklesok",
+      "expected": [
+        "pok·le·sok"
+      ],
+      "engine": "po·kle·sok",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 56,
+      "form": "niektorému",
+      "expected": [
+        "niek·to·ré·mu"
+      ],
+      "engine": "nie·kto·ré·mu",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 60,
+      "form": "kreuje",
+      "expected": [
+        "kre·u·je"
+      ],
+      "engine": "kreu·je",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 73,
+      "form": "deväťstotridsať",
+      "expected": [
+        "de·väť·stot·rid·sať"
+      ],
+      "engine": "de·väť·sto·trid·sať",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 76,
+      "form": "nasledovníkom",
+      "expected": [
+        "nas·le·dov·ní·kom"
+      ],
+      "engine": "na·sle·dov·ní·kom",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 79,
+      "form": "neukrýva",
+      "expected": [
+        "ne·uk·rý·va"
+      ],
+      "engine": "ne·u·krý·va",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 84,
+      "form": "poškvrnenú",
+      "expected": [
+        "poš·kvr·ne·nú"
+      ],
+      "engine": "po·škvr·ne·nú",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    },
+    {
+      "batch_id": 47,
+      "position": 90,
+      "form": "prenasledujú",
+      "expected": [
+        "pre·nas·le·du·jú"
+      ],
+      "engine": "pre·na·sle·du·jú",
+      "confidence": "medium",
+      "reason": "Slabičné hranice podľa jadier a spoluhláskovej skupiny; jednopísmenový okraj sa neoddeľuje."
+    }
+  ]
+}

@@ -215,6 +215,8 @@ HIATUS_IS_TWO_NUCLEI = {
     "hystéria": ["hys", "té", "ri", "a"],
     "biológia": ["bi", "o", "ló", "gi", "a"],
     "poézia": ["po", "é", "zi", "a"],
+    # lexical e-u hiatus in the reuma family
+    "reumatizmus": ["re", "u", "ma", "ti", "zmus"],
     # -ium: no native Slovak ending has this shape
     "akvárium": ["a", "kvá", "ri", "um"],
     "gymnázium": ["gym", "ná", "zi", "um"],
@@ -242,7 +244,6 @@ FALLING_DIPHTHONG_IS_ONE_NUCLEUS = {
     "pauza": ["pau", "za"],
     "klauzúra": ["klau", "zú", "ra"],
     "pneumatika": ["pneu", "ma", "ti", "ka"],
-    "reumatizmus": ["reu", "ma", "ti", "zmus"],
     "rukou": ["ru", "kou"],
     "neurológ": ["neu", "ro", "lóg"],
     "nautika": ["nau", "ti", "ka"],

@@ -127,12 +127,38 @@ def test_pra_lookalikes_keep_lexical_stems_and_true_prefix_contrasts():
         "prahli": "prah·li",
         "prahlo": "prah·lo",
         "prakmi": "prak·mi",
+        "prašná": "praš·ná",
+        "prašteným": "praš·te·ným",
+        "praštiť": "praš·tiť",
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("prahistorický") == "pra·his·to·ric·ký"
     assert hyphenate("prakmeň") == "pra·kmeň"
     assert hyphenate("prakrajania") == "pra·kra·ja·nia"
     assert hyphenate("praskali") == "pras·ka·li"
+    assert hyphenate("prašpecifické") == "pra·špe·ci·fic·ké"
+
+
+def test_attested_bd_onset_licenses_real_prefix_boundaries():
+    expected = {
+        "prebdel": "pre·bdel",
+        "prebdela": "pre·bde·la",
+        "prebdená": "pre·bde·ná",
+        "prebdieť": "pre·bdieť",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_prazd_family_keeps_suffix_and_compound_seams():
+    expected = {
+        "prázdna": "prázd·na",
+        "prázdneho": "prázd·ne·ho",
+        "prázdny": "prázd·ny",
+        "prázdnymi": "prázd·ny·mi",
+        "prázdnohlaví": "práz·dno·hla·ví",
+        "prázdnosť": "prázd·nosť",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
 
 
 def test_pa_prefix_is_limited_to_the_pakluc_family():
@@ -173,7 +199,7 @@ def test_lengthened_na_and_za_prefixes_keep_lexical_root_seams():
         "náklaďáku": "ná·kla·ďá·ku",
         "náklaďáky": "ná·kla·ďá·ky",
         "nástup": "ná·stup",
-        "nástupníctvo": "ná·stup·ní·ctvo",
+        "nástupníctvo": "ná·stup·níc·tvo",
         "prazáklad": "pra·zá·klad",
         "základňa": "zá·klad·ňa",
         "zástup": "zá·stup",
@@ -758,7 +784,7 @@ def test_twenty_sixth_discovered_family_batch_keeps_only_clear_seams():
         "spolupracovať": "spo·lu·pra·co·vať",
         "nespolupracuje": "ne·spo·lu·pra·cu·je",
         "prívlastok": "prí·vlas·tok",
-        "spoluvlastníctve": "spo·lu·vlast·ní·ctve",
+        "spoluvlastníctve": "spo·lu·vlast·níc·tve",
         "plnohodnotný": "pl·no·hod·not·ný",
         "zhodnotenie": "zhod·no·te·nie",
         "maškrtami": "maš·kr·ta·mi",
@@ -1316,7 +1342,7 @@ def test_fiftieth_discovered_family_batch_keeps_only_novo_polo_zver_seams():
         "reportér": "re·por·tér",
         "športový": "špor·to·vý",
         "prírodovedec": "prí·ro·do·ve·dec",
-        "svedectvo": "sve·de·ctvo",
+        "svedectvo": "sve·dec·tvo",
         "pahreba": "pah·re·ba",
     }
     assert {word: hyphenate(word) for word in expected} == expected
@@ -2091,7 +2117,7 @@ def test_batch_130_keeps_pol_quantity_and_polo_compound_seams():
         "polohmotným": "po·lo·hmot·ným",
         "poloplášť": "po·lo·plášť",
         "poloplešatú": "po·lo·ple·ša·tú",
-        "poloprázdna": "po·lo·práz·dna",
+        "poloprázdna": "po·lo·prázd·na",
         "polopriznania": "po·lo·pri·zna·nia",
         "poloprorok": "po·lo·pro·rok",
         "poloslová": "po·lo·slo·vá",
@@ -2606,6 +2632,226 @@ def test_batch_76_predat_family_keeps_the_pre_prefix_seam():
     assert {word: hyphenate(word) for word in expected} == expected
 
 
+def test_batch_144_pre_d_families_keep_real_morpheme_boundaries():
+    expected = {
+        "predákov": "pre·dá·kov",
+        "predátory": "pre·dá·to·ry",
+        "predavač": "pre·da·vač",
+        "predchnutý": "pre·dchnu·tý",
+        "predchnutného": "pre·dchnut·né·ho",
+        "predelená": "pre·de·le·ná",
+        "prederavená": "pre·de·ra·ve·ná",
+        "prederiete": "pre·de·rie·te",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("predadamiti") == "pred·ada·mi·ti"
+    assert hyphenate("Predexistenciu") == "Pred·exis·ten·ciu"
+    assert hyphenate("predgeologických") == "pred·ge·o·lo·gic·kých"
+
+
+def test_batch_145_distinguishes_pre_pred_and_predo_families():
+    expected = {
+        "predikáciu": "pre·di·ká·ciu",
+        "prediskutovali": "pre·dis·ku·to·va·li",
+        "predispozície": "pre·dis·po·zí·cie",
+        "predivná": "pre·div·ná",
+        "predivuhodná": "pre·di·vu·hod·ná",
+        "predná": "pred·ná",
+        "predný": "pred·ný",
+        "predohra": "pre·do·hra",
+        "predoslať": "pre·do·slať",
+        "predošlé": "pre·do·šlé",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("predišiel") == "pred·išiel"
+    assert hyphenate("predísť") == "pred·ísť"
+    assert hyphenate("predizbe") == "pred·iz·be"
+    assert hyphenate("predobraz") == "pred·ob·raz"
+
+
+def test_batch_146_distinguishes_pre_pred_and_predo_families():
+    expected = {
+        "predostiera": "pre·do·stie·ra",
+        "predostrieť": "pre·do·strieť",
+        "predrahý": "pre·dra·hý",
+        "predrať": "pre·drať",
+        "predražený": "pre·dra·že·ný",
+        "predriekať": "pre·drie·kať",
+        "predrieknuté": "pre·driek·nu·té",
+        "predupal": "pre·du·pal",
+        "predvčerajšia": "pred·vče·raj·šia",
+        "predvčerom": "pred·vče·rom",
+        "predpredvčerom": "pred·pred·vče·rom",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("predúčinku") == "pred·účin·ku"
+    assert hyphenate("predurčiť") == "pred·ur·čiť"
+    assert hyphenate("predvoj") == "pred·voj"
+    assert hyphenate("predtvoru") == "pred·tvo·ru"
+
+
+def test_batch_147_distinguishes_preglejka_and_pre_prefix_families():
+    expected = {
+        "preglejky": "pre·glej·ky",
+        "preglgla": "pre·glg·la",
+        "prekvapenie": "pre·kva·pe·nie",
+        "prekvapkávať": "pre·kvap·ká·vať",
+        "preľstená": "pre·ľste·ná",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_batch_148_distinguishes_presn_and_pre_prefix_families():
+    expected = {
+        "prepošti": "pre·poš·ti",
+        "prepoštov": "pre·poš·tov",
+        "presný": "pres·ný",
+        "presného": "pres·né·ho",
+        "presnosť": "pres·nosť",
+        "presníval": "pre·sní·val",
+        "presnoril": "pre·sno·ril",
+        "presťahovať": "pre·sťa·ho·vať",
+        "presťahoval": "pre·sťa·ho·val",
+        "preplieskal": "pre·plies·kal",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_batch_149_keeps_pre_and_prie_prefix_boundaries():
+    expected = {
+        "presťahovať": "pre·sťa·ho·vať",
+        "pretkaný": "pre·tka·ný",
+        "pretnúť": "pre·tnúť",
+        "pretrhnúť": "pre·trh·núť",
+        "prezdobenom": "pre·zdo·be·nom",
+        "prežhavená": "pre·žha·ve·ná",
+        "priehľadný": "prie·hľad·ný",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_batch_150_distinguishes_prikrov_and_prikry_families():
+    expected = {
+        "priehrští": "prie·hr·ští",
+        "priehrštím": "prie·hr·štím",
+        "priekupníctvo": "prie·kup·níc·tvo",
+        "príkrov": "prí·krov",
+        "príkrovom": "prí·kro·vom",
+        "príkrovu": "prí·kro·vu",
+        "príkra": "prík·ra",
+        "príkrejší": "prík·rej·ší",
+        "príkro": "prík·ro",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert get_syllables("priehrští") == ["prie", "hr", "ští"]
+    assert {9, 10} <= set(break_points("priekupníctvo", all_points=True))
+
+
+def test_batch_152_keeps_pri_stah_and_pri_stres_boundaries():
+    expected = {
+        "prisťahovalec": "pri·sťa·ho·va·lec",
+        "prisťahovaní": "pri·sťa·ho·va·ní",
+        "prístrešie": "prí·stre·šie",
+        "prístreškami": "prí·streš·ka·mi",
+        "prístrešok": "prí·stre·šok",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("prístroj") == "prís·troj"
+    assert hyphenate("prísvit") == "prís·vit"
+
+
+def test_batch_153_keeps_pri_zrak_and_pro_initial_lexical_stems():
+    expected = {
+        "prízrakmi": "prí·zrak·mi",
+        "problematické": "prob·le·ma·tic·ké",
+        "prognostickú": "prog·nos·tic·kú",
+        "prognóza": "prog·nó·za",
+        "program": "prog·ram",
+        "progresii": "prog·re·sii",
+        "prosme": "pros·me",
+        "prospech": "pros·pech",
+        "prospeje": "pros·pe·je",
+        "prospekt": "pros·pekt",
+        "prosperovať": "pros·pe·ro·vať",
+        "prospešná": "pros·peš·ná",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("prorokstvo") == "pro·rok·stvo"
+    assert hyphenate("prozápadný") == "pro·zá·pad·ný"
+
+
+def test_batch_154_keeps_prospiet_stem_and_proti_alkohol_seam():
+    expected = {
+        "prospie": "pros·pie",
+        "prospieť": "pros·pieť",
+        "protialkoholickej": "pro·ti·al·ko·ho·lic·kej",
+        "protialkoholickú": "pro·ti·al·ko·ho·lic·kú",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("protiopatrenia") == "pro·ti·o·pat·re·nia"
+
+
+def test_batch_155_distinguishes_lexical_stems_and_compound_seams():
+    expected = {
+        "protivenstiev": "pro·ti·ven·stiev",
+        "protivný": "pro·tiv·ný",
+        "protivníčke": "pro·tiv·níč·ke",
+        "protivzbura": "pro·ti·vzbu·ra",
+        "protizázraky": "pro·ti·zá·zra·ky",
+        "Proust": "Proust",
+        "prozreteľný": "proz·re·teľ·ný",
+        "prozreteľnosť": "proz·re·teľ·nosť",
+        "prvostvoreného": "pr·vo·stvo·re·né·ho",
+        "prvotlači": "pr·vo·tla·či",
+        "prvotriedna": "pr·vo·tried·na",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_batch_156_keeps_psohlav_seam_and_foreign_consonant_graphemes():
+    expected = {
+        "psohlavca": "pso·hlav·ca",
+        "Ptolemaios": "Pto·le·mai·os",
+        "Ptolemaiovi": "Pto·le·mai·o·vi",
+        "Pullmana": "Pull·ma·na",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert {word: get_syllables(word) for word in expected} == {
+        word: result.casefold().split("·") for word, result in expected.items()
+    }
+
+
+def test_batch_157_keeps_rastlina_seam_and_inflectional_iach_nucleus():
+    expected = {
+        "rastlina": "rast·li·na",
+        "rastlinách": "rast·li·nách",
+        "rastlinkami": "rast·lin·ka·mi",
+        "rastlinného": "rast·lin·né·ho",
+        "rastlinstva": "rast·lin·stva",
+        "reakciách": "re·ak·ciách",
+        "relikviách": "re·lik·viách",
+        "reprezentáciách": "rep·re·zen·tá·ciách",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("radiátor") == "ra·di·á·tor"
+    assert hyphenate("reprezentáciou") == "rep·re·zen·tá·ci·ou"
+
+
+def test_batch_158_keeps_reuma_hiatus_without_splitting_other_eu_nuclei():
+    expected = {
+        "reumatické": "re·u·ma·tic·ké",
+        "reumatizmus": "re·u·ma·tiz·mus",
+        "reume": "re·u·me",
+        "reumu": "re·u·mu",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("pneumatika") == "pneu·ma·ti·ka"
+    assert hyphenate("neurológ") == "neu·ro·lóg"
+    assert hyphenate("leukémia") == "leu·ké·mia"
+    assert hyphenate("eufória") == "eu·fó·ria"
+    assert hyphenate("Európa") == "Eu·ró·pa"
+
+
 def test_podob_and_podiv_do_not_gain_a_false_pod_prefix():
     assert hyphenate("podoba") == "po·do·ba"
     assert hyphenate("napodobenie") == "na·po·do·be·nie"
@@ -2753,7 +2999,7 @@ def test_audited_linking_vowel_compounds_keep_their_compositional_seam():
         "letokruhy": "le·to·kru·hy",
         "leukoplast": "leu·ko·plast",
         "ľubozvučný": "ľu·bo·zvuč·ný",
-        "ľudoprázdny": "ľu·do·práz·dny",
+        "ľudoprázdny": "ľu·do·prázd·ny",
         "lukostrelec": "lu·ko·stre·lec",
         "lykožrút": "ly·ko·žrút",
         "lyrochvostov": "ly·ro·chvos·tov",
@@ -3300,7 +3546,7 @@ def test_audited_lexical_compounds_keep_their_morpheme_seams():
         "cudzokrajnými": "cu·dzo·kraj·ný·mi",
         "ďalekohľadov": "ďa·le·ko·hľa·dov",
         "darmožráčsky": "dar·mo·žráč·sky",
-        "delostrelectvo": "de·lo·stre·le·ctvo",
+        "delostrelectvo": "de·lo·stre·lec·tvo",
         "divotvorca": "di·vo·tvor·ca",
         "dlhochvostý": "dl·ho·chvos·tý",
         "dlhotrvajúci": "dl·ho·tr·va·jú·ci",
@@ -4244,3 +4490,8 @@ def test_unbreakable_words_have_no_break_points():
     for word in ("vlk", "prst", "Saint-Denis", "d’Arc"):
         assert break_points(word) == []
         assert hyphenate(word) == word
+
+
+def test_rozarium_is_a_lexical_stem_and_not_the_roz_prefix():
+    assert hyphenate("rozárium") == "ro·zá·ri·um"
+    assert hyphenate("rozáriu") == "ro·zá·riu"

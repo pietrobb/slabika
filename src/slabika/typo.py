@@ -23,6 +23,7 @@ or call :func:`break_points` for raw character offsets.
 
 from .phonology import (
     HYPHENATABLE_LETTERS,
+    SONORY,
     is_consonant,
     is_vowel,
 )
@@ -30,6 +31,7 @@ from .syllabify import (
     _DLO_INFLECTIONS,
     _PREFIXES,
     _SK_SUFFIXES_CONS,
+    _SYLLABIC_SONORANT_ONSETS,
     _final_sonorant_needs_following_context,
     get_morpheme_parts,
     phoneme_layout,
@@ -71,6 +73,12 @@ def _psp_points(word: str, base: int = 0) -> list[int]:
         between = list(range(previous_end, next_start))
         if not between:
             point = offsets[next_start]          # 2d: genuine hiatus
+        elif (
+            phonemes[previous_end - 1] in SONORY
+            and ''.join(phonemes[index] for index in between)
+            in _SYLLABIC_SONORANT_ONSETS
+        ):
+            point = offsets[between[0]]          # syllabic r/l before a full onset
         elif len(between) == 1:
             point = offsets[between[0]]          # 2a: before the consonant
         else:
@@ -216,7 +224,15 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
                 and all(is_consonant(char) for char in word[min(point, seam):max(point, seam)])
             ]
             if alternatives:
-                variants.add(min(alternatives, key=lambda point: abs(point - seam)))
+                alternative = min(alternatives, key=lambda point: abs(point - seam))
+                # In the -ctv- doublet, prefer the point that leaves c with
+                # the base (baníc·tvo); keep the morphemic point as a variant.
+                if right.casefold().startswith('ctv'):
+                    points.discard(seam)
+                    points.add(alternative)
+                    variants.add(seam)
+                else:
+                    variants.add(alternative)
 
         # Borrowed nouns in -cia form -čný adjectives by c/č alternation. When
         # the consonant before č remains visible, PSP permits both komerč|ný and
