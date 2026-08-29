@@ -72,6 +72,7 @@ def test_slovak_hyphenation_golden_cases():
         "neurológovia": "neu·ro·ló·go·via",
         "neukrátené": "ne·u·krá·te·né",
         "úkryt": "úkryt",
+        "samozrejme": "sa·mo·zrej·me",
         "afrodiziakum": "af·ro·di·zi·a·kum",
         "akciami": "ak·ci·ami",
         "funkciami": "funk·ci·ami",

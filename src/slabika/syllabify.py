@@ -120,7 +120,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('porno', ('graf',)),
     ('prvo', ('tlač', 'tried')),
     ('rozo', ('br', 'ber', 'smej', 'sta', 'strel', 'stret', 'stup', 'stúp', 'zvo', 'zvu', 'zna', 'zná')),  # rozo·staviť, rozo·znať — not roz·os-
-    ('samo', ('hlás', 'spravod', 'stvoriteľ', 'svet', 'sviet', 'vlád', 'vrav', 'vytvor')),
+    ('samo', ('hlás', 'spravod', 'stvoriteľ', 'svet', 'sviet', 'vlád', 'vrav', 'vytvor', 'zrej')),
     ('sedmo', ('spáč',)),
     ('slovo', ('sled',)),
     ('polo', ('brat', 'hlas', 'pravdiv', 'slep', 'svet', 'zrel', 'zviera')),
