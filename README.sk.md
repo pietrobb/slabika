@@ -48,6 +48,25 @@ Označenia sú preto vnútorne konzistentné s enginom; to však **automaticky
 neznamená**, že sú správne podľa PSP. Existujúci text slúži len na určenie
 slovnej zásoby, ktorú treba pokryť — nie ako zdroj hotových delení.
 
+### Najťažšia časť: vnímaný kmeň
+
+Mnohé pravidlá sú po určení jazykovej analýzy mechanické: vokalické jadrá,
+slabikotvorné spoluhlásky, rozdelenie spoluhláskových skupín aj typografické
+obmedzenia na okrajoch možno implementovať priamo. Najťažšie sú morfematické
+švíky, pri ktorých čitateľ intuitívne rozhoduje, či časť slova ešte vníma ako
+kmeň. Rovnaký sled písmen môže byť v jednom slove produktívnou predponou a
+rozpoznaným kmeňom, no v inom súčasťou lexikalizovaného alebo prevzatého celku.
+Algoritmus pracujúci iba so znakmi toto rozlíšenie zo zápisu spoľahlivo neurčí.
+
+Preto projekt potrebuje rozsiahlu a pestrú slovnú zásobu. Nie je zdrojom hotových
+delení ani slovníkom výnimiek celých slov; je evidenciou, na ktorej sa hľadajú
+kandidátne analýzy, overujú celé paradigmy a porovnávajú podobné, ale odlišné
+prípady. Jednotlivé prípady treba posúdiť podľa PSP, implementácia však následne
+zachytí najužšie doložené pravidlo pre celú rodinu namiesto zapamätania jedného
+slova. Prípady bez dostatočného dôkazu zostávajú výslovne nerozhodnuté. Budovanie
+a posudzovanie tejto lexikálnej evidencie preto tvorí najväčšiu časť práce, hoci
+veľká časť výsledného enginu je pravidlová.
+
 Architektúra má spoločný základ a dva samostatné výstupy:
 
 | modul | čo to je |
@@ -168,6 +187,12 @@ ktorého ste príkaz spustili. Cestu možno zmeniť voľbou `--decisions`, vlast
 inventár voľbou `--db`. V pracovnej kópii na Windows možno namiesto inštalácie
 dvojklikom spustiť koreňový súbor `run_review.bat`; ten pracuje priamo s
 verzovanými lokálnymi revíznymi dátami projektu.
+
+Pre nezávislú kontrolu na inom počítači slúži `run_review_local.bat`. Každému
+používateľovi vytvorí vlastné úložisko v `%LOCALAPPDATA%\slabika-review`, takže
+jeho rozhodnutia nemenia projektovú databázu. Tlačidlo **Stiahnuť opravy** vytvorí
+prenosný JSON iba z uložených návrhov, ktoré sa stále nezhodujú s aktuálnym
+enginom; tento súbor možno poslať autorovi projektu.
 
 Tieto tri úrovne sú reálne odlišné výstupy toho istého algoritmu. Napríklad
 `hyphenate("všeobecne")` vráti preferované `vše·obec·ne`, kým

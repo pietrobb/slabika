@@ -51,6 +51,9 @@ SOFT_HYPHEN = '\u00ad'
 _TYPOGRAPHIC_NOST_FORMS = (
     'nosťami', 'nostiach', 'nostiam', 'nosťou', 'ností', 'nosti', 'nosť',
 )
+_CNOST_INFLECTIONS = frozenset({
+    'cnosť', 'cnosťami', 'cnostiach', 'cnostiam', 'cnosťou', 'cností', 'cnosti',
+})
 
 
 def _nucleus_spans(word: str) -> tuple[list[str], list[int], list[tuple[int, int]]]:
@@ -108,6 +111,12 @@ def _typographic_nost_seams(parts: list[str]) -> list[int]:
     """Return productive -nosť/-nost- seams without changing syllabification."""
     word = "".join(parts)
     folded = word.casefold()
+    if (
+        len(parts) >= 2
+        and parts[0].casefold() == 'ne'
+        and ''.join(parts[1:]).casefold() in _CNOST_INFLECTIONS
+    ):
+        return []
     for form in _TYPOGRAPHIC_NOST_FORMS:
         if folded.endswith(form):
             seam = len(word) - len(form)

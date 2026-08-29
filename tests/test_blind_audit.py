@@ -305,7 +305,17 @@ def test_submit_is_atomic_backed_up_and_report_stays_sealed_until_complete(
     }
     assert BLIND.next_batch(argparse.Namespace(run_dir=args.run_dir))["complete"] is True
 
+    with sqlite3.connect(args.run_dir / "manifest.sqlite") as connection:
+        prepared_tree = connection.execute(
+            "SELECT value FROM metadata WHERE key = 'engine_tree_sha256'"
+        ).fetchone()[0]
+    monkeypatch.setattr(BLIND, "_git_commit", lambda: "later456")
+    monkeypatch.setattr(BLIND, "_engine_tree_sha256", lambda: "later-tree")
     summary = BLIND.report(argparse.Namespace(run_dir=args.run_dir))
+    assert summary["prepared_git_commit"] == "abc123"
+    assert summary["git_commit"] == "later456"
+    assert summary["prepared_engine_tree_sha256"] == prepared_tree
+    assert summary["current_engine_tree_sha256"] == "later-tree"
     assert summary["match"] + summary["mismatch"] + summary["unscored"] == 8
     report = json.loads((args.run_dir / "report.json").read_text(encoding="utf-8"))
     assert report["summary"] == summary

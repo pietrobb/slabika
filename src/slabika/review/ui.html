@@ -148,6 +148,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
     <option>1000</option><option>2000</option>
   </select>
   <button id="bulk" title="potvrdí nedotknuté delenia na tejto strane">✓ potvrdiť zvyšok strany</button>
+  <button id="export" title="stiahne JSON iba s návrhmi, ktoré sa stále nezhodujú s aktuálnym enginom">Stiahnuť opravy</button>
   <button id="undo" title="Alt+Z">↶ späť</button>
   <div class="spacer"></div>
   <span class="stat" id="totals"></span>
@@ -254,7 +255,7 @@ function setPending(value) {
   if (value) ++S.loadVersion;
   S.pending = value;
   for (const id of ["q", "mode", "status", "tex-diff", "blind-human-diff", "limit",
-                    "undo", "bulk", "prev", "next"])
+                    "undo", "bulk", "export", "prev", "next"])
     $(id).disabled = value;
   document.querySelectorAll(".edit").forEach(input => { input.disabled = value; });
 }
@@ -636,6 +637,12 @@ async function bulkConfirm() {
   load(S.offset);
 }
 
+function exportCorrections() {
+  if (S.pending) { toast("počkajte na uloženie"); return; }
+  if (hasDirty()) { toast("najprv uložte alebo zahoďte rozpracované úpravy"); return; }
+  window.location.assign("/api/export/corrections");
+}
+
 async function undo() {
   if (S.pending) { toast("počkajte na uloženie"); return; }
   if (hasDirty()) { toast("najprv uložte alebo zahoďte rozpracované úpravy"); return; }
@@ -670,6 +677,7 @@ $("blind-human-diff").addEventListener("click", () => {
 });
 $("limit").addEventListener("change", () => { S.limit = +$("limit").value; load(0); });
 $("bulk").addEventListener("click", bulkConfirm);
+$("export").addEventListener("click", exportCorrections);
 $("undo").addEventListener("click", undo);
 $("correction-cancel").addEventListener("click", () =>
   $("correction-dialog").close("cancel"));

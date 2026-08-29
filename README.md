@@ -37,6 +37,26 @@ sources. This makes them internally consistent with the engine; it does **not** 
 them automatically correct under PSP. Existing text is used only to decide
 which vocabulary has to be covered; see [`LICENSING.md`](LICENSING.md) §3.
 
+### The hard part: the perceived stem
+
+Many rules are mechanical once the linguistic analysis is known: vowel nuclei,
+syllabic consonants, consonant distribution and typographic edge constraints can
+be implemented directly. The difficult cases are the morpheme seams for which a
+reader intuitively decides whether part of the word is still perceived as a
+stem. The same sequence of letters may be a productive prefix plus a recognised
+stem in one word, but part of a lexicalised or borrowed whole in another. A
+character-level algorithm cannot reliably recover that distinction from
+spelling alone.
+
+This is why the project needs a large and varied vocabulary. It is not a source
+of ready-made divisions and not a whole-word exception dictionary; it is the
+evidence against which candidate analyses are found, tested across paradigms and
+contrasted with near misses. Individual cases require review under PSP, but the
+implementation then captures the narrowest supported family rule rather than
+memorising the reviewed word. Cases without enough evidence remain explicitly
+unresolved. Building and adjudicating this lexical evidence is therefore the
+largest part of the work, even though much of the final engine is rule-based.
+
 ## Architecture
 
 The package has a shared foundation and two distinct outputs:
@@ -92,6 +112,13 @@ which you run the command. Use `--decisions` to choose another decision store or
 `--db` to review another inventory. On Windows, a source checkout also provides
 `run_review.bat` in the repository root for double-click startup against the
 project's tracked local review data.
+
+For independent review on another computer, use `run_review_local.bat`. It
+creates a separate store for each user under `%LOCALAPPDATA%\slabika-review`, so
+those decisions cannot modify the project's review database. The **Download
+corrections** button exports a portable JSON file containing only saved
+suggestions that still differ from the current engine; reviewers can send this
+file to the project author.
 
 These three levels are genuinely different outputs of the same algorithm. For
 example, `hyphenate("všeobecne")` returns the preferred `vše·obec·ne`, while

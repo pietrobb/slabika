@@ -5,6 +5,7 @@
 import json
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
+from urllib.request import urlopen
 
 import pytest
 
@@ -184,6 +185,8 @@ def test_ui_uses_editable_correction_dialog_and_ignores_stale_filter_results():
     assert 'id="correction-input"' in html
     assert '<button type="button" id="correction-cancel">' in html
     assert '<button value="save">Uložiť opravu</button>' in html
+    assert 'id="export"' in html
+    assert 'window.location.assign("/api/export/corrections")' in html
     assert "prompt(" not in html
     load_source = html.split("async function load", 1)[1].split("async function stats", 1)[0]
     assert load_source.index("const version = ++S.loadVersion") < load_source.index("if (S.pending)")
@@ -366,6 +369,75 @@ def test_voice_disagreement_filters_compose_with_query_and_status(corpus, monkey
     )
     assert [item["review_form"] for item in combined["items"]] == ["maslo"]
     assert tex_calls == cached_tex_calls + 2
+
+
+def test_export_contains_only_suggestions_that_differ_from_current_engine(
+    corpus, monkeypatch
+):
+    engine = {"maslo": "mas·lo", "okno": "ok·no"}
+    monkeypatch.setattr(
+        REVIEW, "_engine", lambda form: (engine.get(form, form), form, None)
+    )
+    corpus.decide(
+        {"form": "maslo", "action": "correct", "field": "hyphenation", "text": "ma-slo"}
+    )
+    corpus.decide(
+        {"form": "okno", "action": "confirm", "field": "hyphenation", "text": "ok-no"}
+    )
+
+    exported = corpus.export_corrections()
+
+    assert exported["format"] == "slabika-corrections"
+    assert exported["format_version"] == 1
+    assert exported["engine_version"] == REVIEW.ENGINE_VERSION
+    assert exported["correction_count"] == 1
+    assert exported["corrections"] == [
+        {
+            "form": "maslo",
+            "engine_hyphenation": "mas·lo",
+            "suggested_hyphenation": "ma·slo",
+            "engine_error": None,
+            "review_action": "correct",
+            "engine_hyphenation_when_reviewed": "mas·lo",
+            "engine_version_when_reviewed": REVIEW.ENGINE_VERSION,
+            "reviewed_at": exported["corrections"][0]["reviewed_at"],
+            "reason": "",
+            "corrected_form": None,
+            "flags": {
+                "foreign": None,
+                "proper": None,
+                "abbreviation": None,
+                "deleted": None,
+            },
+        }
+    ]
+
+    engine["maslo"] = "ma·slo"
+    assert corpus.export_corrections()["corrections"] == []
+
+
+def test_export_endpoint_downloads_portable_json(corpus, monkeypatch):
+    monkeypatch.setattr(REVIEW, "_engine", lambda form: ("mas·lo", form, None))
+    corpus.decide(
+        {"form": "maslo", "action": "correct", "field": "hyphenation", "text": "ma-slo"}
+    )
+    monkeypatch.setattr(REVIEW.Handler, "corpus", corpus, raising=False)
+    server = REVIEW.ReviewHTTPServer(("127.0.0.1", 0), REVIEW.Handler)
+    url = f"http://127.0.0.1:{server.server_address[1]}/api/export/corrections"
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        serving = executor.submit(server.serve_forever)
+        try:
+            with urlopen(url, timeout=5) as response:
+                payload = json.load(response)
+                disposition = response.headers["Content-Disposition"]
+        finally:
+            server.shutdown()
+            serving.result()
+            server.server_close()
+
+    assert payload["correction_count"] == 1
+    assert disposition.startswith('attachment; filename="slabika-corrections-')
+    assert disposition.endswith('.json"')
 
 
 def test_psp_comparison_is_persistent_filterable_and_separate_from_human_review(corpus):

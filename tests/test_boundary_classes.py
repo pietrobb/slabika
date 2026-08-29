@@ -43,7 +43,7 @@ PREFIXED_VOWEL_INITIAL_ROOTS = {
     "pod": ("oblasť", "účet", "úroveň", "usadiť", "ostatný"),
     "nad": ("oblačný", "obyčajný", "úroveň", "uhoľný"),
     "od": ("ísť", "učiť", "izolovať", "usudzovať"),
-    "ob": ("ísť", "ohnať", "účtovať"),
+    "ob": ("ísť", "účtovať"),
     "pred": ("obraz", "izba", "určiť", "operačný", "úsudok"),
     "naj": ("ostrejší", "užšia", "istejší"),
 }
@@ -72,6 +72,11 @@ def test_a_prefix_boundary_survives_a_vowel_initial_root(prefix, root):
         f"{word} -> {'-'.join(get_syllables(word))}: the fallback pulled the "
         f"prefix-final consonant across the morpheme boundary"
     )
+
+
+def test_obohnať_keeps_the_vocalized_prefix_boundary():
+    assert get_syllables("obohnať") == ["o", "bo", "hnať"]
+    assert hyphenate("obohnať") == "obo·hnať"
 
 
 def test_a_vocalized_prefix_does_not_swallow_the_root_vowel():
@@ -115,7 +120,21 @@ LEXICALIZED_FORMS = {
 #: Forms the lexicalized-stem list used to answer for. The list is gone, so
 #: these are open regressions: the expectation is PSP-correct and stays here as
 #: the specification a rule has to meet, not as a word that may be listed.
-_NEEDS_A_RULE = frozenset(LEXICALIZED_FORMS) - {"rozum", "obed", "obec", "obuvník"}
+_NEEDS_A_RULE = frozenset(LEXICALIZED_FORMS) - {
+    "rozum",
+    "rozumu",
+    "rozumný",
+    "rozumieť",
+    "obed",
+    "obeda",
+    "obedovať",
+    "obec",
+    "obecenstvo",
+    "obora",
+    "obalu",
+    "obuvník",
+    "odevu",
+}
 
 
 @pytest.mark.parametrize(

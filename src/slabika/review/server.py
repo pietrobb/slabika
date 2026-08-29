@@ -1240,6 +1240,52 @@ class Corpus:
             "engine_version": ENGINE_VERSION,
         }
 
+    def export_corrections(self) -> dict:
+        """Return portable suggestions that still differ from the current engine."""
+        decisions = self._decision_rows(self.forms)
+        corrections = []
+        for form in self.forms:
+            row = decisions.get(form)
+            if not row or not row["expected_hyphenation"]:
+                continue
+            review_form = self.review_forms[form]
+            expected = _recase_marked(row["expected_hyphenation"], review_form)
+            engine_hyphenation, _, engine_error = _engine(review_form)
+            if expected == engine_hyphenation:
+                continue
+            corrections.append(
+                {
+                    "form": review_form,
+                    "engine_hyphenation": engine_hyphenation,
+                    "suggested_hyphenation": expected,
+                    "engine_error": engine_error,
+                    "review_action": row["hyphenation_action"],
+                    "engine_hyphenation_when_reviewed": _recase_marked(
+                        row["engine_hyphenation"], review_form
+                    ),
+                    "engine_version_when_reviewed": (
+                        row["hyphenation_engine_version"] or row["engine_version"]
+                    ),
+                    "reviewed_at": row["decided_at"],
+                    "reason": row["reason"],
+                    "corrected_form": row["corrected_form"],
+                    "flags": {
+                        "foreign": row["is_foreign_word"],
+                        "proper": row["is_proper_name"],
+                        "abbreviation": row["is_abbreviation"],
+                        "deleted": row["is_deleted"],
+                    },
+                }
+            )
+        return {
+            "format": "slabika-corrections",
+            "format_version": 1,
+            "generated_at": _now(),
+            "engine_version": ENGINE_VERSION,
+            "correction_count": len(corrections),
+            "corrections": corrections,
+        }
+
     # -- writing ---------------------------------------------------------
 
     def decide(self, payload: dict) -> dict:
@@ -1659,11 +1705,19 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args: object) -> None:  # keep the console quiet
         return
 
-    def _send(self, status: int, body: bytes, content_type: str) -> None:
+    def _send(
+        self,
+        status: int,
+        body: bytes,
+        content_type: str,
+        headers: dict[str, str] | None = None,
+    ) -> None:
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         self.end_headers()
         self.wfile.write(body)
 
@@ -1695,6 +1749,19 @@ class Handler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/stats":
             self._json(self.corpus.stats())
+            return
+        if parsed.path == "/api/export/corrections":
+            payload = self.corpus.export_corrections()
+            body = (json.dumps(payload, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+            stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            self._send(
+                200,
+                body,
+                "application/json; charset=utf-8",
+                {"Content-Disposition": (
+                    f'attachment; filename="slabika-corrections-{stamp}.json"'
+                )},
+            )
             return
         if parsed.path == "/api/psp-audit/batch":
             query = parse_qs(parsed.query)

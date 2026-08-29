@@ -672,10 +672,6 @@ def report(args: argparse.Namespace) -> dict[str, object]:
             "SELECT value FROM metadata WHERE key = 'engine_tree_sha256'"
         ).fetchone()[0]
         current_tree = _engine_tree_sha256()
-        if current_commit != prepared_commit or current_tree != prepared_tree:
-            raise ValueError(
-                "engine sa od prípravy zmenil: nezhoduje sa commit alebo obsah src/slabika"
-            )
         source_path = str(ROOT / "src")
         if source_path in sys.path:
             sys.path.remove(source_path)
@@ -719,6 +715,9 @@ def report(args: argparse.Namespace) -> dict[str, object]:
             "compared_at": compared_at,
             "engine_version": __version__,
             "git_commit": current_commit,
+            "prepared_git_commit": prepared_commit,
+            "prepared_engine_tree_sha256": prepared_tree,
+            "current_engine_tree_sha256": current_tree,
             "match": summary_counts["match"],
             "mismatch": summary_counts["mismatch"],
             "unscored": summary_counts["unscored"],

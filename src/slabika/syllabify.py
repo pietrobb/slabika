@@ -42,7 +42,7 @@ _SK_PREFIXES = [
     # 4 letter
     'pred', 'bezo', 'nado', 'podo', 'vzo', 'arci',
     # 3 letter — productive Slovak prefixes
-    'naj', 'nad', 'pod', 'pre', 'pri', 'pro', 'roz', 'bez', 'odo', 'pra', 'sú', 'syn',
+    'naj', 'nad', 'pod', 'pre', 'pri', 'pro', 'roz', 'bez', 'obo', 'odo', 'pra', 'sú', 'syn',
     # zne- is the prefix that makes a verb out of an adjective or a noun
     # (zne·hodnotiť, zne·možniť, zne·užiť). It is listed in its own right and not
     # as z + ne-, because the negative ne- is not what is in these words.
@@ -76,6 +76,55 @@ _DOBR_INFLECTIONS = frozenset({
     'a', 'ami', 'e', 'ej', 'o', 'om', 'ou', 'u',
     'á', 'ách', 'ám', 'é', 'ého', 'ému', 'í', 'ú', 'ý', 'ých', 'ým', 'ými',
 })
+_NECHT_INFLECTIONS = frozenset({'', 'a', 'ami', 'e', 'mi', 'och', 'om', 'ov', 'u', 'y'})
+_NEGER_CONTRACTED_INFLECTIONS = frozenset({'a', 'ami', 'i', 'och', 'om', 'ov', 'ovi'})
+_POSLAT_SUPPLETIVE_INFLECTIONS = frozenset({
+    'a', 'e', 'em', 'eme', 'eš', 'ete', 'i', 'ime', 'ite', 'o', 'ú',
+})
+_POSTIT_INFLECTIONS = frozenset({
+    'i', 'iac', 'ia', 'il', 'ila', 'ili', 'ilo', 'ime', 'ite', 'iť',
+    'í', 'ím', 'íme', 'íš', 'íte',
+})
+_POSTA_INFLECTIONS = frozenset({
+    'a', 'e', 'ou', 'u', 'y', 'ovú', 'ovej', 'ovom', 'ovou', 'ová', 'ové',
+    'ového', 'oví', 'ový', 'ových', 'ár', 'ára', 'árov',
+})
+_NOVOCAIN_INFLECTIONS = frozenset({'', 'a', 'e', 'om', 'u'})
+_OBAL_INFLECTIONS = frozenset({
+    '', 'e', 'enej', 'enia', 'ená', 'ené', 'eného', 'ením', 'ený', 'enými',
+    'ia', 'il', 'ila', 'iť', 'mi', 'och', 'om', 'ov', 'ovou', 'ová', 'ové',
+    'ovú', 'ových', 'ovými', 'u', 'y', 'í',
+})
+_OBER_INFLECTIONS = frozenset({
+    'al', 'ali', 'ač', 'ači', 'ačku', 'ačky', 'ajú', 'ajúcej', 'ajúcom', 'ať',
+    'ie', 'iem', 'ieme', 'te', 'á', 'ám', 'áte', 'ú',
+})
+_OBVYKL_INFLECTIONS = frozenset({
+    'a', 'e', 'ej', 'ejšia', 'ejšie', 'ejšieho', 'ejšiemu', 'ejších', 'ejší',
+    'ejším', 'ejšími', 'om', 'ou', 'á', 'é', 'ého', 'ému', 'í', 'ú', 'ý', 'ých',
+    'ým', 'ými',
+})
+_VYKN_INFLECTIONS = frozenset({
+    'e', 'em', 'eme', 'ete', 'eš', 'i', 'ime', 'ite', 'ú', 'úc', 'úť',
+})
+_ODIAT_SUPPLETIVE_FORMS = frozenset({
+    'odej', 'odeje', 'odejte', 'odejú', 'odel', 'odela', 'odeli',
+})
+_ODEN_INFLECTIONS = frozenset({
+    'á', 'é', 'ého', 'ej', 'ému', 'í', 'om', 'ou', 'ú', 'ý', 'ých', 'ým', 'ými',
+})
+_ODET_INFLECTIONS = frozenset({
+    'ie', 'á', 'é', 'ého', 'ej', 'ejšia', 'ejšie', 'ejšieho', 'ejšiemu', 'ejších',
+    'ejší', 'ejším', 'ejšími', 'ému', 'í', 'om', 'ou', 'ú', 'ý', 'ých', 'ým', 'ými',
+})
+_ODEV_INFLECTIONS = frozenset({
+    '', 'e', 'mi', 'ná', 'né', 'ného', 'nej', 'nému', 'ní', 'nom', 'nou', 'nú',
+    'ný', 'ných', 'ným', 'nými', 'och', 'om', 'ov', 'u', 'y',
+})
+_ZOHNUT_INFLECTIONS = frozenset({
+    'hla', 'hli', 'hlo', 'hol', 'hne', 'hnem', 'hneme', 'hneš', 'hnete', 'hni',
+    'hnime', 'hnite', 'hnú', 'hnúť',
+})
 
 _LEXICAL_PREFIX_ROOTS = (
     ('de', ('flog', 'flor', 'grad')),
@@ -87,14 +136,20 @@ _LEXICAL_PREFIX_ROOTS = (
     ('zimo', ('mrav',)),
     ('zvero', ('kruh',)),
     ('kde', ('ktor',)),
-    ('nie', ('ktor',)),
+    ('ni', ('kde', 'kdy', 'kto')),
+    ('nie', ('kde', 'kto', 'ktor')),
+    ('non', ('plusultra',)),
+    ('north', ('rup',)),
+    ('plus', ('ultra',)),
+    ('post', ('gradu',)),
     ('kladko', ('stroj',)),
     ('nanebo', ('vstúp',)),
     ('naozaj', ('stn',)),
     ('ob', ('oznám',)),
-    ('od', ('opier', 'umier')),
+    ('obo', ('hn',)),
+    ('od', ('opier', 'tn', 'umier')),
     ('odo', ('hráv',)),
-    ('ohňo', ('stroj', 'žrút')),
+    ('ohňo', ('stroj', 'vzdor', 'žrút')),
     ('okolo', ('stoj',)),
     ('oro', ('graf',)),
     ('steno', ('graf',)),
@@ -119,18 +174,24 @@ _LEXICAL_PREFIX_ROOTS = (
     ('štvor', ('uhol',)),
     ('porno', ('graf',)),
     ('prvo', ('tlač', 'tried')),
-    ('rozo', ('br', 'ber', 'smej', 'sta', 'strel', 'stret', 'stup', 'stúp', 'zvo', 'zvu', 'zna', 'zná')),  # rozo·staviť, rozo·znať — not roz·os-
+    ('rozo', ('br', 'ber', 'smej', 'sta', 'strel', 'stret', 'stup', 'stúp', 'zvo', 'zvu', 'zna', 'zná', 'žer', 'žier', 'žr')),  # rozo·staviť, rozo·znať — not roz·os-
+    ('zo', ('žn',)),
     ('samo', ('hlás', 'spravod', 'stvoriteľ', 'svet', 'sviet', 'vlád', 'vrav', 'vytvor', 'zrej')),
     ('sedmo', ('spáč',)),
     ('slovo', ('sled',)),
-    ('polo', ('brat', 'hlas', 'pravdiv', 'slep', 'svet', 'zrel', 'zviera')),
+    ('polo', (
+        'bláz', 'brat', 'človek', 'francúz', 'hlas', 'hmot', 'plášť', 'pleš',
+        'pravdiv', 'prázd', 'prizn', 'prorok', 'slep', 'slov', 'smr', 'spán',
+        'spoloč', 'svet', 'tm', 'zdivoč', 'zhnit', 'zrel', 'zren', 'zviera', 'štrbin',
+    )),
     ('pohano', ('kresťan',)),
+    ('pomsty', ('chtiv',)),
     ('písmeno', ('žrút',)),
     ('pre', ('diabol', 'dier', 'duchov')),
-    ('pol', ('ostrov',)),
+    ('pol', ('libr', 'liter', 'litr', 'ostrov', 'roč', 'rok', 'rúr')),
     ('plno', ('zvuč',)),
     ('rovno', ('zvuč',)),
-    ('spolu', ('blíž', 'brat', 'hlás', 'hráč', 'kráľ', 'kresťan', 'kňaz', 'plod', 'posvät', 'prac', 'sláv', 'slúž', 'sprav', 'správ', 'stolov', 'tvor', 'vlast', 'vlád', 'vzruš', 'zľutov', 'znič', 'zvuč')),
+    ('spolu', ('blíž', 'brat', 'hlás', 'hráč', 'kráľ', 'kresťan', 'kňaz', 'plod', 'posvät', 'prac', 'prežív', 'sláv', 'slúž', 'sprav', 'správ', 'stolov', 'tvor', 'vlast', 'vlád', 'vzruš', 'zľutov', 'znič', 'zvuč')),
     ('staro', ('sláv', 'svet', 'zná')),
     ('sveta', ('skúsen',)),
     ('sveto', ('slep', 'vlád', 'zná')),
@@ -149,8 +210,12 @@ _LEXICAL_PREFIX_ROOTS = (
     ('žido', ('kresťan',)),
     ('o', (
         'hra', 'hrá', 'hroz', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
-        'podstat', 'prav', 'práv', 'pust', 'sln', 'smel', 'spev', 'spra', 'strieľ',
-        'sved', 'svet', 'svie', 'svoj', 'sídl', 'tras', 'trh', 'tup', 'živ',
+        'plach', 'plách', 'plak', 'plat', 'plášt', 'pleš', 'plet', 'plod', 'plot', 'pľu', 'pľú',
+        'prac', 'prad', 'praď', 'pral', 'pras', 'praš', 'práš', 'prať',
+        'pre', 'pri', 'pros', 'prot',
+        'podstat', 'prav', 'práv', 'pust', 'sln', 'smel', 'spev', 'spra', 'streľ',
+        'strih', 'strieľ', 'sved', 'svet', 'svie', 'svoj', 'sídl', 'tlač', 'tlak',
+        'tras', 'trh', 'tup', 'vplyv', 'zbroj', 'živ',
     )),
     ('in', ('štruk',)),
     ('šéf', ('lekár',)),
@@ -160,14 +225,15 @@ _LEXICAL_PREFIX_ROOTS = (
     ('prie', ('hľad', 'hrad', 'klep', 'strel', 'stup', 'svit', 'zrač')),
     ('prí', ('klad', 'krat', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zvuk')),
     ('naj', ('všestran',)),
-    ('ne', ('sťaž', 'vhod', 'vkus', 'vďač', 'zhas', 'zhod')),
-    ('novo', ('prij', 'stan', 'vznik', 'vysvät', 'zjav')),
+    ('ne', ('scudzolož', 'sčerv', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
+    ('novo', ('povst', 'prij', 'stan', 'stvor', 'vzbud', 'vznik', 'vysvät', 'zdol', 'zhotov', 'zjav', 'zrod', 'zvol')),
     ('ono', ('svet',)),
     ('na', (
         'dan', 'darm', 'dáv', 'del', 'deľ', 'dikt', 'divok', 'dobr',
         'dobud', 'dobúd', 'doďak', 'doj', 'dopov', 'doraz', 'dostač',
         'drob', 'duj', 'dul', 'dur', 'dut', 'dúv', 'jal', 'jat', 'jav', 'jazd',
         'jedia', 'jedl', 'jedo', 'jedz', 'jeme', 'jemn', 'jesť', 'jež', 'jím', 'stup', 'sťah',
+        'zhromažd', 'žgrl',
     )),
     ('nade', ('všet',)),
     ('ná', ('cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'klaď', 'prav', 'skok', 'sten', 'stup', 'tlak', 'vnad', 'vrat', 'znak')),
@@ -177,21 +243,41 @@ _LEXICAL_PREFIX_ROOTS = (
     # alike and only the sense tells them apart. PSP prints po-drobný, and the
     # adjective and its adverbs are the frequent reading of the string.
     ('pod', ('oblas',)),
-    ('po', ('diel', 'dob', 'div', 'dotk', 'dozr', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'zdrav', 'zhas')),
-    ('pre', ('vďač',)),
+    # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
+    ('do', ('čk',)),
+    ('po', ('čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas')),
+    ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dáv', 'vďač')),
     ('u', ('hrad', 'krát', 'pokoj', 'rod', 'spokoj', 'sporiad', 'šľacht', 'taj', 'tláč')),
-    ('vy', ('chlad',)),
-    ('za', ('vďač',)),
+    ('vy', ('čk', 'chlad')),
+    ('za', ('obíd', 'obiš', 'vďač')),
     ('zá', ('blesk', 'chvat', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup')),
     ('ú', ('hrad', 'kryt', 'plat', 'stup')),
 )
 
-_NESTED_PREFIX_ROOTS = (
-    ('u', ('klad',)),
+_NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
+    ('z', ('hlt', 'hrab', 'hrdz', 'hreš', 'hrn', 'hromaž', 'hroz', 'hust')),
 )
 
-# Vocalized prefix variants (bezo-, nado-, podo-, predo-) exist only to break up
-# an unpronounceable seam before the pronoun stems mn- and vš-: bezo mňa, podo
+_NESTED_PREFIX_ROOTS = (
+    ('do', ('tkn',)),
+    ('o', ('brús', 'chlad', 'chrán', 'chrom', 'hlas', 'hlás', 'hluch', 'hmat', 'hnu', 'hol', 'hryz', 'klam', 'krídl', 'mdliev', 'slav', 'strih', 'toč', 'táč', 'vplyv', 'zbroj', 'šklb')),
+    ('ob', ('íd', 'išiel', 'išl', 'ísť', 'omkn', 'oznám', 'ozret')),
+    ('obo', ('p',)),
+    ('od', ('íd', 'išiel', 'išl', 'ísť', 'opier', 'tiah', 'umier', 'umr', 'vih', 'zrkadľ', 'ži')),
+    ('odo', ('ber', 'hnal', 'hrá', 'hral', 'hráv', 'mkn', 'prel', 'pri', 'vzd', 'žen')),
+    ('po', ('hl', 'hn', 'klon')),
+    ('pod', ('uj',)),
+    ('pri', ('klon',)),
+    ('roz', ('oh',)),
+    ('u', ('chrán', 'chvát', 'drž', 'hlad', 'hryz', 'klad', 'krad', 'mlč', 'mĺk', 'mŕtv', 'pad', 'plat', 'sporad', 'trp', 'tvrd', 'tŕž', 'vrh', 'zdrav', 'zn')),
+    ('za', ('obíd', 'obiš', 'tkn', 'čn', 'hl', 'hn', 'mk', 'žn')),
+    ('vy', ('hne', 'kla', 'sch', 'zne')),
+    ('zo', ('žn',)),
+)
+
+# Vocalized prefix variants (bezo-, nado-, obo-, podo-, predo-) exist only in
+# licensed environments: obo- before the p-roots below, otherwise mainly the
+# pronoun stems mn- and vš-: bezo mňa, podo
 # mnou, nadovšetko, predovšetkým. Everywhere else the -o- belongs to the root,
 # and the consonant-final base prefix is the correct analysis: bez·ohľadný,
 # pod·oblasť, nad·oblačný, pred·obraz. Without this restriction the longer
@@ -199,6 +285,7 @@ _NESTED_PREFIX_ROOTS = (
 _VOCALIZED_ONLY_BEFORE = {
     'bezo': ('mn',),
     'nado': ('vš', 'mn'),
+    'obo': ('p',),
     'podo': ('mn',),
     'predo': ('vš', 'mn', 'str'),   # predovšetkým, predo mnou, predo·strieť
 }
@@ -225,7 +312,7 @@ _SK_SUFFIXES_CONS = [
     'ným', 'nej', 'nou', 'nom',   # ohrad·ným — the rest of the ·ný paradigm
     'dlo',    # mera·dlo
     'liv',    # hanb·livý, kost·livec
-    'núť', 'nut',  # dotk·núť, pump·núť; mľask·nutie
+    'núť', 'nuť', 'nut',  # dotk·núť, písk·nuť; mľask·nutie
     # No 'tva'. It is not a suffix — pas·tva is section 4.3 doing its job,
     # because tv- opens tvoj and the point never has to move. Listed here it
     # outranked the real suffix in ·stva (mužs|tva for muž|stva) and overrode
@@ -246,8 +333,12 @@ _RHYTHMIC_LONG_NUCLEI = LONG_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 
 _DLO_INFLECTIONS = ('dlami', 'dlách', 'dlom', 'dlám', 'diel', 'dla', 'dle', 'dlu', 'dlá')
 _DLO_PARADIGM_STEMS = frozenset({'páči'})
+_DLO_PAST_PREFIXES = frozenset({'', 'do', 'na', 'od', 'o', 'po', 'pre', 'pri', 'roz', 's', 'u', 'v', 'vy', 'za'})
+_D_FINAL_PAST_ROOTS = ('krad', 'pad')
+_D_FINAL_PAST_STEMS = frozenset({'zjed'})
 _TINA_INFLECTIONS = ('tinami', 'tinách', 'tinám', 'tinou', 'tine', 'tinu', 'tiny')
 _TINA_NUMERAL_STEMS = frozenset({'miliard'})
+_SKNUT_FINITE_SUFFIXES = ('neme', 'nete', 'nem', 'neš', 'ni')
 
 # Short grammatical suffixes are boundaries only after consonant-final stems.
 # Keep these separate from derivational suffixes to avoid treating every final
@@ -276,7 +367,7 @@ _SK_COMPOSITA = [
     'štyridsať', 'tridsať', 'dvadsať',
     'devätnásť', 'osemnásť', 'sedemnásť', 'šestnásť', 'pätnásť',
     'štrnásť', 'trinásť', 'dvanásť', 'jedenásť',
-    'video', 'deväť', 'sedem', 'osem', 'šesť', 'šest', 'päť', 'zeme', 'vrti',
+    'video', 'niekoľko', 'deväť', 'sedem', 'osem', 'šesť', 'šest', 'päť', 'zeme', 'vrti',
     'troj', 'tri', 'dve', 'štyri', 'sto', 'tisíc', 'viac', 'geo', 'teo', 'bio', 'foto', 'auto', 'euro', 'etyl',
     'agro', 'agri', 'astro', 'aero', 'anti', 'archi', 'arch',
     'hydro', 'termo', 'elektro', 'mikro', 'makro', 'mono', 'neuro', 'poly',
@@ -431,7 +522,11 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         consonant_composita = {
             'bystro': ('sluch', 'zrak'),
             'novo': ('nastup', 'postav', 'stav', 'vytvor'),
-            'polo': ('krot', 'prie', 'vyprah'),
+            'polo': (
+                'bláz', 'človek', 'francúz', 'hmot', 'krot', 'plášť', 'pleš',
+                'prázd', 'prie', 'prizn', 'prorok', 'slov', 'smr', 'spán',
+                'spoloč', 'tmav', 'vyprah', 'štrbin',
+            ),
             'vše': ('stran', 'stred'),
             'vysoko': ('postav', 'škol'),
             'mnoho': (
@@ -448,6 +543,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
     if comp == 'kvart' and not reml.startswith('sext'):
         return False
     guarded_compounds = {
+        'niekoľko': ('dň',),
         'leto': ('kruh',),
         'leuko': ('plast',),
         'ľubo': ('zvu',),
@@ -482,9 +578,29 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         return False
     if comp in {'celo', 'červeno', 'duto', 'hnedo', 'holo', 'hrubo'} and reml.startswith(('sť', 'sti', 'stn')):
         return False
-    if comp in _HUNDRED_MULTIPLIERS and not reml.startswith(('sto', 'tisíc')):
+    consonant_final_quantity_before_vowel = (
+        comp in _CARDINAL_UNITS
+        and comp[-1] not in _VOWEL_LETTERS
+        and reml[0] in _VOWEL_LETTERS
+    )
+    if (
+        comp in _HUNDRED_MULTIPLIERS
+        and not reml.startswith(('sto', 'tisíc'))
+        and not consonant_final_quantity_before_vowel
+    ):
         return False
-    if comp in _CARDINAL_TENS and not reml.startswith(_CARDINAL_UNITS + ('tisíc',)):
+    nested_compositum = any(
+        reml.startswith(inner)
+        and len(rem) > len(inner) + 2
+        and _licenses_compositum(inner, rem[len(inner):])
+        for _, group in _COMPOSITA_BY_LEN
+        for inner in group
+    )
+    if (
+        comp in _CARDINAL_TENS
+        and not reml.startswith(_CARDINAL_UNITS + ('tisíc',))
+        and not nested_compositum
+    ):
         return False
     if comp == 'šest' and not reml.startswith('nás'):
         return False
@@ -514,7 +630,9 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
     # whose first parts happen to end in -o.
     if comp == 'krátko' and reml in ('sti', 'stí'):
         return False
-    if comp == 'tvrdo' and reml in ('sť', 'sti', 'stí', 'stiam', 'stiach', 'sťami', 'sťou'):
+    if comp in {'drobno', 'tvrdo'} and reml in (
+        'sť', 'sti', 'stí', 'stiam', 'stiach', 'sťami', 'sťou',
+    ):
         return False
     return any(c in _VOWELS_SK for c in reml) and _starts_like_a_word(reml)
 
@@ -535,7 +653,7 @@ def _is_vowel_seam(pfx: str, reml: str) -> bool:
     """
     if any(
         reml.startswith(inner_pfx + root)
-        for inner_pfx, roots in _LEXICAL_PREFIX_ROOTS
+        for inner_pfx, roots in (*_LEXICAL_PREFIX_ROOTS, *_NESTED_PREFIX_ROOTS)
         for root in roots
     ):
         return True
@@ -560,6 +678,16 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
         return w[:5], w[5:]
     if wl.startswith('predobr') and wl[7:] in _DOBR_INFLECTIONS:
         return w[:3], w[3:]
+    if any(
+        wl.startswith('ne' + nested_pfx + root)
+        for nested_pfx, roots in _NESTED_PREFIX_ROOTS
+        for root in roots
+    ) or any(
+        wl.startswith('ne' + nested_pfx + root)
+        for nested_pfx, roots in _NEGATED_NONSYLLABIC_PREFIX_ROOTS
+        for root in roots
+    ):
+        return w[:2], w[2:]
 
     # A longer recognised first part outranks a shorter prefix lookalike:
     # neuro·lóg is not ne·urológ and polo·vodič is not po·lovodič.
@@ -576,10 +704,23 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     # Its au is one nucleus; native na|utešovať remains a genuine prefix form.
     if wl.startswith('nauti'):
         return None, None
+    if wl.startswith('necht') and wl[5:] in _NECHT_INFLECTIONS:
+        return None, None
+    if wl.startswith('obuš'):
+        return None, None
+    # Nefrit-, nezbed- and nežn- are lexical stems, not ne- forms.
+    if wl.startswith(('nefrit', 'nezbed', 'nežn')) or wl == 'neger' or (
+        wl.startswith('negr') and wl[4:] in _NEGER_CONTRACTED_INFLECTIONS
+    ):
+        return None, None
 
+    if wl.startswith('ostrihom'):
+        return None, None
     for pfx, roots in _LEXICAL_PREFIX_ROOTS:
         if any(wl.startswith(pfx + root) for root in roots):
             return w[:len(pfx)], w[len(pfx):]
+    if wl.startswith('predá') and wl[5:] in ('', 'm', 'me', 'š', 'te'):
+        return w[:3], w[3:]
 
     for length, group in _PREFIXES_BY_LEN:
         pfx = wl[:length]
@@ -588,14 +729,52 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             reml = rem.lower()
             if len(rem) < 3:
                 continue
-            # posl- is a root family (posol, poslať, poslúchať), not po- + sl-.
-            if pfx == 'po' and reml.startswith('sl'):
+            # In z-obraz-, z-ohľad-, z-ohnúť, z-ostať and z-otroč- the o belongs
+            # to the vowel-initial base; keep genuine zo- forms such as zo-brať intact.
+            if pfx == 'zo' and (
+                reml.startswith((
+                    'braz', 'hľad', 'hnut', 'stať', 'stal', 'staň', 'stan',
+                    'stáv', 'stat', 'troč',
+                ))
+                or reml in _ZOHNUT_INFLECTIONS
+                or reml == 'sta'
+            ):
                 continue
-            # Pospas-, pospol- and potreb- are lexical stems, not productive po- forms.
-            if pfx == 'po' and reml.startswith(('spas', 'spol', 'treb')):
+            # posl- and the suppletive pošl- forms of poslať are lexical roots,
+            # unlike transparent po-|slúžiť and po-|šliapať.
+            if pfx == 'po' and (
+                reml.startswith('sl')
+                or (
+                    reml.startswith('šl')
+                    and reml[2:] in _POSLAT_SUPPLETIVE_INFLECTIONS
+                )
+            ):
                 continue
-            # Prakt- is a borrowed stem, not the Slovak ancestor prefix pra-.
-            if pfx == 'pra' and reml.startswith('kt'):
+            # Pospas-, pospol-, podl-, pohreb-, popruh-, postul-, pošv-, potk-,
+            # povodn-/povodň-, povraz- and potreb- are lexical stems,
+            # not productive po- forms.
+            if pfx == 'po' and (
+                wl.startswith((
+                    'podl', 'pohreb', 'poplach', 'popruh', 'postul', 'pošv', 'potk',
+                    'povodn', 'povodň', 'povraz',
+                ))
+                or reml.startswith(('spas', 'spol', 'treb'))
+            ):
+                continue
+            # postiť is derived from pôst; only its closed inflectional paradigm
+            # is protected because po-|st- remains productive elsewhere.
+            if pfx == 'po' and reml.startswith('st') and reml[2:] in _POSTIT_INFLECTIONS:
+                continue
+            # Pošta and its derivatives have the lexical stem pošt-, unlike
+            # po-|štekliť, po-|štípať and the other productive po- verbs.
+            if pfx == 'po' and reml.startswith('št') and reml[2:] in _POSTA_INFLECTIONS:
+                continue
+            # Posteľ-/postel-/postieľ- is one lexical stem, not po- plus st-.
+            if pfx == 'po' and wl.startswith(('posteľ', 'postel', 'postieľ')):
+                continue
+            # Prakt- is borrowed; prask- and prahn- are lexical stems. None
+            # contains the Slovak ancestor prefix pra-.
+            if pfx == 'pra' and reml.startswith(('hn', 'kt', 'sk')):
                 continue
             # dobr- is the lexical base of dobrý, dobro and dobrota, not do- +
             # br-. Keep genuine prefixed verbs such as do·brať and do·brúsiť.
@@ -610,6 +789,9 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             # derived from dom. Neither is the prefix do- plus an m-initial root.
             if pfx == 'do' and reml.startswith(('mkár', 'mn')):
                 continue
+            # Došv- is the lexical stem inside podošva, not do- plus šv-.
+            if pfx == 'do' and wl.startswith('došv'):
+                continue
             # doška/doštička are lexical stems, unlike do·škriabať.
             if pfx == 'do' and (reml == 'šky' or reml.startswith('štič')):
                 continue
@@ -617,14 +799,61 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             # stoj-. PSP therefore applies its syllabic st division: dôs·toj-.
             if pfx == 'dô' and reml.startswith('stoj'):
                 continue
-            # Problém and prostší have lexical stems, not the prefix pro-.
-            if pfx == 'pro' and reml.startswith(('blém', 'stš')):
+            # Problém and the prost- family have lexical stems, not the prefix pro-.
+            if pfx == 'pro' and reml.startswith(('blém', 'st')):
+                continue
+            # Rozum- is the lexical stem of rozumieť, not roz- plus umieť.
+            if pfx == 'roz' and reml.startswith('um'):
                 continue
             # Nadácia is a borrowed lexical stem, not nad- plus ácia.
             if pfx == 'nad' and reml.startswith('áci'):
                 continue
-            # obav-/obáv- is the stem of obava/obávať (obáv-aný), not ob- + av-/áv-.
-            if pfx == 'ob' and reml.startswith(('av', 'áv')):
+            # Podest- and podošv- are lexical stems, not pod- plus a vowel-initial root.
+            if pfx == 'pod' and wl.startswith(('podest', 'podošv')):
+                continue
+            # Poden-/podenk- is the lexical stem of podenka, not pod- plus an e-initial root.
+            if pfx == 'pod' and wl.startswith('poden'):
+                continue
+            # Odieť has suppletive odej-/odel-/oden-/odet- forms, and odev- is
+            # their lexical nominal stem; none contains the productive prefix od-.
+            if pfx == 'od' and (
+                wl in _ODIAT_SUPPLETIVE_FORMS
+                or (wl.startswith('oden') and wl[4:] in _ODEN_INFLECTIONS)
+                or (wl.startswith('odet') and wl[4:] in _ODET_INFLECTIONS)
+                or (wl.startswith('odev') and wl[4:] in _ODEV_INFLECTIONS)
+            ):
+                continue
+            # Odolať/odolný, odôvodniť, oduševniť and the odut- forms of
+            # oduť have lexical stems rather than the productive prefix od-.
+            if pfx == 'od' and (
+                wl == 'odol'
+                or wl.startswith((
+                    'odola', 'odolá', 'odoln', 'odôvod', 'odušev', 'odut',
+                ))
+            ):
+                continue
+            # Vyknúť has the lexical stem vykn-/vyk-, not the prefix vy-.
+            if (
+                pfx == 'vy'
+                and wl.startswith('vykn')
+                and wl[4:] in _VYKN_INFLECTIONS
+            ):
+                continue
+            # Listed ob-/obo- lookalikes are lexical stems, not the prefix ob-;
+            # obrús- instead has the one-letter prefix o- before brúsiť.
+            if pfx == 'ob' and (
+                reml.startswith(('av', 'áv', 'rús', 'úch'))
+                or wl.startswith((
+                    'obadiáš', 'obaj', 'obalamut', 'obál', 'obaľ', 'obec',
+                    'obed', 'obeh', 'obel', 'obes', 'obeš', 'obet', 'obeť',
+                    'obéz', 'obež', 'obidv', 'obiel', 'obiet', 'obieh', 'obieľ',
+                    'obil', 'obit', 'oblúd', 'oboch', 'obol', 'oboč', 'obohac',
+                    'obohat', 'obohať', 'oboj', 'obor',
+                ))
+                or wl in ('obom', 'oboma')
+                or (wl.startswith('obal') and wl[4:] in _OBAL_INFLECTIONS)
+                or (wl.startswith('ober') and wl[4:] in _OBER_INFLECTIONS)
+            ):
                 continue
             licensed = _VOCALIZED_ONLY_BEFORE.get(pfx)
             if licensed is not None and not reml.startswith(licensed):
@@ -656,9 +885,13 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     return None, None
 
 
-def _strip_nested_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
+def _strip_nested_prefix(
+    w: str, outer_prefix: str | None = None
+) -> tuple[str, str] | tuple[None, None]:
     wl = w.casefold()
     for pfx, roots in _NESTED_PREFIX_ROOTS:
+        if pfx == 'do' and outer_prefix != 'ne':
+            continue
         if any(wl.startswith(pfx + root) for root in roots):
             return w[:len(pfx)], w[len(pfx):]
     return None, None
@@ -670,6 +903,13 @@ def _strip_nested_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
 #: chod·ník keeps its boundary but chod·ní·ky loses it.
 _MAX_INFLECTION = 4
 _CONSONANT_INITIAL_INFLECTIONS = ('mi',)
+_NIK_DIMINUTIVE_INFLECTIONS = frozenset({
+    'ek', 'ka', 'kami', 'koch', 'kom', 'kov', 'kovia', 'kovi', 'ku', 'ky',
+})
+_NIK_ADJECTIVE_INFLECTIONS = frozenset({
+    'ka', 'ke', 'keho', 'kej', 'kemu', 'ki', 'kom', 'kou', 'ku', 'ky', 'kych',
+    'kym', 'kymi',
+})
 
 
 def _is_inflection(tail: str) -> bool:
@@ -692,6 +932,32 @@ def _final_sonorant_needs_following_context(stem: str, following: str) -> bool:
     )
 
 
+def _is_prefixed_zna_verb(word: str) -> bool:
+    """Whether prefixes reduce *word* to the finite ``zná`` form of znať."""
+    remainder = word
+    found_prefix = False
+    while True:
+        prefix, next_remainder = _strip_prefix(remainder)
+        if prefix is None:
+            return found_prefix and remainder.casefold() == 'zná'
+        found_prefix = True
+        remainder = next_remainder
+
+
+def _is_d_final_past(word: str) -> bool:
+    """Whether *word* is a d-final verb's past form, not a ``-dlo`` noun."""
+    folded = word.casefold()
+    if folded.startswith('ne'):
+        folded = folded[2:]
+    if not folded.endswith('lo'):
+        return False
+    stem = folded[:-2]
+    return stem in _D_FINAL_PAST_STEMS or any(
+        stem.endswith(root) and stem[:-len(root)] in _DLO_PAST_PREFIXES
+        for root in _D_FINAL_PAST_ROOTS
+    )
+
+
 def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     """Return (stem, rest) if w carries a known consonant-initial suffix and
     the split produces a valid morpheme boundary. Else (None, None).
@@ -701,6 +967,8 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     cluster (ohyzd·ný, vlast·ný).
     """
     wl = w.lower()
+    if wl.startswith('novocain') and wl[len('novocain'):] in _NOVOCAIN_INFLECTIONS:
+        return None, None
     for suffix in _DLO_INFLECTIONS:
         if wl.endswith(suffix) and wl[:-len(suffix)] in _DLO_PARADIGM_STEMS:
             start = len(w) - len(suffix)
@@ -722,6 +990,30 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
             start = len(w) - len(suffix)
             return w[:start], w[start:]
 
+    for suffix in _SKNUT_FINITE_SUFFIXES:
+        stem = wl[:-len(suffix)]
+        if wl.endswith(suffix) and stem.endswith(('sk', 'tk')) and any(c in _VOWELS_SK for c in stem):
+            start = len(w) - len(suffix)
+            return w[:start], w[start:]
+
+    for alternant, endings in (
+        ('níč', _NIK_DIMINUTIVE_INFLECTIONS),
+        ('níc', _NIK_ADJECTIVE_INFLECTIONS),
+    ):
+        for tail in endings:
+            marker = alternant + tail
+            if wl.endswith(marker):
+                start = len(w) - len(marker)
+                stem = wl[:start]
+                word_pfx = _strip_prefix(w)[0]
+                stem_pfx = _strip_prefix(stem)[0]
+                if (
+                    len(stem) >= 3
+                    and any(c in _VOWELS_SK for c in stem)
+                    and (word_pfx is None or stem_pfx == word_pfx)
+                ):
+                    return w[:start], w[start:]
+
     for length, group in _SUFFIXES_BY_LEN:
         for tail_length in range(_MAX_INFLECTION + 1):
             start = len(w) - length - tail_length
@@ -734,6 +1026,8 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
             ):
                 continue
             steml = wl[:start]
+            if matched == 'ná' and _is_prefixed_zna_verb(w):
+                continue
             if matched in _RHYTHMIC_SHORT_NIK:
                 last_nucleus = next(
                     (
@@ -754,7 +1048,9 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
             if matched == 'tina' and not (steml.endswith('š') or steml in _TINA_NUMERAL_STEMS):
                 continue
             if matched == 'dlo' and (
-                steml.endswith('vie') or wl.startswith(('vychladlo', 'nevychladlo'))
+                steml.endswith('vie')
+                or wl.startswith(('vychladlo', 'nevychladlo'))
+                or _is_d_final_past(w)
             ):
                 continue
             if wl[start:start + length] == 'kár' and not steml.endswith('st'):
@@ -851,10 +1147,14 @@ def _strip_grammatical_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
         if (
             sfx in ('la', 'li', 'lo')
             and _strip_prefix(stem)[0] is None
-            and not steml.endswith('st')
+            and not steml.endswith(('st', 'sk'))
+            and not _is_d_final_past(w)
         ):
             continue
         if sfx == 'me' and steml.endswith('st'):
+            continue
+        # pomst-e is the dative/locative of pomsta, not an imperative poms-te.
+        if sfx == 'te' and wl == 'pomste':
             continue
         if is_consonant(steml[-1]) and any(c in _VOWELS_SK for c in steml):
             return stem, w[-len(sfx):]
@@ -876,6 +1176,18 @@ def _suffix_keeps_prefix(word: str, stem: str) -> bool:
     )
 
 
+def _is_nested_suppletive_ist_past(word: str) -> bool:
+    """Whether two prefixes precede the past-tense šl-/išl- stem of ísť."""
+    _, outer_rem = _strip_prefix(word)
+    if outer_rem is None:
+        return False
+    inner_pfx, inner_rem = _strip_prefix(outer_rem)
+    return (
+        inner_pfx is not None
+        and inner_rem.casefold() in {'šla', 'šli', 'šlo', 'išla', 'išli', 'išlo'}
+    )
+
+
 def get_morpheme_parts(word: str) -> list[str]:
     """Return the morphological units whose seams override phonotactics.
 
@@ -885,6 +1197,9 @@ def get_morpheme_parts(word: str) -> list[str]:
     a real morpheme boundary (``roz|ísť``, not ``ro|zísť``).
     """
     wl = word.lower()
+    if wl.startswith('obvykl') and wl[6:] in _OBVYKL_INFLECTIONS:
+        return [word[:2], word[2:5], word[5:]]
+
     second = _split_compound_tail(word)
     if second is not None:
         first, tail = second
@@ -911,7 +1226,9 @@ def get_morpheme_parts(word: str) -> list[str]:
     stem, sfx = _strip_suffix(word)
     pfx, rem = _strip_prefix(word)
     suffix_keeps_prefix = (
-        stem is not None and _suffix_keeps_prefix(word, stem)
+        stem is not None
+        and _suffix_keeps_prefix(word, stem)
+        and (rem is None or _strip_nested_prefix(rem, pfx)[0] is None)
     )
     if stem is not None and (
         sfx.casefold().startswith(('ník', 'níc')) or suffix_keeps_prefix
@@ -922,12 +1239,18 @@ def get_morpheme_parts(word: str) -> list[str]:
     grammatical_suffix_keeps_prefix = (
         grammatical_stem is not None
         and _suffix_keeps_prefix(word, grammatical_stem)
+        and not _is_nested_suppletive_ist_past(word)
+        and (rem is None or _strip_nested_prefix(rem, pfx)[0] is None)
     )
     if grammatical_suffix_keeps_prefix:
         return [*get_morpheme_parts(grammatical_stem), grammatical_sfx]
 
     if pfx is not None:
-        nested_pfx, nested_rem = _strip_nested_prefix(rem)
+        # The lexicalized po-|dotk- family keeps its outer seam in the contracted
+        # masculine past without turning the remainder back into do-|tkol.
+        if pfx == 'po' and rem.casefold() == 'dotkol':
+            return [pfx, rem]
+        nested_pfx, nested_rem = _strip_nested_prefix(rem, pfx)
         if nested_pfx is not None:
             return [pfx, nested_pfx, *get_morpheme_parts(nested_rem)]
         return [pfx, *get_morpheme_parts(rem)]
@@ -1003,7 +1326,9 @@ def get_syllables(word: str) -> list[str]:
     stem, sfx = _strip_suffix(word)
     pfx, rem = _strip_prefix(word)
     suffix_keeps_prefix = (
-        stem is not None and _suffix_keeps_prefix(word, stem)
+        stem is not None
+        and _suffix_keeps_prefix(word, stem)
+        and (rem is None or _strip_nested_prefix(rem, pfx)[0] is None)
     )
     if stem is not None and (
         sfx.casefold().startswith(('ník', 'níc')) or suffix_keeps_prefix
@@ -1014,6 +1339,8 @@ def get_syllables(word: str) -> list[str]:
     grammatical_suffix_keeps_prefix = (
         grammatical_stem is not None
         and _suffix_keeps_prefix(word, grammatical_stem)
+        and not _is_nested_suppletive_ist_past(word)
+        and (rem is None or _strip_nested_prefix(rem, pfx)[0] is None)
     )
     if grammatical_suffix_keeps_prefix:
         return get_syllables(grammatical_stem) + _syllabify_simple(grammatical_sfx)
@@ -1021,7 +1348,7 @@ def get_syllables(word: str) -> list[str]:
     # Prefix-aware split: recursively strip prefixes and syllabify remainder
     if pfx is not None:
         pfx_syls = _syllabify_simple(pfx)
-        nested_pfx, nested_rem = _strip_nested_prefix(rem)
+        nested_pfx, nested_rem = _strip_nested_prefix(rem, pfx)
         if nested_pfx is not None:
             return pfx_syls + _syllabify_simple(nested_pfx) + get_syllables(nested_rem)
         rem_syls = get_syllables(rem)  # recursive — handles naj·ne·... stacks
@@ -1077,11 +1404,17 @@ _LATIN_HIATUS_TAILS = ('eum', 'eus')
 # The ethnonym Aleut and its derivatives pronounce e-u as two syllables.  It is
 # the lexical exception to the otherwise reliable eu nucleus in learned loans.
 _LEXICAL_FALLING_HIATUS = ('aleut',)
+_LEXICAL_FALLING_DIPHTHONGS = (
+    ('oppenheimer', 'ei'),
+    ('sieur', 'ieu'),  # French [sjœʁ]: i is a glide, not a second nucleus.
+)
+_LEXICAL_FALLING_NUCLEI = frozenset(pair for _, pair in _LEXICAL_FALLING_DIPHTHONGS)
 
 #: Written vowel graphemes, including the ones that are not phonological
 #: diphthongs (ô is written as one grapheme; au, eu, ou are read as one).
 _VOWEL_LIKE = (
-    ALL_VOWELS | PRONOUNCED_FOREIGN_VOWELS | DIPHTHONGS | {'ô'} | _FALLING_DIPHTHONGS
+    ALL_VOWELS | PRONOUNCED_FOREIGN_VOWELS | DIPHTHONGS | {'ô'}
+    | _FALLING_DIPHTHONGS | _LEXICAL_FALLING_NUCLEI
 )
 
 #: No Slovak syllable opens with more than three consonants (vzdych, štvrť).
@@ -1203,7 +1536,7 @@ def _seam_offsets(word: str) -> frozenset[int]:
 
 
 def _merge_falling_diphthongs(word: str, phonemes: list[str]) -> list[str]:
-    """Read au, eu, ou as one nucleus except where a morpheme seam divides them.
+    """Read falling vowel groups as one nucleus where pronunciation supports it.
 
     Two adjacent vowel letters are not by themselves two syllables (PSP §4.4).
     Slovak writes these three both ways: as one nucleus in a loan or in the
@@ -1214,7 +1547,10 @@ def _merge_falling_diphthongs(word: str, phonemes: list[str]) -> list[str]:
     seam marks.
     """
     wl = word.lower()
-    if not any(pair in wl for pair in _FALLING_DIPHTHONGS):
+    falling_diphthongs = _FALLING_DIPHTHONGS | {
+        pair for stem, pair in _LEXICAL_FALLING_DIPHTHONGS if wl.startswith(stem)
+    }
+    if not any(pair in wl for pair in falling_diphthongs):
         return phonemes
 
     seams = _seam_offsets(word)
@@ -1225,8 +1561,12 @@ def _merge_falling_diphthongs(word: str, phonemes: list[str]) -> list[str]:
         following = phonemes[index + 1] if index + 1 < len(phonemes) else ''
         pair = phoneme + following
         if (
-            pair in _FALLING_DIPHTHONGS
-            and (pair != 'ai' or phonemes[index + 2:index + 3] == ['l'])
+            pair in falling_diphthongs
+            and (
+                pair != 'ai'
+                or phonemes[index + 2:index + 3] == ['l']
+                or (wl.startswith('novocain') and offset == 5)
+            )
             and offset + len(phoneme) not in seams
             and not wl.endswith(_LATIN_HIATUS_TAILS, offset)
             and not (
