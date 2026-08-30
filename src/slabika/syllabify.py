@@ -103,7 +103,8 @@ _PRASTIT_INFLECTIONS = frozenset({
 })
 _MRSTIT_INFLECTIONS = frozenset({
     'tená', 'tené', 'teného', 'tenej', 'tenému', 'tení', 'tenia', 'tenie', 'tením', 'teniu', 'tenou',
-    'tenú', 'tený', 'tených', 'teným', 'tenými', 'ti', 'tiac', 'tia', 'til', 'tila',
+    'tenosť', 'tenosti', 'tenosťou', 'teností', 'tenú', 'tený', 'tených', 'teným',
+    'tenými', 'ti', 'tiac', 'tia', 'til', 'tila',
     'tili', 'tilo', 'time', 'tite', 'tiť', 'tí', 'tím', 'tíme', 'tíš', 'títe',
 })
 _NOVOCAIN_INFLECTIONS = frozenset({'', 'a', 'e', 'om', 'u'})
@@ -149,6 +150,7 @@ _PRESN_INFLECTIONS = frozenset({
 _RASTLINA_FAMILY_STEMS = ('rastlin', 'rastlín')
 _RASTLY_ENDINGS = ('lými', 'lého', 'lému', 'lých', 'lým', 'lej', 'lou', 'lom', 'lý', 'lá', 'lé', 'lú', 'lí')
 _ST_DERIVATIVE_STEMS = ('spohan',)
+_STRED_IE_INFLECTIONS = frozenset({'ie', 'ia', 'iu', 'í', 'ím', 'iam', 'iami', 'iach'})
 _NONSYLLABIC_INITIAL_R_ROOTS = ('rdie', 'rmuc', 'rmút')
 
 _LEXICAL_PREFIX_ROOTS = (
@@ -158,7 +160,9 @@ _LEXICAL_PREFIX_ROOTS = (
     ('hrozo', ('straš',)),
     ('miesto', ('kráľ',)),
     ('mimo', ('priestor',)),
+    ('zhrubo', ('hmot',)),
     ('zimo', ('mrav',)),
+    ('žiaru', ('vzdor',)),
     ('zvero', ('kruh',)),
     ('kde', ('ktor',)),
     ('ni', ('kde', 'kdy', 'kto')),
@@ -207,7 +211,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pso', ('hlav',)),
     ('prvo', ('stvor', 'tlač', 'tried')),
     ('rozo', ('br', 'ber', 'chv', 'dn', 'dr', 'hna', 'kl', 'mel', 'mieľ', 'mlet', 'pín', 'pn', 'pol', 'pre', 'pri', 'rv', 'sad', 'sáp', 'sej', 'sia', 'sie', 'sl', 'smej', 'smia', 'smut', 'spa', 'spie', 'sta', 'stl', 'strel', 'stret', 'strú', 'stup', 'stúp', 'tn', 'tret', 'trie', 'trú', 'vr', 'zvo', 'zvu', 'zna', 'zná', 'štv', 'šl', 'žen', 'žer', 'žier', 'žl', 'žr')),  # rozo·staviť, rozo·znať — not roz·os-
-    ('zo', ('žn',)),
+    ('zo', ('tn', 'žn')),
     ('samo', ('chvál', 'hlás', 'spravod', 'stvoriteľ', 'svet', 'sviet', 'vlád', 'vrav', 'vzdel', 'vznie', 'vytvor', 'zrej')),
     ('sedmo', ('spáč',)),
     ('slovo', ('sled',)),
@@ -218,6 +222,8 @@ _LEXICAL_PREFIX_ROOTS = (
     )),
     ('pohano', ('kresťan',)),
     ('pomsty', ('chtiv',)),
+    ('pro', ('stred',)),
+    ('zraku', ('chtiv',)),
     ('písmeno', ('žrút',)),
     ('pre', ('dchn', 'diabol', 'dier', 'dik', 'disk', 'dispoz', 'div', 'dra', 'driek', 'duchov', 'dup', 'glej', 'sťah', 'tn', 'žhav', 'ľst')),
     ('pred', ('včer',)),
@@ -240,11 +246,11 @@ _LEXICAL_PREFIX_ROOTS = (
     ('vlaso', ('štiep',)),
     ('vlasti', ('zrad',)),
     ('vše', ('spravod', 'svet', 'svät', 'vlád', 'zľutov', 'žrút')),
-    ('znovu', ('navrát', 'stret')),
+    ('znovu', ('navrát', 'smr', 'stret')),
     ('žalo', ('spev',)),
     ('žido', ('kresťan',)),
     ('o', (
-        'hra', 'hrá', 'hroz', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
+        'hra', 'hrá', 'hroz', 'chrán', 'chráň', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
         'plach', 'plách', 'plak', 'plat', 'plášt', 'pleš', 'plet', 'plod', 'plot', 'pľu', 'pľú',
         'prac', 'prad', 'praď', 'pral', 'pras', 'praš', 'práš', 'prať',
         'pre', 'pri', 'pros', 'prot',
@@ -275,6 +281,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('ná', ('cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'klaď', 'prav', 'skok', 'sten', 'stup', 'tlak', 'vnad', 'vrat', 'znak')),
     ('sprí', ('stup',)),
     ('spo', ('plat', 'zná')),
+    ('s', ('prostred',)),
     # po·drobiť (rozdrobiť) against pod·robiť (podmaniť) — the two are spelled
     # alike and only the sense tells them apart. PSP prints po-drobný, and the
     # adjective and its adverbs are the frequent reading of the string.
@@ -283,11 +290,11 @@ _LEXICAL_PREFIX_ROOTS = (
     ('do', ('čk',)),
     ('po', ('čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'vďač')),
-    ('u', ('bud', 'hrad', 'hrád', 'krát', 'kry', 'krý', 'pokoj', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
+    ('u', ('bud', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kry', 'krý', 'pokoj', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad', 'lh', 'sťah', 'tn')),
-    ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'vďač')),
-    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup', 'zrak')),
-    ('ú', ('hrad', 'kryt', 'plat', 'stup', 'tlak')),
+    ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'vda', 'vdá', 'vďač', 'vďak')),
+    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup', 'zrak', 'zrač')),
+    ('ú', ('hrad', 'kryt', 'plat', 'stred', 'stup', 'tlak')),
 )
 
 _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
@@ -296,7 +303,7 @@ _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
 
 _NESTED_PREFIX_ROOTS = (
     ('do', ('tkn',)),
-    ('o', ('brús', 'chlad', 'chrán', 'chrom', 'hlas', 'hlás', 'hluch', 'hmat', 'hnu', 'hol', 'hryz', 'klam', 'krídl', 'mdliev', 'slav', 'strih', 'toč', 'táč', 'vplyv', 'zbroj', 'šklb')),
+    ('o', ('brús', 'chlad', 'chrán', 'chráň', 'chrom', 'hlas', 'hlás', 'hluch', 'hmat', 'hnu', 'hol', 'hryz', 'klam', 'krídl', 'mdliev', 'slav', 'strih', 'toč', 'táč', 'vplyv', 'zbroj', 'šklb')),
     ('ob', ('íd', 'išiel', 'išl', 'ísť', 'omkn', 'oznám', 'ozret')),
     ('obo', ('p',)),
     ('od', ('íd', 'išiel', 'išl', 'ísť', 'opier', 'tiah', 'umier', 'umr', 'vih', 'zrkadľ', 'ži')),
@@ -305,10 +312,10 @@ _NESTED_PREFIX_ROOTS = (
     ('pod', ('uj',)),
     ('pri', ('klon', 'sn')),
     ('roz', ('oh',)),
-    ('u', ('chrán', 'chvát', 'drž', 'hlad', 'hryz', 'klad', 'krad', 'mlč', 'mĺk', 'mŕtv', 'pad', 'plat', 'sporad', 'trp', 'tvrd', 'tŕž', 'vrh', 'zdrav', 'zn')),
+    ('u', ('chrán', 'chráň', 'chvát', 'drž', 'hlad', 'hryz', 'klad', 'krad', 'mlč', 'mĺk', 'mŕtv', 'pad', 'plat', 'sporad', 'trp', 'tvrd', 'tŕž', 'vrh', 'zdrav', 'zn')),
     ('za', ('obíd', 'obiš', 'tkn', 'čn', 'hl', 'hn', 'mk', 'žn')),
     ('vy', ('hne', 'kla', 'sch', 'zne')),
-    ('zo', ('žn',)),
+    ('zo', ('tn', 'žn')),
 )
 
 # Vocalized prefix variants (bezo-, nado-, obo-, podo-, predo-) exist only in
@@ -377,6 +384,7 @@ _DLO_PARADIGM_STEMS = frozenset({'páči'})
 _DLO_PAST_PREFIXES = frozenset({'', 'do', 'na', 'od', 'o', 'po', 'pre', 'pri', 'roz', 's', 'u', 'v', 'vy', 'vz', 'z', 'za'})
 _D_FINAL_PAST_ROOTS = ('hlad', 'hliad', 'krad', 'pad', 'vlád')
 _D_FINAL_PAST_STEMS = frozenset({'zjed'})
+_LEXICAL_PAST_STEMS = frozenset({'žmurk'})
 _TINA_INFLECTIONS = ('tinami', 'tinách', 'tinám', 'tinou', 'tine', 'tinu', 'tiny')
 _TINA_NUMERAL_STEMS = frozenset({'miliard'})
 _SKNUT_FINITE_SUFFIXES = ('neme', 'nete', 'nem', 'neš', 'ni')
@@ -776,7 +784,7 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     if wl.startswith('obuš'):
         return None, None
     # Nefrit-, nezbed- and nežn- are lexical stems, not ne- forms.
-    if wl.startswith(('nefrit', 'nezbed', 'nežn')) or wl == 'neger' or (
+    if wl.startswith(('nefrit', 'nektár', 'nezbed', 'nežn')) or wl == 'neger' or (
         wl.startswith('negr') and wl[4:] in _NEGER_CONTRACTED_INFLECTIONS
     ):
         return None, None
@@ -796,14 +804,18 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             reml = rem.lower()
             if pfx == 'pred' and wl.startswith(('predák', 'predátor')):
                 continue
-            if pfx == 'pre' and wl.startswith('presn') and wl[5:] in _PRESN_INFLECTIONS:
+            if pfx == 'pre' and (
+                wl.startswith('prestíž')
+                or (wl.startswith('presn') and wl[5:] in _PRESN_INFLECTIONS)
+            ):
                 continue
             if len(rem) < 3:
                 continue
             # In z-obraz-, z-ohľad-, z-ohnúť, z-ostať and z-otroč- the o belongs
             # to the vowel-initial base; keep genuine zo- forms such as zo-brať intact.
             if pfx == 'zo' and (
-                reml.startswith((
+                wl == 'zostra'
+                or reml.startswith((
                     'braz', 'hľad', 'hnut', 'stať', 'stal', 'staň', 'stan',
                     'stáv', 'stat', 'troč',
                 ))
@@ -827,8 +839,19 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             if pfx == 'po' and (
                 wl.startswith((
                     'podl', 'pohreb', 'poplach', 'popruh', 'postul', 'pošv', 'potk',
-                    'povodn', 'povodň', 'povraz',
+                    'potmehúd', 'povodn', 'povodň', 'povraz', 'povráz', 'pokrov',
                 ))
+                or (
+                    wl.startswith('poklad')
+                    and (
+                        wl[6:] in ('', 'e', 'mi', 'och', 'om', 'ov', 'u', 'y')
+                        or wl.startswith('pokladn')
+                    )
+                )
+                or (
+                    wl.startswith('poklop')
+                    and wl[6:] in ('', 'e', 'mi', 'och', 'om', 'ov', 'u', 'y')
+                )
                 or reml.startswith(('spas', 'spol'))
             ):
                 continue
@@ -853,6 +876,16 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 or wl in _PRAHNUT_CONTRACTED_PAST
                 or (wl.startswith('prak') and wl[4:] in _PRAK_INFLECTIONS)
                 or (wl.startswith('prašt') and wl[5:] in _PRASTIT_INFLECTIONS)
+            ):
+                continue
+            # Doktor- and dosk- in the doska family are lexical stems; do-|sk-
+            # remains productive in doskočiť and doskákať.
+            if pfx == 'do' and (
+                wl.startswith(('doktor', 'doskov'))
+                or (
+                    wl.startswith('dosk')
+                    and wl[4:] in ('a', 'ami', 'e', 'ou', 'u', 'y', 'ách', 'ám')
+                )
             ):
                 continue
             # dobr- is the lexical base of dobrý, dobro and dobrota, not do- +
@@ -886,8 +919,8 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 'spekt', 'spel', 'sper', 'speš', 'st', 'tiv', 'zret',
             )):
                 continue
-            # Súcn-, súd-, súkn- and súprav- are lexical stems, not sú- forms.
-            if pfx == 'sú' and wl.startswith(('súcn', 'súd', 'súkn', 'súprav')):
+            # Súcn-, súd-, súkn-, súkrom- and súprav- are lexical stems, not sú- forms.
+            if pfx == 'sú' and wl.startswith(('súcn', 'súd', 'súkn', 'súkrom', 'súprav')):
                 continue
             # Rozum- and rozár- are lexical stems, not productive roz- forms.
             if pfx == 'roz' and reml.startswith(('um', 'ár')):
@@ -1066,6 +1099,8 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     wl = w.lower()
     if wl.startswith('novocain') and wl[len('novocain'):] in _NOVOCAIN_INFLECTIONS:
         return None, None
+    if wl in ('halapartňa', 'halapartňami'):
+        return None, None
     for stem in _ST_DERIVATIVE_STEMS:
         if wl.startswith(stem + 'št'):
             return w[:len(stem)], w[len(stem):]
@@ -1088,6 +1123,8 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
         if not wl.startswith(rhythmic_stem):
             continue
         tail = wl[len(rhythmic_stem):]
+        if tail.startswith('nin'):
+            continue
         if any(tail.startswith(suffix) for suffix in _RHYTHMIC_SHORT_NY_SUFFIXES):
             start = len(rhythmic_stem)
             return w[:start], w[start:]
@@ -1161,7 +1198,8 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
             if matched == 'tina' and not (steml.endswith('š') or steml in _TINA_NUMERAL_STEMS):
                 continue
             if matched == 'dlo' and (
-                steml.endswith('vie')
+                wl == 'krídlo'
+                or steml.endswith('vie')
                 or wl.startswith(('vychladlo', 'nevychladlo'))
                 or _is_d_final_past(w)
             ):
@@ -1261,6 +1299,7 @@ def _strip_grammatical_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
             sfx in ('la', 'li', 'lo')
             and _strip_prefix(stem)[0] is None
             and not steml.endswith(('st', 'sk'))
+            and steml not in _LEXICAL_PAST_STEMS
             and not _is_d_final_past(w)
         ):
             continue
@@ -1332,6 +1371,12 @@ def get_morpheme_parts(word: str) -> list[str]:
     a real morpheme boundary (``roz|ísť``, not ``ro|zísť``).
     """
     wl = word.lower()
+    if wl == 'poloprázdny':
+        return [word[:4], word[4:]]
+    for prefix in ('pro', 'ú'):
+        stem = prefix + 'stred'
+        if wl.startswith(stem) and wl[len(stem):] in _STRED_IE_INFLECTIONS:
+            return [word[:len(prefix)], word[len(prefix):len(stem)], word[len(stem):]]
     potreb_family = _split_potreb_family(word)
     if potreb_family is not None:
         prefixes, remainder = potreb_family
@@ -1349,6 +1394,8 @@ def get_morpheme_parts(word: str) -> list[str]:
         return [word[:2], word[2:5], word[5:]]
     if wl.startswith('mrš') and wl[3:] in _MRSTIT_INFLECTIONS:
         return [word[:3], word[3:]]
+    if wl.startswith('zmrš') and wl[4:] in _MRSTIT_INFLECTIONS:
+        return [word[:4], word[4:]]
 
     second = _split_compound_tail(word)
     if second is not None:

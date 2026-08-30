@@ -28,6 +28,7 @@ slabika-review = "slabika.review.server:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=7", "ruff", "reuse"]
+morph = ["PyMuPDF>=1.24"]
 
 [project.urls]
 Homepage = "https://github.com/pietrobb/slabika"

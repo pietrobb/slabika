@@ -57,6 +57,13 @@ _TYPOGRAPHIC_NOST_DERIVATIVE_ONSETS = ('n', 'ň')
 _CNOST_INFLECTIONS = frozenset({
     'cnosť', 'cnosťami', 'cnostiach', 'cnostiam', 'cnosťou', 'cností', 'cnosti',
 })
+_CHRAN_ROOT_CONTEXTS = (
+    ('ochran', ('', 'ne', 'seba')),
+    ('záchran', ('', 'ne', 'seba')),
+    ('ochraň', ('', 'ne', 'vše')),
+    ('zachraň', ('', 'ne')),
+    ('uchraň', ('', 'ne')),
+)
 
 
 def _nucleus_spans(word: str) -> tuple[list[str], list[int], list[tuple[int, int]]]:
@@ -139,6 +146,20 @@ def _typographic_nost_seams(parts: list[str]) -> list[int]:
                 return [seam]
             break
     return []
+
+
+def _chran_root_spans(word: str) -> list[tuple[int, int]]:
+    """Return attested chran-/chraň- roots after their family prefixes."""
+    folded = word.casefold()
+    spans = []
+    for family, leaders in _CHRAN_ROOT_CONTEXTS:
+        root_offset = family.index('ch')
+        for leader in leaders:
+            if folded.startswith(leader + family):
+                start = len(leader) + root_offset
+                spans.append((start, start + 5))
+                break
+    return spans
 
 
 def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
@@ -260,6 +281,12 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         points.discard(instrumental_seam + 1)
         variants.discard(instrumental_seam + 1)
         contextual.discard(instrumental_seam + 1)
+
+    for seam, end in _chran_root_spans(word):
+        points.add(seam)
+        points = {point for point in points if not seam < point < end}
+        variants = {point for point in variants if not seam < point < end}
+        contextual = {point for point in contextual if not seam < point < end}
 
     # The two edges are not the same rule. Leaving a one-letter syllable at the
     # end of a word is barred outright (section 9, basic level), so that point
