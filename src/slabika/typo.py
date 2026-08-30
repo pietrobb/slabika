@@ -53,6 +53,7 @@ SOFT_HYPHEN = '\u00ad'
 _TYPOGRAPHIC_NOST_FORMS = (
     'nosťami', 'nostiach', 'nostiam', 'nosťou', 'ností', 'nosti', 'nosť',
 )
+_TYPOGRAPHIC_NOST_DERIVATIVE_ONSETS = ('n', 'ň')
 _CNOST_INFLECTIONS = frozenset({
     'cnosť', 'cnosťami', 'cnostiach', 'cnostiam', 'cnosťou', 'cností', 'cnosti',
 })
@@ -125,6 +126,11 @@ def _typographic_nost_seams(parts: list[str]) -> list[int]:
         and ''.join(parts[1:]).casefold() in _CNOST_INFLECTIONS
     ):
         return []
+    for onset in _TYPOGRAPHIC_NOST_DERIVATIVE_ONSETS:
+        marker = f'nost{onset}'
+        start = folded.find(marker)
+        if start >= 3 and any(is_vowel(char) for char in word[:start]):
+            return [start + 4]
     for form in _TYPOGRAPHIC_NOST_FORMS:
         if folded.endswith(form):
             seam = len(word) - len(form)
