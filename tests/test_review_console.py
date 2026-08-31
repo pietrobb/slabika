@@ -115,6 +115,30 @@ def test_default_review_assets_are_available():
     assert REVIEW.tex_hyphenate("maslo")
 
 
+def test_human_hyphenation_matches_the_normative_engine_mode():
+    assert (
+        REVIEW._hyphenation_match_mode("neobopínajú", "ne·o·bo·pí·na·jú")
+        == "contextual"
+    )
+    assert (
+        REVIEW._hyphenation_match_mode("pseudoumeleckými", "pseu·do·u·me·lec·ký·mi")
+        == "contextual"
+    )
+    assert REVIEW._hyphenation_match_mode("ovládlo", "ov·lád·lo") is None
+
+
+def test_unresolved_evidence_classification_is_conservative():
+    assert REVIEW.classify_unresolved_evidence(
+        "foreign-pronunciation", "PSP V.4 / §5.4", "Chýba doložená výslovnosť."
+    ) == "foreign_pronunciation"
+    assert REVIEW.classify_unresolved_evidence(
+        "fragment", "PSP V.1", "Neúplný korpusový fragment."
+    ) == "damaged_form"
+    assert REVIEW.classify_unresolved_evidence(
+        "po-|drob- / pod-|rob-", "PSP V.1", "Tvar je bez kontextu homografický."
+    ) == "other_evidence_limited"
+
+
 def test_server_uses_a_free_port_when_default_is_occupied():
     occupied = REVIEW.ThreadingHTTPServer(("127.0.0.1", 0), REVIEW.Handler)
     server = REVIEW._bind_server(occupied.server_address[1])
@@ -472,6 +496,8 @@ def test_psp_comparison_is_persistent_filterable_and_separate_from_human_review(
         "engine_current_verdict": "correct",
         "chlebikova_verdict": "incorrect",
         "comparison_outcome": "engine_only",
+        "unresolved_kind": None,
+        "unresolved_note": None,
         "verdict": "engine_corrected",
         "psp_reference": "PSP V.2.b / §4.2",
         "reason": "Dve spoluhlásky sa delia medzi sebou.",
@@ -659,6 +685,17 @@ def test_psp_audit_can_store_unresolved_engine_failure(corpus, monkeypatch):
     assert row["engine_after_hyphenation"] == "Español"
     assert row["engine_current_verdict"] == "unresolved"
     assert "neznáma cudzia graféma ñ" in row["comparison_note"]
+
+    corpus.store.execute(
+        """INSERT INTO psp_unresolved_classifications VALUES
+           ('Español', 'audit-foreign', 'foreign_pronunciation',
+            'Čaká na doloženú slovenskú výslovnosť.',
+            '2026-08-31T12:00:00+00:00')"""
+    )
+    corpus.store.commit()
+    assert corpus.psp_audit_progress("audit-foreign")["unresolved_categories"] == {
+        "foreign_pronunciation": 1
+    }
 
 
 def test_psp_audit_batches_are_fixed_groups_of_one_hundred(corpus):

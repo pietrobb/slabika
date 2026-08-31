@@ -315,7 +315,7 @@ _NESTED_PREFIX_ROOTS = (
     ('u', ('chrán', 'chráň', 'chvát', 'drž', 'hlad', 'hryz', 'klad', 'krad', 'mlč', 'mĺk', 'mŕtv', 'pad', 'plat', 'sporad', 'trp', 'tvrd', 'tŕž', 'vrh', 'zdrav', 'zn')),
     ('za', ('obíd', 'obiš', 'tkn', 'čn', 'hl', 'hn', 'mk', 'žn')),
     ('vy', ('hne', 'kla', 'sch', 'zne')),
-    ('zo', ('tn', 'žn')),
+    ('zo', ('stáv', 'tn', 'žn')),
 )
 
 # Vocalized prefix variants (bezo-, nado-, obo-, podo-, predo-) exist only in
@@ -376,7 +376,7 @@ _RHYTHMIC_SHORT_NIK = frozenset({'nik', 'nic'})
 _RHYTHMIC_SHORT_NY_SUFFIXES = (
     'neho', 'nemu', 'nych', 'nymi', 'nym', 'ny', 'na', 'ne', 'nu', 'ni',
 )
-_RHYTHMIC_SHORT_NY_STEMS = frozenset({'hviezd', 'prázd', 'zvlášt'})
+_RHYTHMIC_SHORT_NY_STEMS = frozenset({'hviezd', 'zvlášt'})
 _RHYTHMIC_LONG_NUCLEI = LONG_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 
 _DLO_INFLECTIONS = ('dlami', 'dlách', 'dlom', 'dlám', 'diel', 'dla', 'dle', 'dlu', 'dlá')
@@ -918,8 +918,8 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             if pfx == 'proti' and reml.startswith(('ven', 'vn')):
                 continue
             if pfx == 'pro' and reml.startswith((
-                'blem', 'blém', 'gnos', 'gnóz', 'gram', 'gres', 'sm', 'spech', 'spej', 'spie',
-                'spekt', 'spel', 'sper', 'speš', 'st', 'tiv', 'zret',
+                'blem', 'blém', 'gnos', 'gnóz', 'gram', 'gres', 'sm', 'spej', 'spie',
+                'spekt', 'spel', 'sper', 'st', 'tiv', 'zret',
             )):
                 continue
             # Súcn-, súd-, súkn-, súkrom- and súprav- are lexical stems, not sú- forms.
@@ -1021,6 +1021,8 @@ def _strip_nested_prefix(
     wl = w.casefold()
     for pfx, roots in _NESTED_PREFIX_ROOTS:
         if pfx == 'do' and outer_prefix != 'ne':
+            continue
+        if pfx == 'zo' and wl.startswith('zostáv') and outer_prefix != 'po':
             continue
         if any(wl.startswith(pfx + root) for root in roots):
             return w[:len(pfx)], w[len(pfx):]
@@ -1290,6 +1292,8 @@ def _split_bound_second_member(w: str) -> tuple[str, str] | None:
 def _strip_grammatical_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     """Split consonant-initial endings only from a consonant-final stem."""
     wl = w.lower()
+    if wl == 'halapartne':
+        return None, None
     for sfx in _SK_GRAMMATICAL_SUFFIXES_CONS:
         if not wl.endswith(sfx) or len(w) <= len(sfx) + 1:
             continue
@@ -1371,6 +1375,8 @@ def get_morpheme_parts(word: str) -> list[str]:
     a real morpheme boundary (``roz|ísť``, not ``ro|zísť``).
     """
     wl = word.lower()
+    if wl == 'ovládlo':
+        return [word[:1], word[1:5], word[5:]]
     if wl == 'neovládlo':
         return [word[:2], word[2:3], word[3:7], word[7:]]
     if wl.startswith('predlž'):

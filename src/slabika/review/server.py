@@ -157,6 +157,21 @@ CREATE TABLE IF NOT EXISTS psp_comparisons (
 
 CREATE INDEX IF NOT EXISTS psp_comparisons_form ON psp_comparisons(form);
 
+CREATE TABLE IF NOT EXISTS psp_unresolved_classifications (
+    form TEXT NOT NULL,
+    audit_id TEXT NOT NULL,
+    kind TEXT NOT NULL CHECK(kind IN
+        ('foreign_pronunciation', 'damaged_form', 'other_evidence_limited')),
+    note TEXT NOT NULL,
+    classified_at TEXT NOT NULL,
+    PRIMARY KEY(form, audit_id),
+    FOREIGN KEY(form, audit_id) REFERENCES psp_comparisons(form, audit_id)
+        ON DELETE CASCADE
+) WITHOUT ROWID;
+
+CREATE INDEX IF NOT EXISTS psp_unresolved_kind
+ON psp_unresolved_classifications(kind);
+
 CREATE TABLE IF NOT EXISTS psp_audit_runs (
     audit_id TEXT PRIMARY KEY,
     engine_ref TEXT NOT NULL,
@@ -284,6 +299,45 @@ def _engine(form: str) -> tuple[str, str, str | None]:
         return hyphenate(form), _recase(syllables(form), form), None
     except Exception as error:  # noqa: BLE001 - shown to the reviewer
         return form, form, f"{type(error).__name__}: {error}"
+
+
+def _hyphenation_match_mode(
+    form: str, expected: str | None, preferred: str | None = None
+) -> str | None:
+    if expected is None:
+        return None
+    candidates = (
+        ("preferred", preferred if preferred is not None else hyphenate(form)),
+        ("permissive", hyphenate(form, all_points=True)),
+        ("contextual", hyphenate(form, contextual=True)),
+        ("permissive_contextual", hyphenate(form, all_points=True, contextual=True)),
+    )
+    target = expected.casefold()
+    return next((mode for mode, output in candidates if output.casefold() == target), None)
+
+
+_DAMAGED_UNRESOLVED = re.compile(
+    r"fragment|poškoden|neúpl|odtrhn|preklep|zliat|chybne spojen|"
+    r"riadkov(?:ého|ý|o|om|ú)? (?:delen|zalomen|odtrh)|nedokončen|"
+    r"skráten(?:ý|á|é) (?:tvar|zápis)|odseknut",
+    re.IGNORECASE,
+)
+_FOREIGN_UNRESOLVED = re.compile(
+    r"cudz|foreign|výslov|§5\.4|V\.4|latinsk|anglick|nemeck|francúz|"
+    r"gréck|\bmeno\b|proper",
+    re.IGNORECASE,
+)
+
+
+def classify_unresolved_evidence(
+    family: str, psp_reference: str, reason: str, comparison_note: str = ""
+) -> str:
+    evidence = " ".join((family, psp_reference, reason, comparison_note))
+    if _DAMAGED_UNRESOLVED.search(evidence):
+        return "damaged_form"
+    if _FOREIGN_UNRESOLVED.search(evidence):
+        return "foreign_pronunciation"
+    return "other_evidence_limited"
 
 
 def _load_blind(paths: Path | list[Path] | tuple[Path, ...] | None) -> dict[str, dict]:
@@ -579,9 +633,13 @@ class Corpus:
             chunk = source_forms[start : start + 800]
             placeholders = ",".join("?" * len(chunk))
             for row in self.store.execute(
-                f"""SELECT * FROM psp_comparisons
-                    WHERE form IN ({placeholders})
-                    ORDER BY audited_at, audit_id""",
+                f"""SELECT c.*, u.kind AS unresolved_kind,
+                           u.note AS unresolved_note
+                    FROM psp_comparisons AS c
+                    LEFT JOIN psp_unresolved_classifications AS u
+                      ON u.form = c.form AND u.audit_id = c.audit_id
+                    WHERE c.form IN ({placeholders})
+                    ORDER BY c.audited_at, c.audit_id""",
                 chunk,
             ):
                 source_rows[row["form"]] = row
@@ -613,6 +671,7 @@ class Corpus:
         my_expected = _recase_marked(
             mine["expected_hyphenation"] if mine else None, review_form
         )
+        my_match_mode = _hyphenation_match_mode(review_form, my_expected, hyphenation)
         my_hyphenation_action = mine["hyphenation_action"] if mine else None
         my_syllabification_action = mine["syllabification_action"] if mine else None
 
@@ -662,6 +721,8 @@ class Corpus:
                 "engine_current_verdict": psp["engine_current_verdict"],
                 "chlebikova_verdict": psp["chlebikova_verdict"],
                 "comparison_outcome": psp["comparison_outcome"],
+                "unresolved_kind": psp["unresolved_kind"],
+                "unresolved_note": psp["unresolved_note"],
                 "verdict": psp["verdict"],
                 "psp_reference": psp["psp_reference"],
                 "reason": psp["reason"],
@@ -716,10 +777,11 @@ class Corpus:
                 "deleted": mine["is_deleted"] if mine else None,
             },
             "my_expected": my_expected,
+            "my_hyphenation_match_mode": my_match_mode,
             "my_syllabification": _recase_marked(
                 mine["expected_syllabification"] if mine else None, review_form
             ),
-            "my_disagrees": bool(my_expected) and my_expected != hyphenation,
+            "my_disagrees": bool(my_expected) and my_match_mode is None,
             "stale_h": (
                 bool(my_hyphenation_action)
                 and (mine["engine_hyphenation"] or "").lower() != hyphenation.lower()
@@ -814,8 +876,11 @@ class Corpus:
                 for form in forms
                 if form in rows
                 and _recase_marked(rows[form]["expected_hyphenation"], form)
-                and _recase_marked(rows[form]["expected_hyphenation"], form)
-                != _engine(form)[0]
+                and _hyphenation_match_mode(
+                    form,
+                    _recase_marked(rows[form]["expected_hyphenation"], form),
+                    _engine(form)[0],
+                ) is None
             ]
         if status == "engine_error":
             return [form for form in forms if _engine(form)[2] is not None]
@@ -940,6 +1005,15 @@ class Corpus:
                WHERE i.audit_id = ?""",
             (run["audit_id"],),
         ).fetchone()
+        unresolved_categories = dict(self.store.execute(
+            """SELECT u.kind, COUNT(*)
+               FROM psp_unresolved_classifications AS u
+               JOIN psp_comparisons AS c
+                 ON c.form = u.form AND c.audit_id = u.audit_id
+               WHERE u.audit_id = ? AND c.comparison_outcome = 'unresolved'
+               GROUP BY u.kind ORDER BY u.kind""",
+            (run["audit_id"],),
+        ))
         next_row = self.store.execute(
             """SELECT MIN(i.position)
                FROM psp_audit_items AS i
@@ -966,6 +1040,7 @@ class Corpus:
             "chlebikova_only": counts["chlebikova_only"] or 0,
             "both_incorrect": counts["both_incorrect"] or 0,
             "unresolved": counts["unresolved"] or 0,
+            "unresolved_categories": unresolved_categories,
             "next_batch": (
                 (next_position - 1) // batch_size + 1
                 if next_position is not None else None
@@ -1251,7 +1326,7 @@ class Corpus:
             review_form = self.review_forms[form]
             expected = _recase_marked(row["expected_hyphenation"], review_form)
             engine_hyphenation, _, engine_error = _engine(review_form)
-            if expected == engine_hyphenation:
+            if _hyphenation_match_mode(review_form, expected, engine_hyphenation):
                 continue
             corrections.append(
                 {

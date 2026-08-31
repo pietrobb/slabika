@@ -151,14 +151,29 @@ def test_attested_bd_onset_licenses_real_prefix_boundaries():
 
 def test_prazd_family_keeps_suffix_and_compound_seams():
     expected = {
-        "prázdna": "prázd·na",
-        "prázdneho": "prázd·ne·ho",
-        "zaneprázdnená": "za·ne·prázd·ne·ná",
-        "zaneprázdnenosti": "za·ne·prázd·ne·nos·ti",
-        "prázdny": "prázd·ny",
-        "prázdnymi": "prázd·ny·mi",
+        "prázdna": "práz·dna",
+        "prázdneho": "práz·dne·ho",
+        "zaneprázdnená": "za·ne·práz·dne·ná",
+        "zaneprázdnenosti": "za·ne·práz·dne·nos·ti",
+        "prázdny": "práz·dny",
+        "prázdnymi": "práz·dny·mi",
         "prázdnohlaví": "práz·dno·hla·ví",
         "prázdnosť": "prázd·nosť",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_reviewed_rmss_families_follow_psp_morpheme_evidence():
+    expected = {
+        "halapartne": "ha·la·par·tne",
+        "najprospešnejšie": "naj·pro·speš·nej·šie",
+        "nepozostáva": "ne·po·zo·stá·va",
+        "nepozostávajú": "ne·po·zo·stá·va·jú",
+        "nepozostávali": "ne·po·zo·stá·va·li",
+        "neprospech": "ne·pro·spech",
+        "nevyprázdni": "ne·vy·práz·dni",
+        "poloprázdna": "po·lo·práz·dna",
+        "ľudoprázdna": "ľu·do·práz·dna",
     }
     assert {word: hyphenate(word) for word in expected} == expected
 
@@ -903,7 +918,7 @@ def test_twenty_ninth_discovered_family_batch_keeps_only_clear_compound_seams():
     expected = {
         "poloslepý": "po·lo·sle·pý",
         "svetočlovek": "sve·to·člo·vek",
-        "svetloprázdna": "svet·lo·prázd·na",
+        "svetloprázdna": "svet·lo·práz·dna",
         "svetoslepý": "sve·to·sle·pý",
         "svetosliedičský": "sve·to·slie·dič·ský",
         "päťuholník": "päť·uhol·ník",
@@ -2184,7 +2199,7 @@ def test_batch_130_keeps_pol_quantity_and_polo_compound_seams():
         "polohmotným": "po·lo·hmot·ným",
         "poloplášť": "po·lo·plášť",
         "poloplešatú": "po·lo·ple·ša·tú",
-        "poloprázdna": "po·lo·prázd·na",
+        "poloprázdna": "po·lo·práz·dna",
         "polopriznania": "po·lo·pri·zna·nia",
         "poloprorok": "po·lo·pro·rok",
         "poloslová": "po·lo·slo·vá",
@@ -2836,11 +2851,11 @@ def test_batch_153_keeps_pri_zrak_and_pro_initial_lexical_stems():
         "program": "prog·ram",
         "progresii": "prog·re·sii",
         "prosme": "pros·me",
-        "prospech": "pros·pech",
+        "prospech": "pro·spech",
         "prospeje": "pros·pe·je",
         "prospekt": "pros·pekt",
         "prosperovať": "pros·pe·ro·vať",
-        "prospešná": "pros·peš·ná",
+        "prospešná": "pro·speš·ná",
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("prorokstvo") == "pro·rok·stvo"
@@ -3091,7 +3106,7 @@ def test_audited_linking_vowel_compounds_keep_their_compositional_seam():
         "letokruhy": "le·to·kru·hy",
         "leukoplast": "leu·ko·plast",
         "ľubozvučný": "ľu·bo·zvuč·ný",
-        "ľudoprázdny": "ľu·do·prázd·ny",
+        "ľudoprázdny": "ľu·do·práz·dny",
         "lukostrelec": "lu·ko·stre·lec",
         "lykožrút": "ly·ko·žrút",
         "lyrochvostov": "ly·ro·chvos·tov",
@@ -5071,7 +5086,7 @@ def test_batch_207_preserves_clear_compound_seams():
 def test_batch_208_preserves_clear_native_morpheme_and_diphthong_boundaries():
     expected = {
         "vládlo": "vlád·lo",
-        "ovládlo": "ov·lád·lo",
+        "ovládlo": "ovlád·lo",
         "neovládlo": "ne·o·vlád·lo",
         "zvládlo": "zvlád·lo",
         "vlákienkami": "vlá·kien·ka·mi",
@@ -5155,7 +5170,7 @@ def test_batch_214_preserves_clear_vy_prefix_seams():
 
 def test_batch_216_preserves_compound_and_suffix_boundaries():
     expected = {
-        "vzduchoprázdny": "vzdu·cho·prázd·ny",
+        "vzduchoprázdny": "vzdu·cho·práz·dny",
         "vzhliadlo": "vzhliad·lo",
         "vzrastlý": "vzrast·lý",
         "vzrastlých": "vzrast·lých",
