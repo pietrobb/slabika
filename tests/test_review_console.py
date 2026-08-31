@@ -611,22 +611,30 @@ def test_psp_audit_freezes_every_difference_and_keeps_human_review_separate(
     assert comparison["chlebikova_verdict"] == "incorrect"
     assert comparison["comparison_outcome"] == "engine_only"
 
-    corpus.adjudicate_psp(
-        {
-            "audit_id": "audit-1",
-            "form": "maslo",
-            "psp_hyphenation": "mas-lo",
-            "psp_variants": ["ma-slo"],
-            "psp_reference": "PSP V.3 / §3.5",
-            "reason": "PSP pripúšťajú dva variantné body.",
-            "replace": True,
-        }
-    )
+    replacement = {
+        "audit_id": "audit-1",
+        "form": "maslo",
+        "psp_hyphenation": "mas-lo",
+        "psp_variants": ["ma-slo"],
+        "psp_reference": "PSP V.3 / §3.5",
+        "reason": "PSP pripúšťajú dva variantné body.",
+        "replace": True,
+    }
+    with pytest.raises(ValueError, match="dôvod nahradenia"):
+        corpus.adjudicate_psp(replacement)
+    replacement["supersession_reason"] = "Nový doklad potvrdil druhý variant."
+    corpus.adjudicate_psp(replacement)
     comparison = corpus.store.execute(
         "SELECT * FROM psp_comparisons WHERE audit_id = 'audit-1' AND form = 'maslo'"
     ).fetchone()
     assert comparison["comparison_outcome"] == "both_correct"
     assert json.loads(comparison["psp_variants"]) == ["mas·lo", "ma·slo"]
+    assert "Nahrádza rozsudok z" in comparison["comparison_note"]
+    history = corpus.store.execute(
+        "SELECT * FROM psp_comparison_log WHERE audit_id = 'audit-1' AND form = 'maslo'"
+    ).fetchone()
+    assert history["supersession_reason"] == "Nový doklad potvrdil druhý variant."
+    assert json.loads(history["previous_json"])["psp_variants"] == '["mas·lo"]'
 
     monkeypatch.setattr(REVIEW, "_engine", engine_voice)
     corpus.adjudicate_psp(
@@ -696,6 +704,23 @@ def test_psp_audit_can_store_unresolved_engine_failure(corpus, monkeypatch):
     assert corpus.psp_audit_progress("audit-foreign")["unresolved_categories"] == {
         "foreign_pronunciation": 1
     }
+
+    monkeypatch.setattr(REVIEW, "_engine", lambda form: ("Es·pa·ñol", form, None))
+    corpus.adjudicate_psp(
+        {
+            "audit_id": "audit-foreign",
+            "form": "Español",
+            "psp_hyphenation": "Es-pa-ñol",
+            "psp_reference": "PSP V.4 / §5.4",
+            "reason": "Doložená výslovnosť už umožňuje tvar rozhodnúť.",
+            "replace": True,
+            "supersession_reason": "Nový výslovnostný doklad odstránil neistotu.",
+        }
+    )
+    assert corpus.psp_audit_progress("audit-foreign")["unresolved_categories"] == {}
+    assert corpus.store.execute(
+        "SELECT COUNT(*) FROM psp_comparison_log WHERE form = 'Español'"
+    ).fetchone()[0] == 1
 
 
 def test_psp_audit_batches_are_fixed_groups_of_one_hundred(corpus):

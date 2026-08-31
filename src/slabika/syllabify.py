@@ -150,6 +150,7 @@ _PRESN_INFLECTIONS = frozenset({
 _RASTLINA_FAMILY_STEMS = ('rastlin', 'rastlín')
 _RASTLY_ENDINGS = ('lými', 'lého', 'lému', 'lých', 'lým', 'lej', 'lou', 'lom', 'lý', 'lá', 'lé', 'lú', 'lí')
 _ST_DERIVATIVE_STEMS = ('spohan',)
+_POKRYTECTVO_ENDINGS = frozenset({'tvo', 'tva', 'tve', 'tvom', 'tvu'})
 _STRED_IE_INFLECTIONS = frozenset({'ie', 'ia', 'iu', 'í', 'ím', 'iam', 'iami', 'iach'})
 _NONSYLLABIC_INITIAL_R_ROOTS = ('rdie', 'rmuc', 'rmút')
 
@@ -164,6 +165,8 @@ _LEXICAL_SYLLABLE_LENGTHS = {
     'archelaus': (2, 3, 2, 2),
     'aucklandskom': (4, 4, 4),
     'beaujolais': (4, 2, 4),
+    'drugstore': (4, 5),
+    'jones': (5,),
     'mahalaleel': (2, 2, 2, 4),
 }
 _ALZBETA_PART_LENGTHS = {
@@ -1449,6 +1452,8 @@ def get_morpheme_parts(word: str) -> list[str]:
         return [*get_morpheme_parts(word[:start]), word[start:]]
     if wl.startswith(_RASTLINA_FAMILY_STEMS):
         return [word[:4], *get_morpheme_parts(word[4:])]
+    if wl.startswith('pokrytec') and wl[8:] in _POKRYTECTVO_ENDINGS:
+        return [*get_morpheme_parts(word[:8]), word[8:]]
     if wl.startswith('obvykl') and wl[6:] in _OBVYKL_INFLECTIONS:
         return [word[:2], word[2:5], word[5:]]
     if wl.startswith('mrš') and wl[3:] in _MRSTIT_INFLECTIONS:
@@ -1669,6 +1674,7 @@ _LATIN_HIATUS_TAILS = ('eum', 'eus')
 # reliable eu nucleus in learned loans.
 _LEXICAL_FALLING_HIATUS = (('abeund', 2), ('aleut', 2), ('reum', 1))
 _LEXICAL_RISING_HIATUS = (('triumf', 'iu'),)
+_LEXICAL_RISING_DIPHTHONG_STEMS = ('klient', 'pacient')
 _LEXICAL_FALLING_DIPHTHONGS = (
     ('hait', 'ai'),
     ('oppenheimer', 'ei'),
@@ -1694,7 +1700,7 @@ _VOWEL_LIKE = (
 _MAX_ONSET = 3
 
 
-def _resolve_hiatus(phonemes: list[str]) -> list[str]:
+def _resolve_hiatus(word: str, phonemes: list[str]) -> list[str]:
     """Resolve written i-vowel sequences as one nucleus or as a hiatus.
 
     Slovak spelling writes the diphthongs ia, ie, iu exactly like the hiatus of
@@ -1714,6 +1720,7 @@ def _resolve_hiatus(phonemes: list[str]) -> list[str]:
     palatalizing consonant, stays one nucleus.
     """
     out: list[str] = []
+    lexical_ient_diphthong = word.casefold().startswith(_LEXICAL_RISING_DIPHTHONG_STEMS)
     last = len(phonemes) - 1
     for i, ph in enumerate(phonemes):
         if ph in ('ia', 'ie', 'iu'):
@@ -1742,7 +1749,11 @@ def _resolve_hiatus(phonemes: list[str]) -> list[str]:
                 and phonemes[i - 1] == 'c'
                 and phonemes[i + 1:] == ['m', 'i']
             )
-            learned_ient = ph == 'ie' and phonemes[i + 1:i + 3] == ['n', 't']
+            learned_ient = (
+                ph == 'ie'
+                and phonemes[i + 1:i + 3] == ['n', 't']
+                and not lexical_ient_diphthong
+            )
             native_ieho = ph == 'ie' and phonemes[i + 1:] == ['h', 'o']
             native_kien = (
                 ph == 'ie' and i > 0 and phonemes[i - 1] == 'k'
@@ -1868,7 +1879,7 @@ def _merge_falling_diphthongs(word: str, phonemes: list[str]) -> list[str]:
 
 
 def _phonemes(word: str) -> list[str]:
-    phonemes = _merge_latin_qu(_resolve_hiatus(split_into_phonemes(word)))
+    phonemes = _merge_latin_qu(_resolve_hiatus(word, split_into_phonemes(word)))
     wl = word.casefold()
     for stem, grapheme in _LEXICAL_RISING_HIATUS:
         if wl.startswith(stem):

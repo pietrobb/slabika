@@ -247,7 +247,9 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
             points.discard(seam + 1)
             contextual.add(seam + 1)
 
-        if _variant_crosses_seam(left, right):
+        if left.casefold().endswith('ec') and right.casefold().startswith('tv'):
+            variants.add(seam - 1)
+        elif _variant_crosses_seam(left, right):
             alternatives = [
                 point for point in raw_points
                 if point != seam

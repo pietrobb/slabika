@@ -325,8 +325,8 @@ def test_k_suffix_outranks_43_but_leaves_the_sk_suffix_alone():
     first; otherwise ·k· may also follow a sibilant-final noun stem.
     """
     assert get_morpheme_parts("klientka") == ["klient", "ka"]
-    assert hyphenate("klientka") == "kli·ent·ka"
-    assert hyphenate("klientkou") == "kli·ent·kou"
+    assert hyphenate("klientka") == "klient·ka"
+    assert hyphenate("klientkou") == "klient·kou"
     assert hyphenate("poistky") == "po·ist·ky"
     assert hyphenate("veštkyňa") == "vešt·ky·ňa"
 

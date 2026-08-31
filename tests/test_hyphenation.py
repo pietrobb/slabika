@@ -76,7 +76,7 @@ def test_slovak_hyphenation_golden_cases():
         "afrodiziakum": "af·ro·di·zi·a·kum",
         "akciami": "ak·ci·ami",
         "funkciami": "funk·ci·ami",
-        "klientka": "kli·ent·ka",
+        "klientka": "klient·ka",
         "koeficientom": "ko·e·fi·ci·en·tom",
         "kocúrieho": "ko·cú·rie·ho",
         "Kazaština": "Ka·zaš·ti·na",
@@ -100,6 +100,29 @@ def test_slovak_hyphenation_golden_cases():
     }
 
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_client_and_patient_keep_codified_diphthongal_ie():
+    expected = {
+        "klient": "klient",
+        "klienta": "klien·ta",
+        "klientka": "klient·ka",
+        "klientov": "klien·tov",
+        "pacient": "pa·cient",
+        "pacienta": "pa·cien·ta",
+        "pacientka": "pa·cient·ka",
+        "pacientov": "pa·cien·tov",
+        "koeficientom": "ko·e·fi·ci·en·tom",
+        "preorientovanie": "pre·o·ri·en·to·va·nie",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_pokrytectvo_prefers_the_agent_noun_seam_and_keeps_the_variant():
+    assert hyphenate("pokrytectvo") == "po·kry·tec·tvo"
+    assert hyphenate("pokrytectvo", all_points=True) == "po·kry·te·c·tvo"
+    assert hyphenate("pokrytectvom") == "po·kry·tec·tvom"
+    assert hyphenate("pokrytectvom", all_points=True) == "po·kry·te·c·tvom"
 
 
 def test_aleut_hiatus_does_not_split_later_ou_endings():
@@ -5166,6 +5189,8 @@ def test_reviewed_foreign_names_and_alzbeta_family():
         "Archelaus": "Ar·che·la·us",
         "Aucklandskom": "Auck·land·skom",
         "Beaujolais": "Beau·jo·lais",
+        "drugstore": "drug·store",
+        "Jones": "Jones",
         "Mahalaleel": "Ma·ha·la·leel",
     }
     assert {word: hyphenate(word) for word in expected} == expected

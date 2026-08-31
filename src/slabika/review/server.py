@@ -157,6 +157,19 @@ CREATE TABLE IF NOT EXISTS psp_comparisons (
 
 CREATE INDEX IF NOT EXISTS psp_comparisons_form ON psp_comparisons(form);
 
+CREATE TABLE IF NOT EXISTS psp_comparison_log (
+    entry_id INTEGER PRIMARY KEY,
+    form TEXT NOT NULL,
+    audit_id TEXT NOT NULL,
+    operation TEXT NOT NULL CHECK(operation = 'replace'),
+    previous_json TEXT NOT NULL,
+    supersession_reason TEXT NOT NULL CHECK(supersession_reason <> ''),
+    replaced_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS psp_comparison_log_form
+ON psp_comparison_log(form, audit_id);
+
 CREATE TABLE IF NOT EXISTS psp_unresolved_classifications (
     form TEXT NOT NULL,
     audit_id TEXT NOT NULL,
@@ -1112,7 +1125,22 @@ class Corpus:
             )
         engine_after = _recase_marked(engine_after, form)
         engine_tex_after = _tex_mode(engine_after, form)
+        existing = self.store.execute(
+            "SELECT * FROM psp_comparisons WHERE form = ? AND audit_id = ?",
+            (form, audit_id),
+        ).fetchone()
+        replace = bool(payload.get("replace"))
+        supersession_reason = (payload.get("supersession_reason") or "").strip()
         comparison_note = payload.get("comparison_note") or ""
+        if replace:
+            if existing is None:
+                raise ValueError("nahrádzaný PSP rozsudok neexistuje")
+            if not supersession_reason:
+                raise ValueError("dôvod nahradenia skoršieho PSP rozsudku je povinný")
+            comparison_note = (
+                f"{comparison_note}\nNahrádza rozsudok z {existing['audited_at']}: "
+                f"{supersession_reason}"
+            ).strip()
         if engine_error:
             comparison_note = (
                 f"{comparison_note}\nAktuálny engine zlyhal: {engine_error}"
@@ -1171,7 +1199,28 @@ class Corpus:
         with self.lock:
             self.store.execute("BEGIN IMMEDIATE")
             try:
-                if payload.get("replace"):
+                if replace:
+                    current = self.store.execute(
+                        "SELECT * FROM psp_comparisons WHERE form = ? AND audit_id = ?",
+                        (form, audit_id),
+                    ).fetchone()
+                    if current is None or dict(current) != dict(existing):
+                        raise RuntimeError(
+                            "PSP rozsudok sa počas nahrádzania zmenil; načítajte ho znova"
+                        )
+                    self.store.execute(
+                        """INSERT INTO psp_comparison_log
+                           (form, audit_id, operation, previous_json,
+                            supersession_reason, replaced_at)
+                           VALUES (?, ?, 'replace', ?, ?, ?)""",
+                        (
+                            form,
+                            audit_id,
+                            json.dumps(dict(existing), ensure_ascii=False),
+                            supersession_reason,
+                            _now(),
+                        ),
+                    )
                     self.store.execute(
                         "DELETE FROM psp_comparisons WHERE form = ? AND audit_id = ?",
                         (form, audit_id),
@@ -1190,6 +1239,12 @@ class Corpus:
                                ?, ?, ?, ?, ?, ?)""",
                     values,
                 )
+                if not unresolved:
+                    self.store.execute(
+                        """DELETE FROM psp_unresolved_classifications
+                           WHERE form = ? AND audit_id = ?""",
+                        (form, audit_id),
+                    )
                 self.store.commit()
             except BaseException:
                 self.store.rollback()
