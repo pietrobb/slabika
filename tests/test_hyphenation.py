@@ -167,6 +167,8 @@ def test_rmss_root_conflicts_are_independently_decided_by_psp():
     expected = {
         "doktor": "dok·tor",
         "doktorský": "dok·tor·ský",
+        "Doktrína": "Dok·trí·na",
+        "doktrinálne": "dok·tri·nál·ne",
         "poloprázdny": "po·lo·práz·dny",
         "prázdniny": "práz·dni·ny",
         "prázdninový": "práz·dni·no·vý",
@@ -186,6 +188,7 @@ def test_rmss_root_conflicts_are_independently_decided_by_psp():
         "prestížny": "pres·tíž·ny",
         "doska": "dos·ka",
         "halapartňa": "ha·la·par·tňa",
+        "Haitská": "Hait·ská",
         "nektár": "nek·tár",
         "poklop": "pok·lop",
         "pokrový": "pok·ro·vý",
@@ -2158,13 +2161,14 @@ def test_batch_72_guarded_po_and_nested_prefix_families():
     assert hyphenate("podrobiť") == "po·dro·biť"
 
 
-def test_batch_129_keeps_the_lexical_pohreb_stem():
+def test_batch_129_keeps_the_po_hreb_seam():
     expected = {
-        "pohreb": "poh·reb",
-        "pohrebe": "poh·re·be",
-        "pohrebiská": "poh·re·bis·ká",
-        "pohrebník": "poh·reb·ník",
-        "pohrebnými": "poh·reb·ný·mi",
+        "pohreb": "po·hreb",
+        "pohrebe": "po·hre·be",
+        "pohrebiská": "po·hre·bis·ká",
+        "pohrebník": "po·hreb·ník",
+        "pohrebnými": "po·hreb·ný·mi",
+        "pohrebníctvo": "po·hreb·níc·tvo",
     }
     assert {word: hyphenate(word) for word in expected} == expected
 
@@ -3265,9 +3269,11 @@ def test_batch_40_na_jim_root_does_not_become_a_false_superlative():
 
 
 def test_batch_41_lz_root_keeps_the_superlative_prefix_seam():
-    assert hyphenate("najlživejšie") == "naj·l·ži·vej·šie"
-    assert hyphenate("najlživejšou") == "naj·l·ži·vej·šou"
+    assert hyphenate("lživý") == "lži·vý"
+    assert hyphenate("najlživejšie") == "naj·lži·vej·šie"
+    assert hyphenate("najlživejšou") == "naj·lži·vej·šou"
     assert hyphenate("najľstivejší") == "naj·ľsti·vej·ší"
+    assert hyphenate("predlžovať") == "pre·dl·žo·vať"
 
 
 def test_batch_42_nested_one_letter_prefixes_keep_guarded_root_seams():
@@ -4907,6 +4913,8 @@ def test_batch_188_keeps_u_bud_prefix_and_past_tense_seams():
     assert hyphenate("neubudne") == "ne·u·bud·ne"
     assert hyphenate("pribudlo") == "pri·bud·lo"
     assert hyphenate("zabudlo") == "za·bud·lo"
+    assert hyphenate("nezabudlo") == "ne·za·bud·lo"
+    assert hyphenate("nenadobudlo") == "ne·na·do·bud·lo"
     assert hyphenate("páčidlo") == "pá·či·dlo"
     assert hyphenate("zrkadlo") == "zr·ka·dlo"
 
@@ -5064,6 +5072,7 @@ def test_batch_208_preserves_clear_native_morpheme_and_diphthong_boundaries():
     expected = {
         "vládlo": "vlád·lo",
         "ovládlo": "ov·lád·lo",
+        "neovládlo": "ne·o·vlád·lo",
         "zvládlo": "zvlád·lo",
         "vlákienkami": "vlá·kien·ka·mi",
         "vlákienok": "vlá·kie·nok",

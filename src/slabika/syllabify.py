@@ -381,8 +381,8 @@ _RHYTHMIC_LONG_NUCLEI = LONG_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 
 _DLO_INFLECTIONS = ('dlami', 'dlách', 'dlom', 'dlám', 'diel', 'dla', 'dle', 'dlu', 'dlá')
 _DLO_PARADIGM_STEMS = frozenset({'páči'})
-_DLO_PAST_PREFIXES = frozenset({'', 'do', 'na', 'od', 'o', 'po', 'pre', 'pri', 'roz', 's', 'u', 'v', 'vy', 'vz', 'z', 'za'})
-_D_FINAL_PAST_ROOTS = ('hlad', 'hliad', 'krad', 'pad', 'vlád')
+_DLO_PAST_PREFIXES = frozenset({'', 'do', 'na', 'nado', 'od', 'o', 'po', 'pre', 'pri', 'roz', 's', 'u', 'v', 'vy', 'vz', 'z', 'za'})
+_D_FINAL_PAST_ROOTS = ('bud', 'hlad', 'hliad', 'krad', 'pad', 'vlád')
 _D_FINAL_PAST_STEMS = frozenset({'zjed'})
 _LEXICAL_PAST_STEMS = frozenset({'žmurk'})
 _TINA_INFLECTIONS = ('tinami', 'tinách', 'tinám', 'tinou', 'tine', 'tinu', 'tiny')
@@ -747,6 +747,9 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
 
     if any(wl.startswith(stem) for stem, _ in _LEXICAL_FALLING_DIPHTHONGS):
         return None, None
+    # Nadácia is a borrowed lexical stem, not na-/nad- plus dácia/ácia.
+    if wl.startswith('nadáci'):
+        return None, None
     if wl.startswith('veľkokráľ'):
         return w[:5], w[5:]
     if wl.startswith('predobr') and wl[7:] in _DOBR_INFLECTIONS:
@@ -833,12 +836,12 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 )
             ):
                 continue
-            # Pospas-, pospol-, podl-, pohreb-, popruh-, postul-, pošv-, potk-,
+            # Pospas-, pospol-, podl-, popruh-, postul-, pošv-, potk-,
             # povodn-/povodň- and povraz- are lexical stems,
             # not productive po- forms.
             if pfx == 'po' and (
                 wl.startswith((
-                    'podl', 'pohreb', 'poplach', 'popruh', 'postul', 'pošv', 'potk',
+                    'podl', 'poplach', 'popruh', 'postul', 'pošv', 'potk',
                     'potmehúd', 'povodn', 'povodň', 'povraz', 'povráz', 'pokrov',
                 ))
                 or (
@@ -878,10 +881,10 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 or (wl.startswith('prašt') and wl[5:] in _PRASTIT_INFLECTIONS)
             ):
                 continue
-            # Doktor- and dosk- in the doska family are lexical stems; do-|sk-
-            # remains productive in doskočiť and doskákať.
+            # Doktor-, doktr- and dosk- in the doska family are lexical stems;
+            # do-|sk- remains productive in doskočiť and doskákať.
             if pfx == 'do' and (
-                wl.startswith(('doktor', 'doskov'))
+                wl.startswith(('doktor', 'doktr', 'doskov'))
                 or (
                     wl.startswith('dosk')
                     and wl[4:] in ('a', 'ami', 'e', 'ou', 'u', 'y', 'ách', 'ám')
@@ -931,9 +934,6 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 wl.startswith(('vodl', 'vodn', 'vodň', 'vosk', 'vošk'))
                 or (wl.startswith('voz') and wl[3:] in _VOZ_INFLECTIONS)
             ):
-                continue
-            # Nadácia is a borrowed lexical stem, not nad- plus ácia.
-            if pfx == 'nad' and reml.startswith('áci'):
                 continue
             # Podest- and podošv- are lexical stems, not pod- plus a vowel-initial root.
             if pfx == 'pod' and wl.startswith(('podest', 'podošv')):
@@ -1371,6 +1371,10 @@ def get_morpheme_parts(word: str) -> list[str]:
     a real morpheme boundary (``roz|ísť``, not ``ro|zísť``).
     """
     wl = word.lower()
+    if wl == 'neovládlo':
+        return [word[:2], word[2:3], word[3:7], word[7:]]
+    if wl.startswith('predlž'):
+        return [word[:3], word[3:]]
     if wl == 'poloprázdny':
         return [word[:4], word[4:]]
     for prefix in ('pro', 'ú'):
@@ -1606,6 +1610,7 @@ _LATIN_HIATUS_TAILS = ('eum', 'eus')
 _LEXICAL_FALLING_HIATUS = (('aleut', 2), ('reum', 1))
 _LEXICAL_RISING_HIATUS = (('triumf', 'iu'),)
 _LEXICAL_FALLING_DIPHTHONGS = (
+    ('hait', 'ai'),
     ('oppenheimer', 'ei'),
     ('ptolemai', 'ai'),
     ('voltai', 'ai'),
@@ -1777,6 +1782,7 @@ def _merge_falling_diphthongs(word: str, phonemes: list[str]) -> list[str]:
             and (
                 pair != 'ai'
                 or phonemes[index + 2:index + 3] == ['l']
+                or (wl.startswith('hait') and offset == 1)
                 or (wl.startswith('novocain') and offset == 5)
                 or (wl.startswith('ptolemai') and offset == 6)
                 or (wl.startswith('voltai') and offset == 4)
@@ -1840,7 +1846,7 @@ def _nuclei(phonemes: list[str]) -> list[int]:
 
 def _word_nuclei(word: str, phonemes: list[str]) -> list[int]:
     nuclei = _nuclei(phonemes)
-    if word.casefold().startswith(_NONSYLLABIC_INITIAL_R_ROOTS) and nuclei[:1] == [0]:
+    if word.casefold().startswith((*_NONSYLLABIC_INITIAL_R_ROOTS, 'lž')) and nuclei[:1] == [0]:
         return nuclei[1:]
     return nuclei
 
