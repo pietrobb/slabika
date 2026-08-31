@@ -652,8 +652,8 @@ def test_eighteenth_discovered_family_batch_has_no_safe_new_output_points():
         "osemhranný": "osem·hran·ný",
         "štvorhranný": "štvor·hran·ný",
         "uhrančivý": "uh·ran·či·vý",
-        "ochrana": "ochrana",
-        "záchrana": "zá·chrana",
+        "ochrana": "ochra·na",
+        "záchrana": "zá·chra·na",
         "chryzolit": "chry·zo·lit",
         "ohryzok": "oh·ry·zok",
         "uhryznúť": "uh·ryz·núť",
@@ -3573,19 +3573,24 @@ def test_batch_66_keeps_documented_nested_o_prefix_seams_before_ch():
 def test_chran_family_keeps_direct_one_letter_prefix_seams():
     expected = {
         "nezáchranne": "ne·zá·chran·ne",
-        "ochrana": "ochrana",
+        "ochrana": "ochra·na",
         "ochranca": "ochran·ca",
-        "ochrane": "ochrane",
-        "ochranou": "ochranou",
+        "ochrane": "ochra·ne",
+        "ochranou": "ochra·nou",
+        "ochranu": "ochra·nu",
+        "ochrany": "ochra·ny",
         "ochranný": "ochran·ný",
-        "ochraňovať": "ochraňo·vať",
-        "sebaochrane": "se·ba·o·chrane",
-        "všeochraňujúcej": "vše·o·chraňu·jú·cej",
-        "uchraňujem": "uchraňu·jem",
-        "záchrana": "zá·chrana",
+        "ochraňovať": "ochra·ňo·vať",
+        "sebaochrane": "se·ba·o·chra·ne",
+        "všeochraňujúcej": "vše·o·chra·ňu·jú·cej",
+        "uchraňujem": "uchra·ňu·jem",
+        "záchrana": "zá·chra·na",
         "záchranca": "zá·chran·ca",
+        "záchrane": "zá·chra·ne",
+        "záchranu": "zá·chra·nu",
+        "záchrany": "zá·chra·ny",
         "záchranný": "zá·chran·ný",
-        "zachraňovať": "za·chraňo·vať",
+        "zachraňovať": "za·chra·ňo·vať",
         "ochránené": "ochrá·ne·né",
         "ochráni": "ochrá·ni",
         "ochránila": "ochrá·ni·la",
@@ -5123,6 +5128,59 @@ def test_batch_209_preserves_lexical_stems_suffixes_and_foreign_nuclei():
     assert hyphenate("voviedlo") == "vo·vied·lo"
 
 
+def test_batch_210_preserves_abdrushin_and_abeundi_pronunciation():
+    expected = {
+        "Abdrushin": "Abd·ru·shin",
+        "Abdrushina": "Abd·ru·shi·na",
+        "Abdrushinov": "Abd·ru·shi·nov",
+        "Abdrushinovej": "Abd·ru·shi·no·vej",
+        "Abdrushinovi": "Abd·ru·shi·no·vi",
+        "Abdrushinovo": "Abd·ru·shi·no·vo",
+        "Abdrushinovu": "Abd·ru·shi·no·vu",
+        "Abdrushinových": "Abd·ru·shi·no·vých",
+        "Abdrushinovým": "Abd·ru·shi·no·vým",
+        "abeundi": "abe·un·di",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert get_syllables("Abdrushin") == ["Abd", "ru", "shin"]
+    assert get_syllables("abeundi") == ["a", "be", "un", "di"]
+
+
+def test_reviewed_foreign_names_and_alzbeta_family():
+    expected = {
+        "Action": "Ac·tion",
+        "Addition": "Ad·di·tion",
+        "Allbright": "All·bright",
+        "Allbrighta": "All·brighta",
+        "Allgemeine": "All·ge·mei·ne",
+        "Alžbeta": "Alž·be·ta",
+        "Alžbete": "Alž·be·te",
+        "Alžbetin": "Alž·be·tin",
+        "Alžbetinho": "Alž·be·tin·ho",
+        "Alžbetinom": "Alž·be·ti·nom",
+        "Alžbetou": "Alž·be·tou",
+        "Alžbetu": "Alž·be·tu",
+        "Alžbety": "Alž·be·ty",
+        "Ambivius": "Am·bi·vi·us",
+        "Antonius": "An·to·ni·us",
+        "Archelaus": "Ar·che·la·us",
+        "Aucklandskom": "Auck·land·skom",
+        "Beaujolais": "Beau·jo·lais",
+        "Mahalaleel": "Ma·ha·la·leel",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    expected_syllables = {
+        word: division.split("·") for word, division in expected.items()
+    }
+    expected_syllables["Allbrighta"] = ["All", "bright", "a"]
+    for word in expected:
+        if word.startswith("Alž"):
+            expected_syllables[word] = [
+                part.casefold() for part in expected_syllables[word]
+            ]
+    assert {word: get_syllables(word) for word in expected} == expected_syllables
+
+
 def test_batch_211_preserves_d_final_past_tense_stems():
     assert hyphenate("vyhladlo") == "vy·hlad·lo"
     assert hyphenate("vyhliadlo") == "vy·hliad·lo"
@@ -5206,7 +5264,7 @@ def test_batch_219_preserves_the_clear_zahlavie_prefix_seam():
         "záhlaví": "zá·hla·ví",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("záchrana") == "zá·chrana"
+    assert hyphenate("záchrana") == "zá·chra·na"
 
 
 def test_batch_224_preserves_the_clear_za_tn_prefix_seam():

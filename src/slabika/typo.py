@@ -33,6 +33,7 @@ from .syllabify import (
     _SK_SUFFIXES_CONS,
     _SYLLABIC_SONORANT_ONSETS,
     _final_sonorant_needs_following_context,
+    _lexical_syllables,
     get_morpheme_parts,
     phoneme_layout,
 )
@@ -188,7 +189,8 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     if len(_nucleus_spans(word)[2]) <= 1:
         return set(), set(), set()
 
-    parts = get_morpheme_parts(word)
+    lexical_parts = _lexical_syllables(word)
+    parts = lexical_parts or get_morpheme_parts(word)
     points: set[int] = set()
     variants: set[int] = set()
     contextual: set[int] = set()
@@ -196,13 +198,14 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     pos = 0
     for index, part in enumerate(parts):
         next_part = parts[index + 1] if index < len(parts) - 1 else ''
-        if _final_sonorant_needs_following_context(part, next_part):
-            points.update(
-                point for point in _psp_points(part + next_part[0], pos)
-                if point < pos + len(part)
-            )
-        else:
-            points.update(_psp_points(part, pos))
+        if lexical_parts is None:
+            if _final_sonorant_needs_following_context(part, next_part):
+                points.update(
+                    point for point in _psp_points(part + next_part[0], pos)
+                    if point < pos + len(part)
+                )
+            else:
+                points.update(_psp_points(part, pos))
         pos += len(part)
         if index < len(parts) - 1:
             points.add(pos)
@@ -284,9 +287,12 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
 
     for seam, end in _chran_root_spans(word):
         points.add(seam)
-        points = {point for point in points if not seam < point < end}
-        variants = {point for point in variants if not seam < point < end}
-        contextual = {point for point in contextual if not seam < point < end}
+        first_nucleus = next(
+            index for index in range(seam, end) if is_vowel(word[index])
+        )
+        points = {point for point in points if not seam < point <= first_nucleus}
+        variants = {point for point in variants if not seam < point <= first_nucleus}
+        contextual = {point for point in contextual if not seam < point <= first_nucleus}
 
     # The two edges are not the same rule. Leaving a one-letter syllable at the
     # end of a word is barred outright (section 9, basic level), so that point

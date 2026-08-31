@@ -153,6 +153,47 @@ _ST_DERIVATIVE_STEMS = ('spohan',)
 _STRED_IE_INFLECTIONS = frozenset({'ie', 'ia', 'iu', 'í', 'ím', 'iam', 'iami', 'iach'})
 _NONSYLLABIC_INITIAL_R_ROOTS = ('rdie', 'rmuc', 'rmút')
 
+_LEXICAL_SYLLABLE_LENGTHS = {
+    'action': (2, 4),
+    'addition': (2, 2, 4),
+    'allbright': (3, 6),
+    'allbrighta': (3, 6, 1),
+    'allgemeine': (3, 2, 3, 2),
+    'ambivius': (2, 2, 2, 2),
+    'antonius': (2, 2, 2, 2),
+    'archelaus': (2, 3, 2, 2),
+    'aucklandskom': (4, 4, 4),
+    'beaujolais': (4, 2, 4),
+    'mahalaleel': (2, 2, 2, 4),
+}
+_ALZBETA_PART_LENGTHS = {
+    'alžbeta': (3, 2, 2),
+    'alžbete': (3, 2, 2),
+    'alžbetin': (3, 2, 3),
+    'alžbetinho': (3, 2, 3, 2),
+    'alžbetinom': (3, 2, 2, 3),
+    'alžbetou': (3, 2, 3),
+    'alžbetu': (3, 2, 2),
+    'alžbety': (3, 2, 2),
+}
+
+
+def _parts_from_lengths(word: str, lengths: tuple[int, ...]) -> list[str]:
+    parts = []
+    offset = 0
+    for length in lengths:
+        parts.append(word[offset:offset + length])
+        offset += length
+    return parts
+
+
+def _lexical_syllables(word: str) -> list[str] | None:
+    lengths = _LEXICAL_SYLLABLE_LENGTHS.get(word.casefold())
+    if lengths is None:
+        return None
+    return _parts_from_lengths(word, lengths)
+
+
 _LEXICAL_PREFIX_ROOTS = (
     ('de', ('flog', 'flor', 'grad')),
     ('hoci', ('ktor',)),
@@ -1375,6 +1416,14 @@ def get_morpheme_parts(word: str) -> list[str]:
     a real morpheme boundary (``roz|ísť``, not ``ro|zísť``).
     """
     wl = word.lower()
+    lexical = _lexical_syllables(word)
+    if lexical is not None:
+        return lexical
+    alzbeta_lengths = _ALZBETA_PART_LENGTHS.get(wl)
+    if alzbeta_lengths is not None:
+        return _parts_from_lengths(word, alzbeta_lengths)
+    if wl.startswith('abdrushin'):
+        return [word[:3], word[3:5], word[5:]]
     if wl == 'ovládlo':
         return [word[:1], word[1:5], word[5:]]
     if wl == 'neovládlo':
@@ -1511,6 +1560,11 @@ def get_syllables(word: str) -> list[str]:
             "without knowing its pronunciation (PSP §5.4)."
         )
 
+    lexical = _lexical_syllables(word)
+    if lexical is not None:
+        return lexical
+    if wl.startswith('abdrushin'):
+        return [word[:3], word[3:5], *_syllabify_simple(word[5:])]
     if wl.startswith(_RASTLINA_FAMILY_STEMS):
         return _syllabify_simple(word[:4]) + get_syllables(word[4:])
 
@@ -1613,7 +1667,7 @@ _LATIN_HIATUS_TAILS = ('eum', 'eus')
 
 # These lexical families pronounce e-u as two syllables, unlike the otherwise
 # reliable eu nucleus in learned loans.
-_LEXICAL_FALLING_HIATUS = (('aleut', 2), ('reum', 1))
+_LEXICAL_FALLING_HIATUS = (('abeund', 2), ('aleut', 2), ('reum', 1))
 _LEXICAL_RISING_HIATUS = (('triumf', 'iu'),)
 _LEXICAL_FALLING_DIPHTHONGS = (
     ('hait', 'ai'),
