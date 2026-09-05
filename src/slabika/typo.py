@@ -23,7 +23,6 @@ or call :func:`break_points` for raw character offsets.
 
 from .phonology import (
     HYPHENATABLE_LETTERS,
-    SONORY,
     is_consonant,
     is_vowel,
 )
@@ -31,7 +30,6 @@ from .syllabify import (
     _DLO_INFLECTIONS,
     _PREFIXES,
     _SK_SUFFIXES_CONS,
-    _SYLLABIC_SONORANT_ONSETS,
     _final_sonorant_needs_following_context,
     _lexical_syllables,
     get_morpheme_parts,
@@ -82,12 +80,6 @@ def _psp_points(word: str, base: int = 0) -> list[int]:
         between = list(range(previous_end, next_start))
         if not between:
             point = offsets[next_start]          # 2d: genuine hiatus
-        elif (
-            phonemes[previous_end - 1] in SONORY
-            and ''.join(phonemes[index] for index in between)
-            in _SYLLABIC_SONORANT_ONSETS
-        ):
-            point = offsets[between[0]]          # syllabic r/l before a full onset
         elif len(between) == 1:
             point = offsets[between[0]]          # 2a: before the consonant
         else:

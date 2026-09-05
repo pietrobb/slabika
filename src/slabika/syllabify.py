@@ -336,7 +336,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pod', ('oblas',)),
     # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
     ('do', ('čk',)),
-    ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň')),
+    ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'spas', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač')),
     ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'pokoj', 'pri', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad', 'lh', 'sťah', 'tn')),
@@ -556,9 +556,6 @@ _LINKING_VOWEL = 'o'
 _BOUND_COMPOSITA = frozenset({'geo', 'teo', 'video'})
 
 _COMPOSITA_BY_LEN = _by_length(_SK_COMPOSITA)
-
-# Equal-sonority št- stays intact after a syllabic r/l: hr·ští, not hrš·tí.
-_SYLLABIC_SONORANT_ONSETS = frozenset({'št'})
 
 # Word-initial clusters that license a prefix boundary before a consonant that
 # is not followed by a vowel (vz·nik, roz·str·hnúť). Includes the digraph ch.
@@ -1988,10 +1985,7 @@ def _syllabify_simple(word: str) -> list[str]:
         """
         for size in range(min(_MAX_ONSET, len(cons_indices)), 1, -1):
             cluster = native_spelling(''.join(phonemes[i] for i in cons_indices[-size:]))
-            if cluster in ONSET_CLUSTERS or (
-                phonemes[cons_indices[0] - 1] in SONORY
-                and cluster in _SYLLABIC_SONORANT_ONSETS
-            ):
+            if cluster in ONSET_CLUSTERS:
                 return cons_indices[-size]
         return cons_indices[-1]
 

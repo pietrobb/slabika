@@ -2837,8 +2837,8 @@ def test_batch_149_keeps_pre_and_prie_prefix_boundaries():
 
 def test_batch_150_distinguishes_prikrov_and_prikry_families():
     expected = {
-        "priehrští": "prie·hr·ští",
-        "priehrštím": "prie·hr·štím",
+        "priehrští": "prie·hrš·tí",
+        "priehrštím": "prie·hrš·tím",
         "priekupníctvo": "prie·kup·níc·tvo",
         "príkrov": "prí·krov",
         "príkrovom": "prí·kro·vom",
@@ -2848,7 +2848,7 @@ def test_batch_150_distinguishes_prikrov_and_prikry_families():
         "príkro": "prík·ro",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert get_syllables("priehrští") == ["prie", "hr", "ští"]
+    assert get_syllables("priehrští") == ["prie", "hrš", "tí"]
     assert {9, 10} <= set(break_points("priekupníctvo", all_points=True))
 
 
@@ -3477,7 +3477,7 @@ def test_compound_seams_survive_the_linking_vowel_and_the_prefix():
 
 
 def test_batch_56_lexical_stems_keep_their_documented_boundaries():
-    assert hyphenate("napospas") == "na·pos·pas"
+    assert hyphenate("napospas") == "na·po·spas"
     assert hyphenate("napospol") == "na·pos·pol"
     assert hyphenate("naozajstný") == "na·ozaj·stný"
     assert hyphenate("naozajstnými") == "na·ozaj·stný·mi"
@@ -4822,10 +4822,10 @@ def test_clear_slabo_zrak_compounds_keep_their_compositional_seam():
 
 def test_smrs_noun_forms_do_not_gain_a_false_imperative_suffix():
     expected = {
-        "smršte": "smr·šte",
-        "smršti": "smr·šti",
-        "smrští": "smr·ští",
-        "smrštiam": "smr·štiam",
+        "smršte": "smrš·te",
+        "smršti": "smrš·ti",
+        "smrští": "smrš·tí",
+        "smrštiam": "smrš·tiam",
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("urobte") == "urob·te"
@@ -5355,7 +5355,7 @@ def test_batch_228_preserves_clear_compound_seams():
         "žiaruvzdorné": "žia·ru·vzdor·né",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("smršti") == "smr·šti"
+    assert hyphenate("smršti") == "smrš·ti"
     assert hyphenate("zlatohlavu") == "zla·toh·la·vu"
 
 
