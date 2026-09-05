@@ -33,7 +33,7 @@ from urllib.parse import parse_qs, urlparse
 
 from slabika import __version__ as ENGINE_VERSION
 from slabika import hyphenate, syllables
-
+from .ai_adjudication import form_history_html, get_form_history
 from .tex_patterns import tex_hyphenate
 
 _PACKAGE_DIR = Path(__file__).resolve().parent
@@ -746,8 +746,8 @@ class Corpus:
                 "engine_after_ref": psp["engine_after_ref"],
                 "audited_at": psp["audited_at"],
             }
-
-        return {
+        return {"ai_adjudication_html": "".join(form_history_html(self.decisions_path, alias)
+                                              for alias in self._alias_forms(form))} | {
             "form": form,
             "review_form": review_form,
             "hyphenation": hyphenation,
@@ -1893,15 +1893,15 @@ class Handler(BaseHTTPRequestHandler):
                 )},
             )
             return
-        if parsed.path == "/api/psp-audit/batch":
+        if parsed.path in ("/api/psp-audit/batch", "/api/ai-adjudication"):
             query = parse_qs(parsed.query)
             try:
                 self._json(
                     self.corpus.psp_audit_batch(
                         query.get("audit_id", [""])[0],
                         int(query.get("batch", ["1"])[0]),
-                    )
-                )
+                    ) if parsed.path == "/api/psp-audit/batch" else {"history": get_form_history(
+                        self.corpus.decisions_path, query.get("form", [""])[0])})
             except Exception as error:  # noqa: BLE001
                 self._json({"error": str(error)}, 400)
             return
