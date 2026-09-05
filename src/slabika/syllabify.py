@@ -294,13 +294,13 @@ _LEXICAL_PREFIX_ROOTS = (
     ('žalo', ('spev',)),
     ('žido', ('kresťan',)),
     ('o', (
-        'hra', 'hrá', 'hroz', 'chrán', 'chráň', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
+        'hláv', 'hra', 'hrá', 'hroz', 'chrán', 'chráň', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
         'plach', 'plách', 'plak', 'plat', 'plášt', 'pleš', 'plet', 'plod', 'plot', 'pľu', 'pľú',
         'prac', 'prad', 'praď', 'pral', 'pras', 'praš', 'práš', 'prať',
         'pre', 'pri', 'pros', 'prot',
         'podstat', 'prav', 'práv', 'pust', 'sln', 'smel', 'spev', 'spra', 'streľ',
         'strih', 'strieľ', 'sved', 'svet', 'svie', 'svoj', 'sídl', 'tlač', 'tlak',
-        'tras', 'trh', 'tup', 'vplyv', 'zbroj', 'živ',
+        'tras', 'trh', 'tup', 'vplyv', 'zbroj', 'znač', 'živ',
     )),
     ('in', ('štruk',)),
     ('šéf', ('lekár',)),
@@ -334,7 +334,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('do', ('čk',)),
     ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'vďač')),
-    ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kry', 'krý', 'pokoj', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
+    ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'pokoj', 'pri', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad', 'lh', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'vda', 'vdá', 'vďač', 'vďak')),
     ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup', 'zrak', 'zrač')),
@@ -1331,6 +1331,11 @@ def _split_bound_second_member(w: str) -> tuple[str, str] | None:
             wl[seam - 1] != _LINKING_VOWEL
             and not (member == 'hrad' and wl[:seam] == 'bele')
         ):
+            continue
+        # The head has to be a first part, not a prefix. In neohrada the ne- is
+        # negation and the o- belongs to ohrada, so neo is no compositum stem
+        # the way vino is in vinohrad.
+        if wl[:seam - 1] in _PREFIXES:
             continue
         if any(c in _VOWELS_SK for c in wl[:seam - 1]):
             return w[:seam], w[seam:]

@@ -311,6 +311,24 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         variants.discard(len(word) - 1)
         contextual.discard(len(word) - 1)
 
+    # Inside the word the same asymmetry holds as at its start. A prefix that is
+    # a single vowel letter (ne|u|kladajú, naj|u|tajenejšia) has a real seam on
+    # both of its sides, but taking both leaves that letter standing alone. The
+    # seam before it is the readable one — section 3.4 keeps the vowel with the
+    # base it belongs to — so the point that closes it drops to the contextual
+    # level, admitted only in exceptionally narrow measure.
+    seam_offsets = {seam for seam, _, _ in seams}
+    for point in sorted(points):
+        if point - 1 not in points or not is_vowel(word[point - 1]):
+            continue
+        # Which of the two survives is decided by the morphology. A connecting
+        # vowel belongs to the first part of a compound (section 3.4, vodo|vod),
+        # so teo|lógia is the seam and te|ológia yields; everywhere else the
+        # vowel opens the base it belongs to and the earlier point is the seam.
+        loser = point - 1 if point in seam_offsets and point - 1 not in seam_offsets else point
+        points.discard(loser)
+        contextual.add(loser)
+
     return points, variants - points, contextual - points - variants
 
 
