@@ -321,13 +321,16 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     for point in sorted(points):
         if point - 1 not in points or not is_vowel(word[point - 1]):
             continue
-        # Which of the two survives is decided by the morphology. A connecting
-        # vowel belongs to the first part of a compound (section 3.4, vodo|vod),
-        # so teo|lógia is the seam and te|ológia yields; everywhere else the
-        # vowel opens the base it belongs to and the earlier point is the seam.
-        loser = point - 1 if point in seam_offsets and point - 1 not in seam_offsets else point
-        points.discard(loser)
-        contextual.add(loser)
+        # Only a prefix does this. The vowel is a morpheme of its own, seamed on
+        # both sides, and breaking after it welds it to what precedes into a
+        # shape the word does not have (naju|tajenejšia reads na-ju-ta). Two
+        # vowels merely meeting inside a stem weld nothing (arche|o|lóg), and a
+        # connecting vowel carries its own seam (§3.4, teo|lógia); both keep
+        # their points at the basic level.
+        if point - 1 not in seam_offsets:
+            continue
+        points.discard(point)
+        contextual.add(point)
 
     return points, variants - points, contextual - points - variants
 

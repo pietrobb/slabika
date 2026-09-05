@@ -219,6 +219,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('kladko', ('stroj',)),
     ('nanebo', ('vstúp',)),
     ('naozaj', ('stn',)),
+    ('ozaj', ('stn',)),
+
     ('ob', ('oznám',)),
     ('obo', ('hn',)),
     ('od', ('opier', 'tn', 'umier')),
@@ -274,7 +276,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pol', ('libr', 'liter', 'litr', 'ostrov', 'roč', 'rok', 'rúr')),
     ('plno', ('zvuč',)),
     ('rovno', ('zvuč',)),
-    ('spolu', ('blaž', 'blíž', 'brat', 'chven', 'človek', 'hlás', 'hráč', 'kmit', 'kráľ', 'kresťan', 'krúž', 'kňaz', 'plod', 'posvät', 'prác', 'prac', 'prečist', 'precít', 'preciť', 'prež', 'príčin', 'sláv', 'sluh', 'služob', 'slúž', 'smrť', 'sprav', 'sprisah', 'správ', 'stolov', 'stvor', 'tvor', 'vlast', 'vlád', 'všemoh', 'vzbud', 'vzruš', 'zachrán', 'zachvát', 'zľutov', 'znič', 'zvuč')),
+    ('spolu', ('blaž', 'blíž', 'brat', 'chven', 'človek', 'hlás', 'hráč', 'kmit', 'kráľ', 'kresťan', 'krúž', 'kňaz', 'plod', 'posvät', 'prác', 'prac', 'prečist', 'precít', 'preciť', 'prež', 'príčin', 'sláv', 'sluh', 'služob', 'slúž', 'smrť', 'sprav', 'sprisah', 'správ', 'stolov', 'stvor', 'tvor', 'vlast', 'vlád', 'všemoh', 'úrad', 'vzbud', 'vzruš', 'zachrán', 'zachvát', 'zľutov', 'znič', 'zvuč')),
     ('staro', ('amer', 'arab', 'aristo', 'egypt', 'gréč', 'sláv', 'svet', 'zná')),
     ('sveta', ('skúsen',)),
     ('svetlo', ('prázd',)),
@@ -294,6 +296,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('žalo', ('spev',)),
     ('žido', ('kresťan',)),
     ('o', (
+        'berá', 'berať', 'bohat', 'byv', 'býv', 'cit', 'chor', 'die', 'dol', 'hyb', 'káz', 'myl',
+        'pad', 'pak', 'patre', 'patri', 'patrí', 'patrn', 'pis', 'pät', 'sob',
         'hláv', 'hra', 'hrá', 'hroz', 'chrán', 'chráň', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
         'plach', 'plách', 'plak', 'plat', 'plášt', 'pleš', 'plet', 'plod', 'plot', 'pľu', 'pľú',
         'prac', 'prad', 'praď', 'pral', 'pras', 'praš', 'práš', 'prať',
@@ -311,14 +315,14 @@ _LEXICAL_PREFIX_ROOTS = (
     ('prie', ('hlav', 'hľad', 'hrad', 'klep', 'strel', 'stup', 'svit', 'zrač')),
     ('prí', ('klad', 'krat', 'krov', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'streš', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zrak', 'zvuk')),
     ('naj', ('všestran',)),
-    ('ne', ('scudzolož', 'sčerv', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
+    ('ne', ('ochot', 'oficiál', 'scudzolož', 'sčerv', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
     ('novo', ('povst', 'prij', 'stan', 'stvor', 'vzbud', 'vznik', 'vysvät', 'zdol', 'zhotov', 'zjav', 'zrod', 'zvol')),
     ('ono', ('svet',)),
     ('na', (
         'daj', 'dal', 'dan', 'darm', 'dať', 'dáv', 'del', 'deľ', 'dikt', 'div', 'dív', 'dobr',
         'dobud', 'dobúd', 'doďak', 'doj', 'dopov', 'doraz', 'dostač',
         'drob', 'duj', 'dul', 'dur', 'dut', 'dúv', 'jal', 'jat', 'jav', 'jazd',
-        'jedia', 'jedl', 'jedo', 'jedz', 'jeme', 'jemn', 'jesť', 'jež', 'jím', 'stup', 'sťah',
+        'jedia', 'jedl', 'jedo', 'jedz', 'jeme', 'jemn', 'jesť', 'jež', 'jím', 'ozaj', 'stup', 'sťah',
         'zhromažd', 'žgrl',
     )),
     ('nade', ('všet',)),
@@ -333,12 +337,12 @@ _LEXICAL_PREFIX_ROOTS = (
     # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
     ('do', ('čk',)),
     ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň')),
-    ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'vďač')),
+    ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač')),
     ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'pokoj', 'pri', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad', 'lh', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'vda', 'vdá', 'vďač', 'vďak')),
     ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup', 'zrak', 'zrač')),
-    ('ú', ('hrad', 'kryt', 'plat', 'stred', 'stup', 'tlak')),
+    ('ú', ('hrad', 'kryt', 'nav', 'plat', 'rad', 'stred', 'stup', 'tlak', 'toč')),
 )
 
 _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
@@ -773,6 +777,15 @@ def _is_vowel_seam(pfx: str, reml: str) -> bool:
     if any(
         reml.startswith(inner_pfx + root)
         for inner_pfx, roots in (*_LEXICAL_PREFIX_ROOTS, *_NESTED_PREFIX_ROOTS)
+        for root in roots
+    ):
+        return True
+    # The pair itself may be the documented one. A borrowed root that takes no
+    # prefix of its own (pre|orientovať) has no inner seam to point at, so the
+    # only evidence for the split is the lexical pairing.
+    if any(
+        pfx == listed_pfx and reml.startswith(root)
+        for listed_pfx, roots in _LEXICAL_PREFIX_ROOTS
         for root in roots
     ):
         return True
@@ -1547,6 +1560,10 @@ def get_morpheme_parts(word: str) -> list[str]:
         nested_pfx, nested_rem = _strip_nested_prefix(rem, pfx)
         if nested_pfx is not None:
             return [pfx, nested_pfx, *get_morpheme_parts(nested_rem)]
+        # A lexically paired first part is a word, not a prefix from the list,
+        # so it may carry a prefix of its own: naozaj|stný is na|ozaj|stný.
+        if pfx.casefold() not in _PREFIXES and _strip_prefix(pfx)[0] is not None:
+            return [*get_morpheme_parts(pfx), *get_morpheme_parts(rem)]
         return [pfx, *get_morpheme_parts(rem)]
 
     if grammatical_stem is not None:
