@@ -308,7 +308,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('para', ('fráz', 'graf')),
     ('pra', ('arch',)),
     ('pri', ('sťah',)),
-    ('prie', ('hľad', 'hrad', 'klep', 'strel', 'stup', 'svit', 'zrač')),
+    ('prie', ('hlav', 'hľad', 'hrad', 'klep', 'strel', 'stup', 'svit', 'zrač')),
     ('prí', ('klad', 'krat', 'krov', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'streš', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zrak', 'zvuk')),
     ('naj', ('všestran',)),
     ('ne', ('scudzolož', 'sčerv', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
@@ -332,9 +332,9 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pod', ('oblas',)),
     # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
     ('do', ('čk',)),
-    ('po', ('čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň')),
+    ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'vďač')),
-    ('u', ('bud', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kry', 'krý', 'pokoj', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
+    ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kry', 'krý', 'pokoj', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad', 'lh', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'vda', 'vdá', 'vďač', 'vďak')),
     ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup', 'zrak', 'zrač')),
@@ -620,6 +620,7 @@ def _starts_like_a_word(rem: str) -> bool:
 
 def _licenses_compositum(comp: str, rem: str) -> bool:
     reml = rem.lower()
+    cited_root = False
     if comp in _VOWEL_SEAM_COMPOSITA and reml[0] not in _VOWEL_LETTERS:
         consonant_composita = {
             'bystro': ('sluch', 'zrak'),
@@ -630,7 +631,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
                 'spoloč', 'tmav', 'vyprah', 'štrbin',
             ),
             'vše': ('stran', 'stred'),
-            'vysoko': ('postav', 'škol'),
+            'vysoko': ('cte', 'postav', 'škol'),
             'mnoho': (
                 'hlav', 'hran', 'skúsen', 'sľub', 'štít', 'stran', 'strom',
                 'tlam', 'tvár', 'vlád', 'vrav', 'žrút',
@@ -638,6 +639,9 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         }
         if not reml.startswith(consonant_composita.get(comp, ())):
             return False
+        # The root was named here, which is the same kind of citation
+        # guarded_compounds gives: vysoko·ctený needs no further onset proof.
+        cited_root = True
     if comp == 'mäso' and not reml.startswith('žrav'):
         return False
     if comp == 'gramo' and not reml.startswith('plat'):
@@ -646,7 +650,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         return False
     guarded_compounds = {
         'niekoľko': ('dň',),
-        'leto': ('kruh',),
+        'leto': ('hrád', 'kruh'),
         'leuko': ('plast',),
         'ľubo': ('zvu',),
         'ľúbo': ('zvu',),
@@ -748,7 +752,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
     ):
         return False
     return any(c in _VOWELS_SK for c in reml) and (
-        guarded_roots is not None or _starts_like_a_word(reml)
+        guarded_roots is not None or cited_root or _starts_like_a_word(reml)
     )
 
 
@@ -1403,10 +1407,27 @@ def _split_potreb_family(word: str) -> tuple[list[str], str] | None:
     if remainder.startswith('potreb'):
         return [*parts, word[offset:offset + 2]], word[offset + 2:]
     if remainder.startswith(('opotreb', 'upotreb')):
-        prefixes = [*parts, word[offset:offset + 1], word[offset + 1:offset + 3]]
+        # ne|u|po- would allow a point after the u, leaving neu at the end of a
+        # line. The u keeps its seam only when nothing precedes it.
+        if parts and remainder.startswith('upotreb'):
+            prefixes = [*parts, word[offset:offset + 3]]
+        else:
+            prefixes = [*parts, word[offset:offset + 1], word[offset + 1:offset + 3]]
         return prefixes, word[offset + 3:]
     if remainder.startswith('spotreb'):
         return [*parts, word[offset:offset + 3]], word[offset + 3:]
+    return None
+
+
+def _split_compositum(word: str) -> tuple[str, str] | None:
+    """Split *word* after a licensed compositional first part."""
+    wl = word.lower()
+    for length, group in _COMPOSITA_BY_LEN:
+        comp = wl[:length]
+        if comp in group and len(word) > length + 2:
+            rem = word[length:]
+            if _licenses_compositum(comp, rem):
+                return word[:length], rem
     return None
 
 
@@ -1478,6 +1499,13 @@ def get_morpheme_parts(word: str) -> list[str]:
 
     comparative_n = wl.find('nejš')
     if comparative_n > 0:
+        # The comparative is cut off first, and the stem it leaves is shorter
+        # than the compound it came from: vysoko|ctenejší would lose its seam
+        # over vysokocte. Ask the whole word about the compound first.
+        compositum = _split_compositum(word)
+        if compositum is not None:
+            first, rest = compositum
+            return [*get_morpheme_parts(first), *get_morpheme_parts(rest)]
         return [*get_morpheme_parts(word[:comparative_n]), word[comparative_n:]]
 
     comparative_t = wl.find('tejš')
@@ -1519,15 +1547,10 @@ def get_morpheme_parts(word: str) -> list[str]:
     if grammatical_stem is not None:
         return [*get_morpheme_parts(grammatical_stem), grammatical_sfx]
 
-    for length, group in _COMPOSITA_BY_LEN:
-        comp = wl[:length]
-        if comp in group and len(word) > length + 2:
-            rem = word[length:]
-            if _licenses_compositum(comp, rem):
-                return [
-                    *get_morpheme_parts(word[:length]),
-                    *get_morpheme_parts(rem),
-                ]
+    compositum = _split_compositum(word)
+    if compositum is not None:
+        first, rest = compositum
+        return [*get_morpheme_parts(first), *get_morpheme_parts(rest)]
 
     stem, sfx = _strip_suffix(word)
     if stem is not None:

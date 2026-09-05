@@ -3445,9 +3445,31 @@ def test_potreb_family_keeps_psp_attested_morpheme_boundary():
         "nespotrebované": "ne·spo·tre·bo·va·né",
         "nespotrebuje": "ne·spo·tre·bu·je",
         "upotrebiť": "upo·tre·biť",
-        "neupotrebiteľným": "ne·u·po·tre·bi·teľ·ným",
+        # A point after the u would leave neu at the end of the line.
+        "neupotrebiteľným": "ne·upo·tre·bi·teľ·ným",
     }
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_cten_family_keeps_its_root_against_the_two_consonant_rule():
+    expected = {
+        "poctený": "po·cte·ný",
+        "poctenú": "po·cte·nú",
+        "zneuctený": "zne·u·cte·ný",
+        "zneuctenie": "zne·u·cte·nie",
+        "nezneuctenú": "ne·zne·u·cte·nú",
+        "vysokoctený": "vy·so·ko·cte·ný",
+        "najvysokoctenejší": "naj·vy·so·ko·cte·nej·ší",
+        "veľactený": "ve·ľa·cte·ný",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_compound_seams_survive_the_linking_vowel_and_the_prefix():
+    assert hyphenate("letohrádok") == "le·to·hrá·dok"
+    assert hyphenate("letohrádku") == "le·to·hrád·ku"
+    assert hyphenate("priehlavok") == "prie·hla·vok"
+    assert hyphenate("priehlavku") == "prie·hlav·ku"
 
 
 def test_batch_56_lexical_stems_keep_their_documented_boundaries():
