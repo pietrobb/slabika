@@ -177,6 +177,30 @@ def test_readonly_history_contains_both_positions_and_all_applicable_rounds(db, 
     assert db.read_bytes() == before
 
 
+def test_preferred_only_consensus_preserves_differing_model_details(db, result):
+    result["consensus_scope"] = AI.PREFERRED_CONSENSUS
+    positions = result["rounds"]["independent"]
+    positions["B"]["maslo"]["choice"] = "both"
+    positions["B"]["maslo"]["permitted_variants"].append("mas·lo")
+    positions["B"]["maslo"]["engine_assessment"] = "correct"
+
+    run_id = AI.persist_run(db, result)
+
+    history, = AI.get_form_history(db, "maslo")
+    assert history["run_id"] == run_id
+    assert history["status"] == "consensus_independent"
+    assert history["consensus"]["verdict"] == positions["A"]["maslo"]
+    assert history["positions"] == {key: positions[key]["maslo"] for key in AI.MODELS}
+
+
+def test_transcript_cannot_claim_absent_human_voice(db, result):
+    result["evidence"][0]["human"] = None
+    result["evidence_sha256"] = _digest(result["evidence"])
+
+    with pytest.raises(ValueError, match="requires a Human voice"):
+        AI.persist_run(db, result)
+
+
 def test_changed_transcript_appends_without_replacing_history(db, result):
     first = AI.persist_run(db, result)
     updated = copy.deepcopy(result)

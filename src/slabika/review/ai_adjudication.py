@@ -24,6 +24,8 @@ STATUSES = (
     "consensus_after_reconciliation",
     "unresolved_model_disagreement",
 )
+STRICT_CONSENSUS = "choice + preferred + complete permitted-variant set"
+PREFERRED_CONSENSUS = "preferred division"
 ADVISORY = "AI advisory evidence only — not a PSP verdict or Human decision."
 
 _SCHEMA = (
@@ -77,9 +79,12 @@ def _text(value: object) -> bool:
     return isinstance(value, str) and bool(value.strip())
 
 
-def _signature(verdict: dict) -> tuple:
-    # Deliberately matches the producer's consensus scope, not reasons/confidence.
-    return verdict["choice"], verdict["preferred"], tuple(sorted(verdict["permitted_variants"]))
+def _signature(verdict: dict, scope: str) -> tuple | str:
+    # Preserve validation of historical strict transcripts while accepting the
+    # preferred-only scope used by new runs.
+    if scope == STRICT_CONSENSUS:
+        return verdict["choice"], verdict["preferred"], tuple(sorted(verdict["permitted_variants"]))
+    return verdict["preferred"]
 
 
 def _validate_verdict(verdict: object, form: str, evidence: dict) -> None:
@@ -106,15 +111,19 @@ def _validate_verdict(verdict: object, form: str, evidence: dict) -> None:
         _require(value.replace("·", "") == form and not value.startswith("·")
                  and not value.endswith("·") and "··" not in value,
                  f"{form}: invalid marked form")
+    psp_only = evidence.get("human") is None
     required_correct = {"human": ("human_assessment",), "engine": ("engine_assessment",),
                         "both": ("human_assessment", "engine_assessment")}
-    _require(all(verdict[key] == "correct" for key in required_correct.get(choice, ())),
-             f"{form}: choice contradicts assessments")
-    if choice == "neither":
-        _require("correct" not in {verdict["human_assessment"], verdict["engine_assessment"]},
-                 f"{form}: neither contradicts assessments")
+    if not psp_only:
+        _require(all(verdict[key] == "correct" for key in required_correct.get(choice, ())),
+                 f"{form}: choice contradicts assessments")
+        if choice == "neither":
+            _require("correct" not in {verdict["human_assessment"], verdict["engine_assessment"]},
+                     f"{form}: neither contradicts assessments")
     if choice == "context_dependent":
         _require(len(variants) >= 2, f"{form}: context_dependent needs multiple variants")
+    if evidence.get("human") is None and choice in {"human", "both"}:
+        raise ValueError(f"{form}: choice requires a Human voice")
     human = evidence.get("human") or {}
     modes = evidence.get("engine_modes", {})
     _require(isinstance(human, dict) and isinstance(modes, dict), f"{form}: invalid evidence")
@@ -157,6 +166,8 @@ def _validate(result: object) -> list[dict]:
         raise ValueError("created_at must be an ISO timestamp") from error
     _require(stamp.tzinfo is not None, "created_at must include a timezone")
     _require(isinstance(result.get("sources"), dict), "sources must be an object")
+    scope = result.get("consensus_scope")
+    _require(scope in {STRICT_CONSENSUS, PREFERRED_CONSENSUS}, "invalid consensus_scope")
     models = result.get("models")
     _require(isinstance(models, dict) and set(models) == set(MODELS), "models must contain A/B")
     for model in models.values():
@@ -191,7 +202,7 @@ def _validate(result: object) -> list[dict]:
         for form in pending:
             positions = {key: round_[key][form] for key in MODELS}
             histories[form][stage] = positions
-            agreed = _signature(positions["A"]) == _signature(positions["B"])
+            agreed = _signature(positions["A"], scope) == _signature(positions["B"], scope)
             if agreed:
                 resolved[form] = (status, positions["A"], positions)
             else:
