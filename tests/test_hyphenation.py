@@ -201,6 +201,29 @@ def test_reviewed_rmss_families_follow_psp_morpheme_evidence():
     assert {word: hyphenate(word) for word in expected} == expected
 
 
+def test_oneskor_family_keeps_the_documented_o_ne_skor_seams():
+    expected = {
+        "oneskorenej": "one·sko·re·nej",
+        "oneskorenia": "one·sko·re·nia",
+        "oneskorenom": "one·sko·re·nom",
+        "oneskorenou": "one·sko·re·nou",
+        "oneskorené": "one·sko·re·né",
+        "oneskorený": "one·sko·re·ný",
+        "oneskorených": "one·sko·re·ných",
+        "oneskoril": "one·sko·ril",
+        "oneskorila": "one·sko·ri·la",
+        "oneskoriť": "one·sko·riť",
+        "oneskorenie": "one·sko·re·nie",
+        "oneskorenosť": "one·sko·re·nosť",
+        "oneskorievať": "one·sko·rie·vať",
+        "oneskorovať": "one·sko·ro·vať",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("onehdy") == "oneh·dy"
+    assert hyphenate("onen") == "onen"
+    assert break_points("oneskorenie", contextual=True) == [1, 3, 6, 8]
+
+
 def test_rmss_root_conflicts_are_independently_decided_by_psp():
     expected = {
         "doktor": "dok·tor",
@@ -529,7 +552,34 @@ def test_tenth_discovered_family_batch_keeps_only_clear_seams():
     assert hyphenate("zhrozenie") == "zhro·ze·nie"
     assert hyphenate("evanjelium") == "evan·je·li·um"
     assert hyphenate("transport") == "trans·port"
-    assert hyphenate("bezosporu") == "bez·os·po·ru"
+    assert hyphenate("bezosporu") == "be·zo·spo·ru"
+    assert hyphenate("bezozvyšku") == "be·zo·zvyš·ku"
+
+
+def test_operator_approved_scale_1000_native_forms():
+    expected = {
+        "polizba": "pol·iz·ba",
+        "podrobujete": "pod·ro·bu·je·te",
+        "podrobenými": "pod·ro·be·ný·mi",
+        "podrobujúc": "pod·ro·bu·júc",
+        "podrobiť": "pod·ro·biť",
+        "rozorvanej": "ro·zo·rva·nej",
+        "rozorvane": "ro·zo·rva·ne",
+        "rozorval": "ro·zo·rval",
+        "hmkal": "hm·kal",
+        "vyrve": "vy·rve",
+        "vyrvite": "vy·rvi·te",
+        "dakde": "da·kde",
+        "ostošesť": "osto·šesť",
+        "nactiutŕhača": "na·cti·u·tŕ·ha·ča",
+        "nactiutŕhanie": "na·cti·u·tŕ·ha·nie",
+        "nactiutŕhačný": "na·cti·u·tŕ·hač·ný",
+        "skrznaskrz": "skrz·na·skrz",
+        "bezosporu": "be·zo·spo·ru",
+        "čoskoro": "čo·sko·ro",
+        "pozdnom": "pozd·nom",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
 
 
 def test_eleventh_discovered_family_batch_has_no_safe_new_output_points():
@@ -736,7 +786,7 @@ def test_twenty_first_discovered_family_batch_keeps_only_clear_seams():
         "záhrobný": "zá·hrob·ný",
         "posol": "po·sol",
         "poslať": "pos·lať",
-        "poslúchať": "pos·lú·chať",
+        "poslúchať": "po·slú·chať",
         "chrobák": "chro·bák",
         "záhrada": "zá·hra·da",
         "strasie": "stra·sie",
@@ -749,11 +799,19 @@ def test_twenty_first_discovered_family_batch_keeps_only_clear_seams():
     assert {word: hyphenate(word) for word in expected} == expected
 
 
-def test_poslat_and_postit_do_not_gain_a_false_po_prefix():
+def test_poslat_uses_its_po_seam_while_postit_remains_lexical():
     expected = {
-        "nepošle": "ne·poš·le",
-        "nepošlem": "ne·poš·lem",
-        "nepošlete": "ne·poš·le·te",
+        "pošla": "po·šla",
+        "nepošle": "ne·po·šle",
+        "nepošlem": "ne·po·šlem",
+        "nepošlete": "ne·po·šle·te",
+        "neposlintané": "ne·po·slin·ta·né",
+        "neposlúcha": "ne·po·slú·cha",
+        "neposlúchajú": "ne·po·slú·cha·jú",
+        "neposlúchal": "ne·po·slú·chal",
+        "neposlúchali": "ne·po·slú·cha·li",
+        "neposlúchnem": "ne·po·slúch·nem",
+        "neuposlúchnutie": "ne·upo·slúch·nu·tie",
         "nepostí": "ne·pos·tí",
         "nepostia": "ne·pos·tia",
         "nepostil": "ne·pos·til",
@@ -1634,8 +1692,8 @@ def test_fifty_ninth_discovered_family_batch_keeps_only_pri_zvuk_seam():
         "prízvukoval": "prí·zvu·ko·val",
         "prízvukujem": "prí·zvu·ku·jem",
         "ubiedená": "ubie·de·ná",
-        "uposlúchnuť": "upos·lúch·nuť",
-        "neuposlúchnutie": "ne·upos·lúch·nu·tie",
+        "uposlúchnuť": "upo·slúch·nuť",
+        "neuposlúchnutie": "ne·upo·slúch·nu·tie",
         "spolúradník": "spo·lú·rad·ník",
         "spoluúradníkom": "spo·lu·úrad·ní·kom",
         "súradnice": "sú·rad·ni·ce",
@@ -2196,7 +2254,7 @@ def test_batch_72_guarded_po_and_nested_prefix_families():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("nepodopiera") == "ne·pod·opie·ra"
-    assert hyphenate("podrobiť") == "po·dro·biť"
+    assert hyphenate("podrobiť") == "pod·ro·biť"
 
 
 def test_batch_129_keeps_the_po_hreb_seam():
@@ -2385,7 +2443,7 @@ def test_batch_83_keeps_nested_u_prefixes_and_d_final_past_forms():
         "čerpadlo": "čer·pa·dlo",
         "lietadlo": "lie·ta·dlo",
         "poslucháč": "pos·lu·cháč",
-        "neuposlúchnuté": "ne·upos·lúch·nu·té",
+        "neuposlúchnuté": "ne·upo·slúch·nu·té",
     }
     assert {word: hyphenate(word) for word in protected} == protected
 

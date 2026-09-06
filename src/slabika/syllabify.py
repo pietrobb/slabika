@@ -82,9 +82,6 @@ _VOZ_INFLECTIONS = frozenset({
     'eň', 'ňa', 'ňami', 'ňoch', 'ňom', 'ňov', 'ňu',
 })
 _NEGER_CONTRACTED_INFLECTIONS = frozenset({'a', 'ami', 'i', 'och', 'om', 'ov', 'ovi'})
-_POSLAT_SUPPLETIVE_INFLECTIONS = frozenset({
-    'a', 'e', 'em', 'eme', 'eš', 'ete', 'i', 'ime', 'ite', 'o', 'ú',
-})
 _POSTIT_INFLECTIONS = frozenset({
     'i', 'iac', 'ia', 'il', 'ila', 'ili', 'ilo', 'ime', 'ite', 'iť',
     'í', 'ím', 'íme', 'íš', 'íte',
@@ -156,6 +153,26 @@ _NONSYLLABIC_INITIAL_R_ROOTS = ('rdie', 'rmuc', 'rmút')
 
 _LEXICAL_SYLLABLE_LENGTHS = {
     'action': (2, 4),
+    'bezosporu': (2, 2, 3, 2),
+    'čoskoro': (2, 3, 2),
+    'dakde': (2, 3),
+    'hmkal': (2, 3),
+    'nactiutŕhača': (2, 3, 1, 2, 2, 2),
+    'nactiutŕhačný': (2, 3, 1, 2, 3, 2),
+    'nactiutŕhanie': (2, 3, 1, 2, 2, 3),
+    'ostošesť': (4, 4),
+    'podrobenými': (3, 2, 2, 2, 2),
+    'podrobujete': (3, 2, 2, 2, 2),
+    'podrobiť': (3, 2, 3),
+    'podrobujúc': (3, 2, 2, 3),
+    'polizba': (3, 2, 2),
+    'pozdnom': (4, 3),
+    'rozorval': (2, 2, 4),
+    'rozorvane': (2, 2, 3, 2),
+    'rozorvanej': (2, 2, 3, 3),
+    'skrznaskrz': (4, 2, 4),
+    'vyrve': (2, 3),
+    'vyrvite': (2, 3, 2),
     'addition': (2, 2, 4),
     'allbright': (3, 6),
     'allbrighta': (3, 6, 1),
@@ -198,6 +215,7 @@ def _lexical_syllables(word: str) -> list[str] | None:
 
 
 _LEXICAL_PREFIX_ROOTS = (
+    ('bezo', ('zvyšk',)),
     ('de', ('flog', 'flor', 'grad')),
     ('hoci', ('ktor',)),
     ('hvezdo', ('prav',)),
@@ -301,7 +319,7 @@ _LEXICAL_PREFIX_ROOTS = (
         'hláv', 'hra', 'hrá', 'hroz', 'chrán', 'chráň', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
         'plach', 'plách', 'plak', 'plat', 'plášt', 'pleš', 'plet', 'plod', 'plot', 'pľu', 'pľú',
         'prac', 'prad', 'praď', 'pral', 'pras', 'praš', 'práš', 'prať',
-        'pre', 'pri', 'pros', 'prot',
+        'neskor', 'pre', 'pri', 'pros', 'prot',
         'podstat', 'prav', 'práv', 'pust', 'sln', 'smel', 'spev', 'spra', 'streľ',
         'strih', 'strieľ', 'sved', 'svet', 'svie', 'svoj', 'sídl', 'tlač', 'tlak',
         'tras', 'trh', 'tup', 'vplyv', 'zbroj', 'znač', 'živ',
@@ -336,9 +354,9 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pod', ('oblas',)),
     # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
     ('do', ('čk',)),
-    ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slúž', 'sluš', 'spas', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň')),
+    ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač')),
-    ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'pokoj', 'pri', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
+    ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'pokoj', 'poslúch', 'pri', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad', 'lh', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'vda', 'vdá', 'vďač', 'vďak')),
     ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup', 'zrak', 'zrač')),
@@ -886,15 +904,10 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 or reml == 'sta'
             ):
                 continue
-            # posl- and the suppletive pošl- forms of poslať are lexical roots,
-            # unlike transparent po-|slúžiť and po-|šliapať.
-            if pfx == 'po' and (
-                reml.startswith('sl')
-                or (
-                    reml.startswith('šl')
-                    and reml[2:] in _POSLAT_SUPPLETIVE_INFLECTIONS
-                )
-            ):
+            # Residual posl- families are lexical roots. Transparent po-|slint-,
+            # po-|slúch-, po-|slúž-, po-|sluš- and po-|šl- match the guarded
+            # lexical pairings above before reaching this fallback.
+            if pfx == 'po' and reml.startswith('sl'):
                 continue
             # Pospas-, pospol-, podl-, popruh-, postul-, pošv-, potk-,
             # povodn-/povodň- and povraz- are lexical stems,

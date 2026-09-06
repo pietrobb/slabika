@@ -178,10 +178,10 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     ):
         return set(), set(), set()
 
-    if len(_nucleus_spans(word)[2]) <= 1:
+    lexical_parts = _lexical_syllables(word)
+    if len(_nucleus_spans(word)[2]) <= 1 and lexical_parts is None:
         return set(), set(), set()
 
-    lexical_parts = _lexical_syllables(word)
     parts = lexical_parts or get_morpheme_parts(word)
     points: set[int] = set()
     variants: set[int] = set()
@@ -311,7 +311,7 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     # level, admitted only in exceptionally narrow measure.
     seam_offsets = {seam for seam, _, _ in seams}
     for point in sorted(points):
-        if point - 1 not in points or not is_vowel(word[point - 1]):
+        if lexical_parts is not None or point - 1 not in points or not is_vowel(word[point - 1]):
             continue
         # Only a prefix does this. The vowel is a morpheme of its own, seamed on
         # both sides, and breaking after it welds it to what precedes into a
