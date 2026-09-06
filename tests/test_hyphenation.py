@@ -582,6 +582,46 @@ def test_operator_approved_scale_1000_native_forms():
     assert {word: hyphenate(word) for word in expected} == expected
 
 
+def test_operator_approved_second_scale_1000_native_forms():
+    expected = {
+        "zavčas": "za·včas",
+        "zavčasu": "za·vča·su",
+        "srstnatého": "srst·na·té·ho",
+        "srstnatú": "srst·na·tú",
+        "srstnatá": "srst·na·tá",
+        "vyrvaná": "vy·rva·ná",
+        "vyrvané": "vy·rva·né",
+        "podrobia": "pod·ro·bia",
+        "nepodrobí": "ne·pod·ro·bí",
+        "podrobuje": "pod·ro·bu·je",
+        "podrobení": "pod·ro·be·ní",
+        "podrobenej": "pod·ro·be·nej",
+        "podrobujeme": "pod·ro·bu·je·me",
+        "nevši": "ne·vši",
+        "podrobených": "pod·ro·be·ných",
+        "podrobí": "pod·ro·bí",
+        "podrobením": "pod·ro·be·ním",
+        "rozorvaných": "ro·zo·rva·ných",
+        "nactiutŕhania": "na·cti·u·tŕ·ha·nia",
+        "podrobená": "pod·ro·be·ná",
+        "podrobíš": "pod·ro·bíš",
+        "podrobila": "pod·ro·bi·la",
+        "podrobenom": "pod·ro·be·nom",
+        "podrobenie": "pod·ro·be·nie",
+        "podrobeným": "pod·ro·be·ným",
+        "podrob": "pod·rob",
+        "podrobilo": "pod·ro·bi·lo",
+        "predovať": "pre·do·vať",
+        "rozorvanou": "ro·zo·rva·nou",
+        "rozorvanosťou": "ro·zo·rva·nos·ťou",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("vyrvaná", all_points=True) == "vy·r·va·ná"
+    assert hyphenate("vyrvané", all_points=True) == "vy·r·va·né"
+    assert divisions("vyrvaná") == ["vy-rvaná", "vyr-vaná", "vyrva-ná"]
+    assert divisions("vyrvané") == ["vy-rvané", "vyr-vané", "vyrva-né"]
+
+
 def test_eleventh_discovered_family_batch_has_no_safe_new_output_points():
     expected = {
         "najosudnejšie": "naj·osud·nej·šie",

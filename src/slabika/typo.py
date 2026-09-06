@@ -63,6 +63,10 @@ _CHRAN_ROOT_CONTEXTS = (
     ('zachraň', ('', 'ne')),
     ('uchraň', ('', 'ne')),
 )
+_LEXICAL_VARIANT_POINTS = {
+    'vyrvaná': (3,),
+    'vyrvané': (3,),
+}
 
 
 def _nucleus_spans(word: str) -> tuple[list[str], list[int], list[tuple[int, int]]]:
@@ -202,6 +206,8 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         if index < len(parts) - 1:
             points.add(pos)
             seams.append((pos, part, parts[index + 1]))
+
+    variants.update(_LEXICAL_VARIANT_POINTS.get(word.casefold(), ()))
 
     # Productive -nosť belongs to typographic morphology, but must not split the
     # input to linguistic syllabification: opatr|nosť still contains syllabic r.
