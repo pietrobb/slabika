@@ -398,7 +398,9 @@ _SK_SUFFIXES_CONS = [
     # 3 chars
     'stv',    # priateľ·stvo, kráľov·stvá
     'ctv',    # baní·ctvo, zdravotní·ctvo
-    'cia',    # funk·cia, ak·cia, polí·cia — the borrowed -tio suffix
+    # The borrowed -tio suffix, across its whole paradigm: without the oblique
+    # forms funk·cia keeps its seam but funk·cie loses it (fun·kcie).
+    'cia', 'cie', 'cii', 'ciu', 'cio',
     'ník', 'níc', 'nik', 'nic', 'nil', 'kár',  # dl·žník, dážd·nik, účast·nil
     'ným', 'nej', 'nou', 'nom',   # ohrad·ným — the rest of the ·ný paradigm
     'dlo',    # mera·dlo
@@ -422,9 +424,9 @@ _CINA_LANGUAGE_STEMS = frozenset({
 _CINA_INFLECTIONS = ('činami', 'činách', 'činou', 'čina', 'čine', 'činu', 'činy', 'čin')
 _RHYTHMIC_SHORT_NIK = frozenset({'nik', 'nic'})
 _RHYTHMIC_SHORT_NY_SUFFIXES = (
-    'neho', 'nemu', 'nych', 'nymi', 'nym', 'ny', 'na', 'ne', 'nu', 'ni',
+    'neho', 'nemu', 'nych', 'nymi', 'nym', 'ny', 'na', 'ne', 'no', 'nu', 'ni',
 )
-_RHYTHMIC_SHORT_NY_STEMS = frozenset({'hviezd', 'zvlášt'})
+_RHYTHMIC_SHORT_NY_STEMS = frozenset({'hviezd', 'prázd', 'zvlášt'})
 _RHYTHMIC_LONG_NUCLEI = LONG_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 
 _DLO_INFLECTIONS = ('dlami', 'dlách', 'dlom', 'dlám', 'diel', 'dla', 'dle', 'dlu', 'dlá')
@@ -976,8 +978,8 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             if pfx == 'proti' and reml.startswith(('ven', 'vn')):
                 continue
             if pfx == 'pro' and reml.startswith((
-                'blem', 'blém', 'gnos', 'gnóz', 'gram', 'gres', 'sm', 'spej', 'spie',
-                'spekt', 'spel', 'sper', 'st', 'tiv', 'zret',
+                'blem', 'blém', 'gnos', 'gnóz', 'gram', 'gres', 'sm',
+                'spekt', 'sper', 'st', 'tiv', 'zret',
             )):
                 continue
             # Súcn-, súd-, súkn-, súkrom- and súprav- are lexical stems, not sú- forms.
