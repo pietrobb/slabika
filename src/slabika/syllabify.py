@@ -145,11 +145,12 @@ _PRESN_INFLECTIONS = frozenset({
     'ou', 'á', 'é', 'ého', 'ému', 'ú', 'ý', 'ých', 'ým', 'ými',
 })
 _RASTLINA_FAMILY_STEMS = ('rastlin', 'rastlín')
+_SRSTNAT_FAMILY_STEM = 'srstnat'
 _RASTLY_ENDINGS = ('lými', 'lého', 'lému', 'lých', 'lým', 'lej', 'lou', 'lom', 'lý', 'lá', 'lé', 'lú', 'lí')
 _ST_DERIVATIVE_STEMS = ('spohan',)
 _POKRYTECTVO_ENDINGS = frozenset({'tvo', 'tva', 'tve', 'tvom', 'tvu'})
 _STRED_IE_INFLECTIONS = frozenset({'ie', 'ia', 'iu', 'í', 'ím', 'iam', 'iami', 'iach'})
-_NONSYLLABIC_INITIAL_R_ROOTS = ('rdie', 'rmuc', 'rmút')
+_NONSYLLABIC_INITIAL_R_ROOTS = ('rdie', 'rmuc', 'rmút', 'rv')
 
 _LEXICAL_SYLLABLE_LENGTHS = {
     'action': (2, 4),
@@ -157,55 +158,13 @@ _LEXICAL_SYLLABLE_LENGTHS = {
     'čoskoro': (2, 3, 2),
     'dakde': (2, 3),
     'hmkal': (2, 3),
-    'nactiutŕhania': (2, 3, 1, 2, 2, 3),
-    'nactiutŕhača': (2, 3, 1, 2, 2, 2),
-    'nactiutŕhačný': (2, 3, 1, 2, 3, 2),
-    'nactiutŕhanie': (2, 3, 1, 2, 2, 3),
-    'nepodrobí': (2, 3, 2, 2),
     'nevši': (2, 3),
     'ostošesť': (4, 4),
-    'podrob': (3, 3),
-    'podrobia': (3, 2, 3),
-    'podrobila': (3, 2, 2, 2),
-    'podrobilo': (3, 2, 2, 2),
-    'podrobenie': (3, 2, 2, 3),
-    'podrobenom': (3, 2, 2, 3),
-    'podrobená': (3, 2, 2, 2),
-    'podrobení': (3, 2, 2, 2),
-    'podrobených': (3, 2, 2, 3),
-    'podrobeným': (3, 2, 2, 3),
-    'podrobenými': (3, 2, 2, 2, 2),
-    'podrobením': (3, 2, 2, 3),
-    'podrobenej': (3, 2, 2, 3),
-    'podrobujeme': (3, 2, 2, 2, 2),
-    'podrobujete': (3, 2, 2, 2, 2),
-    'podrobuje': (3, 2, 2, 2),
-    'podrobíš': (3, 2, 3),
-    'podrobí': (3, 2, 2),
-    'podrobiť': (3, 2, 3),
-    'podrobujúc': (3, 2, 2, 3),
     'polizba': (3, 2, 2),
     'pozdnom': (4, 3),
     'predovať': (3, 2, 3),
-    'rozorval': (2, 2, 4),
-    'rozorvane': (2, 2, 3, 2),
-    'rozorvanej': (2, 2, 3, 3),
-    'rozorvanosťou': (2, 2, 3, 3, 3),
-    'rozorvanou': (2, 2, 3, 3),
-    'rozorvaných': (2, 2, 3, 4),
     'skrznaskrz': (4, 2, 4),
-    'srstnatá': (4, 2, 2),
-    'srstnatého': (4, 2, 2, 2),
-    'srstnatú': (4, 2, 2),
-    'vyrvaná': (2, 3, 2),
-    'vyrvané': (2, 3, 2),
-    'vyrve': (2, 3),
-    'vyrvite': (2, 3, 2),
-    'zavčas': (2, 4),
-    'zavčasu': (2, 3, 2),
     'addition': (2, 2, 4),
-    'allbright': (3, 6),
-    'allbrighta': (3, 6, 1),
     'allgemeine': (3, 2, 3, 2),
     'ambivius': (2, 2, 2, 2),
     'antonius': (2, 2, 2, 2),
@@ -216,16 +175,51 @@ _LEXICAL_SYLLABLE_LENGTHS = {
     'jones': (5,),
     'mahalaleel': (2, 2, 2, 4),
 }
-_ALZBETA_PART_LENGTHS = {
-    'alžbeta': (3, 2, 2),
-    'alžbete': (3, 2, 2),
-    'alžbetin': (3, 2, 3),
-    'alžbetinho': (3, 2, 3, 2),
-    'alžbetinom': (3, 2, 2, 3),
-    'alžbetou': (3, 2, 3),
-    'alžbetu': (3, 2, 2),
-    'alžbety': (3, 2, 2),
+_ALLBRIGHT_ENDINGS = frozenset({'', 'a'})
+_ALZBETA_TAIL_LENGTHS = {
+    'a': (2,),
+    'e': (2,),
+    'in': (3,),
+    'inho': (3, 2),
+    'inom': (2, 3),
+    'ou': (3,),
+    'u': (2,),
+    'y': (2,),
 }
+_HALAPART_NON_SUFFIX_ENDINGS = frozenset({'ne', 'ňa', 'ňami'})
+_MASTNAK_INFLECTIONS = frozenset({'', 'a', 'ami', 'e', 'mi', 'och', 'om', 'ov', 'ovi', 'u', 'y'})
+_NACTIUTRHACSK_INFLECTIONS = frozenset({
+    'á', 'é', 'ého', 'ej', 'ému', 'í', 'om', 'ou', 'ú', 'ý', 'ých', 'ým', 'ými',
+})
+_PODROBEN_ENDINGS = frozenset({
+    '', 'e', 'ia', 'iam', 'iami', 'iach', 'ie', 'iu', 'í', 'ím',
+    'osť', 'osti', 'ostiam', 'ostiach', 'osťami', 'osťou', 'ostí',
+    'á', 'é', 'ého', 'ej', 'ému', 'om', 'ou', 'ú', 'ý', 'ých', 'ým', 'ými',
+})
+_ACTIVE_PARTICIPLE_INFLECTIONS = frozenset({
+    '', 'a', 'e', 'eho', 'ej', 'emu', 'i', 'ich', 'im', 'imi', 'om', 'ou', 'u',
+})
+_PODROBI_ENDINGS = (
+    frozenset({'a', 'l', 'la', 'li', 'lo', 'ť'})
+    | {f'ac{ending}' for ending in _ACTIVE_PARTICIPLE_INFLECTIONS}
+)
+_PODROBI_LONG_ENDINGS = frozenset({'', 'm', 'me', 'te', 'š'})
+_PODROBOV_ENDINGS = frozenset({
+    'al', 'ala', 'ali', 'alo', 'ane', 'ať',
+    'anie', 'ania', 'aniam', 'aniami', 'aniach', 'aniu', 'aní', 'aním',
+    'aná', 'ané', 'aného', 'anej', 'anému', 'aní', 'anom', 'anou', 'anú',
+    'aný', 'aných', 'aným', 'anými',
+})
+_PODROBUJ_ENDINGS = (
+    frozenset({'', 'e', 'em', 'eme', 'ete', 'eš', 'me', 'te', 'ú'})
+    | {f'úc{ending}' for ending in _ACTIVE_PARTICIPLE_INFLECTIONS}
+)
+_CASE_PRESERVING_PREFIX_FAMILIES = (
+    ('nactiutŕh', 2),
+    ('rozorv', 4),
+    ('vyrv', 2),
+    ('zavčas', 2),
+)
 
 
 def _parts_from_lengths(word: str, lengths: tuple[int, ...]) -> list[str]:
@@ -237,11 +231,67 @@ def _parts_from_lengths(word: str, lengths: tuple[int, ...]) -> list[str]:
     return parts
 
 
+def _with_original_spelling(word: str, parts: list[str]) -> list[str]:
+    return _parts_from_lengths(word, tuple(len(part) for part in parts))
+
+
 def _lexical_syllables(word: str) -> list[str] | None:
-    lengths = _LEXICAL_SYLLABLE_LENGTHS.get(word.casefold())
+    folded = word.casefold()
+    if (
+        folded.startswith('nactiutŕhačsk')
+        and folded[13:] in _NACTIUTRHACSK_INFLECTIONS
+    ):
+        parts = [
+            word[:3], word[3:5], word[5:6], word[6:8], word[8:11],
+            *_syllabify_simple(word[11:]),
+        ]
+        return _with_original_spelling(word, parts)
+    if folded.startswith('allbright') and folded[9:] in _ALLBRIGHT_ENDINGS:
+        return [word[:3], word[3:9], *([word[9:]] if len(word) > 9 else [])]
+    lengths = _LEXICAL_SYLLABLE_LENGTHS.get(folded)
     if lengths is None:
         return None
     return _parts_from_lengths(word, lengths)
+
+
+def _alzbeta_parts(word: str) -> list[str] | None:
+    folded = word.casefold()
+    if not folded.startswith('alžbet'):
+        return None
+    tail_lengths = _ALZBETA_TAIL_LENGTHS.get(folded[6:])
+    if tail_lengths is None:
+        return None
+    return [word[:3], word[3:5], *_parts_from_lengths(word[5:], tail_lengths)]
+
+
+def _is_mastnak_form(word: str) -> bool:
+    folded = word.casefold()
+    return folded.startswith('mastňák') and folded[7:] in _MASTNAK_INFLECTIONS
+
+
+def _split_zneucten_family(word: str) -> tuple[list[str], str] | None:
+    folded = word.casefold()
+    if folded.startswith('nezneucten'):
+        return [word[:2], word[2:5], word[5:6]], word[6:]
+    if folded.startswith('zneucten'):
+        return [word[:3], word[3:4]], word[4:]
+    return None
+
+
+def _is_podrobit_form(word: str) -> bool:
+    """Distinguish pod-|robiť forms from the po-|drobný homographs."""
+    folded = word.casefold()
+    if not folded.startswith('podrob'):
+        return False
+    ending = folded[6:]
+    return (
+        ending in {'', 'me', 'te'}
+        or (ending.startswith('en') and ending[2:] in _PODROBEN_ENDINGS)
+        or (ending.startswith('i') and ending[1:] in _PODROBI_ENDINGS)
+        or (ending.startswith('í') and ending[1:] in _PODROBI_LONG_ENDINGS)
+        or (ending.startswith('ov') and ending[2:] in _PODROBOV_ENDINGS)
+        or (ending.startswith('uj') and ending[2:] in _PODROBUJ_ENDINGS)
+    )
 
 
 _LEXICAL_PREFIX_ROOTS = (
@@ -297,7 +347,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('činu', ('schop',)),
     ('človeko', ('zviera',)),
     ('dva', ('uhol',)),
-    ('dvoj', ('uch',)),
+    ('dvoj', ('okamih', 'uch')),
     ('päť', ('uhol',)),
     ('sedem', ('uhol',)),
     ('štvor', ('uhol', 'uhl')),
@@ -319,7 +369,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pro', ('stred',)),
     ('zraku', ('chtiv',)),
     ('písmeno', ('žrút',)),
-    ('pre', ('dchn', 'diabol', 'dier', 'dik', 'disk', 'dispoz', 'div', 'dra', 'driek', 'duchov', 'dup', 'glej', 'sťah', 'tn', 'žhav', 'ľst')),
+    ('pre', ('dchn', 'diabol', 'dier', 'dik', 'disk', 'dispoz', 'div', 'dra', 'driek', 'duchov', 'dup', 'glej', 'lst', 'sťah', 'tn', 'žhav', 'ľst')),
     ('pred', ('včer',)),
     ('pol', ('libr', 'liter', 'litr', 'ostrov', 'roč', 'rok', 'rúr')),
     ('plno', ('zvuč',)),
@@ -335,7 +385,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('veľko', ('kráľ',)),
     ('vice', ('kráľ',)),
     ('uza', ('vrel',)),
-    ('vele', ('zrad',)),
+    ('vele', ('cten', 'zrad')),
     ('víťazo', ('sláv',)),
     ('vlaso', ('štiep',)),
     ('vlasti', ('zrad',)),
@@ -363,13 +413,13 @@ _LEXICAL_PREFIX_ROOTS = (
     ('prie', ('hlav', 'hľad', 'hrad', 'klep', 'strel', 'stup', 'svit', 'zrač')),
     ('prí', ('klad', 'krat', 'krov', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'streš', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zrak', 'zvuk')),
     ('naj', ('všestran',)),
-    ('ne', ('ochot', 'oficiál', 'scudzolož', 'sčerv', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
+    ('ne', ('mst', 'ochot', 'oficiál', 'scudzolož', 'sčet', 'sčerv', 'sčísel', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
     ('novo', ('povst', 'prij', 'stan', 'stvor', 'vzbud', 'vznik', 'vysvät', 'zdol', 'zhotov', 'zjav', 'zrod', 'zvol')),
     ('ono', ('svet',)),
     ('na', (
         'daj', 'dal', 'dan', 'darm', 'dať', 'dáv', 'del', 'deľ', 'dikt', 'div', 'dív', 'dobr',
         'dobud', 'dobúd', 'doďak', 'doj', 'dopov', 'doraz', 'dostač',
-        'drob', 'duj', 'dul', 'dur', 'dut', 'dúv', 'jal', 'jat', 'jav', 'jazd',
+        'cp', 'ctiutŕh', 'drob', 'duj', 'dul', 'dur', 'dut', 'dúv', 'jal', 'jat', 'jav', 'jazd',
         'jedia', 'jedl', 'jedo', 'jedz', 'jeme', 'jemn', 'jesť', 'jež', 'jím', 'ozaj', 'stup', 'sťah',
         'zhromažd', 'žgrl',
     )),
@@ -387,8 +437,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač')),
     ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'pokoj', 'poslúch', 'pri', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
-    ('vy', ('čk', 'chlad', 'lh', 'sťah', 'tn')),
-    ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'vda', 'vdá', 'vďač', 'vďak')),
+    ('vy', ('čk', 'chlad', 'lh', 'rv', 'sťah', 'tn')),
+    ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),
     ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'plat', 'prah', 'skok', 'stup', 'zrak', 'zrač')),
     ('ú', ('hrad', 'kryt', 'nav', 'plat', 'rad', 'stred', 'stup', 'tlak', 'toč')),
 )
@@ -474,7 +524,7 @@ _RHYTHMIC_SHORT_NIK = frozenset({'nik', 'nic'})
 _RHYTHMIC_SHORT_NY_SUFFIXES = (
     'neho', 'nemu', 'nych', 'nymi', 'nym', 'ny', 'na', 'ne', 'no', 'nu', 'ni',
 )
-_RHYTHMIC_SHORT_NY_STEMS = frozenset({'hviezd', 'prázd', 'zvlášt'})
+_RHYTHMIC_SHORT_NY_STEMS = frozenset({'hviezd', 'prázd', 'púšt', 'zvlášt'})
 _RHYTHMIC_LONG_NUCLEI = LONG_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 
 _DLO_INFLECTIONS = ('dlami', 'dlách', 'dlom', 'dlám', 'diel', 'dla', 'dle', 'dlu', 'dlá')
@@ -523,7 +573,7 @@ _SK_COMPOSITA = [
     'super', 'hyper', 'meta', 'multi', 'mini', 'maxi',
     # Slovak-specific composita
     'modlo', 'rodo', 'jedno', 'stredo', 'brati', 'mäso', 'mast', 'krátko', 'krato', 'dobro', 'tvrdo', 'plno', 'právo', 'rovno',
-    'bielo', 'bledo', 'blaho', 'boho', 'bohu', 'boja', 'bože', 'brato', 'čaro', 'blesko',
+    'bielo', 'bledo', 'blaho', 'boho', 'bohu', 'boja', 'bože', 'brato', 'čaro', 'ducha', 'blesko',
     'celo', 'choreo', 'chorobo', 'chválo', 'čierno', 'červeno',
     'cudzo', 'ďaleko', 'darmo', 'delo', 'divo', 'drevo', 'drobno', 'duto', 'fajn', 'gramo',
     'hnedo', 'holo', 'hromo', 'hrôzo', 'hrubo', 'ino', 'jasno', 'jedino', 'jemno', 'juho', 'prirodzeno', 'prázdno',
@@ -679,7 +729,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
             'polo': (
                 'bláz', 'človek', 'francúz', 'hmot', 'krot', 'plášť', 'pleš',
                 'prázd', 'prie', 'prizn', 'prorok', 'slov', 'smr', 'spán',
-                'spoloč', 'tmav', 'vyprah', 'štrbin',
+                'spoloč', 'tmav', 'vpravo', 'vyprah', 'štrbin',
             ),
             'vše': ('stran', 'stred'),
             'vysoko': ('cte', 'postav', 'škol'),
@@ -701,6 +751,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         return False
     guarded_compounds = {
         'niekoľko': ('dň',),
+        'ducha': ('prítom',),
         'leto': ('hrád', 'kruh'),
         'leuko': ('plast',),
         'ľubo': ('zvu',),
@@ -741,7 +792,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         return False
     if comp == 'troj' and reml.startswith(('ak', 'ic', 'it')):
         return False
-    if comp == 'čaro' and not reml.startswith('krás'):
+    if comp == 'čaro' and not reml.startswith(('hr', 'krás')):
         return False
     if comp in {'celo', 'červeno', 'duto', 'hnedo', 'holo', 'hrubo'} and reml.startswith(('sť', 'sti', 'stn')):
         return False
@@ -1193,6 +1244,14 @@ def _is_d_final_past(word: str) -> bool:
     )
 
 
+def _is_halapart_form(word: str) -> bool:
+    folded = word.casefold()
+    return (
+        folded.startswith('halapart')
+        and folded[8:] in _HALAPART_NON_SUFFIX_ENDINGS
+    )
+
+
 def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     """Return (stem, rest) if w carries a known consonant-initial suffix and
     the split produces a valid morpheme boundary. Else (None, None).
@@ -1204,7 +1263,7 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     wl = w.lower()
     if wl.startswith('novocain') and wl[len('novocain'):] in _NOVOCAIN_INFLECTIONS:
         return None, None
-    if wl in ('halapartňa', 'halapartňami'):
+    if _is_halapart_form(w):
         return None, None
     for stem in _ST_DERIVATIVE_STEMS:
         if wl.startswith(stem + 'št'):
@@ -1400,7 +1459,7 @@ def _split_bound_second_member(w: str) -> tuple[str, str] | None:
 def _strip_grammatical_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
     """Split consonant-initial endings only from a consonant-final stem."""
     wl = w.lower()
-    if wl == 'halapartne':
+    if _is_halapart_form(w):
         return None, None
     for sfx in _SK_GRAMMATICAL_SUFFIXES_CONS:
         if not wl.endswith(sfx) or len(w) <= len(sfx) + 1:
@@ -1467,12 +1526,7 @@ def _split_potreb_family(word: str) -> tuple[list[str], str] | None:
     if remainder.startswith('potreb'):
         return [*parts, word[offset:offset + 2]], word[offset + 2:]
     if remainder.startswith(('opotreb', 'upotreb')):
-        # ne|u|po- would allow a point after the u, leaving neu at the end of a
-        # line. The u keeps its seam only when nothing precedes it.
-        if parts and remainder.startswith('upotreb'):
-            prefixes = [*parts, word[offset:offset + 3]]
-        else:
-            prefixes = [*parts, word[offset:offset + 1], word[offset + 1:offset + 3]]
+        prefixes = [*parts, word[offset:offset + 1], word[offset + 1:offset + 3]]
         return prefixes, word[offset + 3:]
     if remainder.startswith('spotreb'):
         return [*parts, word[offset:offset + 3]], word[offset + 3:]
@@ -1503,9 +1557,19 @@ def get_morpheme_parts(word: str) -> list[str]:
     lexical = _lexical_syllables(word)
     if lexical is not None:
         return lexical
-    alzbeta_lengths = _ALZBETA_PART_LENGTHS.get(wl)
-    if alzbeta_lengths is not None:
-        return _parts_from_lengths(word, alzbeta_lengths)
+    if _is_mastnak_form(word):
+        return [word[:4], word[4:]]
+    zneucten_family = _split_zneucten_family(word)
+    if zneucten_family is not None:
+        prefixes, remainder = zneucten_family
+        return [*prefixes, *get_morpheme_parts(remainder)]
+    if _is_podrobit_form(word):
+        return [word[:3], *get_morpheme_parts(word[3:])]
+    if wl.startswith('ne') and _is_podrobit_form(word[2:]):
+        return [word[:2], word[2:5], *get_morpheme_parts(word[5:])]
+    alzbeta_parts = _alzbeta_parts(word)
+    if alzbeta_parts is not None:
+        return alzbeta_parts
     if wl.startswith('abdrushin'):
         return [word[:3], word[3:5], word[5:]]
     if wl == 'ovládlo':
@@ -1531,7 +1595,7 @@ def get_morpheme_parts(word: str) -> list[str]:
     if rastly_ending is not None:
         start = len(word) - len(rastly_ending)
         return [*get_morpheme_parts(word[:start]), word[start:]]
-    if wl.startswith(_RASTLINA_FAMILY_STEMS):
+    if wl.startswith((*_RASTLINA_FAMILY_STEMS, _SRSTNAT_FAMILY_STEM)):
         return [word[:4], *get_morpheme_parts(word[4:])]
     if wl.startswith('pokrytec') and wl[8:] in _POKRYTECTVO_ENDINGS:
         return [*get_morpheme_parts(word[:8]), word[8:]]
@@ -1655,10 +1719,37 @@ def get_syllables(word: str) -> list[str]:
     lexical = _lexical_syllables(word)
     if lexical is not None:
         return lexical
+    if _is_mastnak_form(word):
+        parts = _syllabify_simple(word[:4]) + get_syllables(word[4:])
+        return _with_original_spelling(word, parts)
+    zneucten_family = _split_zneucten_family(word)
+    if zneucten_family is not None:
+        prefixes, remainder = zneucten_family
+        parts = [*prefixes, *get_syllables(remainder)]
+        return _with_original_spelling(word, parts)
+    if _is_podrobit_form(word):
+        parts = _syllabify_simple(word[:3]) + get_syllables(word[3:])
+        return _with_original_spelling(word, parts)
+    if wl.startswith('ne') and _is_podrobit_form(word[2:]):
+        parts = _syllabify_simple(word[:2]) + get_syllables(word[2:])
+        return _with_original_spelling(word, parts)
     if wl.startswith('abdrushin'):
         return [word[:3], word[3:5], *_syllabify_simple(word[5:])]
+    if wl.startswith(_SRSTNAT_FAMILY_STEM):
+        parts = _syllabify_simple(word[:4]) + get_syllables(word[4:])
+        return _with_original_spelling(word, parts)
     if wl.startswith(_RASTLINA_FAMILY_STEMS):
         return _syllabify_simple(word[:4]) + get_syllables(word[4:])
+    for family, prefix_length in _CASE_PRESERVING_PREFIX_FAMILIES:
+        if wl.startswith(family):
+            parts = (
+                _syllabify_simple(word[:prefix_length])
+                + get_syllables(word[prefix_length:])
+            )
+            return _with_original_spelling(word, parts)
+    if wl.startswith('ne') and wl[2:].startswith(('rozorv', 'vyrv')):
+        parts = _syllabify_simple(word[:2]) + get_syllables(word[2:])
+        return _with_original_spelling(word, parts)
 
     bound = _split_bound_second_member(word)
     if bound is not None and bound[1].casefold().startswith('naut'):
@@ -1760,9 +1851,10 @@ _LATIN_HIATUS_TAILS = ('eum', 'eus')
 # These lexical families pronounce e-u as two syllables, unlike the otherwise
 # reliable eu nucleus in learned loans.
 _LEXICAL_FALLING_HIATUS = (('abeund', 2), ('aleut', 2), ('reum', 1))
-_LEXICAL_RISING_HIATUS = (('triumf', 'iu'),)
+_LEXICAL_RISING_HIATUS = (('triumf', 'iu'), ('ctiutŕh', 'iu'))
 _LEXICAL_RISING_DIPHTHONG_STEMS = ('klient', 'pacient')
 _LEXICAL_FALLING_DIPHTHONGS = (
+    ('puoriad', 'uo'),
     ('hait', 'ai'),
     ('oppenheimer', 'ei'),
     ('ptolemai', 'ai'),
@@ -2004,7 +2096,7 @@ def _nuclei(phonemes: list[str]) -> list[int]:
 
 def _word_nuclei(word: str, phonemes: list[str]) -> list[int]:
     nuclei = _nuclei(phonemes)
-    if word.casefold().startswith((*_NONSYLLABIC_INITIAL_R_ROOTS, 'lž')) and nuclei[:1] == [0]:
+    if word.casefold().startswith((*_NONSYLLABIC_INITIAL_R_ROOTS, 'lst', 'lž')) and nuclei[:1] == [0]:
         return nuclei[1:]
     return nuclei
 

@@ -63,10 +63,21 @@ _CHRAN_ROOT_CONTEXTS = (
     ('zachraň', ('', 'ne')),
     ('uchraň', ('', 'ne')),
 )
-_LEXICAL_VARIANT_POINTS = {
-    'vyrvaná': (3,),
-    'vyrvané': (3,),
-}
+_VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
+
+
+def _preferred_internal_vowel_points(word: str) -> set[int]:
+    """Operator-approved family seams that remain preferred around one vowel."""
+    folded = word.casefold()
+    if folded.startswith('neupotrebiteľn'):
+        return {3}
+    if folded.startswith('nezneucten'):
+        return {6}
+    if folded.startswith('zneucten'):
+        return {4}
+    if folded.startswith('dvojokamih'):
+        return {5}
+    return set()
 
 
 def _nucleus_spans(word: str) -> tuple[list[str], list[int], list[tuple[int, int]]]:
@@ -207,7 +218,10 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
             points.add(pos)
             seams.append((pos, part, parts[index + 1]))
 
-    variants.update(_LEXICAL_VARIANT_POINTS.get(word.casefold(), ()))
+    folded = word.casefold()
+    preferred_internal_vowels = _preferred_internal_vowel_points(word)
+    if folded.startswith('vyrvan') and folded[6:] in _VYRVAN_VARIANT_ENDINGS:
+        variants.add(3)
 
     # Productive -nosť belongs to typographic morphology, but must not split the
     # input to linguistic syllabification: opatr|nosť still contains syllabic r.
@@ -241,7 +255,12 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         # this class, so pou|čiť is no codified doublet of po|učiť; it is a
         # plain 4.1 point the norm asks the typesetter not to take unless the
         # measure forces it. That is the contextual level, not the variant one.
-        if len(right) > 1 and is_vowel(right[0]) and seam + 1 in points:
+        if (
+            len(right) > 1
+            and is_vowel(right[0])
+            and seam + 1 in points
+            and seam + 1 not in preferred_internal_vowels
+        ):
             points.discard(seam + 1)
             contextual.add(seam + 1)
 
@@ -317,7 +336,12 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     # level, admitted only in exceptionally narrow measure.
     seam_offsets = {seam for seam, _, _ in seams}
     for point in sorted(points):
-        if lexical_parts is not None or point - 1 not in points or not is_vowel(word[point - 1]):
+        if (
+            point in preferred_internal_vowels
+            or lexical_parts is not None
+            or point - 1 not in points
+            or not is_vowel(word[point - 1])
+        ):
             continue
         # Only a prefix does this. The vowel is a morpheme of its own, seamed on
         # both sides, and breaking after it welds it to what precedes into a

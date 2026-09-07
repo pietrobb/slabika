@@ -189,6 +189,8 @@ def test_prazd_family_keeps_suffix_and_compound_seams():
 def test_reviewed_rmss_families_follow_psp_morpheme_evidence():
     expected = {
         "halapartne": "ha·la·par·tne",
+        "halapartňami": "ha·la·par·tňa·mi",
+        "halapartníci": "ha·la·part·ní·ci",
         "najprospešnejšie": "naj·pro·speš·nej·šie",
         "nepozostáva": "ne·po·zo·stá·va",
         "nepozostávajú": "ne·po·zo·stá·va·jú",
@@ -620,6 +622,74 @@ def test_operator_approved_second_scale_1000_native_forms():
     assert hyphenate("vyrvané", all_points=True) == "vy·r·va·né"
     assert divisions("vyrvaná") == ["vy-rvaná", "vyr-vaná", "vyrva-ná"]
     assert divisions("vyrvané") == ["vy-rvané", "vyr-vané", "vyrva-né"]
+
+
+def test_approved_native_divisions_apply_to_whole_word_families():
+    expected = {
+        "nactiutŕhač": "na·cti·u·tŕ·hač",
+        "nactiutŕhaním": "na·cti·u·tŕ·ha·ním",
+        "nactiutŕhaný": "na·cti·u·tŕ·ha·ný",
+        "podrobenia": "pod·ro·be·nia",
+        "podrobene": "pod·ro·be·ne",
+        "nepodrobene": "ne·pod·ro·be·ne",
+        "podrobený": "pod·ro·be·ný",
+        "nepodrobeného": "ne·pod·ro·be·né·ho",
+        "podrobiac": "pod·ro·biac",
+        "podrobiaci": "pod·ro·bia·ci",
+        "podrobiacemu": "pod·ro·bia·ce·mu",
+        "nepodrobiac": "ne·pod·ro·biac",
+        "podrobil": "pod·ro·bil",
+        "podrobme": "pod·rob·me",
+        "podroboval": "pod·ro·bo·val",
+        "podrobovane": "pod·ro·bo·va·ne",
+        "nepodrobovane": "ne·pod·ro·bo·va·ne",
+        "podrobovať": "pod·ro·bo·vať",
+        "podrobujem": "pod·ro·bu·jem",
+        "podrobuj": "pod·ro·buj",
+        "podrobujme": "pod·ro·buj·me",
+        "podrobujte": "pod·ro·buj·te",
+        "podrobujú": "pod·ro·bu·jú",
+        "podrobujúcom": "pod·ro·bu·jú·com",
+        "podrobujúcu": "pod·ro·bu·jú·cu",
+        "nepodrobujte": "ne·pod·ro·buj·te",
+        "podrobím": "pod·ro·bím",
+        "podrobíte": "pod·ro·bí·te",
+        "podrobte": "pod·rob·te",
+        "rozorvať": "ro·zo·rvať",
+        "rozorvem": "ro·zo·rvem",
+        "rozorvený": "ro·zo·rve·ný",
+        "vyrvať": "vy·rvať",
+        "vyrvem": "vy·rvem",
+        "vyrval": "vy·rval",
+        "vyrvaný": "vy·rva·ný",
+        "srstnatý": "srst·na·tý",
+        "srstnaté": "srst·na·té",
+        "srstnatou": "srst·na·tou",
+        "srstnatosť": "srst·na·tosť",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("podrobnosti") == "po·drob·nos·ti"
+    assert hyphenate("podrobný") == "pod·rob·ný"
+    assert hyphenate("podrobne") == "pod·rob·ne"
+    assert hyphenate("nepodrobný") == "ne·pod·rob·ný"
+    assert hyphenate("rozorala") == "roz·ora·la"
+    assert hyphenate("podrobina") == "po·dro·bi·na"
+    assert divisions("vyrvaný") == ["vy-rvaný", "vyrva-ný"]
+    assert divisions("nevyrvaná") == ["ne-vyrvaná", "nevy-rvaná", "nevyrva-ná"]
+    cased_syllables = {
+        "Podrobila": ["Pod", "ro", "bi", "la"],
+        "Nepodrobili": ["Ne", "pod", "ro", "bi", "li"],
+        "NEVYRVE": ["NE", "VY", "RVE"],
+        "NEPODROBUJTE": ["NE", "POD", "RO", "BUJ", "TE"],
+        "NEPODROBIACI": ["NE", "POD", "RO", "BIA", "CI"],
+        "NEPODROBOVANE": ["NE", "POD", "RO", "BO", "VA", "NE"],
+        "SRSTNATÁ": ["SRST", "NA", "TÁ"],
+        "Nactiutŕhanie": ["Na", "cti", "u", "tŕ", "ha", "nie"],
+        "ROZORVAL": ["RO", "ZO", "RVAL"],
+        "Vyrvaná": ["Vy", "rva", "ná"],
+        "ZAVČAS": ["ZA", "VČAS"],
+    }
+    assert {word: get_syllables(word) for word in cased_syllables} == cased_syllables
 
 
 def test_eleventh_discovered_family_batch_has_no_safe_new_output_points():
@@ -3533,6 +3603,92 @@ def test_batch_46_lexical_stems_and_pravdo_compound_keep_their_seams():
     assert hyphenate("pradávny") == "pra·dáv·ny"
 
 
+def test_operator_approved_third_scale_1000_native_forms():
+    expected = {
+        "mastňákom": "mast·ňá·kom",
+        "opotrebovaný": "opo·tre·bo·va·ný",
+        "opotrebovaných": "opo·tre·bo·va·ných",
+        "opotrebovaným": "opo·tre·bo·va·ným",
+        "opotrebovanými": "opo·tre·bo·va·ný·mi",
+        "opotrebovávané": "opo·tre·bo·vá·va·né",
+        "opotrebuje": "opo·tre·bu·je",
+        "opotrebúva": "opo·tre·bú·va",
+        "opotrebúvali": "opo·tre·bú·va·li",
+        "púštneho": "púšt·ne·ho",
+        "púštny": "púšt·ny",
+        "púštnych": "púšt·nych",
+        "púštnym": "púšt·nym",
+        "velectení": "ve·le·cte·ní",
+        "zneuctenia": "zne·u·cte·nia",
+        "zneucteniam": "zne·u·cte·niam",
+        "zneuctenie": "zne·u·cte·nie",
+        "zneuctená": "zne·u·cte·ná",
+        "zneuctené": "zne·u·cte·né",
+        "zneuctením": "zne·u·cte·ním",
+        "zneuctený": "zne·u·cte·ný",
+        "zneuctených": "zne·u·cte·ných",
+        "zneucteným": "zne·u·cte·ným",
+        "čarohra": "ča·ro·hra",
+        "puoriadne": "puo·riad·ne",
+        "nacpal": "na·cpal",
+        "duchaprítomnosti": "du·cha·prí·tom·nos·ti",
+        "duchaprítomnosť": "du·cha·prí·tom·nosť",
+        "duchaprítomná": "du·cha·prí·tom·ná",
+        "dvojokamihov": "dvoj·o·ka·mi·hov",
+        "Polovpravo": "Po·lo·vpra·vo",
+        "neupotrebiteľnom": "ne·u·po·tre·bi·teľ·nom",
+        "neupotrebiteľným": "ne·u·po·tre·bi·teľ·ným",
+        "nesčetnými": "ne·sčet·ný·mi",
+        "nactiutŕhačskými": "nac·ti·u·tŕ·hač·ský·mi",
+        "nesčíselne": "ne·sčí·sel·ne",
+        "nemstí": "ne·mstí",
+        "prelstí": "pre·lstí",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_third_scale_1000_rules_cover_families_without_nearby_collisions():
+    family_forms = {
+        "mastňákovi": "mast·ňá·ko·vi",
+        "púštnej": "púšt·nej",
+        "púštnom": "púšt·nom",
+        "púštnou": "púšt·nou",
+        "púštnik": "púšt·nik",
+        "velectený": "ve·le·cte·ný",
+        "zneuctenú": "zne·u·cte·nú",
+        "nezneuctený": "ne·zne·u·cte·ný",
+        "čarohry": "ča·ro·hry",
+        "puoriadny": "puo·riad·ny",
+        "nacpať": "na·cpať",
+        "nacpala": "na·cpa·la",
+        "duchaprítomnosťou": "du·cha·prí·tom·nos·ťou",
+        "dvojokamihový": "dvoj·o·ka·mi·ho·vý",
+        "nesčetný": "ne·sčet·ný",
+        "nactiutŕhačským": "nac·ti·u·tŕ·hač·ským",
+        "nesčíselnými": "ne·sčí·sel·ný·mi",
+        "nemstiť": "ne·mstiť",
+        "prelstia": "pre·lstia",
+    }
+    nearby_forms = {
+        "púšťať": "púš·ťať",
+        "zneužiť": "zne·užiť",
+        "zneužitie": "zne·uži·tie",
+        "neučený": "ne·uče·ný",
+        "nacvičiť": "na·cvi·čiť",
+        "čarodej": "ča·ro·dej",
+        "poriadne": "po·riad·ne",
+        "dvojakosť": "dvo·ja·kosť",
+        "polovica": "po·lo·vi·ca",
+        "polovodič": "po·lo·vo·dič",
+        "nemčina": "nem·či·na",
+        "prelúdium": "pre·lú·di·um",
+        "potrestať": "po·tres·tať",
+        "neukladajú": "ne·ukla·da·jú",
+    }
+    assert {word: hyphenate(word) for word in family_forms} == family_forms
+    assert {word: hyphenate(word) for word in nearby_forms} == nearby_forms
+
+
 def test_potreb_family_keeps_psp_attested_morpheme_boundary():
     expected = {
         "potreba": "po·tre·ba",
@@ -3547,19 +3703,26 @@ def test_potreb_family_keeps_psp_attested_morpheme_boundary():
         "nespotrebované": "ne·spo·tre·bo·va·né",
         "nespotrebuje": "ne·spo·tre·bu·je",
         "upotrebiť": "upo·tre·biť",
-        # A point after the u would leave neu at the end of the line.
-        "neupotrebiteľným": "ne·upo·tre·bi·teľ·ným",
+        "neupotrebiteľnom": "ne·u·po·tre·bi·teľ·nom",
+        "neupotrebiteľným": "ne·u·po·tre·bi·teľ·ným",
     }
     assert {word: hyphenate(word) for word in expected} == expected
+    for word in expected:
+        potreb_start = word.casefold().find("potreb")
+        po_tre = potreb_start + 2
+        pot_re = potreb_start + 3
+        points = break_points(word, all_points=True, contextual=True)
+        assert po_tre in points
+        assert pot_re not in points
 
 
 def test_cten_family_keeps_its_root_against_the_two_consonant_rule():
     expected = {
         "poctený": "po·cte·ný",
         "poctenú": "po·cte·nú",
-        "zneuctený": "zne·ucte·ný",
-        "zneuctenie": "zne·ucte·nie",
-        "nezneuctenú": "ne·zne·ucte·nú",
+        "zneuctený": "zne·u·cte·ný",
+        "zneuctenie": "zne·u·cte·nie",
+        "nezneuctenú": "ne·zne·u·cte·nú",
         "vysokoctený": "vy·so·ko·cte·ný",
         "najvysokoctenejší": "naj·vy·so·ko·cte·nej·ší",
         "veľactený": "ve·ľa·cte·ný",
