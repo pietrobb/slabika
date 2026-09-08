@@ -236,9 +236,11 @@ def write_tex_patterns(raw_patterns: Path, output: Path, mode: str) -> int:
         f"% Engine mode: {mode}.",
         "% This reproduces engine output; it is not an independently verified PSP gold set.",
         "% left_hyphen_min = 2, right_hyphen_min = 3",
+        "% REUSE-IgnoreStart",
         "\\patterns{",
         *tokens,
         "}",
+        "% REUSE-IgnoreEnd",
         "",
     ]
     output.write_text("\n".join(lines), encoding="utf-8")

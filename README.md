@@ -158,9 +158,9 @@ The project publishes two **work-in-progress** pattern sets learned from the sam
 702,438 forms; the fixed test set was excluded from both training runs:
 
 - [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) is the default
-  preferred set (6,357 patterns), trained from `break_points(word)`;
+  preferred set (7,312 patterns), trained from `break_points(word)`;
 - [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
-  is the permissive set for narrow measures (5,796 patterns), trained from
+  is the permissive set for narrow measures (6,950 patterns), trained from
   `break_points(word, all_points=True, contextual=True)`.
 
 Both sets contain no whole-word exceptions. TeX edge minima 2/3 were applied to
@@ -178,10 +178,10 @@ both competitors and to the target, the result was:
 
 | patterns | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| **slabika preferred (6,357 patterns)** | **98.7342%** (33,307/33,734) | **99.8179%** | **99.4140%** |
-| Jana Chlebíková 1992 against the preferred target | 86.8086% | 94.7520% | 93.6268% |
-| **slabika permissive (5,796 patterns)** | **98.8380%** (33,342/33,734) | **99.8243%** | **99.4793%** |
-| Jana Chlebíková 1992 against the permissive target | 86.3194% | 95.3403% | 93.3471% |
+| **slabika preferred (7,312 patterns)** | **98.6512%** (33,279/33,734) | **99.7712%** | **99.3787%** |
+| Jana Chlebíková 1992 against the preferred target | 89.8767% | 95.9836% | 95.5056% |
+| **slabika permissive (6,950 patterns)** | **98.6809%** (33,289/33,734) | **99.7780%** | **99.3891%** |
+| Jana Chlebíková 1992 against the permissive target | 89.3490% | 96.3789% | 95.0076% |
 
 This is a benchmark of **fidelity to the current rule engine**, not an
 independent PSP correctness benchmark. Engine points outside the common TeX

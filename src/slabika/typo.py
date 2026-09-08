@@ -64,19 +64,22 @@ _CHRAN_ROOT_CONTEXTS = (
     ('uchraň', ('', 'ne')),
 )
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
+_PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 
 
 def _preferred_internal_vowel_points(word: str) -> set[int]:
     """Operator-approved family seams that remain preferred around one vowel."""
     folded = word.casefold()
+    if folded.startswith('opotreb'):
+        return {1}
     if folded.startswith('neupotrebiteľn'):
         return {3}
-    if folded.startswith('nezneucten'):
-        return {6}
     if folded.startswith('zneucten'):
         return {4}
     if folded.startswith('dvojokamih'):
         return {5}
+    if folded.startswith('najúhlavnejš'):
+        return {4}
     return set()
 
 
@@ -250,6 +253,11 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     # that second point; only a consonant-only shift across the seam is admitted.
     raw_points = _psp_points(word)
     for seam, left, right in seams:
+        if folded == 'poslednýkrát' and left.casefold() == 'po':
+            variants.add(seam + 1)
+        if left.casefold() == 'obo' and right.casefold().startswith('zret'):
+            variants.add(seam - 2)
+
         # Section 3.4 keeps the second part's initial vowel off the first part
         # "podľa možnosti" — a preference, not a ban. Section 3.5 does not name
         # this class, so pou|čiť is no codified doublet of po|učiť; it is a
@@ -277,6 +285,10 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
                 # In the -ctv- doublet, prefer the point that leaves c with
                 # the base (baníc·tvo); keep the morphemic point as a variant.
                 if right.casefold().startswith('ctv'):
+                    points.discard(seam)
+                    points.add(alternative)
+                    variants.add(seam)
+                elif folded in _PREFERRED_SYLLABIC_DLO_FORMS:
                     points.discard(seam)
                     points.add(alternative)
                     variants.add(seam)
@@ -318,7 +330,7 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     # is dropped from every level. Detaching a one-letter opening syllable is
     # merely discouraged — "predvolene odstrániť", admitted in exceptionally
     # narrow measure — which is the contextual level and nothing stronger.
-    if word and is_vowel(word[0]):
+    if word and is_vowel(word[0]) and 1 not in preferred_internal_vowels:
         if 1 in points or 1 in variants:
             contextual.add(1)
         points.discard(1)

@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
+import zlib
 from contextlib import closing
 from datetime import datetime
 from html import escape
@@ -34,7 +35,7 @@ _SCHEMA = (
         transcript_sha256 TEXT NOT NULL UNIQUE,
         created_at TEXT NOT NULL,
         persisted_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
-        transcript_json TEXT NOT NULL
+        transcript_zlib BLOB NOT NULL
     )""",
     """CREATE TABLE IF NOT EXISTS ai_adjudication_items (
         run_id TEXT NOT NULL REFERENCES ai_adjudication_runs(run_id) ON DELETE RESTRICT,
@@ -42,10 +43,6 @@ _SCHEMA = (
         status TEXT NOT NULL CHECK(status IN (
             'consensus_independent', 'consensus_after_cross_review',
             'consensus_after_reconciliation', 'unresolved_model_disagreement')),
-        result_json TEXT NOT NULL,
-        positions_json TEXT NOT NULL,
-        evidence_json TEXT NOT NULL,
-        rounds_json TEXT NOT NULL,
         PRIMARY KEY(run_id, form)
     ) WITHOUT ROWID""",
     """CREATE INDEX IF NOT EXISTS ai_adjudication_items_form
@@ -259,18 +256,22 @@ def persist_run(db_path: Path, result: dict) -> str:
             return run_id
         connection.execute(
             """INSERT INTO ai_adjudication_runs
-               (run_id, transcript_sha256, created_at, transcript_json) VALUES (?, ?, ?, ?)""",
-            (run_id, run_id, snapshot["created_at"], transcript),
+               (run_id, transcript_sha256, created_at, transcript_zlib) VALUES (?, ?, ?, ?)""",
+            (run_id, run_id, snapshot["created_at"], zlib.compress(transcript.encode("utf-8"), 9)),
         )
         connection.executemany(
-            """INSERT INTO ai_adjudication_items
-               (run_id, form, status, result_json, positions_json, evidence_json, rounds_json)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            [(run_id, item["form"], item["status"], _json(item["result"]),
-              _json(item["positions"]), _json(item["evidence"]), _json(item["rounds"]))
-             for item in items],
+            """INSERT INTO ai_adjudication_items (run_id, form, status)
+               VALUES (?, ?, ?)""",
+            [(run_id, item["form"], item["status"]) for item in items],
         )
     return run_id
+
+
+def _load_transcript(payload: bytes, digest: str) -> tuple[dict, list[dict]]:
+    transcript = zlib.decompress(payload).decode("utf-8")
+    _require(_hash(transcript) == digest, "stored transcript SHA-256 mismatch")
+    snapshot = json.loads(transcript)
+    return snapshot, _validate(snapshot)
 
 
 def get_form_history(db_path: Path, form: str) -> list[dict]:
@@ -292,23 +293,25 @@ def get_form_history(db_path: Path, form: str) -> list[dict]:
         if len(tables) != 2:
             return []
         rows = connection.execute(
-            """SELECT r.*, i.status, i.result_json, i.positions_json, i.evidence_json, i.rounds_json
+            """SELECT r.*, i.status
                FROM ai_adjudication_items AS i JOIN ai_adjudication_runs AS r USING (run_id)
                WHERE i.form = ? ORDER BY r.rowid DESC""", (form,),
         )
         history = []
         for row in rows:
-            transcript = json.loads(row["transcript_json"])
+            transcript, items = _load_transcript(row["transcript_zlib"], row["transcript_sha256"])
+            item = next(item for item in items if item["form"] == form)
+            _require(item["status"] == row["status"], f"{form}: stored status mismatch")
             history.append({
                 "run_id": row["run_id"], "transcript_sha256": row["transcript_sha256"],
                 "created_at": row["created_at"], "persisted_at": row["persisted_at"],
                 "advisory": ADVISORY, "form": form, "status": row["status"],
                 "models": transcript["models"], "sources": transcript["sources"],
                 "summary": transcript["summary"],
-                "consensus": json.loads(row["result_json"]),
-                "positions": json.loads(row["positions_json"]),
-                "evidence": json.loads(row["evidence_json"]),
-                "rounds": json.loads(row["rounds_json"]),
+                "consensus": item["result"],
+                "positions": item["positions"],
+                "evidence": item["evidence"],
+                "rounds": item["rounds"],
             })
         return history
 

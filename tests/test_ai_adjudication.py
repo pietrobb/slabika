@@ -6,6 +6,7 @@ import copy
 import hashlib
 import json
 import sqlite3
+import zlib
 from concurrent.futures import ThreadPoolExecutor
 from html.parser import HTMLParser
 from types import SimpleNamespace
@@ -141,9 +142,11 @@ def test_persist_full_transcript_idempotency_and_unchanged_normative_rows(db, re
     assert _normative_snapshot(db) == before
     with sqlite3.connect(db) as connection:
         transcript, = connection.execute(
-            "SELECT transcript_json FROM ai_adjudication_runs").fetchone()
-        assert json.loads(transcript) == result
+            "SELECT transcript_zlib FROM ai_adjudication_runs").fetchone()
+        assert json.loads(zlib.decompress(transcript)) == result
         assert connection.execute("SELECT count(*) FROM ai_adjudication_items").fetchone() == (4,)
+        assert [row[1] for row in connection.execute(
+            "PRAGMA table_info(ai_adjudication_items)")] == ["run_id", "form", "status"]
         assert connection.execute("PRAGMA integrity_check").fetchone() == ("ok",)
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         assert "ai_adjudication_items_form" in str(connection.execute(

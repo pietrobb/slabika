@@ -232,9 +232,9 @@ Projekt zverejňuje dve **pracovné verzie** vzorov, naučené z rovnakých 702 
 tvarov; pevná testovacia množina bola z oboch tréningov vylúčená:
 
 - [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) je predvolený
-  preferovaný súbor (6 357 vzorov), trénovaný z `break_points(word)`;
+  preferovaný súbor (7 312 vzorov), trénovaný z `break_points(word)`;
 - [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
-  je permisívny súbor pre úzku sadzbu (5 796 vzorov), trénovaný z
+  je permisívny súbor pre úzku sadzbu (6 950 vzorov), trénovaný z
   `break_points(word, all_points=True, contextual=True)`.
 
 Oba súbory sú bez výnimiek celého slova. Na vstup aj vyhodnotenie sa uplatnili
@@ -251,10 +251,10 @@ oba súbory aj cieľ vyšiel tento výsledok:
 
 | vzory | presné celé slová | precision bodov | recall bodov |
 | --- | ---: | ---: | ---: |
-| **slabika preferovaný (6 357 vzorov)** | **98,7342 %** (33 307/33 734) | **99,8179 %** | **99,4140 %** |
-| Jana Chlebíková 1992 proti preferovanému cieľu | 86,8086 % | 94,7520 % | 93,6268 % |
-| **slabika permisívny (5 796 vzorov)** | **98,8380 %** (33 342/33 734) | **99,8243 %** | **99,4793 %** |
-| Jana Chlebíková 1992 proti permisívnemu cieľu | 86,3194 % | 95,3403 % | 93,3471 % |
+| **slabika preferovaný (7 312 vzorov)** | **98,6512 %** (33 279/33 734) | **99,7712 %** | **99,3787 %** |
+| Jana Chlebíková 1992 proti preferovanému cieľu | 89,8767 % | 95,9836 % | 95,5056 % |
+| **slabika permisívny (6 950 vzorov)** | **98,6809 %** (33 289/33 734) | **99,7780 %** | **99,3891 %** |
+| Jana Chlebíková 1992 proti permisívnemu cieľu | 89,3490 % | 96,3789 % | 95,0076 % |
 
 Je to benchmark **vernosti súčasnému pravidlovému enginu**, nie nezávislý
 benchmark správnosti podľa PSP. Body enginu mimo spoločných miním TeXu sa

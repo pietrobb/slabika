@@ -156,21 +156,28 @@ def test_a_lexicalized_prefix_forms_no_boundary(word, expected):
     assert get_syllables(word) == expected
 
 
-def test_dostoj_family_is_not_split_after_prefix_shaped_do():
+def test_dostoj_family_preserves_the_prefix_boundary():
     expected = {
-        "dôstoj": "dôs·toj",
-        "dôstojný": "dôs·toj·ný",
-        "dôstojnosť": "dôs·toj·nosť",
-        "dôstojník": "dôs·toj·ník",
-        "dôstojnícky": "dôs·toj·níc·ky",
-        "nedôstojný": "ne·dôs·toj·ný",
-        "najdôstojnejší": "naj·dôs·toj·nej·ší",
-        "poddôstojník": "pod·dôs·toj·ník",
+        "dôstoj": "dô·stoj",
+        "dôstojný": "dô·stoj·ný",
+        "dôstojnosť": "dô·stoj·nosť",
+        "dôstojník": "dô·stoj·ník",
+        "dôstojnícky": "dô·stoj·níc·ky",
+        "nedôstojný": "ne·dô·stoj·ný",
+        "najdôstojnejší": "naj·dô·stoj·nej·ší",
+        "poddôstojník": "pod·dô·stoj·ník",
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert {
         word: "·".join(get_syllables(word)) for word in expected
     } == expected
+
+
+def test_obozretny_family_prefers_obo_boundary_and_keeps_o_bo_alternative():
+    assert hyphenate("najobozretnejšie") == "naj·obo·zret·nej·šie"
+    assert hyphenate("najobozretnejšie", all_points=True) == (
+        "naj·o·bo·zret·nej·šie"
+    )
 
 
 def test_suffix_context_preserves_a_stem_final_syllabic_sonorant():

@@ -419,7 +419,7 @@ def test_fourth_discovered_family_batch_keeps_only_clear_seams():
     assert hyphenate("slovosledu") == "slo·vo·sle·du"
     assert hyphenate("spoluploditeľka") == "spo·lu·plo·di·teľ·ka"
     assert hyphenate("následok") == "nás·le·dok"
-    assert hyphenate("posledný") == "pos·led·ný"
+    assert hyphenate("posledný") == "po·sled·ný"
     assert hyphenate("splodenie") == "splo·de·nie"
     assert hyphenate("oplodnenie") == "oplod·ne·nie"
     assert hyphenate("briadka") == "briad·ka"
@@ -739,7 +739,7 @@ def test_thirteenth_discovered_family_batch_keeps_only_clear_seams():
     assert hyphenate("okraj") == "ok·raj"
     assert hyphenate("dozvedať") == "do·zve·dať"
     assert hyphenate("strata") == "stra·ta"
-    assert hyphenate("dôstojný") == "dôs·toj·ný"
+    assert hyphenate("dôstojný") == "dô·stoj·ný"
     assert hyphenate("neprístojnosť") == "ne·prís·toj·nosť"
     assert hyphenate("nástojčivý") == "nás·toj·či·vý"
     assert hyphenate("ustojíme") == "usto·jí·me"
@@ -1002,8 +1002,8 @@ def test_twenty_fourth_discovered_family_batch_keeps_only_clear_compound_seams()
         "samovravu": "sa·mo·vra·vu",
         "veľavravne": "ve·ľa·vrav·ne",
         "veľavravnými": "ve·ľa·vrav·ný·mi",
-        "veľadôstojní": "ve·ľa·dôs·toj·ní",
-        "najveľadôstojnejší": "naj·ve·ľa·dôs·toj·nej·ší",
+        "veľadôstojní": "ve·ľa·dô·stoj·ní",
+        "najveľadôstojnejší": "naj·ve·ľa·dô·stoj·nej·ší",
         "stočlenná": "sto·člen·ná",
         "stočlennou": "sto·člen·nou",
         "ostrihané": "ostri·ha·né",
@@ -2845,7 +2845,7 @@ def test_batch_101_blocks_false_ob_prefixes_and_keeps_true_ones():
         "obohnaného": "obo·hna·né·ho",
         "obojaký": "obo·ja·ký",
         "obojka": "oboj·ka",
-        "obojpohlavná": "oboj·poh·lav·ná",
+        "obojpohlavná": "oboj·po·hlav·ná",
         "obojstranná": "oboj·stran·ná",
     }
     assert {word: hyphenate(word) for word in expected} == expected
@@ -2875,7 +2875,7 @@ def test_batch_102_handles_vocalized_obo_and_lexical_ob_lookalikes():
     assert hyphenate("obruč") == "ob·ruč"
     assert hyphenate("obrúsila") == "ob·rú·si·la"
     assert hyphenate("oboznámiť") == "ob·oz·ná·miť"
-    assert hyphenate("obozretný") == "ob·oz·ret·ný"
+    assert hyphenate("obozretný") == "obo·zret·ný"
 
 
 def test_batch_76_prefixed_zna_verbs_do_not_gain_a_false_na_suffix():
@@ -3206,13 +3206,69 @@ def test_batch_16_compounds_keep_their_compositional_seams():
     assert hyphenate("dvojitý") == "dvo·ji·tý"
 
 
-def test_batch_18_fajn_compounds_keep_their_compositional_seam():
+def test_batch_18_fajn_family_distinguishes_compounds_from_ov_derivatives():
     expected = {
         "fajnšmeker": "fajn·šme·ker",
         "fajnšmekerka": "fajn·šme·ker·ka",
         "fajnšmekerstvo": "fajn·šme·ker·stvo",
+        "fajnovo": "faj·no·vo",
+        "fajnové": "faj·no·vé",
+        "fajnovým": "faj·no·vým",
     }
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_los_angeles_adjective_family_uses_its_slovak_pronunciation():
+    expected = {
+        "losangeleskej": "los·an·ge·les·kej",
+        "losangeleská": "los·an·ge·les·ká",
+        "losangeleského": "los·an·ge·les·ké·ho",
+        "losangeleských": "los·an·ge·les·kých",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_macarthur_adjective_family_preserves_the_name_pronunciation():
+    assert hyphenate("macarthurovskej") == "mac·ar·thu·rov·skej"
+
+
+def test_operator_approved_domestic_morpheme_seams_are_preferred():
+    expected = {
+        "apartmán": "apart·mán",
+        "apartmáne": "apart·má·ne",
+        "apartmánov": "apart·má·nov",
+        "apartmánových": "apart·má·no·vých",
+        "avantgardu": "avant·gar·du",
+        "najposlednejšej": "naj·po·sled·nej·šej",
+        "najposlednejšia": "naj·po·sled·nej·šia",
+        "najposlednejšie": "naj·po·sled·nej·šie",
+        "najposlednejšieho": "naj·po·sled·nej·šie·ho",
+        "najposlednejšiemu": "naj·po·sled·nej·šie·mu",
+        "najposlednejšiu": "naj·po·sled·nej·šiu",
+        "najposlednejšom": "naj·po·sled·nej·šom",
+        "najposlednejšou": "naj·po·sled·nej·šou",
+        "najposlednejší": "naj·po·sled·nej·ší",
+        "najposlednejších": "naj·po·sled·nej·ších",
+        "najposlednejším": "naj·po·sled·nej·ším",
+        "najúhlavnejších": "naj·ú·hlav·nej·ších",
+        "najúhlavnejším": "naj·ú·hlav·nej·ším",
+        "naposledy": "na·po·sle·dy",
+        "neposlednom": "ne·po·sled·nom",
+        "obojpohlavná": "oboj·po·hlav·ná",
+        "obojpohlavné": "oboj·po·hlav·né",
+        "poslednýkrát": "po·sled·ný·krát",
+        "zákryty": "zá·kry·ty",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert 6 not in break_points("najposlednejšia", all_points=True)
+    assert {2, 3} <= set(break_points("poslednýkrát", all_points=True))
+    assert hyphenate("páčidlá") == "pá·čid·lá"
+    assert {4, 5} <= set(break_points("páčidlá", all_points=True))
+
+
+def test_rudo_compound_is_limited_to_the_hlav_family():
+    assert hyphenate("Rudohlavcom") == "Ru·do·hlav·com"
+    assert hyphenate("rudonosý") == "ru·do·no·sý"
 
 
 def test_batch_19_gramo_compound_keeps_its_compositional_seam():
@@ -3606,14 +3662,14 @@ def test_batch_46_lexical_stems_and_pravdo_compound_keep_their_seams():
 def test_operator_approved_third_scale_1000_native_forms():
     expected = {
         "mastňákom": "mast·ňá·kom",
-        "opotrebovaný": "opo·tre·bo·va·ný",
-        "opotrebovaných": "opo·tre·bo·va·ných",
-        "opotrebovaným": "opo·tre·bo·va·ným",
-        "opotrebovanými": "opo·tre·bo·va·ný·mi",
-        "opotrebovávané": "opo·tre·bo·vá·va·né",
-        "opotrebuje": "opo·tre·bu·je",
-        "opotrebúva": "opo·tre·bú·va",
-        "opotrebúvali": "opo·tre·bú·va·li",
+        "opotrebovaný": "o·po·tre·bo·va·ný",
+        "opotrebovaných": "o·po·tre·bo·va·ných",
+        "opotrebovaným": "o·po·tre·bo·va·ným",
+        "opotrebovanými": "o·po·tre·bo·va·ný·mi",
+        "opotrebovávané": "o·po·tre·bo·vá·va·né",
+        "opotrebuje": "o·po·tre·bu·je",
+        "opotrebúva": "o·po·tre·bú·va",
+        "opotrebúvali": "o·po·tre·bú·va·li",
         "púštneho": "púšt·ne·ho",
         "púštny": "púšt·ny",
         "púštnych": "púšt·nych",
@@ -3656,7 +3712,7 @@ def test_third_scale_1000_rules_cover_families_without_nearby_collisions():
         "púštnik": "púšt·nik",
         "velectený": "ve·le·cte·ný",
         "zneuctenú": "zne·u·cte·nú",
-        "nezneuctený": "ne·zne·u·cte·ný",
+        "nezneuctený": "ne·zne·uc·te·ný",
         "čarohry": "ča·ro·hry",
         "puoriadny": "puo·riad·ny",
         "nacpať": "na·cpať",
@@ -3722,7 +3778,7 @@ def test_cten_family_keeps_its_root_against_the_two_consonant_rule():
         "poctenú": "po·cte·nú",
         "zneuctený": "zne·u·cte·ný",
         "zneuctenie": "zne·u·cte·nie",
-        "nezneuctenú": "ne·zne·u·cte·nú",
+        "nezneuctenú": "ne·zne·uc·te·nú",
         "vysokoctený": "vy·so·ko·cte·ný",
         "najvysokoctenejší": "naj·vy·so·ko·cte·nej·ší",
         "veľactený": "ve·ľa·cte·ný",
@@ -3856,12 +3912,12 @@ def test_batch_65_keeps_documented_nested_ob_and_o_prefix_seams():
         "neobišli": "ne·ob·iš·li",
         "neobomkne": "ne·ob·omk·ne",
         "neobopínajú": "ne·obo·pí·na·jú",
-        "neobozretne": "ne·ob·oz·ret·ne",
+        "neobozretne": "ne·obo·zret·ne",
         "neobrúsi": "ne·obrú·si",
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("obíde") == "ob·íde"
-    assert hyphenate("obozretne") == "ob·oz·ret·ne"
+    assert hyphenate("obozretne") == "obo·zret·ne"
     assert hyphenate("obrúsi") == "ob·rú·si"
     assert hyphenate("neobohatil") == "ne·obo·ha·til"
     assert hyphenate("neobýva") == "ne·obý·va"
@@ -4389,14 +4445,14 @@ def test_psp_doublets_offer_both_break_points():
         assert len(points & set(break_points(word))) == 1
 
 
-def test_dlo_suffix_keeps_its_preferred_seam_through_inflection():
+def test_dlo_suffix_keeps_both_psp_seams_through_inflection():
     expected = {
         "páčidlo": "pá·či·dlo",
         "páčidla": "pá·či·dla",
         "páčidlu": "pá·či·dlu",
         "páčidle": "pá·či·dle",
-        "páčidlom": "pá·či·dlom",
-        "páčidlá": "pá·či·dlá",
+        "páčidlom": "pá·čid·lom",
+        "páčidlá": "pá·čid·lá",
         "páčidiel": "pá·či·diel",
         "páčidlám": "pá·či·dlám",
         "páčidlách": "pá·či·dlách",
@@ -4406,20 +4462,20 @@ def test_dlo_suffix_keeps_its_preferred_seam_through_inflection():
     assert {word: hyphenate(word) for word in expected} == expected
     assert ["pá", "či", "dlá"] == get_syllables("páčidlá")
     assert {4, 5} <= set(break_points("páčidlá", all_points=True))
-    assert 4 in break_points("páčidlá")
-    assert 5 not in break_points("páčidlá")
+    assert 5 in break_points("páčidlá")
+    assert 4 not in break_points("páčidlá")
 
 
 def test_section_43_leaves_only_the_first_consonant_on_the_left():
     """PSP 4.3 does not move the point according to a possible onset."""
     expected = {
-        "alžbetínska": "al·žbe·tín·ska",
+        "alžbetínska": "alž·be·tín·ska",
         "ústna": "ús·tna",
         "zamestnáva": "za·mes·tná·va",
         "gangster": "gan·gster",
         "očistca": "očis·tca",
         "veštba": "veš·tba",
-        "avantgardu": "avan·tgar·du",
+        "avantgardu": "avant·gar·du",
         "sestra": "ses·tra",
         "pastva": "pas·tva",
         "zajtra": "zaj·tra",
