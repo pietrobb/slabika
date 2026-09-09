@@ -130,7 +130,8 @@ def load_words(database: Path) -> tuple[list[str], dict[str, int]]:
         source = [
             row[0]
             for row in connection.execute(
-                "SELECT form FROM forms WHERE casing_status = 'resolved' ORDER BY form"
+                "SELECT form FROM forms "
+                "WHERE casing_status IN ('resolved', 'inferred') ORDER BY form"
             )
         ]
 
@@ -151,7 +152,7 @@ def load_words(database: Path) -> tuple[list[str], dict[str, int]]:
 
     words = sorted(accepted)
     stats = {
-        "resolved_source_rows": len(source),
+        "resolved_or_inferred_source_rows": len(source),
         "accepted_unique_words": len(words),
         "duplicates_after_casefold": len(source)
         - rejected_non_alpha
@@ -330,6 +331,11 @@ def main() -> int:
     )
     parser.add_argument("--original", type=Path, default=ROOT / "tex" / "hyph-sk.tex")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "scratch" / "liang-experiment")
+    parser.add_argument(
+        "--patterns-output",
+        type=Path,
+        help="Write the generated TeX patterns to this path instead of the output directory.",
+    )
     parser.add_argument("--mode", choices=ENGINE_MODES, default="preferred")
     parser.add_argument(
         "--training-dictionary",
@@ -368,7 +374,12 @@ def main() -> int:
 
     dictionary, initial, translate = write_training_files(train, output_dir, args.mode)
     raw_patterns, seconds = run_patgen(args.patgen, dictionary, initial, translate, output_dir)
-    generated_tex = output_dir / f"hyph-sk-slabika-{args.mode}.tex"
+    generated_tex = (
+        args.patterns_output.resolve()
+        if args.patterns_output
+        else output_dir / f"hyph-sk-slabika-{args.mode}.tex"
+    )
+    generated_tex.parent.mkdir(parents=True, exist_ok=True)
     generated_pattern_count = write_tex_patterns(raw_patterns, generated_tex, args.mode)
     evaluation = evaluate(test, generated_tex, args.original, args.mode)
 

@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 """Golden cases for syllabification and typographic hyphenation."""
 
+import sqlite3
+
 import pytest
 
 from slabika import (
@@ -16,6 +18,7 @@ from tools.liang_experiment import (
     cardinal_parts,
     cardinal_word,
     generate_numeral_training_words,
+    load_words,
 )
 
 
@@ -4637,6 +4640,32 @@ def test_compound_seam_of_the_multiplicative_numeral():
     }
 
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_liang_vocabulary_includes_inferred_forms_but_not_open_reviews(tmp_path):
+    database = tmp_path / "words.sqlite"
+    with sqlite3.connect(database) as connection:
+        connection.execute(
+            "CREATE TABLE forms ("
+            "form TEXT PRIMARY KEY, "
+            "casing_status TEXT NOT NULL, "
+            "proposed_canonical_form TEXT)"
+        )
+        connection.executemany(
+            "INSERT INTO forms VALUES (?, ?, NULL)",
+            (
+                ("Meno", "inferred"),
+                ("meno", "resolved"),
+                ("slovo", "resolved"),
+                ("Otvorené", "needs_review"),
+            ),
+        )
+
+    words, stats = load_words(database)
+
+    assert words == ["meno", "slovo"]
+    assert stats["resolved_or_inferred_source_rows"] == 3
+    assert stats["duplicates_after_casefold"] == 1
 
 
 def test_every_cardinal_through_one_thousand_keeps_its_component_seams():

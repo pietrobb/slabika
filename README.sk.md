@@ -168,7 +168,7 @@ príkazom `python -m pip install -e .`.
 | revízna konzola | **je** — lokálny editor, inventár aj poradné auditné dáta sú súčasťou Python balíka |
 | zdrojový prozaický korpus | **nie je zverejnený** — repozitár neobsahuje vety, poradie slov ani štruktúru zdrojových textov |
 | experimentálne Liangove vzory | **sú** — preferovaný a permisívny súbor v `patterns/`, výslovne označené ako rozpracované |
-| úplný vstup a pipeline k zverejneným vzorom | **zatiaľ nie sú** — samotný repozitár nevie zopakovať experiment so 702 438 tvarmi |
+| úplný vstup a pipeline k zverejneným vzorom | **sú** — pribalená SQLite slovná zásoba a verzovaný generátor reprodukujú oba súbory bez externého korpusu |
 | používanie Liangových vzorov balíkom Python | **nie je implementované** — balík spúšťa priamo pravidlový engine |
 | nezávislý PSP gold benchmark alebo certifikovaná celková presnosť | **zatiaľ nie sú** |
 | finálne vydanie vzorov a integrácie pre prehliadače, kancelárske či sadzobné systémy | **zatiaľ nie sú** |
@@ -204,7 +204,7 @@ Verzované testy enginu, revíznej konzoly a proveniencie pokrývajú jazykové
 pravidlá, hraničné triedy, verejné API, lokálny editor a licenčné obmedzenia a
 fungujú aj z čistého checkoutu. Známe nevyriešené jazykové prípady zostávajú
 viditeľné ako striktné očakávané zlyhania namiesto toho, aby ich zakryl zoznam
-slov. Pracovný inventár 180 408 tvarov sa používal
+slov. Pracovný inventár 195 119 tvarov sa používal
 aj na kontroly robustnosti vo veľkom, väčšina týchto tvarov však nebola
 nezávisle posúdená. To, že spracovanie nespadne, dokazuje robustnosť, nie
 správnosť každého delenia. Projekt preto dnes neuvádza percento celkovej
@@ -228,13 +228,16 @@ presnosti pravidlového enginu.
 
 ### Experimentálne Liangove vzory
 
-Projekt zverejňuje dve **pracovné verzie** vzorov, naučené z rovnakých 702 438
-tvarov; pevná testovacia množina bola z oboch tréningov vylúčená:
+Projekt zverejňuje dve **pracovné verzie** vzorov, naučené výlučne z pracovnej
+slovnej zásoby pribalenej v tomto repozitári. Z jej 195 119 inventárnych riadkov
+po vylúčení tvarov `needs_review` a filtrovaní abecedy a veľkosti písmen ostáva
+192 435 podporovaných unikátnych slov. Deterministické rozdelenie priradí
+153 957 slov do tréningu a 38 478 slov ponechá nevidených pre obe vyhodnotenia:
 
 - [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) je predvolený
-  preferovaný súbor (7 313 vzorov), trénovaný z `break_points(word)`;
+  preferovaný súbor (5 203 vzorov), trénovaný z `break_points(word)`;
 - [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
-  je permisívny súbor pre úzku sadzbu (6 951 vzorov), trénovaný z
+  je permisívny súbor pre úzku sadzbu (4 858 vzorov), trénovaný z
   `break_points(word, all_points=True, contextual=True)`.
 
 Oba súbory sú bez výnimiek celého slova. Na vstup aj vyhodnotenie sa uplatnili
@@ -246,21 +249,36 @@ Rozlíšenie preto nesú dva samostatné súbory. Bežná sadzba má používať
 súbor. Permisívny súbor navyše sprístupňuje rovnocenné kodifikované varianty aj
 prípustné, ale nepreferované kontextové body; oba súbory sa nemajú načítať naraz.
 
-Na 33 734 odložených slovách pri rovnakých ľavých/pravých minimách TeXu 2/3 pre
+Na 38 478 odložených slovách pri rovnakých ľavých/pravých minimách TeXu 2/3 pre
 oba súbory aj cieľ vyšiel tento výsledok:
 
 | vzory | presné celé slová | precision bodov | recall bodov |
 | --- | ---: | ---: | ---: |
-| **slabika preferovaný (7 313 vzorov)** | **98,6423 %** (33 276/33 734) | **99,7680 %** | **99,3771 %** |
-| Jana Chlebíková 1992 proti preferovanému cieľu | 89,8796 % | 95,9820 % | 95,5070 % |
-| **slabika permisívny (6 951 vzorov)** | **98,6720 %** (33 286/33 734) | **99,7749 %** | **99,3875 %** |
-| Jana Chlebíková 1992 proti permisívnemu cieľu | 89,3520 % | 96,3774 % | 95,0090 % |
+| **slabika preferovaný (5 203 vzorov)** | **98,6434 %** (37 956/38 478) | **99,6194 %** | **99,4945 %** |
+| Jana Chlebíková 1992 proti preferovanému cieľu | 89,6694 % | 96,0456 % | 95,3455 % |
+| **slabika permisívny (4 858 vzorov)** | **98,7291 %** (37 989/38 478) | **99,6430 %** | **99,5461 %** |
+| Jana Chlebíková 1992 proti permisívnemu cieľu | 89,1496 % | 96,4052 % | 94,8751 % |
 
 Je to benchmark **vernosti súčasnému pravidlovému enginu**, nie nezávislý
 benchmark správnosti podľa PSP. Body enginu mimo spoločných miním TeXu sa
 nehodnotili. Súbory sa už dajú skúšať a použiť v nadväzujúcich experimentoch,
-ale nie sú finálnym vydaním, balík Python ich zatiaľ nepoužíva a zo samotného
-zverejneného repozitára ich ešte nemožno nanovo vygenerovať.
+ale nie sú finálnym vydaním a balík Python ich zatiaľ nepoužíva.
+
+Ak je `patgen` z TeX Live alebo MiKTeXu dostupný cez `PATH`, oba zverejnené
+súbory aj ich podrobné reporty možno z čistého checkoutu pregenerovať takto:
+
+```console
+python tools/liang_experiment.py --mode preferred --output-dir scratch/liang-preferred --patterns-output patterns/hyph-sk-slabika.tex
+python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-permissive --patterns-output patterns/hyph-sk-slabika-permissive.tex
+```
+
+Generátor číta `tests/data/translatemaster_hyphenation_working.sqlite`, na
+rozdelenie tréningu a testu používa stabilnú soľ `slabika-liang-v1` a do každého
+výstupného priečinka zapíše `report.json`. SHA-256 tejto databázovej snímky je
+`560a68526f6b8dbdb207b7ff306d1a84bbb70051faa13a9ba13998a1e0b03403`;
+výsledný preferovaný a permisívny súbor majú SHA-256
+`6ed4f2f965cf83f2c67ef6df81810a2a9c18062faf6f3797e7340bd93fd26af2` a
+`ee90eddc031da64cb372b2097bc179f1796f07b6fae851bb6fae3a521767bc08`.
 
 Prípona `.tex` označuje zdrojový zápis, nie jediné prostredie, v ktorom sa vzory
 dajú použiť. Samotný obsah tvoria štandardné Liangove vzory: možno ich načítať

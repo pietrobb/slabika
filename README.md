@@ -93,7 +93,7 @@ What the published repository currently contains — and does not contain:
 | review console | **present** — the local editor, inventory and advisory audit data ship in the Python package |
 | source prose corpus | **not published** — no sentences, word order or source-text structure are shipped |
 | experimental Liang patterns | **present** — preferred and permissive sets in `patterns/`, explicitly marked work in progress |
-| complete input and pipeline for the published pattern set | **not published yet** — the repository alone cannot regenerate the 702,438-form experiment |
+| complete input and pipeline for the published pattern set | **present** — the bundled SQLite vocabulary and tracked generator reproduce both pattern files without an external corpus |
 | use of Liang patterns by the Python package | **not implemented** — the package runs the rule engine directly |
 | independent PSP gold benchmark or certified overall accuracy | **not available yet** |
 | final TeX release and integrations for browsers, office suites or typesetters | **not available yet** |
@@ -129,7 +129,7 @@ merely makes a point available when the preferred points do not fit the measure.
 The tracked engine, review-console and provenance tests cover the language
 rules, boundary classes, public API, local editor and licensing constraints, and
 they run from a clean checkout. Known unresolved language cases stay visible as
-strict expected failures instead of being hidden in a word list. The 180,408-form
+strict expected failures instead of being hidden in a word list. The 195,119-form
 working inventory has also been used for
 corpus-scale robustness checks, but most of those forms have not been
 independently adjudicated. A run without exceptions is evidence of robustness,
@@ -154,13 +154,16 @@ overall accuracy claim for the rule engine today.
 
 ### Experimental Liang patterns
 
-The project publishes two **work-in-progress** pattern sets learned from the same
-702,438 forms; the fixed test set was excluded from both training runs:
+The project publishes two **work-in-progress** pattern sets learned solely from
+the working vocabulary bundled in this repository. Of its 195,119 inventory rows,
+192,435 supported unique words remain after excluding `needs_review` forms and
+applying alphabet and casefold filtering. The deterministic split assigns 153,957
+words to training and keeps 38,478 words unseen for both evaluations:
 
 - [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) is the default
-  preferred set (7,313 patterns), trained from `break_points(word)`;
+  preferred set (5,203 patterns), trained from `break_points(word)`;
 - [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
-  is the permissive set for narrow measures (6,951 patterns), trained from
+  is the permissive set for narrow measures (4,858 patterns), trained from
   `break_points(word, all_points=True, contextual=True)`.
 
 Both sets contain no whole-word exceptions. TeX edge minima 2/3 were applied to
@@ -173,22 +176,38 @@ should use the preferred set. The permissive set additionally exposes equally
 codified variants and legal but discouraged contextual points; the two sets must
 not be loaded together.
 
-On 33,734 held-out words, with the same TeX left/right minima of 2/3 applied to
+On 38,478 held-out words, with the same TeX left/right minima of 2/3 applied to
 both competitors and to the target, the result was:
 
 | patterns | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| **slabika preferred (7,313 patterns)** | **98.6423%** (33,276/33,734) | **99.7680%** | **99.3771%** |
-| Jana Chlebíková 1992 against the preferred target | 89.8796% | 95.9820% | 95.5070% |
-| **slabika permissive (6,951 patterns)** | **98.6720%** (33,286/33,734) | **99.7749%** | **99.3875%** |
-| Jana Chlebíková 1992 against the permissive target | 89.3520% | 96.3774% | 95.0090% |
+| **slabika preferred (5,203 patterns)** | **98.6434%** (37,956/38,478) | **99.6194%** | **99.4945%** |
+| Jana Chlebíková 1992 against the preferred target | 89.6694% | 96.0456% | 95.3455% |
+| **slabika permissive (4,858 patterns)** | **98.7291%** (37,989/38,478) | **99.6430%** | **99.5461%** |
+| Jana Chlebíková 1992 against the permissive target | 89.1496% | 96.4052% | 94.8751% |
 
 This is a benchmark of **fidelity to the current rule engine**, not an
 independent PSP correctness benchmark. Engine points outside the common TeX
 minima were excluded from scoring. The files are useful for testing and downstream
-experiments, but they are not a final pattern release, are not yet wired into the
-Python package, and cannot yet be regenerated from the published repository
-alone.
+experiments, but they are not a final pattern release and are not yet wired into
+the Python package.
+
+With `patgen` from TeX Live or MiKTeX available on `PATH`, a clean checkout can
+regenerate both published files and their detailed reports:
+
+```console
+python tools/liang_experiment.py --mode preferred --output-dir scratch/liang-preferred --patterns-output patterns/hyph-sk-slabika.tex
+python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-permissive --patterns-output patterns/hyph-sk-slabika-permissive.tex
+```
+
+The generator reads `tests/data/translatemaster_hyphenation_working.sqlite`, uses
+the stable salt `slabika-liang-v1` for the train/test split, and writes `report.json`
+to each output directory. For this snapshot, the database SHA-256 is
+`560a68526f6b8dbdb207b7ff306d1a84bbb70051faa13a9ba13998a1e0b03403`; the
+resulting preferred and permissive pattern files have SHA-256
+`6ed4f2f965cf83f2c67ef6df81810a2a9c18062faf6f3797e7340bd93fd26af2` and
+`ee90eddc031da64cb372b2097bc179f1796f07b6fae851bb6fae3a521767bc08`,
+respectively.
 
 The `.tex` suffix describes the source syntax, not the only environment in which
 the patterns can be used. The payload is standard Liang pattern data: it can be
