@@ -66,6 +66,94 @@ _CHRAN_ROOT_CONTEXTS = (
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 _PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 
+# Exact pronunciation-backed points for unadapted foreign spellings. Generic
+# Slovak grapheme rules cannot infer these safely; the damaged ``aliquld`` form
+# is deliberately absent.
+_REVIEWED_FOREIGN_BREAK_POINTS = {
+    'adrienne': (2,),
+    'advienne': (2,),
+    'aequata': (2, 5),
+    'again': (),
+    'against': (),
+    'albastone': (2, 4),
+    'aliquandiu': (3, 7),
+    'aliquid': (3,),
+    'ambagesque': (2, 4, 7),
+    'applausit': (2, 6),
+    'blackburna': (5, 8),
+    'blake': (),
+    'cypress': (3,),
+    'department': (2, 6),
+    'elenore': (3,),
+    'excellence': (2, 5),
+    'fahrenheita': (3, 6, 9),
+    'fahrenheitovho': (3, 6, 9, 12),
+    'fairfaxe': (4, 6),
+    'fairfaxovci': (4, 6, 9),
+    'fallbrook': (4,),
+    'fallbrookovej': (4, 8, 10),
+    'fallbrooková': (4, 8, 10),
+    'fallbrooku': (4, 8),
+    'falls': (),
+    'gleisdorf': (5,),
+    'gleisdorfu': (5, 8),
+    'glendower': (4,),
+    'glenview': (4,),
+    'hornblende': (4,),
+    'immense': (2,),
+    'jacques': (),
+    'jacquesa': (2,),
+    'jaira': (3,),
+    'joea': (),
+    'joeom': (3,),
+    'joeovi': (3, 4),
+    'johnnie': (4,),
+    'joinvilla': (4, 7),
+    'joinville': (4,),
+    'joinvillovcov': (4, 7, 10),
+    'jonesa': (4,),
+    'jonesovi': (4, 6),
+    'jonesovia': (4, 6),
+    'jowette': (2,),
+    'joyce': (),
+    'joycea': (3,),
+    'lockridge': (4,),
+    'loira': (3,),
+    'loire': (),
+    'lois': (),
+    'loquantut': (2, 6),
+    'loua': (),
+    'louis': (),
+    'louisa': (3, 4),
+    'louisovi': (3, 4, 6),
+    'lounge': (),
+    'lowry': (3,),
+    'loyoly': (2, 4),
+    'loyseleura': (3, 5, 8),
+    'loyseleurovi': (3, 5, 8, 10),
+    'loyseleurovo': (3, 5, 8, 10),
+    'macquarie': (3, 6),
+    'maelströme': (4, 8),
+    'maelströmu': (4, 8),
+    'magoon': (2,),
+    'magoona': (2, 5),
+    'magoonom': (2, 5),
+    'magoonovi': (2, 5, 7),
+    'mahalaleela': (2, 4, 6, 8, 9),
+    'mahalaleelom': (2, 4, 6, 8, 9),
+    'mahalaleelov': (2, 4, 6, 8, 9),
+    'mahalaleelovi': (2, 4, 6, 8, 9, 11),
+    'mahalaleelovmu': (2, 4, 6, 8, 9, 12),
+    'main': (),
+    'maine': (),
+    'maioranos': (2, 4, 6),
+    'maioranosa': (2, 4, 6, 8),
+    'maiorem': (2, 4),
+    'maisie': (3,),
+    'marlene': (3,),
+    'oglethorpe': (4,),
+}
+
 
 def _preferred_internal_vowel_points(word: str) -> set[int]:
     """Operator-approved family seams that remain preferred around one vowel."""
@@ -191,9 +279,14 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     compound's second part onto its first (``pou|čiť``). Neither is a codified
     doublet, so neither belongs in *variant*.
     """
-    if not word.isalpha() or any(
-        char.lower() not in _DIVISIBLE_LETTERS for char in word
-    ):
+    if not word.isalpha():
+        return set(), set(), set()
+
+    reviewed_foreign = _REVIEWED_FOREIGN_BREAK_POINTS.get(word.casefold())
+    if reviewed_foreign is not None:
+        return set(reviewed_foreign), set(), set()
+
+    if any(char.lower() not in _DIVISIBLE_LETTERS for char in word):
         return set(), set(), set()
 
     lexical_parts = _lexical_syllables(word)
