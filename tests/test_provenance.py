@@ -155,6 +155,7 @@ def test_readme_does_not_claim_the_phonology_as_original_work():
         ("pyproject.toml", PYPROJECT),
         ("LICENSE", (ROOT / "LICENSE").read_text(encoding="utf-8")),
     ],
+    ids=lambda value: value if len(value) < 40 else "",
 )
 def test_copyright_holder_is_named_consistently(name, text):
     assert HOLDER in text, f"{name} does not name the copyright holder"
@@ -169,6 +170,7 @@ def test_copyright_holder_is_named_consistently(name, text):
         ("REUSE.toml", REUSE),
         ("pyproject.toml", PYPROJECT),
     ],
+    ids=lambda value: value if len(value) < 40 else "",
 )
 def test_contact_address_is_consistent(name, text):
     found = set(re.findall(r"[\w.+-]+@[\w.-]+\.\w+", text))

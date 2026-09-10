@@ -18,7 +18,15 @@ sys.stdout.reconfigure(encoding="utf-8")
 from slabika import hyphenate  # noqa: E402
 
 con = sqlite3.connect(ROOT / "tests/data/translatemaster_hyphenation_working.sqlite")
-forms = [r[0] for r in con.execute("select form from forms") if r[0].islower()]
+forms = [
+    r[0]
+    for r in con.execute(
+        """SELECT f.form FROM forms AS f
+           LEFT JOIN adjudications AS a USING (form)
+           WHERE coalesce(a.review_status, 'pending') <> 'invalid'"""
+    )
+    if r[0].islower()
+]
 
 out = {w: hyphenate(w) for w in forms}
 target = Path(sys.argv[1])

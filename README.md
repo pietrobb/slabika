@@ -16,6 +16,47 @@ pattern table.
 
 > 🇸🇰 Po slovensky: [README.sk.md](README.sk.md)
 
+## Why this exists
+
+This did not start as a linguistics project. It started as a typesetting
+problem: the author needed to set Slovak text automatically — to a measure,
+justified, with correct hyphenation — without a person walking through the
+output line by line. Word division is the part of that job a machine has to get
+right, because a justified line is either broken in a legal place or it is
+wrong, and the reader sees it immediately.
+
+So the first step was to find something to use. What existed was a set of TeX
+patterns from 1992, and nothing that could be inspected, corrected in a single
+place and rebuilt: the word list those patterns were learned from was never
+published, no open engine derived Slovak divisions from stated rules, and there
+was no way to fix one wrong word without hand-patching a compiled table. A
+pattern file that cannot be re-derived can only be replaced, never repaired.
+
+The conclusion was that the missing piece was not another algorithm but the
+input, and that it would have to be built. That is what this repository is:
+first the vocabulary and the rules, then the patterns as a by-product.
+
+## What a Liang pattern is
+
+Most published hyphenation is done with the algorithm from Frank Liang's 1983
+dissertation, the one built into TeX and, through it, into most typesetting and
+word-processing software. It does not know any grammar. A pattern is a short
+letter fragment carrying digits between the letters, for example `1ná2`: an odd
+digit means a break is allowed at that spot, an even digit forbids it, all
+patterns matching a word are overlaid, and the highest digit at each position
+wins. A few thousand such fragments cover a whole language in a few kilobytes
+and run instantly.
+
+The patterns are not written by hand. A companion program, `patgen`, learns
+them from a list of words in which the divisions are already marked, and then
+keeps adding patterns until it reproduces that list closely enough. This is the
+part worth understanding: **`patgen` reproduces its training list, so the entire
+question of quality is the question of that list.** Whatever is inconsistent in
+the input is generalised into the output, and it is generalised silently,
+because a pattern file records no reason for anything. It cannot be reviewed by
+reading it. That is why this project treats the word list, not the algorithm, as
+the real work.
+
 ## What is different here
 
 Slovak hyphenation patterns already exist: Jana Chlebíková published TeX
@@ -25,7 +66,7 @@ repository is in the repository**, under licences that let anyone rerun it:
 
 | step | where it is | licence |
 | --- | --- | --- |
-| the vocabulary — 195,119 isolated word forms | [`tests/data/translatemaster_hyphenation_working.sqlite`](tests/data/translatemaster_hyphenation_working.sqlite) | `CC0-1.0 OR MIT` |
+| the vocabulary — 195,230 isolated word forms | [`tests/data/translatemaster_hyphenation_working.sqlite`](tests/data/translatemaster_hyphenation_working.sqlite) | `CC0-1.0 OR MIT` |
 | the divisions used as training labels | computed by the rule engine in [`src/slabika/`](src/slabika) | `Apache-2.0 OR MIT` |
 | the training, split and evaluation pipeline | [`tools/liang_experiment.py`](tools/liang_experiment.py) | `Apache-2.0 OR MIT` |
 | the resulting Liang patterns | [`patterns/`](patterns) | `CC0-1.0 OR MIT` |
@@ -86,6 +127,114 @@ memorising the reviewed word. Cases without enough evidence remain explicitly
 unresolved. Building and adjudicating this lexical evidence is therefore the
 largest part of the work, even though much of the final engine is rule-based.
 
+## How much of the vocabulary has actually been checked
+
+The engine computes a division for all 195,230 forms, but computing is not
+checking. Individual review is a separate, much smaller and fully tracked layer,
+and the honest summary is that most of the inventory has never been looked at
+one word at a time:
+
+| review layer | forms | share of 195,230 |
+| --- | ---: | ---: |
+| decided by the author in the review console | 10,210 | 5.23% |
+| decided in four frozen blind audits | 8,028 | 4.11% |
+| either of the above (union, 3,268 in both) | 14,970 | 7.67% |
+| adjudicated by two AI models under PSP | 1,239 | 0.63% |
+| never individually reviewed | ~180,000 | ~92% |
+
+**The author's own review** is in `tests/data/review_decisions.sqlite` and covers
+10,210 forms: 9,519 confirmed the engine, 660 corrected it, 22 were marked
+uncertain, 8 invalid and 1 flagged. These are the decisions that drove the
+engine's rule work.
+
+**The blind audits** are the four `tests/data/blind_*` sets — 5,000, 2,000,
+1,000 and 100 forms, frozen with a manifest hash. Their contract is
+*forms-only*: the reviewer receives the bare word with no engine output, no
+prior decision and no adjudication, so the answer cannot be anchored on what the
+engine already said. These were carried out by isolated LLM reviewers rather
+than by the author, which is exactly why they are stored as evidence and never
+as authority. Of the 8,100 decisions, 6,601 came back resolved, 1,477 uncertain
+and 22 invalid.
+
+**The dual-model adjudication** is in `tests/data/ai_adjudication/` — 17 runs,
+1,346 adjudications over 1,239 distinct forms. Every run used the same two
+independent models, recorded verbatim in each file as `models.A` and `models.B`:
+
+| slot | model as recorded |
+| --- | --- |
+| A | `claude-opus-5[high]` |
+| B | `gpt-6-astra[sub][high]` |
+
+Each model answers alone, without seeing the other. Where the two answers
+differ, each model is shown the other's reasoning and may revise
+(*cross-review*); if they still differ, a reconciliation round follows; if they
+still differ after that, the case is recorded as an open disagreement rather
+than averaged away. Across all runs: 1,079 agreed independently, 145 agreed
+after cross-review, 23 after reconciliation, and 99 remained unresolved — 71
+distinct forms.
+
+### Where AI review and the author's review still disagree
+
+350 forms carry both an author's decision and a model consensus. On 297 of them
+the two agree. **53 still differ**, in 15 word families, and they are listed
+here rather than quietly reconciled:
+
+| pattern | forms | example: author | example: models |
+| --- | ---: | --- | --- |
+| models preferred the engine over the author | 30 | `dô·stoj·nom` | `dôs·toj·nom` |
+| author's decision was revised after the run | 13 | `o·po·tre·bu·je` | `opot·re·bu·je` |
+| models rejected both answers | 4 | `Jac·kson` | `Jack·son` |
+| depends on the pronunciation of a foreign name | 4 | `Arch·ae·a·lus` | `Ar·chae·a·lus` |
+| models accepted both as codified variants | 2 | `pá·čid·lom` | `pá·či·dlom` |
+
+The families are `opotrebovať`, `dôstojný`, `najposlednejší`, `neposlať`,
+`apartmán`, `Jackson`, `obojpohlavný`, `alžbetínska`, `avantgarda`,
+`najúhlavnejší`, `Hippokratov`, `páčidlo`, `Archaealus`, `Glendower` and
+`Arbre`/`Lois`. None of these is
+resolved by consensus, and none of them may be: a model majority is not a
+normative authority. They stay open until a PSP argument settles them, and they
+can be regenerated from the tracked data at any time. Every review layer above
+is a detector of places that need a PSP decision — nothing more.
+
+## How this differs from the 1992 patterns
+
+In the held-out evaluation further below, Jana Chlebíková's patterns reproduce
+the engine's division on 89.63% of whole words, so roughly one word in ten is
+divided differently. The differences are not random. The largest group is the
+morpheme seam: those patterns carry morphology as a hand-written list of 994
+prefixes and stems, so a word outside that list falls through to the
+phonotactic rules and the seam disappears. How the 1992 file was built, in its
+author's own words, and what that predicts about these differences, is
+documented in [`docs/hyph-sk-1992-origin.md`](docs/hyph-sk-1992-origin.md).
+
+| word | 1992 patterns | this engine | what the extra point would allow |
+| --- | --- | --- | --- |
+| bezodkladne | `be·z·od·kladne` | `bez·od·kladne` | `be-zodkladne`, splitting `bez-` |
+| najúspešnejší | `na·jús·peš·nejší` | `naj·ús·peš·nejší` | `na-júspešnejší`, moving `j` out of `naj-` |
+| trojuholník | `tro·j·u·hol·ník` | `troj·uhol·ník` | `tro-juholník` |
+| nadužívanie | `na·du·ží·va·nie` | `nad·uží·va·nie` | `na-dužívanie` |
+| rozorať | `ro·zo·rať` | `roz·orať` | `ro-zorať` |
+| abstrakcia | `ab·s·trak·cia` | `ab·strak·cia` | `abs-trakcia` |
+
+The reverse case exists too: points the older patterns do not offer at all,
+which costs nothing in correctness but does cost line breaks in a narrow
+measure.
+
+| word | 1992 patterns | this engine |
+| --- | --- | --- |
+| rozum | `rozum` (no break) | `ro·zum` |
+| poobede | `po·obede` | `po·o·bede` |
+| predĺžiť | `pre·dĺžiť` | `pre·dĺ·žiť` |
+| administratíva | `ad·mi·ni·stra·tíva` | `ad·mi·nis·tra·tíva` |
+
+Both columns were produced with the same TeX edge minima of 2/3, so the
+comparison is like for like; `tex/hyph-sk.tex` is bundled in this repository, so
+any of these can be checked directly. This is not a defect list. Those patterns
+were built in 1992 with the resources of 1992, they have served Slovak
+typesetting for three decades, and the point of showing the contrast is only
+that a rule engine can carry a distinction — *this is a prefix* — that a table
+of letter fragments has no way to represent.
+
 ## Architecture
 
 The package has a shared foundation and two distinct outputs:
@@ -118,7 +267,7 @@ Codified doublets are exposed by `all_points=True`.
 | --- | --- |
 | `src/slabika/` | the rule engine and public API — `syllables`, `break_points`, `divisions`, `hyphenate` |
 | `src/slabika/review/` | the local review console shipped with the package |
-| `tests/data/translatemaster_hyphenation_working.sqlite` | the working word inventory: 195,119 isolated forms with casing and review state |
+| `tests/data/translatemaster_hyphenation_working.sqlite` | the working word inventory: 195,230 isolated forms with casing and review state |
 | `tests/data/blind_*`, `tests/data/ai_adjudication/` | frozen blind-audit samples and advisory AI adjudications used as evidence, not as authority |
 | `tests/` | the test suite: engine, boundary classes, review console, generated-pattern invariants, provenance and licensing |
 | `tools/liang_experiment.py` | the generator: labels, deterministic split, `patgen` training, evaluation, `report.json` |
@@ -127,6 +276,7 @@ Codified doublets are exposed by `all_points=True`.
 | `patterns/hyph-sk-slabika-permissive.tex` | the published permissive Liang pattern set |
 | `tex/hyph-sk.tex` | Jana Chlebíková's 1992 Slovak patterns, bundled under their MIT licence as the comparison baseline |
 | `docs/pravidla-delenia-slov.md` | the project's independent Slovak restatement of PSP chapter V |
+| `docs/hyph-sk-1992-origin.md` | how Chlebíková's 1992 patterns were built, from her own account, and what it predicts about the differences measured here |
 | `LICENSING.md`, `CONTRIBUTING.md`, `REUSE.toml` | per-layer licensing, data provenance and contribution requirements |
 | `run_review_local.bat`, `run_review.bat` | Windows launchers for the review console (external reviewer / maintainer) |
 
@@ -156,12 +306,12 @@ the engine-labelled training words. Each output directory also contains
 `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and the machine-readable
 `report.json`. The `--patterns-output` path is the final packaged TeX source.
 
-For this snapshot, the source inventory has 195,119 rows and SHA-256
-`560a68526f6b8dbdb207b7ff306d1a84bbb70051faa13a9ba13998a1e0b03403`. After
-filtering it supplies 192,435 supported unique words: 153,957 training words and
-38,478 held-out words. The resulting preferred and permissive files have SHA-256
-`6ed4f2f965cf83f2c67ef6df81810a2a9c18062faf6f3797e7340bd93fd26af2` and
-`ee90eddc031da64cb372b2097bc179f1796f07b6fae851bb6fae3a521767bc08`,
+For this snapshot, the source inventory has 195,767 rows and SHA-256
+`d2bcafa945c86cf7eca000bc8ee6a4dc272311977669aa057ffa6182b1d2b821`. After
+filtering it supplies 193,119 supported unique words: 154,496 training words and
+38,623 held-out words. The resulting preferred and permissive files have SHA-256
+`3460bdc9e28bd657cb926d1f1a74d069db09733e6b43cce6e300d882b1208743` and
+`61f6346392bde47e8aaf77635c67fbc3e3c76a9c393090927b27f62724e7ab57`,
 respectively.
 
 ### Verify a rebuild or a contribution
@@ -275,15 +425,15 @@ licensing and provenance requirements.
 ## The published Liang pattern files
 
 The project publishes two **work-in-progress** pattern sets learned solely from
-the bundled vocabulary. Of its 195,119 inventory rows, 192,435 supported unique
+the bundled vocabulary. Of its 195,767 inventory rows, 193,119 supported unique
 words remain after excluding `needs_review` forms and applying alphabet and
-casefold filtering. The deterministic split assigns 153,957 words to training and
-keeps 38,478 words unseen for both evaluations:
+casefold filtering. The deterministic split assigns 154,496 words to training and
+keeps 38,623 words unseen for both evaluations:
 
 - [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) is the default
-  preferred set (5,203 patterns), trained from `break_points(word)`;
+  preferred set (5,231 patterns), trained from `break_points(word)`;
 - [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
-  is the permissive set for narrow measures (4,858 patterns), trained from
+  is the permissive set for narrow measures (4,835 patterns), trained from
   `break_points(word, all_points=True, contextual=True)`.
 
 Both sets contain no whole-word exceptions. TeX edge minima 2/3 were applied to
@@ -296,15 +446,15 @@ should use the preferred set. The permissive set additionally exposes equally
 codified variants and legal but discouraged contextual points; the two sets must
 not be loaded together.
 
-On 38,478 held-out words, with the same TeX left/right minima of 2/3 applied to
+On 38,623 held-out words, with the same TeX left/right minima of 2/3 applied to
 both competitors and to the target, the result was:
 
 | patterns | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| **slabika preferred (5,203 patterns)** | **98.6434%** (37,956/38,478) | **99.6194%** | **99.4945%** |
-| Jana Chlebíková 1992 against the preferred target | 89.6694% | 96.0456% | 95.3455% |
-| **slabika permissive (4,858 patterns)** | **98.7291%** (37,989/38,478) | **99.6430%** | **99.5461%** |
-| Jana Chlebíková 1992 against the permissive target | 89.1496% | 96.4052% | 94.8751% |
+| **slabika preferred (5,231 patterns)** | **98.6770%** (38,112/38,623) | **99.6283%** | **99.5121%** |
+| Jana Chlebíková 1992 against the preferred target | 89.6279% | 96.0111% | 95.3423% |
+| **slabika permissive (4,835 patterns)** | **98.7728%** (38,149/38,623) | **99.6545%** | **99.5635%** |
+| Jana Chlebíková 1992 against the permissive target | 89.1023% | 96.3877% | 94.8691% |
 
 This is a benchmark of **fidelity to the current rule engine**, not an
 independent PSP correctness benchmark. Engine points outside the common TeX
@@ -352,7 +502,7 @@ has no runtime dependencies and can be installed from a checkout with
 The tracked engine, review-console and provenance tests cover the language rules,
 boundary classes, public API, local editor and licensing constraints, and they
 run from a clean checkout. Known unresolved language cases stay visible as strict
-expected failures instead of being hidden in a word list. The 195,119-form
+expected failures instead of being hidden in a word list. The 195,230-form
 inventory has also been used for corpus-scale robustness checks, but most of
 those forms have not been independently adjudicated. A run without exceptions is
 evidence of robustness, not evidence that every division is correct. The project

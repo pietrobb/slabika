@@ -58,8 +58,13 @@ riadky.
 
 ### 3.1 Predpony
 
-Slabičná predpona sa oddeľuje od základu, napríklad `pre|písať`, `roz|obrať`,
+Slabičná predpona sa oddeľuje od základu, napríklad `pre|písať`, `vy|brať`,
 `proti|hráč` alebo `nad|priemerný`.
+
+Vokalizovaná podoba predpony sa oddeľuje celá, aj so svojím `-o-`, napríklad
+`odo|brať`, `predo|strieť`, `zo|stúpiť` alebo `vzo|prieť sa`. Ak sa však základ
+začína samohláskou, predpona zostáva nevokalizovaná a oddeľuje sa bez nej, napr.
+`roz|ísť sa`.
 
 Samostatne sa však neoddeľujú neslabičné predpony `v-`, `s-`/`z-` a `vz-`.
 Samotná spoluhláska teda nemá zostať na konci riadka ako prvá časť slova.

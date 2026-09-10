@@ -143,6 +143,8 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
           title="porovná engine a Chlebíkovú s rovnakým TeX minimom 2 znaky vľavo a 3 vpravo">Engine (TeX 2/3) ≠ Chlebíková</button>
   <button id="blind-human-diff" class="voice-filter" aria-pressed="false"
           title="ponechá iba tvary, pri ktorých sa delenie slepého AI a človeka líši">Slepý AI ≠ človek</button>
+  <button id="human-diff" class="voice-filter" aria-pressed="false"
+          title="ponechá iba tvary, kde sa dnešný výstup enginu líši od uloženého rozhodnutia človeka">Engine ≠ človek</button>
   <select id="limit" title="koľko riadkov naraz">
     <option>200</option><option selected>500</option>
     <option>1000</option><option>2000</option>
@@ -201,9 +203,10 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 const S = {
   items: [], total: 0, offset: 0, limit: 500, focus: 0, pending: false,
   q: "", mode: "prefix", status: "all", texDiff: false, blindHumanDiff: false,
+  humanDiff: false,
   loadVersion: 0,
   applied: {q: "", mode: "prefix", status: "all", limit: 500,
-            texDiff: false, blindHumanDiff: false},
+            texDiff: false, blindHumanDiff: false, humanDiff: false},
 };
 
 const $ = id => document.getElementById(id);
@@ -254,14 +257,16 @@ const entriesFor = (row, it, requiredField = null) => [...row.querySelectorAll("
 function setPending(value) {
   if (value) ++S.loadVersion;
   S.pending = value;
-  for (const id of ["q", "mode", "status", "tex-diff", "blind-human-diff", "limit",
+  for (const id of ["q", "mode", "status", "tex-diff", "blind-human-diff",
+                    "human-diff", "limit",
                     "undo", "bulk", "export", "prev", "next"])
     $(id).disabled = value;
   document.querySelectorAll(".edit").forEach(input => { input.disabled = value; });
 }
 function syncVoiceFilters() {
   for (const [id, active] of [["tex-diff", S.texDiff],
-                              ["blind-human-diff", S.blindHumanDiff]]) {
+                              ["blind-human-diff", S.blindHumanDiff],
+                              ["human-diff", S.humanDiff]]) {
     $(id).classList.toggle("on", active);
     $(id).setAttribute("aria-pressed", String(active));
   }
@@ -481,11 +486,13 @@ async function load(offset = 0, focus = 0, field = "h") {
     [...$("rows").children].forEach((row, i) => paint(row, S.items[i]));
   }
   const request = {q: S.q, mode: S.mode, status: S.status, limit: S.limit,
-                   texDiff: S.texDiff, blindHumanDiff: S.blindHumanDiff};
+                   texDiff: S.texDiff, blindHumanDiff: S.blindHumanDiff,
+                   humanDiff: S.humanDiff};
   const p = new URLSearchParams({q: request.q, mode: request.mode,
     status: request.status, limit: request.limit, offset: Math.max(0, offset),
     tex_diff: request.texDiff ? 1 : 0,
-    blind_human_diff: request.blindHumanDiff ? 1 : 0});
+    blind_human_diff: request.blindHumanDiff ? 1 : 0,
+    human_diff: request.humanDiff ? 1 : 0});
   const data = await api("/api/list?" + p);
   if (version !== S.loadVersion) return;
   if (hasDirty() || S.pending) {
@@ -674,6 +681,9 @@ $("tex-diff").addEventListener("click", () => {
 });
 $("blind-human-diff").addEventListener("click", () => {
   S.blindHumanDiff = !S.blindHumanDiff; syncVoiceFilters(); load(0);
+});
+$("human-diff").addEventListener("click", () => {
+  S.humanDiff = !S.humanDiff; syncVoiceFilters(); load(0);
 });
 $("limit").addEventListener("change", () => { S.limit = +$("limit").value; load(0); });
 $("bulk").addEventListener("click", bulkConfirm);

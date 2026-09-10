@@ -236,7 +236,14 @@ def _typographic_nost_seams(parts: list[str]) -> list[int]:
         marker = f'nost{onset}'
         start = folded.find(marker)
         if start >= 3 and any(is_vowel(char) for char in word[:start]):
-            return [start + 4]
+            # Both seams are real: the stem before -nost- and the derivative
+            # suffix after it. Returning only the second one leaves -nost-
+            # open to the consonant-cluster rule, which then cuts the stem
+            # short (vlas·tnost·né instead of vlast·nost·né). In cnosť the
+            # n belongs to the root, so there the leading seam is not one.
+            if folded[start - 1] == 'c':
+                return [start + 4]
+            return [start, start + 4]
     for form in _TYPOGRAPHIC_NOST_FORMS:
         if folded.endswith(form):
             seam = len(word) - len(form)

@@ -131,7 +131,12 @@ class Model:
 
 def load_corpus() -> list[str]:
     con = sqlite3.connect(CORPUS)
-    return sorted({r[0].lower() for r in con.execute("SELECT form FROM forms") if r[0]})
+    rows = con.execute(
+        """SELECT f.form FROM forms AS f
+           LEFT JOIN adjudications AS a USING (form)
+           WHERE coalesce(a.review_status, 'pending') <> 'invalid'"""
+    )
+    return sorted({r[0].lower() for r in rows if r[0]})
 
 
 def train(words: list[str], alpha: float, epochs: int, seed: int = 0) -> Model:

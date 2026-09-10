@@ -16,6 +16,47 @@ samostatné výsledky založené na spoločnej hláskovej a morfematickej analý
 > 🇬🇧 The English README is [here](README.md). It is the reference document for
 > packagers and for licence review.
 
+## Prečo tento projekt vznikol
+
+Nezačalo sa to ako jazykovedný projekt, ale ako sadzobný problém: autor
+potreboval sádzať slovenský text automaticky — na danú šírku, do bloku a so
+správnym delením — bez toho, aby výsledok riadok po riadku prechádzal človek.
+Rozdeľovanie slov je práve tá časť, ktorú stroj musí zvládnuť spoľahlivo,
+pretože zarovnaný riadok je buď zlomený na prípustnom mieste, alebo je zle — a
+čitateľ to vidí okamžite.
+
+Prvým krokom bolo nájsť niečo, čo sa dá použiť. Existovala sada TeXových vzorov
+z roku 1992 a nič, čo by sa dalo preveriť, na jednom mieste opraviť a znovu
+zostaviť: zoznam slov, z ktorého sa tie vzory učili, nebol nikdy zverejnený,
+neexistoval otvorený engine, ktorý by slovenské delenia odvodzoval z vyslovených
+pravidiel, a jedno zle delené slovo sa nedalo opraviť inak než ručným zásahom do
+hotovej tabuľky. Súbor vzorov, ktorý sa nedá odvodiť nanovo, sa dá iba nahradiť,
+nie opraviť.
+
+Záver bol, že chýbajúcim dielom nie je ďalší algoritmus, ale vstup — a že ten
+bude treba postaviť. Presne tým je tento repozitár: najprv slovná zásoba a
+pravidlá, vzory až ako ich dôsledok.
+
+## Čo je to vlastne Liangov vzor
+
+Väčšina zverejneného delenia slov stojí na algoritme z dizertácie Franka Lianga
+z roku 1983 — na tom, ktorý je zabudovaný v TeXu a cez neho vo väčšine
+sadzobných a textových programov. Nepozná nijakú gramatiku. Vzor je krátky úsek
+písmen s číslicami medzi nimi, napríklad `1ná2`: nepárna číslica znamená, že
+delenie je na tom mieste dovolené, párna ho zakazuje, všetky vzory, ktoré sa na
+slovo hodia, sa preložia cez seba a na každej pozícii vyhrá najvyššia číslica.
+Pár tisíc takýchto úsekov pokryje celý jazyk v niekoľkých kilobajtoch a beží
+okamžite.
+
+Vzory nepíše človek. Učí ich program `patgen` zo zoznamu slov, v ktorom sú
+delenia už vyznačené, a pridáva ďalšie a ďalšie vzory, kým ten zoznam dostatočne
+verne nezopakuje. A práve toto je jadro veci: **`patgen` reprodukuje svoj
+tréningový zoznam, takže celá otázka kvality je otázkou toho zoznamu.** Čo je vo
+vstupe nedôsledné, to sa zovšeobecní do výstupu — a zovšeobecní sa to potichu,
+lebo súbor vzorov si neuchováva nijaké zdôvodnenie. Nedá sa skontrolovať tým, že
+si ho prečítate. Preto tento projekt považuje za skutočnú prácu slovnú zásobu, a
+nie algoritmus.
+
 ## V čom je to nové
 
 Slovenské deliace vzory existujú: Jana Chlebíková zverejnila vzory pre TeX už
@@ -25,7 +66,7 @@ repozitári** — a pod licenciami, ktoré dovoľujú komukoľvek spustiť ho zn
 
 | krok | kde to je | licencia |
 | --- | --- | --- |
-| slovná zásoba — 195 119 izolovaných tvarov | [`tests/data/translatemaster_hyphenation_working.sqlite`](tests/data/translatemaster_hyphenation_working.sqlite) | `CC0-1.0 OR MIT` |
+| slovná zásoba — 195 230 izolovaných tvarov | [`tests/data/translatemaster_hyphenation_working.sqlite`](tests/data/translatemaster_hyphenation_working.sqlite) | `CC0-1.0 OR MIT` |
 | delenia použité ako tréningové označenia | počíta ich pravidlový engine v [`src/slabika/`](src/slabika) | `Apache-2.0 OR MIT` |
 | tréning, rozdelenie dát a vyhodnotenie | [`tools/liang_experiment.py`](tools/liang_experiment.py) | `Apache-2.0 OR MIT` |
 | výsledné Liangove vzory | [`patterns/`](patterns) | `CC0-1.0 OR MIT` |
@@ -85,6 +126,110 @@ slova. Prípady bez dostatočného dôkazu zostávajú výslovne nerozhodnuté. 
 a posudzovanie tejto lexikálnej evidencie preto tvorí najväčšiu časť práce, hoci
 veľká časť výsledného enginu je pravidlová.
 
+## Koľko slovnej zásoby je naozaj skontrolované
+
+Engine vypočíta delenie pre všetkých 195 230 tvarov, lenže vypočítať neznamená
+skontrolovať. Individuálna kontrola je samostatná, oveľa menšia a celá
+evidovaná vrstva — a poctivé zhrnutie znie, že väčšinu inventára nikto slovo po
+slove neprešiel:
+
+| vrstva kontroly | tvarov | podiel z 195 230 |
+| --- | ---: | ---: |
+| rozhodnuté autorom v revíznej konzole | 10 210 | 5,23 % |
+| rozhodnuté v štyroch zmrazených slepých auditoch | 8 028 | 4,11 % |
+| aspoň jedno z toho (zjednotenie, 3 268 v oboch) | 14 970 | 7,67 % |
+| posúdené dvoma AI modelmi podľa PSP | 1 239 | 0,63 % |
+| nikdy individuálne neskontrolované | ~180 000 | ~92 % |
+
+**Vlastná kontrola autora** je v `tests/data/review_decisions.sqlite` a pokrýva
+10 210 tvarov: 9 519 potvrdilo engine, 660 ho opravilo, 22 je označených ako
+neisté, 8 ako chybný tvar a 1 je vyznačený na doriešenie. Práve tieto
+rozhodnutia poháňali prácu na pravidlách enginu.
+
+**Slepé audity** sú štyri sady `tests/data/blind_*` — 5 000, 2 000, 1 000 a 100
+tvarov, zmrazené aj s hashom manifestu. Ich zmluva je *iba tvary*: recenzent
+dostane holé slovo bez výstupu enginu, bez staršieho rozhodnutia a bez
+posúdenia, takže odpoveď sa nemá o čo oprieť. Robili ich izolované LLM
+inštancie, nie autor — a práve preto sú uložené ako dôkaz, nikdy nie ako
+autorita. Z 8 100 rozhodnutí je 6 601 vyriešených, 1 477 neistých a 22
+označených za chybný tvar.
+
+**Dvojmodelové posúdenie** je v `tests/data/ai_adjudication/` — 17 behov,
+1 346 posúdení nad 1 239 rôznymi tvarmi. Každý beh použil tie isté dva nezávislé
+modely, doslovne zapísané v každom súbore ako `models.A` a `models.B`:
+
+| pozícia | model tak, ako je zapísaný |
+| --- | --- |
+| A | `claude-opus-5[high]` |
+| B | `gpt-6-astra[sub][high]` |
+
+Každý model odpovedá sám, bez toho, aby videl druhého. Keď sa odpovede líšia,
+každý dostane odôvodnenie toho druhého a môže svoj názor zmeniť (*krížová
+kontrola*); ak sa stále líšia, nasleduje zmierovacie kolo; a ak sa nezhodnú ani
+potom, prípad sa zapíše ako otvorený spor, nie ako priemer. Cez všetky behy:
+1 079 zhôd hneď nezávisle, 145 po krížovej kontrole, 23 po zmierovaní a 99
+nerozhodnutých — teda 71 rôznych tvarov.
+
+### Kde sa AI kontrola a kontrola autora stále nezhodujú
+
+350 tvarov má aj rozhodnutie autora, aj konsenzus modelov. Pri 297 z nich sa
+zhodujú. **53 sa stále líši**, v 15 slovných rodinách, a sú tu vypísané, nie
+potichu zmierené:
+
+| povaha rozdielu | tvarov | príklad: autor | príklad: modely |
+| --- | ---: | --- | --- |
+| modely dali prednosť enginu pred autorom | 30 | `dô·stoj·nom` | `dôs·toj·nom` |
+| autor svoje rozhodnutie po behu zmenil | 13 | `o·po·tre·bu·je` | `opot·re·bu·je` |
+| modely odmietli obe odpovede | 4 | `Jac·kson` | `Jack·son` |
+| závisí od výslovnosti cudzieho mena | 4 | `Arch·ae·a·lus` | `Ar·chae·a·lus` |
+| modely uznali obe ako kodifikované varianty | 2 | `pá·čid·lom` | `pá·či·dlom` |
+
+Ide o rodiny `opotrebovať`, `dôstojný`, `najposlednejší`, `neposlať`,
+`apartmán`, `Jackson`, `obojpohlavný`, `alžbetínska`, `avantgarda`,
+`najúhlavnejší`, `Hippokratov`, `páčidlo`, `Archaealus`, `Glendower` a
+`Arbre`/`Lois`. Ani jeden z týchto
+prípadov nie je vyriešený konsenzom — a ani nesmie byť: väčšina modelov nie je
+normatívna autorita. Zostávajú otvorené, kým ich nerozhodne argument z PSP, a
+dajú sa kedykoľvek znovu odvodiť z verzovaných dát. Každá kontrolná vrstva
+uvedená vyššie je detektorom miest, kde treba rozhodnúť podľa PSP — nič viac.
+
+## V čom sa to líši od vzorov z roku 1992
+
+V hodnotení na odloženej množine nižšie zopakujú vzory Jany Chlebíkovej delenie
+tohto enginu pri 89,63 % celých slov, takže zhruba každé desiate slovo je
+rozdelené inak. Tie rozdiely nie sú náhodné. Najväčšiu skupinu tvorí
+morfematický švík: tie vzory nesú morfológiu ako ručne písaný zoznam 994
+predpôn a slovných základov, takže slovo mimo toho zoznamu prepadne na
+fonotaktické pravidlá a švík zmizne. Ako súbor z roku 1992 vznikol — slovami
+jeho autorky — a čo to o týchto rozdieloch predpovedá, je zdokumentované
+v [`docs/hyph-sk-1992-povod.md`](docs/hyph-sk-1992-povod.md).
+
+| slovo | vzory 1992 | tento engine | čo by ten bod navyše dovolil |
+| --- | --- | --- | --- |
+| bezodkladne | `be·z·od·kladne` | `bez·od·kladne` | `be-zodkladne`, teda rozbitie `bez-` |
+| najúspešnejší | `na·jús·peš·nejší` | `naj·ús·peš·nejší` | `na-júspešnejší`, teda `j` mimo `naj-` |
+| trojuholník | `tro·j·u·hol·ník` | `troj·uhol·ník` | `tro-juholník` |
+| nadužívanie | `na·du·ží·va·nie` | `nad·uží·va·nie` | `na-dužívanie` |
+| rozorať | `ro·zo·rať` | `roz·orať` | `ro-zorať` |
+| abstrakcia | `ab·s·trak·cia` | `ab·strak·cia` | `abs-trakcia` |
+
+Existuje aj opačný prípad: body, ktoré staršie vzory neponúkajú vôbec. To
+správnosť nekazí, ale v úzkej sadzbe to stojí zalomenia.
+
+| slovo | vzory 1992 | tento engine |
+| --- | --- | --- |
+| rozum | `rozum` (bez delenia) | `ro·zum` |
+| poobede | `po·obede` | `po·o·bede` |
+| predĺžiť | `pre·dĺžiť` | `pre·dĺ·žiť` |
+| administratíva | `ad·mi·ni·stra·tíva` | `ad·mi·nis·tra·tíva` |
+
+Oba stĺpce vznikli pri rovnakých okrajových minimách TeXu 2/3, takže porovnanie
+je rovnaké s rovnakým; `tex/hyph-sk.tex` je pribalený v tomto repozitári, takže
+ktorýkoľvek riadok sa dá overiť priamo. Nie je to zoznam chýb. Tie vzory vznikli
+v roku 1992 s možnosťami roku 1992, tri desaťročia slúžili slovenskej sadzbe a
+zmyslom tohto porovnania je jediná vec: pravidlový engine vie uniesť rozlíšenie
+— *toto je predpona* —, ktoré tabuľka úsekov písmen nemá ako vyjadriť.
+
 ## Architektúra
 
 Architektúra má spoločný základ a dva samostatné výstupy:
@@ -116,7 +261,7 @@ preferované body nestačia. Rovnocenné kodifikované dublety sprístupní
 | --- | --- |
 | `src/slabika/` | pravidlový engine a verejné API — `syllables`, `break_points`, `divisions`, `hyphenate` |
 | `src/slabika/review/` | lokálna revízna konzola, ktorá je súčasťou balíka |
-| `tests/data/translatemaster_hyphenation_working.sqlite` | pracovný inventár slov: 195 119 izolovaných tvarov so stavom veľkosti písmen a kontroly |
+| `tests/data/translatemaster_hyphenation_working.sqlite` | pracovný inventár slov: 195 230 izolovaných tvarov so stavom veľkosti písmen a kontroly |
 | `tests/data/blind_*`, `tests/data/ai_adjudication/` | zmrazené vzorky slepého auditu a poradné AI posúdenia — dôkazy, nie autorita |
 | `tests/` | testy: engine, hraničné triedy, revízna konzola, invarianty vzorov, proveniencia a licencie |
 | `tools/liang_experiment.py` | generátor: označenia, deterministické rozdelenie, tréning `patgen`, vyhodnotenie, `report.json` |
@@ -125,6 +270,7 @@ preferované body nestačia. Rovnocenné kodifikované dublety sprístupní
 | `patterns/hyph-sk-slabika-permissive.tex` | zverejnené permisívne Liangove vzory |
 | `tex/hyph-sk.tex` | slovenské vzory Jany Chlebíkovej z roku 1992, pribalené pod ich licenciou MIT ako porovnávacia základňa |
 | `docs/pravidla-delenia-slov.md` | samostatne formulovaný projektový prepis kapitoly V. PSP |
+| `docs/hyph-sk-1992-povod.md` | ako vznikli vzory Jany Chlebíkovej z roku 1992 podľa jej vlastného opisu a čo to predpovedá o tu nameraných rozdieloch |
 | `LICENSING.md`, `CONTRIBUTING.md`, `REUSE.toml` | licencie po vrstvách, proveniencia dát a podmienky príspevkov |
 | `run_review_local.bat`, `run_review.bat` | spúšťače revíznej konzoly pre Windows (externý recenzent / správca) |
 
@@ -155,12 +301,12 @@ obsahuje aj `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` a strojovo
 čitateľný `report.json`. Cesta zadaná cez `--patterns-output` je výsledný balený
 zdroj pre TeX.
 
-Táto snímka inventára má 195 119 riadkov a SHA-256
-`560a68526f6b8dbdb207b7ff306d1a84bbb70051faa13a9ba13998a1e0b03403`. Po
-filtrovaní dáva 192 435 podporovaných unikátnych slov: 153 957 tréningových a
-38 478 odložených. Výsledný preferovaný a permisívny súbor majú SHA-256
-`6ed4f2f965cf83f2c67ef6df81810a2a9c18062faf6f3797e7340bd93fd26af2` a
-`ee90eddc031da64cb372b2097bc179f1796f07b6fae851bb6fae3a521767bc08`.
+Táto snímka inventára má 195 767 riadkov a SHA-256
+`d2bcafa945c86cf7eca000bc8ee6a4dc272311977669aa057ffa6182b1d2b821`. Po
+filtrovaní dáva 193 119 podporovaných unikátnych slov: 154 496 tréningových a
+38 623 odložených. Výsledný preferovaný a permisívny súbor majú SHA-256
+`3460bdc9e28bd657cb926d1f1a74d069db09733e6b43cce6e300d882b1208743` a
+`61f6346392bde47e8aaf77635c67fbc3e3c76a9c393090927b27f62724e7ab57`.
 
 ### Ako overiť nové generovanie alebo príspevok
 
@@ -274,15 +420,15 @@ ani zoznamov slov. Licenčné a provenienčné požiadavky sú v
 ## Zverejnené Liangove vzory
 
 Projekt zverejňuje dve **pracovné verzie** vzorov, naučené výlučne z pracovnej
-slovnej zásoby pribalenej v tomto repozitári. Z jej 195 119 inventárnych riadkov
+slovnej zásoby pribalenej v tomto repozitári. Z jej 195 767 inventárnych riadkov
 po vylúčení tvarov `needs_review` a filtrovaní abecedy a veľkosti písmen ostáva
-192 435 podporovaných unikátnych slov. Deterministické rozdelenie priradí
-153 957 slov do tréningu a 38 478 slov ponechá nevidených pre obe vyhodnotenia:
+193 119 podporovaných unikátnych slov. Deterministické rozdelenie priradí
+154 496 slov do tréningu a 38 623 slov ponechá nevidených pre obe vyhodnotenia:
 
 - [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) je predvolený
-  preferovaný súbor (5 203 vzorov), trénovaný z `break_points(word)`;
+  preferovaný súbor (5 231 vzorov), trénovaný z `break_points(word)`;
 - [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
-  je permisívny súbor pre úzku sadzbu (4 858 vzorov), trénovaný z
+  je permisívny súbor pre úzku sadzbu (4 835 vzorov), trénovaný z
   `break_points(word, all_points=True, contextual=True)`.
 
 Oba súbory sú bez výnimiek celého slova. Na vstup aj vyhodnotenie sa uplatnili
@@ -294,15 +440,15 @@ Rozlíšenie preto nesú dva samostatné súbory. Bežná sadzba má používať
 súbor. Permisívny súbor navyše sprístupňuje rovnocenné kodifikované varianty aj
 prípustné, ale nepreferované kontextové body; oba súbory sa nemajú načítať naraz.
 
-Na 38 478 odložených slovách pri rovnakých ľavých/pravých minimách TeXu 2/3 pre
+Na 38 623 odložených slovách pri rovnakých ľavých/pravých minimách TeXu 2/3 pre
 oba súbory aj cieľ vyšiel tento výsledok:
 
 | vzory | presné celé slová | precision bodov | recall bodov |
 | --- | ---: | ---: | ---: |
-| **slabika preferovaný (5 203 vzorov)** | **98,6434 %** (37 956/38 478) | **99,6194 %** | **99,4945 %** |
-| Jana Chlebíková 1992 proti preferovanému cieľu | 89,6694 % | 96,0456 % | 95,3455 % |
-| **slabika permisívny (4 858 vzorov)** | **98,7291 %** (37 989/38 478) | **99,6430 %** | **99,5461 %** |
-| Jana Chlebíková 1992 proti permisívnemu cieľu | 89,1496 % | 96,4052 % | 94,8751 % |
+| **slabika preferovaný (5 231 vzorov)** | **98,6770 %** (38 112/38 623) | **99,6283 %** | **99,5121 %** |
+| Jana Chlebíková 1992 proti preferovanému cieľu | 89,6279 % | 96,0111 % | 95,3423 % |
+| **slabika permisívny (4 835 vzorov)** | **98,7728 %** (38 149/38 623) | **99,6545 %** | **99,5635 %** |
+| Jana Chlebíková 1992 proti permisívnemu cieľu | 89,1023 % | 96,3877 % | 94,8691 % |
 
 Je to benchmark **vernosti súčasnému pravidlovému enginu**, nie nezávislý
 benchmark správnosti podľa PSP. Body enginu mimo spoločných miním TeXu sa
@@ -350,7 +496,7 @@ Verzované testy enginu, revíznej konzoly a proveniencie pokrývajú jazykové
 pravidlá, hraničné triedy, verejné API, lokálny editor a licenčné obmedzenia a
 fungujú aj z čistého checkoutu. Známe nevyriešené jazykové prípady zostávajú
 viditeľné ako striktné očakávané zlyhania namiesto toho, aby ich zakryl zoznam
-slov. Pracovný inventár 195 119 tvarov sa používal aj na kontroly robustnosti vo
+slov. Pracovný inventár 195 230 tvarov sa používal aj na kontroly robustnosti vo
 veľkom, väčšina týchto tvarov však nebola nezávisle posúdená. To, že spracovanie
 nespadne, dokazuje robustnosť, nie správnosť každého delenia. Projekt preto dnes
 neuvádza percento celkovej presnosti pravidlového enginu.

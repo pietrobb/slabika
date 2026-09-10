@@ -54,7 +54,12 @@ def _tables(connection: sqlite3.Connection) -> set[str]:
 
 def load_all_forms(path: Path) -> list[str]:
     with _open_readonly(path) as connection:
-        rows = connection.execute("SELECT form FROM forms ORDER BY form")
+        rows = connection.execute(
+            """SELECT f.form FROM forms AS f
+               LEFT JOIN adjudications AS a USING (form)
+               WHERE coalesce(a.review_status, 'pending') <> 'invalid'
+               ORDER BY f.form"""
+        )
         forms = {
             unicodedata.normalize("NFC", row[0])
             for row in rows

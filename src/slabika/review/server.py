@@ -506,7 +506,8 @@ class Corpus:
             self.inventory.execute(
                 """SELECT f.form, a.review_status
                    FROM forms AS f
-                   LEFT JOIN adjudications AS a USING (form)"""
+                   LEFT JOIN adjudications AS a USING (form)
+                   WHERE coalesce(a.review_status, 'pending') <> 'invalid'"""
             )
         )
         inventory_forms = {row["form"] for row in form_rows}
@@ -543,6 +544,7 @@ class Corpus:
         self.folded: list[str] = [_fold(form) for form in self.forms]
         self.form_set: set[str] = set(self.review_forms)
         self._tex_disagreements: frozenset[str] | None = None
+        self._engine_cache: dict[str, str] = {}
 
     # -- reading ---------------------------------------------------------
 
@@ -904,6 +906,12 @@ class Corpus:
             if form in rows and rows[form]["review_status"] == status
         ]
 
+    def _engine_hyphenation(self, review_form: str) -> str:
+        """Engine output is stable inside one process; human decisions are not."""
+        if review_form not in self._engine_cache:
+            self._engine_cache[review_form] = _engine(review_form)[0]
+        return self._engine_cache[review_form]
+
     def precompute_voice_filters(self) -> None:
         if self._tex_disagreements is not None:
             return
@@ -1255,7 +1263,11 @@ class Corpus:
         )
 
     def _filter_voice_disagreements(
-        self, forms: list[str], tex_diff: bool, blind_human_diff: bool
+        self,
+        forms: list[str],
+        tex_diff: bool,
+        blind_human_diff: bool,
+        human_diff: bool = False,
     ) -> list[str]:
         if tex_diff:
             self.precompute_voice_filters()
@@ -1282,6 +1294,23 @@ class Corpus:
                 if human and variants and human not in variants:
                     matching.append(form)
             forms = matching
+        if human_diff:
+            forms = [
+                form
+                for form in forms
+                if any(alias in self.decided for alias in self._alias_forms(form))
+            ]
+            rows = self._decision_rows(forms)
+            matching = []
+            for form in forms:
+                review_form = self.review_forms[form]
+                mine = rows.get(form)
+                human = _recase_marked(
+                    mine["expected_hyphenation"] if mine else None, review_form
+                )
+                if human and human != self._engine_hyphenation(review_form):
+                    matching.append(form)
+            forms = matching
         return forms
 
     def page(
@@ -1293,10 +1322,11 @@ class Corpus:
         limit: int,
         tex_diff: bool = False,
         blind_human_diff: bool = False,
+        human_diff: bool = False,
     ) -> dict:
         candidate = self._filter_status(self.matches(query, mode), status)
         candidate = self._filter_voice_disagreements(
-            candidate, tex_diff, blind_human_diff
+            candidate, tex_diff, blind_human_diff, human_diff
         )
         window = candidate[offset : offset + limit]
         ai = self._ai_rows(window)
@@ -1872,6 +1902,7 @@ class Handler(BaseHTTPRequestHandler):
                         min(int(query.get("limit", ["500"])[0]), 2000),
                         query.get("tex_diff", ["0"])[0] == "1",
                         query.get("blind_human_diff", ["0"])[0] == "1",
+                        query.get("human_diff", ["0"])[0] == "1",
                     )
                 )
             except Exception as error:  # noqa: BLE001

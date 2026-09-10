@@ -130,8 +130,15 @@ def load_words(database: Path) -> tuple[list[str], dict[str, int]]:
         source = [
             row[0]
             for row in connection.execute(
-                "SELECT form FROM forms "
-                "WHERE casing_status IN ('resolved', 'inferred') ORDER BY form"
+                # A form the review retired as invalid is not vocabulary: it is
+                # an OCR fragment, foreign text or a misspelling the reviewer
+                # struck out. The audit trail keeps the row, the training set
+                # must not see it.
+                "SELECT f.form FROM forms AS f "
+                "LEFT JOIN adjudications AS a USING (form) "
+                "WHERE f.casing_status IN ('resolved', 'inferred') "
+                "AND coalesce(a.review_status, 'pending') <> 'invalid' "
+                "ORDER BY f.form"
             )
         ]
 

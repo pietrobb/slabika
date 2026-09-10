@@ -58,7 +58,7 @@ def test_slovak_hyphenation_golden_cases():
         "ohrádzať": "ohrá·dzať",
         "obohraných": "ob·ohra·ných",
         "obohratá": "ob·ohra·tá",
-        "rozohrať": "roz·ohrať",
+        "rozohrať": "ro·zo·hrať",
         "neohrabaný": "ne·ohra·ba·ný",
         "porkpie": "por·kpie",
         "pornograf": "por·no·graf",
@@ -384,6 +384,36 @@ def test_stred_family_keeps_the_documented_root_seams():
     assert hyphenate("najbezprostrednejšia") == "naj·bez·pro·stred·nej·šia"
     assert hyphenate("všestredové") == "vše·stre·do·vé"
     assert hyphenate("stredoeurópania") == "stre·do·eu·ró·pa·nia"
+
+
+def test_linguistic_compound_seams_beat_the_consonant_count():
+    # Section 3.4: a compound divides at its seam, and the linking vowel stays
+    # with the first part. Without the seam, section 4.2 would cut the cluster
+    # in half and hide the member the reader recognises (slo·vot·vor·ný).
+    expected = {
+        "slovotvorný": "slo·vo·tvor·ný",
+        "slovotvorba": "slo·vo·tvor·ba",
+        "slabikotvorný": "sla·bi·ko·tvor·ný",
+        "slabikotvorných": "sla·bi·ko·tvor·ných",
+        "mnohoslabičný": "mno·ho·sla·bič·ný",
+        "mnohoslabičnými": "mno·ho·sla·bič·ný·mi",
+        "ortografia": "or·to·gra·fia",
+        "ortografický": "or·to·gra·fic·ký",
+        "ortodoxný": "or·to·dox·ný",
+        "ortopéd": "or·to·péd",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # The seam is cited, not guessed: -ový is a suffix and -ami an ending, so
+    # neither licenses a compositional break, and ortuť is no compound at all.
+    assert hyphenate("slabikový") == "sla·bi·ko·vý"
+    assert hyphenate("slabikovými") == "sla·bi·ko·vý·mi"
+    assert hyphenate("slovami") == "slo·va·mi"
+    assert hyphenate("slovník") == "slov·ník"
+    assert hyphenate("mnohý") == "mno·hý"
+    assert hyphenate("ortuť") == "or·tuť"
+    # Section 3.5 keeps the syllabic division where the seam is not perceivable:
+    # dia- is no recurring member for a Slovak reader the way orto- is.
+    assert hyphenate("diakritika") == "diak·ri·ti·ka"
 
 
 def test_third_discovered_family_batch_keeps_only_clear_seams():
@@ -2622,7 +2652,7 @@ def test_batch_87_keeps_guarded_negative_and_nested_vy_seams():
         "nevykla": "ne·vy·kla",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("nevyhnutný") == "ne·vyh·nut·ný"
+    assert hyphenate("nevyhnutný") == "ne·vy·hnut·ný"
     assert hyphenate("nevykladaj") == "ne·vy·kla·daj"
 
 
@@ -3237,10 +3267,10 @@ def test_macarthur_adjective_family_preserves_the_name_pronunciation():
 
 def test_operator_approved_domestic_morpheme_seams_are_preferred():
     expected = {
-        "apartmán": "apart·mán",
-        "apartmáne": "apart·má·ne",
-        "apartmánov": "apart·má·nov",
-        "apartmánových": "apart·má·no·vých",
+        "apartmán": "apar·tmán",
+        "apartmáne": "apar·tmá·ne",
+        "apartmánov": "apar·tmá·nov",
+        "apartmánových": "apar·tmá·no·vých",
         "avantgardu": "avant·gar·du",
         "najposlednejšej": "naj·po·sled·nej·šej",
         "najposlednejšia": "naj·po·sled·nej·šia",
@@ -3698,7 +3728,7 @@ def test_operator_approved_third_scale_1000_native_forms():
         "neupotrebiteľnom": "ne·u·po·tre·bi·teľ·nom",
         "neupotrebiteľným": "ne·u·po·tre·bi·teľ·ným",
         "nesčetnými": "ne·sčet·ný·mi",
-        "nactiutŕhačskými": "nac·ti·u·tŕ·hač·ský·mi",
+        "nactiutŕhačskými": "na·cti·u·tŕ·hač·ský·mi",
         "nesčíselne": "ne·sčí·sel·ne",
         "nemstí": "ne·mstí",
         "prelstí": "pre·lstí",
@@ -3723,7 +3753,7 @@ def test_third_scale_1000_rules_cover_families_without_nearby_collisions():
         "duchaprítomnosťou": "du·cha·prí·tom·nos·ťou",
         "dvojokamihový": "dvoj·o·ka·mi·ho·vý",
         "nesčetný": "ne·sčet·ný",
-        "nactiutŕhačským": "nac·ti·u·tŕ·hač·ským",
+        "nactiutŕhačským": "na·cti·u·tŕ·hač·ským",
         "nesčíselnými": "ne·sčí·sel·ný·mi",
         "nemstiť": "ne·mstiť",
         "prelstia": "pre·lstia",
@@ -4349,7 +4379,7 @@ def test_syllabification_and_typographic_hyphenation_are_separate_layers():
     assert get_syllables("ohrádzať") == ["o", "hrá", "dzať"]
     assert get_syllables("obohraných") == ["ob", "o", "hra", "ných"]
     assert get_syllables("obohratá") == ["ob", "o", "hra", "tá"]
-    assert get_syllables("rozohrať") == ["roz", "o", "hrať"]
+    assert get_syllables("rozohrať") == ["ro", "zo", "hrať"]
     assert get_syllables("neohrabaný") == ["ne", "o", "hra", "ba", "ný"]
     assert get_syllables("porkpie") == ["pork", "pie"]
     assert get_syllables("pornograf") == ["por", "no", "graf"]
@@ -4651,6 +4681,12 @@ def test_liang_vocabulary_includes_inferred_forms_but_not_open_reviews(tmp_path)
             "casing_status TEXT NOT NULL, "
             "proposed_canonical_form TEXT)"
         )
+        connection.execute(
+            "CREATE TABLE adjudications ("
+            "form TEXT PRIMARY KEY, "
+            "review_status TEXT NOT NULL, "
+            "reason TEXT NOT NULL DEFAULT '')"
+        )
         connection.executemany(
             "INSERT INTO forms VALUES (?, ?, NULL)",
             (
@@ -4658,7 +4694,14 @@ def test_liang_vocabulary_includes_inferred_forms_but_not_open_reviews(tmp_path)
                 ("meno", "resolved"),
                 ("slovo", "resolved"),
                 ("Otvorené", "needs_review"),
+                ("najprí", "resolved"),
             ),
+        )
+        # An OCR fragment the reviewer struck out. It cannot be deleted -- the
+        # inventory is append-only where it has been reviewed -- so it is
+        # retired, and a retired form must not reach the training set.
+        connection.execute(
+            "INSERT INTO adjudications VALUES ('najprí', 'invalid', 'Human review: fragment.')"
         )
 
     words, stats = load_words(database)
@@ -5094,8 +5137,12 @@ def test_batch_161_distinguishes_rozo_allomorph_from_nested_roz_prefixes():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("rozohniť") == "roz·oh·niť"
-    assert hyphenate("rozohrať") == "roz·ohrať"
-    assert hyphenate("rozohriať") == "roz·oh·riať"
+    # PSP prints the vocalized prefix whole (odo-brať, predo-strieť), so the
+    # seam is after its -o- when the root opens with a cluster: rozo|hrať,
+    # rozo|hriať. Only a vowel-initial root keeps the bare roz- (roz-ísť sa),
+    # which is why rozohniť (ohn- of oheň) stays roz·oh·niť.
+    assert hyphenate("rozohrať") == "ro·zo·hrať"
+    assert hyphenate("rozohriať") == "ro·zo·hriať"
 
 
 def test_batch_162_expands_rozo_allomorph_and_keeps_vowel_initial_bases():

@@ -110,6 +110,7 @@ def test_rmss_root_audit_classifies_existing_psp_mismatch(tmp_path, monkeypatch)
         connection.executescript(
             """
             CREATE TABLE forms (form TEXT, casing_status TEXT);
+            CREATE TABLE adjudications (form TEXT, review_status TEXT);
             INSERT INTO forms VALUES ('doktor', 'resolved');
             """
         )

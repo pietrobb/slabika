@@ -477,7 +477,11 @@ def audit_root_conflicts(
             corpus = {
                 unicodedata.normalize("NFC", row[0]).casefold()
                 for row in inventory.execute(
-                    "SELECT form FROM forms WHERE casing_status = 'resolved' ORDER BY form"
+                    "SELECT f.form FROM forms AS f "
+                    "LEFT JOIN adjudications AS a USING (form) "
+                    "WHERE f.casing_status = 'resolved' "
+                    "AND coalesce(a.review_status, 'pending') <> 'invalid' "
+                    "ORDER BY f.form"
                 )
                 if row[0].islower() and row[0].isalpha()
             }

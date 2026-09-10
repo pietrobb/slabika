@@ -193,13 +193,24 @@ _LOS_ANGELES_SK_ENDINGS = frozenset({
     'ký', 'kých', 'kým', 'kými',
 })
 _HALAPART_NON_SUFFIX_ENDINGS = frozenset({'ne', 'ňa', 'ňami'})
-_APARTMAN_ENDINGS = frozenset({'', 'e', 'ov', 'ových'})
 _AVANTGARDA_ENDINGS = frozenset({'a', 'e', 'ou', 'u', 'y'})
+# Stems whose analysis must not depend on the inflectional ending that follows.
+# The generic suffix stripper matches whole endings, so it fires on part of a
+# paradigm and not on the rest: -ný is stripped off nevyhnut- and the recursion
+# then cuts -nut off the root as well (ne·vyh|nut·ný), while -nosť is not
+# stripped at all and the same stem comes out as ne·vy·hnut|nosť. Pinning the
+# head of the stem here keeps every form of the family on one division; the
+# tail is left whole so the phonotactic rules place the remaining points.
+_PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
+    ('nevyhnut', (2, 2)),    # ne·vy·hnut·ný, ne·vy·hnut·nosť
+    ('zatrpknu', (2,)),      # za·trp·knu·tý, za·trp·knu·tos·ťou
+    ('nenaklon', (2, 2)),    # ne·na·klo·ne·ný, ne·na·klo·ni·la
+    ('umiestne', (6,)),      # umiest·ne·nej, umiest·ne·nie
+    ('úzkostliv', ()),       # úz·kos·tli·vosť, úz·kos·tli·vos·ťou
+    ('vlastnost', ()),       # vlast·nos·tiach, vlast·nost·né
+)
 _OBOJPOHLAV_ENDINGS = frozenset({'ná', 'né', 'ného', 'nej', 'nému', 'ní', 'nom', 'nou', 'nú', 'ný', 'ných', 'ným', 'nými'})
 _MASTNAK_INFLECTIONS = frozenset({'', 'a', 'ami', 'e', 'mi', 'och', 'om', 'ov', 'ovi', 'u', 'y'})
-_NACTIUTRHACSK_INFLECTIONS = frozenset({
-    'á', 'é', 'ého', 'ej', 'ému', 'í', 'om', 'ou', 'ú', 'ý', 'ých', 'ým', 'ými',
-})
 _PODROBEN_ENDINGS = frozenset({
     '', 'e', 'ia', 'iam', 'iami', 'iach', 'ie', 'iu', 'í', 'ím',
     'osť', 'osti', 'ostiam', 'ostiach', 'osťami', 'osťou', 'ostí',
@@ -246,15 +257,6 @@ def _with_original_spelling(word: str, parts: list[str]) -> list[str]:
 
 def _lexical_syllables(word: str) -> list[str] | None:
     folded = word.casefold()
-    if (
-        folded.startswith('nactiutŕhačsk')
-        and folded[13:] in _NACTIUTRHACSK_INFLECTIONS
-    ):
-        parts = [
-            word[:3], word[3:5], word[5:6], word[6:8], word[8:11],
-            *_syllabify_simple(word[11:]),
-        ]
-        return _with_original_spelling(word, parts)
     if folded.startswith('allbright') and folded[9:] in _ALLBRIGHT_ENDINGS:
         return [word[:3], word[3:9], *([word[9:]] if len(word) > 9 else [])]
     if (
@@ -387,7 +389,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('porno', ('graf',)),
     ('pso', ('hlav',)),
     ('prvo', ('stvor', 'tlač', 'tried')),
-    ('rozo', ('br', 'ber', 'chv', 'dn', 'dr', 'hna', 'kl', 'mel', 'mieľ', 'mlet', 'pín', 'pn', 'pol', 'pre', 'pri', 'rv', 'sad', 'sáp', 'sej', 'sia', 'sie', 'sl', 'smej', 'smia', 'smut', 'spa', 'spie', 'sta', 'stl', 'strel', 'stret', 'strú', 'stup', 'stúp', 'tn', 'tret', 'trie', 'trú', 'vr', 'zvo', 'zvu', 'zna', 'zná', 'štv', 'šl', 'žen', 'žer', 'žier', 'žl', 'žr')),  # rozo·staviť, rozo·znať — not roz·os-
+    ('rozo', ('br', 'ber', 'chv', 'dn', 'dr', 'hna', 'hr', 'kl', 'mel', 'mieľ', 'mlet', 'pín', 'pl', 'pn', 'pol', 'pre', 'pri', 'rv', 'sad', 'sáp', 'sej', 'sia', 'sie', 'sl', 'smej', 'smia', 'smie', 'smut', 'spa', 'spie', 'sta', 'stl', 'strel', 'stret', 'strú', 'stup', 'stúp', 'tn', 'tret', 'trie', 'trú', 'vr', 'zvo', 'zvu', 'zna', 'zná', 'štv', 'šl', 'žen', 'žer', 'žier', 'žl', 'žr')),  # rozo·staviť, rozo·znať — not roz·os-
     ('zo', ('tn', 'žn')),
     ('samo', ('chvál', 'hlás', 'spravod', 'stvoriteľ', 'svet', 'sviet', 'vlád', 'vrav', 'vzdel', 'vznie', 'vytvor', 'zrej')),
     ('sedmo', ('spáč',)),
@@ -490,7 +492,11 @@ _NESTED_PREFIX_ROOTS = (
     ('po', ('hl', 'hn', 'klon')),
     ('pod', ('uj',)),
     ('pri', ('klon', 'sn')),
-    ('roz', ('oh',)),
+    # Only the oheň root, not every roz+oh- string: rozo|hriať and rozo|hrať
+    # have the vocalized prefix in front of hr-, the way PSP prints odo-brať
+    # and predo-strieť, while roz|ohniť is roz- in front of the vowel-initial
+    # ohn- of oheň (PSP roz-ísť sa).
+    ('roz', ('ohne', 'ohni', 'ohní', 'ohňo', 'ohňu')),
     ('u', ('chrán', 'chráň', 'chvát', 'drž', 'hlad', 'hryz', 'klad', 'krad', 'mlč', 'mĺk', 'mŕtv', 'pad', 'plat', 'sporad', 'trp', 'tvrd', 'tŕž', 'vrh', 'zdrav', 'zn')),
     ('za', ('obíd', 'obiš', 'tkn', 'čn', 'hl', 'hn', 'mk', 'žn')),
     ('vy', ('hne', 'kla', 'sch', 'zne')),
@@ -601,7 +607,7 @@ _SK_COMPOSITA = [
     'video', 'niekoľko', 'deväť', 'sedem', 'osem', 'šesť', 'šest', 'päť', 'zeme', 'vrti',
     'troj', 'tri', 'dve', 'štyri', 'sto', 'tisíc', 'viac', 'geo', 'teo', 'bio', 'foto', 'auto', 'euro', 'etyl', 'steto',
     'agro', 'agri', 'astro', 'aero', 'anti', 'archi', 'arch',
-    'hydro', 'termo', 'elektro', 'mikro', 'makro', 'mono', 'neuro', 'poly',
+    'hydro', 'termo', 'elektro', 'mikro', 'makro', 'mono', 'neuro', 'orto', 'poly',
     'pseudo', 'semi', 'hemi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',
     'super', 'hyper', 'meta', 'multi', 'mini', 'maxi',
     # Slovak-specific composita
@@ -679,8 +685,8 @@ _BOUND_SECOND_MEMBER_HEADS = {
         'tmavozlato', 'vzducho', 'zlato', 'špinavo',
     }),
     'tvor': frozenset({
-        'formo', 'miero', 'novo', 'obrazo', 'samo', 'tóno', 'všetko', 'zemo',
-        'zázrako', 'čino', 'žlčo',
+        'formo', 'miero', 'novo', 'obrazo', 'samo', 'slabiko', 'slovo', 'tóno',
+        'všetko', 'zemo', 'zázrako', 'čino', 'žlčo',
     }),
 }
 _LINKING_VOWEL = 'o'
@@ -767,8 +773,8 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
             'vše': ('stran', 'stred'),
             'vysoko': ('cte', 'postav', 'škol'),
             'mnoho': (
-                'hlav', 'hran', 'skúsen', 'sľub', 'štít', 'stran', 'strom',
-                'tlam', 'tvár', 'vlád', 'vrav', 'žrút',
+                'hlav', 'hran', 'skúsen', 'slabič', 'sľub', 'štít', 'stran',
+                'strom', 'tlam', 'tvár', 'vlád', 'vrav', 'žrút',
             ),
         }
         if not reml.startswith(consonant_composita.get(comp, ())):
@@ -1606,16 +1612,15 @@ def get_morpheme_parts(word: str) -> list[str]:
         return alzbeta_parts
     if wl.startswith('abdrushin'):
         return [word[:3], word[3:5], word[5:]]
-    if wl == 'apartmánmi':
-        return [word]
-    if wl.startswith('apartmán') and wl[8:] in _APARTMAN_ENDINGS:
-        return [word[:5], word[5:]]
     if wl.startswith('avantgard') and wl[9:] in _AVANTGARDA_ENDINGS:
         return [word[:5], word[5:]]
     if wl.startswith('obojpohlav') and wl[10:] in _OBOJPOHLAV_ENDINGS:
         return [word[:4], word[4:6], word[6:10], word[10:]]
-    if wl in {'najúhlavnejších', 'najúhlavnejším'}:
+    if wl.startswith('najúhlavnejš'):
         return [word[:3], word[3:4], word[4:8], word[8:]]
+    for family_stem, head_lengths in _PARADIGM_STABLE_STEMS:
+        if wl.startswith(family_stem):
+            return _parts_from_lengths(word, head_lengths) + [word[sum(head_lengths):]]
     if wl == 'ovládlo':
         return [word[:1], word[1:5], word[5:]]
     if wl == 'neovládlo':

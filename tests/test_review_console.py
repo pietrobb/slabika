@@ -5,6 +5,7 @@
 import json
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 from urllib.request import urlopen
 
 import pytest
@@ -393,6 +394,30 @@ def test_voice_disagreement_filters_compose_with_query_and_status(corpus, monkey
     )
     assert [item["review_form"] for item in combined["items"]] == ["maslo"]
     assert tex_calls == cached_tex_calls + 2
+
+
+def test_engine_versus_human_filter_keeps_only_live_disagreements(corpus, monkeypatch):
+    """The engine moves on; a stored decision it no longer reproduces must stay findable."""
+    engine = {"maslo": "mas·lo", "okno": "ok·no"}
+    monkeypatch.setattr(
+        REVIEW, "_engine", lambda form: (engine.get(form, form), form, None)
+    )
+    corpus.decide(
+        {"form": "maslo", "action": "correct", "field": "hyphenation", "text": "ma-slo"}
+    )
+    corpus.decide(
+        {"form": "okno", "action": "confirm", "field": "hyphenation", "text": "ok-no"}
+    )
+
+    page = corpus.page("", "prefix", "all", 0, 10, human_diff=True)
+    assert [item["review_form"] for item in page["items"]] == ["maslo"]
+    assert corpus.page("ok", "prefix", "all", 0, 10, human_diff=True)["total"] == 0
+
+    # An undecided form has nothing to disagree with.
+    assert corpus.page("iphone", "prefix", "all", 0, 10, human_diff=True)["total"] == 0
+
+    combined = corpus.page("m", "prefix", "correct", 0, 10, human_diff=True)
+    assert [item["review_form"] for item in combined["items"]] == ["maslo"]
 
 
 def test_export_contains_only_suggestions_that_differ_from_current_engine(
@@ -961,3 +986,74 @@ def test_soft_delete_clear_and_undo_are_auditable(corpus):
     assert corpus.store.execute(
         "SELECT COUNT(*) FROM decision_log WHERE form = 'okno'"
     ).fetchone()[0] == 3
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+#: Every place that reads the working vocabulary out of the inventory. Where the
+#: inventory has been reviewed it is append-only -- ``review_events`` carries
+#: delete and update guards and ``forms`` is referenced from it with ON DELETE
+#: RESTRICT -- so a form the reviewer struck out cannot be dropped. It is
+#: retired instead: the row survives as evidence and its adjudication turns
+#: ``invalid``. That removes the word only if every reader agrees to skip it,
+#: which is what this list is for. ``tools/review/blind_audit.py`` is absent
+#: because it already excludes every non-pending adjudication, retired or not.
+VOCABULARY_READERS = (
+    "src/slabika/review/server.py",
+    "tools/liang_experiment.py",
+    "tools/morph/induce.py",
+    "tools/morph/rmss_index.py",
+    "tools/review/family_audit.py",
+    "tools/review/impact.py",
+)
+
+
+def test_a_retired_form_leaves_the_vocabulary_but_keeps_its_evidence(tmp_path):
+    """An invalid adjudication takes the word out of the console's word list.
+
+    Retirement has to be indistinguishable from deletion for every consumer, or
+    the reviewer's verdict is a note rather than an act: the struck-out form
+    would go on being counted and go on training the patterns.
+    """
+    inventory = tmp_path / "inventory.sqlite"
+    decisions = tmp_path / "decisions.sqlite"
+    _inventory(inventory)
+    _old_store(decisions)
+    with sqlite3.connect(inventory) as connection:
+        connection.execute(
+            """UPDATE adjudications
+                  SET review_status = 'invalid', reason = 'Human review: OCR fragment.'
+                WHERE form = 'okno'"""
+        )
+
+    corpus = REVIEW.Corpus(inventory, decisions)
+    try:
+        assert "okno" not in corpus.forms
+        assert "okno" not in corpus.form_set
+        assert "maslo" in corpus.forms
+    finally:
+        corpus.inventory.close()
+        corpus.store.close()
+
+    with sqlite3.connect(inventory) as check:
+        held = check.execute("SELECT count(*) FROM forms WHERE form = 'okno'").fetchone()
+    assert held[0] == 1, "retirement must keep the row that carries the audit trail"
+
+
+def test_every_vocabulary_reader_skips_retired_forms():
+    """A new read of ``forms`` without the predicate silently revives the word.
+
+    The mechanism has no enforcement point of its own -- nothing in the schema
+    stops a query from selecting an invalid row -- so the guarantee is only as
+    good as the agreement between these files.
+    """
+    for relative in VOCABULARY_READERS:
+        source = (ROOT / relative).read_text(encoding="utf-8")
+        reads = source.lower().count("from forms")
+        guarded = source.count("""<> 'invalid'""")
+        assert reads and reads == guarded, (
+            f"{relative} reads the vocabulary {reads} time(s) but excludes retired "
+            f"forms {guarded} time(s). Every read needs "
+            f"LEFT JOIN adjudications USING (form) and "
+            f"coalesce(a.review_status, 'pending') <> 'invalid'."
+        )
