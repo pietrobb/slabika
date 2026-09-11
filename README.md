@@ -175,20 +175,19 @@ distinct forms.
 
 ### Where AI review and the author's review still disagree
 
-350 forms carry both an author's decision and a model consensus. On 297 of them
-the two agree. **53 still differ**, in 15 word families, and they are listed
+350 forms carry both an author's decision and a model consensus. On 301 of them
+the two agree. **49 still differ**, in 14 word families, and they are listed
 here rather than quietly reconciled:
 
 | pattern | forms | example: author | example: models |
 | --- | ---: | --- | --- |
 | models preferred the engine over the author | 30 | `dô·stoj·nom` | `dôs·toj·nom` |
 | author's decision was revised after the run | 13 | `o·po·tre·bu·je` | `opot·re·bu·je` |
-| models rejected both answers | 4 | `Jac·kson` | `Jack·son` |
 | depends on the pronunciation of a foreign name | 4 | `Arch·ae·a·lus` | `Ar·chae·a·lus` |
 | models accepted both as codified variants | 2 | `pá·čid·lom` | `pá·či·dlom` |
 
 The families are `opotrebovať`, `dôstojný`, `najposlednejší`, `neposlať`,
-`apartmán`, `Jackson`, `obojpohlavný`, `alžbetínska`, `avantgarda`,
+`apartmán`, `obojpohlavný`, `alžbetínska`, `avantgarda`,
 `najúhlavnejší`, `Hippokratov`, `páčidlo`, `Archaealus`, `Glendower` and
 `Arbre`/`Lois`. None of these is
 resolved by consensus, and none of them may be: a model majority is not a

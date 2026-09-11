@@ -256,6 +256,75 @@ def _fold(value: str) -> str:
     return "".join(ch for ch in decomposed if not unicodedata.combining(ch))
 
 
+def _is_addable(token: str) -> bool:
+    """True for a token that may enter the corpus as a word.
+
+    An upload is a boundary: the file may hold headings, numbers, division
+    marks or an engine's own output. A corpus form is a word — letters, with
+    the hyphen and the apostrophe that Côtes-du-Rhône and d'Artagnan need
+    between them, never at the edge.
+    """
+    if len(token) > 60 or not token[:1].isalpha() or not token[-1:].isalpha():
+        return False
+    return all(ch.isalpha() or ch in "-'’" for ch in token)
+
+
+_PROSE_PUNCT = frozenset(".,;:!?…\"„“”‚‘’»«()")
+_SENTENCE_END = re.compile(r"[.!?…]+")
+_PROSE_WORD = re.compile(r"[^\W\d_]+(?:[-'’][^\W\d_]+)*", re.UNICODE)
+
+
+def _looks_like_prose(text: str) -> bool:
+    """True when the upload is running text rather than a column table.
+
+    The engine writes measurement files whose second column is its own output,
+    so a blanket split on punctuation would drag those columns in as words.
+    Running text betrays itself: its lines carry several words *and* sentence
+    punctuation, which a column of forms and divisions never does.
+    """
+    wide = punctuated = 0
+    for line in text.splitlines():
+        if len(line.split()) < 2 or line.lstrip().startswith("#"):
+            continue
+        wide += 1
+        punctuated += any(ch in _PROSE_PUNCT for ch in line)
+    return wide > 0 and punctuated * 2 >= wide
+
+
+def _prose_tokens(text: str) -> tuple[list[str], int]:
+    """Cut running text into words, and undo the capital a sentence forces.
+
+    Position destroys casing: the capital in "Mlyn stál" says only that the
+    sentence started, not that the word is a name. So a capital is kept only
+    when the same token also stands capitalised *inside* a sentence somewhere
+    in the upload — that is evidence of a name, not of a full stop.
+    """
+    words: list[str] = []
+    opening: set[int] = set()
+    for line in text.splitlines():
+        if line.lstrip().startswith("#"):
+            continue
+        for sentence in _SENTENCE_END.split(line):
+            found = _PROSE_WORD.findall(sentence)
+            if found:
+                opening.add(len(words))
+            words.extend(found)
+    shouting = {word for word in words if word.isupper() and len(word) > 1}
+    inside = {
+        word
+        for i, word in enumerate(words)
+        if i not in opening and word not in shouting
+    }
+    recased = 0
+    for i, word in enumerate(words):
+        if not word[:1].isupper():
+            continue
+        if word in shouting or (i in opening and word not in inside):
+            words[i] = word.lower()
+            recased += 1
+    return words, recased
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="microseconds")
 
@@ -378,7 +447,13 @@ def _load_blind(paths: Path | list[Path] | tuple[Path, ...] | None) -> dict[str,
 
 
 class Corpus:
-    """Read-only view of the inventory plus a writable decision store."""
+    """Read-only view of the inventory plus a writable decision store.
+
+    The one exception is :meth:`add_worklist_forms`, which appends words an
+    upload brought and opens its own connection to do it: reviewing must not
+    be able to rewrite the corpus by accident, but adding to it is a decision
+    the reviewer makes deliberately.
+    """
 
     def __init__(
         self,
@@ -502,6 +577,20 @@ class Corpus:
         )
         self.store.commit()
 
+        self._engine_cache: dict[str, str] = {}
+        self._index_forms()
+        self.worklist: list[str] = []
+        self.worklist_name = ""
+        self.worklist_text = ""
+        self.worklist_unknown: list[str] = []
+
+    def _index_forms(self) -> None:
+        """Build the in-memory vocabulary from the inventory.
+
+        Kept apart from ``__init__`` because appending forms has to rebuild it:
+        a word added through the console is not in the queue until the aliases,
+        the fold index and the decided map know about it.
+        """
         form_rows = list(
             self.inventory.execute(
                 """SELECT f.form, a.review_status
@@ -544,7 +633,6 @@ class Corpus:
         self.folded: list[str] = [_fold(form) for form in self.forms]
         self.form_set: set[str] = set(self.review_forms)
         self._tex_disagreements: frozenset[str] | None = None
-        self._engine_cache: dict[str, str] = {}
 
     # -- reading ---------------------------------------------------------
 
@@ -570,6 +658,110 @@ class Corpus:
         else:
             test = str.__contains__
         return [self.forms[i] for i, folded in enumerate(self.folded) if test(folded, needle)]
+
+    def load_worklist(self, text: str, name: str = "") -> dict:
+        """Read an upload as a list of forms, or as running text.
+
+        A column file gives up its first whitespace-separated token per line,
+        so the measurement files the engine writes can be uploaded unchanged;
+        running text is cut on punctuation into the words it contains. The
+        shape of the file decides which — see :func:`_looks_like_prose`. Order
+        is kept either way: a file grouped by a linguistic class stays grouped
+        in the review queue.
+        """
+        prose = _looks_like_prose(text)
+        if prose:
+            tokens, recased = _prose_tokens(text)
+        else:
+            tokens = [
+                line.split()[0]
+                for line in text.splitlines()
+                if line.split() and not line.split()[0].startswith("#")
+            ]
+            recased = 0
+        by_lower: dict[str, str] = {}
+        for form, representative in self.representative_for_form.items():
+            by_lower.setdefault(form.lower(), representative)
+        wanted: list[str] = []
+        seen: set[str] = set()
+        unknown: list[str] = []
+        for token in tokens:
+            representative = self.representative_for_form.get(token) or by_lower.get(
+                token.lower()
+            )
+            if representative is None:
+                unknown.append(token)
+            elif representative not in seen:
+                seen.add(representative)
+                wanted.append(representative)
+        self.worklist = wanted
+        self.worklist_name = name
+        self.worklist_text = text
+        self.worklist_unknown = list(dict.fromkeys(unknown))
+        addable = [form for form in self.worklist_unknown if _is_addable(form)]
+        return {
+            "name": name,
+            "lines": len(tokens),
+            "prose": prose,
+            "recased": recased,
+            "matched": len(wanted),
+            "unknown": len(self.worklist_unknown),
+            "unknown_sample": self.worklist_unknown[:20],
+            "addable": len(addable),
+            "addable_sample": addable[:20],
+        }
+
+    def clear_worklist(self) -> dict:
+        self.worklist = []
+        self.worklist_name = ""
+        self.worklist_text = ""
+        self.worklist_unknown = []
+        return {
+            "name": "", "lines": 0, "prose": False, "recased": 0, "matched": 0,
+            "unknown": 0, "unknown_sample": [], "addable": 0, "addable_sample": [],
+        }
+
+    def add_worklist_forms(self) -> dict:
+        """Append the forms of the uploaded file the corpus does not have.
+
+        The console reads the inventory read-only, so the append opens its own
+        short-lived connection. A form the primary key already holds is left
+        alone: it is a word somebody retired as invalid, and a file upload is
+        not the place to revive a human decision.
+        """
+        addable = [form for form in self.worklist_unknown if _is_addable(form)]
+        rejected = [form for form in self.worklist_unknown if not _is_addable(form)]
+        source = f"review_console:{self.worklist_name or 'upload'}"
+        added: list[str] = []
+        retired = 0
+        write = sqlite3.connect(self.inventory_path)
+        try:
+            with write:
+                for form in addable:
+                    cursor = write.execute(
+                        "INSERT INTO forms(form, casing_status, proposed_canonical_form) "
+                        "VALUES (?, 'resolved', NULL) ON CONFLICT(form) DO NOTHING",
+                        (form,),
+                    )
+                    if not cursor.rowcount:
+                        retired += 1
+                        continue
+                    write.execute(
+                        "INSERT INTO adjudications(form, review_status, source) "
+                        "VALUES (?, 'pending', ?)",
+                        (form, source),
+                    )
+                    added.append(form)
+        finally:
+            write.close()
+        self._index_forms()
+        summary = self.load_worklist(self.worklist_text, self.worklist_name)
+        summary["added"] = len(added)
+        summary["added_sample"] = added[:20]
+        summary["retired"] = retired
+        summary["rejected"] = len(rejected)
+        summary["rejected_sample"] = rejected[:20]
+        return summary
 
     def _alias_forms(self, form: str) -> tuple[str, ...]:
         representative = self.representative_for_form.get(form, form)
@@ -1323,11 +1515,18 @@ class Corpus:
         tex_diff: bool = False,
         blind_human_diff: bool = False,
         human_diff: bool = False,
+        worklist: bool = False,
     ) -> dict:
         candidate = self._filter_status(self.matches(query, mode), status)
         candidate = self._filter_voice_disagreements(
             candidate, tex_diff, blind_human_diff, human_diff
         )
+        if worklist:
+            position = {form: i for i, form in enumerate(self.worklist)}
+            candidate = sorted(
+                (form for form in candidate if form in position),
+                key=position.__getitem__,
+            )
         window = candidate[offset : offset + limit]
         ai = self._ai_rows(window)
         mine = self._decision_rows(window)
@@ -1903,6 +2102,7 @@ class Handler(BaseHTTPRequestHandler):
                         query.get("tex_diff", ["0"])[0] == "1",
                         query.get("blind_human_diff", ["0"])[0] == "1",
                         query.get("human_diff", ["0"])[0] == "1",
+                        query.get("worklist", ["0"])[0] == "1",
                     )
                 )
             except Exception as error:  # noqa: BLE001
@@ -1963,6 +2163,18 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if parsed.path == "/api/clear":
                 self._json(self.corpus.clear(payload))
+                return
+            if parsed.path == "/api/worklist/add":
+                self._json(self.corpus.add_worklist_forms())
+                return
+            if parsed.path == "/api/worklist":
+                self._json(
+                    self.corpus.clear_worklist()
+                    if payload.get("clear")
+                    else self.corpus.load_worklist(
+                        payload.get("text", ""), payload.get("name", "")
+                    )
+                )
                 return
             if parsed.path == "/api/undo":
                 self._json(self.corpus.undo_last())

@@ -21,6 +21,9 @@ PSP rules for written-word division; it does not derive its break points from
 the syllable boundaries returned here.
 """
 
+import json
+from pathlib import Path
+
 from .phonology import (
     ALL_VOWELS,
     DIPHTHONGS,
@@ -208,6 +211,76 @@ _PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
     ('umiestne', (6,)),      # umiest·ne·nej, umiest·ne·nie
     ('úzkostliv', ()),       # úz·kos·tli·vosť, úz·kos·tli·vos·ťou
     ('vlastnost', ()),       # vlast·nos·tiach, vlast·nost·né
+    # Families below were found by the same invariant, applied to the whole
+    # corpus instead of one word at a time: forms sharing a stem and the two
+    # letters after it must not be divided differently inside that stem. The
+    # 69 families it reported were adjudicated by the operator on 2026-09-11;
+    # these 28 are the ones he approved. The remaining 12 he refused, because
+    # there the point the engine already has sits on a compound seam
+    # (sa·mo·vrah, zo·svet·šte·nie) or inside a spelling PSP 5.4 keeps out of
+    # reach (Mael·strö·me) -- so nothing is pinned for them. Longest stem
+    # first, so a more specific family wins over one that is its prefix.
+    ('rozradostni', (3, 2, 4)),   # roz·ra·dost·nia
+    ('spoluzachv', (3, 2, 2)),    # spo·lu·za·chvie·va
+    ('rozmiestne', (3, 5)),       # roz·miest·ne·nie
+    ('rozmiestni', (3, 5)),       # roz·miest·nia
+    ('nezúčastne', (2, 2, 4)),    # ne·zú·čast·ne·ne
+    ('privlastni', (3, 5)),       # pri·vlast·nia
+    ('nezúčastni', (2, 2, 4)),    # ne·zú·čast·nia
+    ('premiestni', (3, 5)),       # pre·miest·niť
+    ('spoluposvä', (3, 2, 2)),    # spo·lu·po·svä·cu·je
+    ('predpokla', (4, 2)),        # pred·po·klad
+    ('obšťastne', (2, 5)),        # ob·šťast·ne·nia
+    ('neviestka', (2, 5)),        # ne·viest·kar·ských
+    ('nevlastni', (2, 5)),        # ne·vlast·nia
+    ('obšťastni', (2, 5)),        # ob·šťast·niť
+    ('svetlopla', (4, 2, 3)),     # svet·lo·pla·chá -- the compound seam the
+                                  # operator kept, against both the engine's
+                                  # svet·lop·la·chá and the rule's sve·tlo·
+    ('polopráv', (2, 2)),         # po·lo·právd -- narrower than polo·prá,
+                                  # which would shadow po·lo·prázd·na below
+    ('umiestni', (6,)),           # umiest·nia
+    ('zúčastne', (2, 4)),         # zú·čast·ne·ná
+    ('zúčastni', (2, 4)),         # zú·čast·nia
+    ('novopri', (2, 2)),          # no·vo·pri·cho·dzí
+    ('vlastno', (5,)),            # vlast·no·ruč·ne
+    ('vlastní', (5,)),            # vlast·ním
+    ('čiastko', (5,)),            # čiast·ko·vé·ho
+    ('nezobra', (2, 2)),          # ne·zo·bra·zil
+    ('vlastni', (5,)),            # vlast·nia
+    ('vlastne', (5,)),            # vlast·ne·nia
+    ('miestn', (5,)),             # miest·ne·ho, miest·ny, miest·nos·ti --
+                                  # the whole paradigm, not just the forms the
+                                  # detector saw: it only reports a family whose
+                                  # forms disagree with each other, and miest·ny
+                                  # agreed with mies·tna by being wrong the same
+                                  # way. The review had already settled 13 of
+                                  # them against the engine.
+    ('polozvi', (2, 2)),          # po·lo·zvi·nu·té
+    ('telegra', (2, 2)),          # te·le·graph, te·le·graf
+    ('nanebo', (2, 2, 2)),        # na·ne·bo·vstu·pu·jú·cich
+    ('perzšt', (4,)),             # perz·šti·ne
+    # The same two families once the stem palatalises. The detector cannot see
+    # these: -miestň- and -miestn- are different strings, so the forms never
+    # meet inside one family and nothing contradicts anything. The review had
+    # settled them against the engine on 2026-09-10 all the same, and samovražda
+    # is the samo|vrah seam the operator confirmed in the batch, carried onto
+    # the noun. Longest stem first within the block.
+    ('premiestňova', (3, 5, 2)),  # pre·miest·ňo·val
+    ('rozmiestňova', (3, 5, 2)),  # roz·miest·ňo·va·ní
+    ('premiestňu', (3, 5)),       # pre·miest·ňu·je
+    ('rozmiestňu', (3, 5)),       # roz·miest·ňu·je
+    ('umiestňova', (6, 2)),       # umiest·ňo·val
+    ('samovraž', (2, 2)),         # sa·mo·vraž·da, sa·mo·vra·žed·ná
+    ('samovráž', (2, 2)),         # sa·mo·vrážd
+    # na- before a d-initial root, named one by one: nadr- is genuinely mixed,
+    # with nad|radený and nad|riadený next to na|drobno and na|držaní, so no
+    # rule over the prefix can be right for both halves.
+    ('nenadre', (2, 2)),          # ne·na·drel
+    ('nadranc', (2,)),            # na·dranc
+    ('nadrog', (2,)),             # na·dro·go·va·ný
+    ('nadrat', (2,)),             # na·dra·té·ho
+    ('umiestňu', (6,)),           # umiest·ňu·je
 )
 _OBOJPOHLAV_ENDINGS = frozenset({'ná', 'né', 'ného', 'nej', 'nému', 'ní', 'nom', 'nou', 'nú', 'ný', 'ných', 'ným', 'nými'})
 _MASTNAK_INFLECTIONS = frozenset({'', 'a', 'ami', 'e', 'mi', 'och', 'om', 'ov', 'ovi', 'u', 'y'})
@@ -614,7 +687,7 @@ _SK_COMPOSITA = [
     'modlo', 'rodo', 'rudo', 'jedno', 'stredo', 'brati', 'mäso', 'mast', 'krátko', 'krato', 'dobro', 'tvrdo', 'plno', 'právo', 'rovno',
     'bielo', 'bledo', 'blaho', 'boho', 'bohu', 'boja', 'bože', 'brato', 'čaro', 'ducha', 'blesko',
     'celo', 'choreo', 'chorobo', 'chválo', 'čierno', 'červeno',
-    'cudzo', 'ďaleko', 'darmo', 'delo', 'divo', 'drevo', 'drobno', 'duto', 'fajn', 'gramo',
+    'česko', 'cudzo', 'ďaleko', 'darmo', 'delo', 'divo', 'drevo', 'drobno', 'duto', 'fajn', 'gramo',
     'hnedo', 'holo', 'hromo', 'hrôzo', 'hrubo', 'ino', 'jasno', 'jedino', 'jemno', 'juho', 'prirodzeno', 'prázdno',
     'koso', 'kozmo', 'krepo', 'krivo', 'krížo', 'kruto', 'krvi', 'krvo', 'kučeravo', 'kušo', 'kvart', 'ľano', 'ostro', 'pravdo', 'slabo',
     'leto', 'leuko', 'ľubo', 'ľúbo', 'ľudo', 'luko', 'lyko', 'lyro', 'málo', 'márno', 'medeno', 'medo', 'melo', 'mili', 'mimo', 'more', 'mrcho', 'mrkvo', 'svetsko',
@@ -665,7 +738,7 @@ _SK_COMPOUND_TAILS = ('krát',)
 # The member is searched inside the form
 # (aristokratickými), and it needs a first part of its own: the s- of Sokrates
 # is not one, and neither is the word-initial krat- of kratochvíľa.
-_SK_BOUND_SECOND_MEMBERS = ('krat', 'krac', 'hrad', 'hned', 'naut', 'tvor', 'plav', 'plec', 'prázd', 'vrah', 'zlat', 'zvyk', 'zver', 'znič', 'vlas')
+_SK_BOUND_SECOND_MEMBERS = ('krat', 'krac', 'hrad', 'hned', 'naut', 'tvor', 'plav', 'plec', 'prázd', 'vrah', 'zlat', 'zvyk', 'zver', 'znič', 'vlas', 'hlav')
 _BOUND_SECOND_MEMBER_HEADS = {
     'plec': frozenset({'široko', 'úzko'}),
     'prázd': frozenset({'polo', 'vzducho', 'ľudo'}),
@@ -689,12 +762,129 @@ _BOUND_SECOND_MEMBER_HEADS = {
         'všetko', 'zemo', 'zázrako', 'čino', 'žlčo',
     }),
 }
-_LINKING_VOWEL = 'o'
+_LINKING_VOWELS = frozenset({'o', 'e'})
 
 # These cited bound forms remain intact when a compositional boundary is made.
 _BOUND_COMPOSITA = frozenset({'geo', 'teo', 'video'})
 
 _COMPOSITA_BY_LEN = _by_length(_SK_COMPOSITA)
+
+# The list above can only divide the compounds somebody remembered to type in:
+# bledo|modrý was there and modro|sivý was not, although one rule builds both.
+# tools/build_composita.py derives the first members from the Sapfo lexicon —
+# every adjective root plus the linking vowel is a possible first member — so
+# the seam is found in words no corpus has seen.
+#
+# A first member alone proves nothing (jahodo·vých is no compound): the
+# remainder has to be headed by a lemma of its own and carry nothing after it
+# but an inflectional tail.
+_GENERATED_COMPOSITA = json.loads(
+    (Path(__file__).resolve().parent / 'data' / 'composita.json').read_text(
+        encoding='utf-8'
+    )
+)
+# A cited first part — a numeral or a borrowed prefixoid — is a short string
+# that turns up inside words it has nothing to do with (mini in minister, tri
+# in roztriešti). Those already stand in the list above, where each one is
+# answerable to a guard in _licenses_compositum, and the lexicon is not asked
+# to overrule that. What the generated inventory adds is the productive part:
+# the adverb, adjective and noun stems, and the native bound stems the lexicon
+# happens not to record as adverbs (samo, boja, matko).
+_GENERATED_FIRST_MEMBERS = frozenset(
+    member
+    for member, source in _GENERATED_COMPOSITA['first_members'].items()
+    if source != 'cited'
+)
+#: First members the noun-stem branch derived rather than found: voda gives
+#: vodo-, but no text ever wrote vodo on its own. They are inferences, and are
+#: held to a stricter standard of what may head them than a cited stem is.
+_INFERRED_FIRST_MEMBERS = frozenset(
+    member
+    for member, source in _GENERATED_COMPOSITA['first_members'].items()
+    if source == 'noun stem'
+)
+_GENERATED_HEADS = dict(_GENERATED_COMPOSITA['heads'])
+del _GENERATED_COMPOSITA
+
+# What a second member may carry behind it and still be a second member.
+_COMPOSITUM_INFLECTIONS = frozenset("""
+a e i o u y á é í ú ý ou ov om ovi ove ova ovo ovu ej ého ému ých ým ými ia iu
+ie mi ch och ami iam iach am ám te me la lo li ly ne ná né ný nú ní nej
+nom nou ného nému ných ným nými vej vou vom
+""".split())
+
+
+def _heads_a_compositum(rest: str, inferred_first: bool = False) -> bool:
+    for cut in range(len(rest), 2, -1):
+        kind = _GENERATED_HEADS.get(rest[:cut])
+        if kind is None:
+            continue
+        # Two inferences do not add up to evidence. A verb stem is not a word —
+        # sten is not Slovak, stenať is — and neither is a first member the
+        # noun-stem branch derived from a lemma. Either one alone still carries:
+        # samo·zvolený keeps its verb head because samo is a cited stem, and
+        # bylino·žravé keeps its derived first member because žrav- is an
+        # adjective root. Put the two guesses together and the seam is whatever
+        # the two tables happen to collide on — rado|stený out of rozradostený,
+        # doko|nali out of dokonali. The price is daktylo·skop, right for a
+        # reason this evidence does not contain: skop heads it as the stem of
+        # skopať, and the word is Greek.
+        if kind == 'verb' and inferred_first:
+            continue
+        tail = rest[cut:]
+        # A bare root is not a word, so it is an ending in disguise: the -val
+        # of kormidloval is the past tense, not the val of a compound.
+        if not tail:
+            if kind in ('lemma', 'verb'):
+                return True
+        elif tail in _COMPOSITUM_INFLECTIONS:
+            return True
+    return False
+
+
+def _generated_compositum(word: str) -> tuple[str, str] | None:
+    """Split *word* at the leftmost lexicon-attested compound seam.
+
+    The hand-written list has already been asked and has said no, or this
+    function would not run. That *no* is a verdict for the cited first parts,
+    which is why they are not in :data:`_GENERATED_FIRST_MEMBERS`; for a
+    productive Slovak stem it is only the gap the generated inventory exists
+    to close.
+    """
+    wl = word.lower()
+    for cut in range(3, len(wl) - 2):
+        first = wl[:cut]
+        if first not in _GENERATED_FIRST_MEMBERS:
+            continue
+        if not _heads_a_compositum(wl[cut:], first in _INFERRED_FIRST_MEMBERS):
+            continue
+        # A second member that opens with a prefix of its own is not a second
+        # member: staro|osvedčenými would cut in front of the o- of osvedčiť,
+        # and the word divides at the prefix (os·ved·če·ný·mi) instead.
+        if _strip_prefix(word[cut:])[0] is not None:
+            continue
+        return word[:cut], word[cut:]
+    # A consonant-initial passive participle can be a compound's second member
+    # even when it has its own prefix (novo|prebudený, PSP V.1.d). Keep this
+    # after existing candidates so it cannot displace an established analysis.
+    for cut in range(3, len(wl) - 2):
+        first, rest = wl[:cut], wl[cut:]
+        if (
+            first not in _GENERATED_FIRST_MEMBERS
+            or first in _INFERRED_FIRST_MEMBERS
+            or rest[0] in _VOWEL_LETTERS
+        ):
+            continue
+        if any(
+            rest.endswith(ending)
+            and _GENERATED_HEADS.get(rest[:-len(ending)]) == 'verb'
+            for ending in (
+                'ený', 'ená', 'ené', 'enú', 'ení', 'eného', 'enému',
+                'enej', 'enom', 'enou', 'ených', 'eným', 'enými',
+            )
+        ):
+            return word[:cut], word[cut:]
+    return None
 
 # Word-initial clusters that license a prefix boundary before a consonant that
 # is not followed by a vowel (vz·nik, roz·str·hnúť). Includes the digraph ch.
@@ -1479,10 +1669,7 @@ def _split_bound_second_member(w: str) -> tuple[str, str] | None:
         seam = wl.find(member)
         if member in _BOUND_SECOND_MEMBER_HEADS and wl[:seam] not in _BOUND_SECOND_MEMBER_HEADS[member]:
             continue
-        if seam < 3 or (
-            wl[seam - 1] != _LINKING_VOWEL
-            and not (member == 'hrad' and wl[:seam] == 'bele')
-        ):
+        if seam < 3 or wl[seam - 1] not in _LINKING_VOWELS:
             continue
         # The head has to be a first part, not a prefix. In neohrada the ne- is
         # negation and the o- belongs to ohrada, so neo is no compositum stem
@@ -1580,7 +1767,7 @@ def _split_compositum(word: str) -> tuple[str, str] | None:
             rem = word[length:]
             if _licenses_compositum(comp, rem):
                 return word[:length], rem
-    return None
+    return _generated_compositum(word)
 
 
 def get_morpheme_parts(word: str) -> list[str]:
@@ -1612,6 +1799,8 @@ def get_morpheme_parts(word: str) -> list[str]:
         return alzbeta_parts
     if wl.startswith('abdrushin'):
         return [word[:3], word[3:5], word[5:]]
+    if wl.startswith('apartmán'):
+        return [word[:5], word[5:]]
     if wl.startswith('avantgard') and wl[9:] in _AVANTGARDA_ENDINGS:
         return [word[:5], word[5:]]
     if wl.startswith('obojpohlav') and wl[10:] in _OBOJPOHLAV_ENDINGS:
@@ -1861,6 +2050,11 @@ def get_syllables(word: str) -> list[str]:
                 first_syls = [first_part] if comp in _BOUND_COMPOSITA else _syllabify_simple(first_part)
                 return first_syls + get_syllables(rem)
 
+    generated = _generated_compositum(word)
+    if generated is not None:
+        first_part, rem = generated
+        return _syllabify_simple(first_part) + get_syllables(rem)
+
     # Grammatical -mi/-me/-te split only after a consonant-final stem.
     stem, sfx = _strip_grammatical_suffix(word)
     if stem is not None:
@@ -1926,6 +2120,33 @@ _VOWEL_LIKE = (
 
 #: No Slovak syllable opens with more than three consonants (vzdych, štvrť).
 _MAX_ONSET = 3
+
+#: Stops, for the s + stop + consonant cluster after a syllabic r/l.
+_STOPS_SK = frozenset('tkpbdg')
+
+
+def breaks_after_stop(
+    phonemes: list[str], nucleus: int, cluster: list[int]
+) -> bool:
+    """Whether an s + stop + consonant cluster after a syllabic r/l breaks
+    after the stop: vrst·va, like krst·ná.
+
+    Without this the one family splits two ways. The syllabic rule hands tv to
+    the next syllable because tv opens Slovak words (tvár) and leaves t in the
+    coda before tn because tn opens none; the mechanical point of PSP 2b falls
+    after the s wherever no morpheme seam happens to lie further right. Either
+    way vrs·tva stood beside krst·ná for no reason of the language. After a
+    syllabic nucleus the stop closes it in both.
+
+    *nucleus* and *cluster* are indices into *phonemes*: the nucleus that
+    precedes the cluster, and the consonants standing between the two nuclei.
+    """
+    if phonemes[nucleus].lower() not in ('r', 'l'):
+        return False
+    if len(cluster) < 3:
+        return False
+    first, second = (phonemes[index].lower() for index in cluster[:2])
+    return first == 's' and second in _STOPS_SK
 
 
 def _resolve_hiatus(word: str, phonemes: list[str]) -> list[str]:
@@ -2188,8 +2409,10 @@ def _syllabify_simple(word: str) -> list[str]:
             # Two nuclei adjacent (adjacent vowels — next nucleus starts new syllable)
             boundaries.append(nuc_b)
         else:
-            split_at = _best_split(consonants_between)
-            boundaries.append(split_at)
+            if breaks_after_stop(phonemes, nuc_a, consonants_between):
+                boundaries.append(consonants_between[2])
+            else:
+                boundaries.append(_best_split(consonants_between))
 
     # Build syllables from boundaries; last syllable runs to end of word (includes trailing consonants)
     syllables = []

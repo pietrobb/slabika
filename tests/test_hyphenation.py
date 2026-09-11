@@ -366,7 +366,10 @@ def test_second_discovered_family_batch_keeps_only_clear_seams():
     assert hyphenate("správny") == "správ·ny"
     assert hyphenate("ochladenie") == "och·la·de·nie"
     assert hyphenate("schladenie") == "schla·de·nie"
-    assert hyphenate("svetlochladne") == "svet·loch·lad·ne"
+    # Frozen here as svet·loch·lad·ne while the compound seam was invisible to
+    # the engine; the operator corrected the form to svet·lo·chlad·ne on
+    # 2026-09-11, and the generated inventory now finds that seam.
+    assert hyphenate("svetlochladne") == "svet·lo·chlad·ne"
 
 
 def test_stred_family_keeps_the_documented_root_seams():
@@ -414,6 +417,36 @@ def test_linguistic_compound_seams_beat_the_consonant_count():
     # Section 3.5 keeps the syllabic division where the seam is not perceivable:
     # dia- is no recurring member for a Slovak reader the way orto- is.
     assert hyphenate("diakritika") == "diak·ri·ti·ka"
+
+
+def test_generated_inventory_divides_compounds_nobody_typed_in():
+    # The seam comes from the lexicon (tools/build_composita.py), not from a
+    # hand-written list, so it is found in words the list never named.
+    expected = {
+        "samostatný": "sa·mo·stat·ný",
+        "samovrah": "sa·mo·vrah",
+        "tmavovlasý": "tma·vo·vla·sý",
+        "bojachtivý": "bo·ja·chti·vý",
+        "svätostánok": "svä·to·stá·nok",
+        "dennobdelé": "den·no·bde·lé",
+        "žltochvost": "žl·to·chvost",
+        "demograf": "de·mo·graf",
+        "všadeprítomný": "vša·de·prí·tom·ný",
+        "svetlochladne": "svet·lo·chlad·ne",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+    # What keeps the inventory from cutting everywhere. A cited first part --
+    # a numeral or a borrowed prefixoid -- answers to the hand-written guards
+    # and is not asked again, or minister would be mini|ster.
+    assert hyphenate("ministrom") == "mi·nis·trom"
+    assert hyphenate("roztriešti") == "roz·trieš·ti"
+    # A bare adjective root is an ending in disguise: -val is the past tense.
+    assert hyphenate("kormidloval") == "kor·mid·lo·val"
+    # A proper name is no second member, or Brit would split celebrita.
+    assert hyphenate("celebrite") == "ce·leb·ri·te"
+    # A second member that opens with a prefix of its own is not one.
+    assert hyphenate("staroosvedčenými") == "sta·ro·os·ved·če·ný·mi"
 
 
 def test_third_discovered_family_batch_keeps_only_clear_seams():
@@ -791,7 +824,7 @@ def test_fourteenth_discovered_family_batch_keeps_only_clear_seams():
     assert hyphenate("jahodovočervené") == "ja·ho·do·vo·čer·ve·né"
     assert hyphenate("zhodovať") == "zho·do·vať"
     assert hyphenate("zvíťaziť") == "zví·ťa·ziť"
-    assert hyphenate("umiestniť") == "umies·tniť"
+    assert hyphenate("umiestniť") == "umiest·niť"
     assert hyphenate("pohyb") == "po·hyb"
 
 
@@ -1384,7 +1417,7 @@ def test_fortieth_discovered_family_batch_keeps_only_pol_ostrov_seams():
         "kurážne": "ku·ráž·ne",
         "samovládca": "sa·mo·vlád·ca",
         "neovláda": "ne·ov·lá·da",
-        "umiestniť": "umies·tniť",
+        "umiestniť": "umiest·niť",
         "vmiesť": "vmiesť",
         "zmiesť": "zmiesť",
         "kostrové": "kos·tro·vé",
@@ -2746,7 +2779,7 @@ def test_batch_95_keeps_the_lexical_nezn_stem():
         "nežnou": "než·nou",
         "nežný": "než·ný",
         "nežnými": "než·ný·mi",
-        "nezobrazuje": "ne·zob·ra·zu·je",
+        "nezobrazuje": "ne·zo·bra·zu·je",
         "nezohľadňoval": "ne·zoh·ľad·ňo·val",
         "nezohneš": "ne·zoh·neš",
         "nezostal": "ne·zos·tal",
@@ -3267,10 +3300,10 @@ def test_macarthur_adjective_family_preserves_the_name_pronunciation():
 
 def test_operator_approved_domestic_morpheme_seams_are_preferred():
     expected = {
-        "apartmán": "apar·tmán",
-        "apartmáne": "apar·tmá·ne",
-        "apartmánov": "apar·tmá·nov",
-        "apartmánových": "apar·tmá·no·vých",
+        "apartmán": "apart·mán",
+        "apartmáne": "apart·má·ne",
+        "apartmánov": "apart·má·nov",
+        "apartmánových": "apart·má·no·vých",
         "avantgardu": "avant·gar·du",
         "najposlednejšej": "naj·po·sled·nej·šej",
         "najposlednejšia": "naj·po·sled·nej·šia",
@@ -3567,6 +3600,38 @@ def test_batch_40_na_jim_root_does_not_become_a_false_superlative():
     assert hyphenate("najistejšie") == "naj·is·tej·šie"
 
 
+@pytest.mark.parametrize("ending,marked", [
+    ("ý", "ný"), ("á", "ná"), ("é", "né"), ("ú", "nú"), ("í", "ní"),
+    ("ého", "né·ho"), ("ému", "né·mu"), ("ej", "nej"), ("om", "nom"),
+    ("ou", "nou"), ("ých", "ných"), ("ým", "ným"), ("ými", "ný·mi"),
+])
+def test_compound_passive_participle_keeps_linking_vowel(ending, marked):
+    # PSP V.1.d: novo|prebudený retains both compound and prefix boundaries.
+    word = "novoprebuden" + ending
+    expected = "no·vo·pre·bu·de·" + marked
+    assert hyphenate(word) == expected
+    assert "·".join(get_syllables(word)) == expected
+    assert hyphenate(word.upper()) == expected.upper()
+
+
+def test_compound_participle_fallback_preserves_existing_analysis():
+    assert hyphenate("novostvárnené") == "no·vo·stvár·ne·né"
+    assert hyphenate("staroosvedčenými") == "sta·ro·os·ved·če·ný·mi"
+    assert hyphenate("rozradostený") == "roz·ra·dos·te·ný"
+    assert hyphenate("vyšetrovali") == "vy·šet·ro·va·li"
+
+
+def test_compound_participle_requires_verb_and_noninferred_first(monkeypatch):
+    import slabika.syllabify as engine
+
+    assert engine._generated_compositum("novoprebudený") == ("novo", "prebudený")
+    monkeypatch.setitem(engine._GENERATED_HEADS, "prebud", "root")
+    assert engine._generated_compositum("novoprebudený") is None
+    monkeypatch.setitem(engine._GENERATED_HEADS, "prebud", "verb")
+    monkeypatch.setattr(engine, "_INFERRED_FIRST_MEMBERS", engine._INFERRED_FIRST_MEMBERS | {"novo"})
+    assert engine._generated_compositum("novoprebudený") is None
+
+
 def test_batch_41_lz_root_keeps_the_superlative_prefix_seam():
     assert hyphenate("lživý") == "lži·vý"
     assert hyphenate("najlživejšie") == "naj·lži·vej·šie"
@@ -3817,6 +3882,50 @@ def test_cten_family_keeps_its_root_against_the_two_consonant_rule():
         "veľactený": "ve·ľa·cte·ný",
     }
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_the_czechoslovakia_paradigms_keep_the_compound_seam():
+    # Česko + slovensko: the compound seam outranks the mechanical section 4.3
+    # point inside the -kosl- cluster, and it holds across the whole paradigm.
+    expected = {
+        "Československo": "Čes·ko·slo·ven·sko",
+        "Československa": "Čes·ko·slo·ven·ska",
+        "Československu": "Čes·ko·slo·ven·sku",
+        "Československom": "Čes·ko·slo·ven·skom",
+        "československý": "čes·ko·slo·ven·ský",
+        "československého": "čes·ko·slo·ven·ské·ho",
+        "československými": "čes·ko·slo·ven·ský·mi",
+        "československá": "čes·ko·slo·ven·ská",
+        "československej": "čes·ko·slo·ven·skej",
+        "českoslovenština": "čes·ko·slo·ven·šti·na",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # The short Czech adjective is no compound and keeps its own division.
+    assert hyphenate("českého") == "čes·ké·ho"
+
+
+def test_bound_second_member_hlav_is_found_from_the_member_side():
+    # The seam is licensed by the recurring second member -hlav-, not by a
+    # list of permitted first parts: bole-, zlato- and vajco- are unrelated
+    # heads and none of them has to be enumerated for the seam to be seen.
+    # Section 3.4's linking vowel is -o- in a nominal compound and -e- in a
+    # verbal one (bolí + hlava), the same shape as Bele·hrad.
+    expected = {
+        "bolehlav": "bo·le·hlav",
+        "zlatohlav": "zla·to·hlav",
+        "zlatohlavu": "zla·to·hla·vu",
+        "Belehrad": "Be·le·hrad",
+        "Belehradu": "Be·le·hra·du",
+        "vinohrad": "vi·no·hrad",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # A head with no vowel of its own is no first part, so pso· and tisíc·
+    # still need their own licence and do not come from this rule.
+    assert hyphenate("psohlavca") == "pso·hlav·ca"
+    assert hyphenate("tisíchlavá") == "ti·síc·hla·vá"
+    # -hlav- inside a prefixed simplex is not a compound seam.
+    assert hyphenate("záhlavie") == "zá·hla·vie"
+    assert hyphenate("podhlavník") == "pod·hlav·ník"
 
 
 def test_compound_seams_survive_the_linking_vowel_and_the_prefix():
@@ -4962,7 +5071,9 @@ def test_a_foreign_letter_with_a_known_sound_is_divided_by_slovak_rules():
     assert hyphenate("München") == "Mün·chen"
     assert hyphenate("Straße") == "Stra·ße"
     assert hyphenate("Noël") == "No·ël"
-    assert hyphenate("Compiègne") == "Com·pi·èg·ne"
+    # è is one vowel slot and divides like any other, but gn beside it is the
+    # French group for a single /ɲ/ — §5.4 bars tearing that, so it stays whole.
+    assert hyphenate("Compiègne") == "Com·pi·ègne"
     assert hyphenate("Neufchâteau") == "Ne·uf·châ·te·au"
 
     # ř fills the r slot, so a cluster containing it divides where the one
@@ -4972,6 +5083,23 @@ def test_a_foreign_letter_with_a_known_sound_is_divided_by_slovak_rules():
 
     # PSP §5.4 second sentence: a vowel group read as one syllable stays whole.
     assert hyphenate("koupě") == "kou·pě"
+
+
+def test_a_french_final_gne_spells_one_consonant_and_stays_whole():
+    """§5.4: gn in French -gne is /ɲ/, one sound, so the group is not torn."""
+    assert hyphenate("Bourgogne") == "Bour·gogne"
+    assert hyphenate("Champagne") == "Cham·pagne"
+    assert hyphenate("Sologne") == "So·logne"
+
+    # A Slovak -gne is a stem-final g meeting the -ne ending, not a group: a
+    # consonant stands before the g, and the point between them holds.
+    assert hyphenate("preglgne") == "pre·glg·ne"
+    assert hyphenate("glgne") == "glg·ne"
+
+    # gn elsewhere is two sounds and divides normally.
+    assert hyphenate("signál") == "sig·nál"
+    assert hyphenate("magnet") == "mag·net"
+    assert hyphenate("Agnes") == "Ag·nes"
 
 
 def test_a_foreign_ou_is_not_split_behind_a_prefix_shaped_opening():
@@ -5646,6 +5774,14 @@ def test_operator_approved_foreign_divisions_are_pronunciation_guarded():
         "Gleisdorfu": "Gleis·dor·fu",
         "Glendower": "Glen·dower",
         "Glenview": "Glen·view",
+        "Grossglockner": "Gross·glock·ner",
+        "Grossglocknera": "Gross·glock·ne·ra",
+        "Grossglockneru": "Gross·glock·ne·ru",
+        "Großglockner": "Groß·glock·ner",
+        "Großglocknera": "Groß·glock·ne·ra",
+        "Großglockneri": "Groß·glock·ne·ri",
+        "Großglocknerom": "Groß·glock·ne·rom",
+        "Großglocknerov": "Groß·glock·ne·rov",
         "Jacques": "Jacques",
         "Jacquesa": "Ja·cquesa",
         "Jaira": "Jai·ra",
@@ -5695,6 +5831,11 @@ def test_operator_approved_foreign_divisions_are_pronunciation_guarded():
         "Maisie": "Mai·sie",
         "Marlene": "Mar·lene",
         "Oglethorpe": "Ogle·thorpe",
+        "Teufelsbrücke": "Teu·fels·brüc·ke",
+        "Teufelsgalgen": "Teu·fels·gal·gen",
+        "Teufelsritt": "Teu·fels·ritt",
+        "Teufelsstein": "Teu·fels·ste·in",
+        "Teufelswand": "Teufels·wand",
         "advienne": "ad·vienne",
         "aequata": "ae·qua·ta",
         "again": "again",
@@ -5709,9 +5850,80 @@ def test_operator_approved_foreign_divisions_are_pronunciation_guarded():
         "immense": "im·mense",
         "loquantut": "lo·quan·tut",
         "maiorem": "ma·io·rem",
+        "salvatorque": "sal·va·torque",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("aliquld") == "aliquld"
+    # Folding ß to ss would put both spellings of the mountain on one key.
+    assert hyphenate("Großglockner") != hyphenate("Grossglockner")
+
+
+def test_paradigm_batch_compound_seams_the_operator_kept():
+    """The families left open by the 2026-09-11 batch, once he ruled on them.
+
+    Each of the three is a seam neither the engine nor the syllable rule
+    found on its own: the engine cut svet·lop·la·chá after the first
+    consonant, the rule moved it to sve·tlo·, and the division the review
+    settled on -- svet·lo·pla·chá -- is the compound boundary both missed.
+    """
+    expected = {
+        "svetloplachá": "svet·lo·pla·chá",
+        "svetloplaché": "svet·lo·pla·ché",
+        "svetloplachí": "svet·lo·pla·chí",
+        "svetloplavé": "svet·lo·pla·vé",
+        "perzštine": "perz·šti·ne",
+        "perzština": "perz·šti·na",
+        "nanebovstupujúcich": "na·ne·bo·vstu·pu·jú·cich",
+        "nanebovstúpenie": "na·ne·bo·vstú·pe·nie",
+        "nanebovzatia": "na·ne·bo·vza·tia",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # Refused in the same review, and still refused: the point the engine
+    # already has sits on the compound seam itself.
+    assert hyphenate("samovrah") == "sa·mo·vrah"
+    assert hyphenate("zosvetštenie") == "zo·svet·šte·nie"
+    assert hyphenate("odľudštení") == "od·ľud·šte·ní"
+    assert hyphenate("predobrý") == "pre·dob·rý"
+    assert hyphenate("predobraz") == "pred·ob·raz"
+
+
+def test_miestn_paradigm_holds_when_the_stem_palatalises():
+    """The -miestň- verbs and samovražda, from the same review.
+
+    The instability detector cannot report these: it compares forms that share
+    a stem, and -miestň- never meets -miestn- in one family, so the two spellings
+    were free to disagree without contradicting each other. samovražda is the
+    samo|vrah seam the operator kept in the batch, carried onto the noun.
+    """
+    expected = {
+        "umiestňuje": "umiest·ňu·je",
+        "umiestňujú": "umiest·ňu·jú",
+        "umiestňoval": "umiest·ňo·val",
+        "premiestňuje": "pre·miest·ňu·je",
+        "premiestňovať": "pre·miest·ňo·vať",
+        "premiestňovania": "pre·miest·ňo·va·nia",
+        "rozmiestňovaní": "roz·miest·ňo·va·ní",
+        "samovražda": "sa·mo·vraž·da",
+        "samovrážd": "sa·mo·vrážd",
+        "samovraždou": "sa·mo·vraž·dou",
+        "samovražedná": "sa·mo·vra·žed·ná",
+        "nadranc": "na·dranc",
+        "nadrogovaný": "na·dro·go·va·ný",
+        "nadratého": "na·dra·té·ho",
+        "nenadrel": "ne·na·drel",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # nadr- is not a family: these keep the nad- prefix and must not move.
+    for word, division in {
+        "nadradený": "nad·ra·de·ný",
+        "nadriadený": "nad·ria·de·ný",
+        "nadrozmerné": "nad·roz·mer·né",
+        "nadrajské": "nad·raj·ské",
+        "nadránom": "nad·rá·nom",
+    }.items():
+        assert hyphenate(word) == division
+    # The unpalatalised forms keep the division the earlier batch pinned.
+    assert hyphenate("umiestnia") == "umiest·nia"
+    assert hyphenate("miestny") == "miest·ny"
 
 
 def test_batch_211_preserves_d_final_past_tense_stems():
@@ -5838,7 +6050,9 @@ def test_batch_228_preserves_clear_compound_seams():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("smršti") == "smrš·ti"
-    assert hyphenate("zlatohlavu") == "zla·toh·la·vu"
+    # Superseded by the author's review of 2026-09-10: -hlav- is a recognised
+    # bound second member, so the seam beats the section 4.3 cluster count.
+    assert hyphenate("zlatohlavu") == "zla·to·hla·vu"
 
 
 def test_batch_229_preserves_the_zmurkat_past_tense_stem():

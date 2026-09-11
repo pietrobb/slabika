@@ -172,20 +172,19 @@ nerozhodnutých — teda 71 rôznych tvarov.
 
 ### Kde sa AI kontrola a kontrola autora stále nezhodujú
 
-350 tvarov má aj rozhodnutie autora, aj konsenzus modelov. Pri 297 z nich sa
-zhodujú. **53 sa stále líši**, v 15 slovných rodinách, a sú tu vypísané, nie
+350 tvarov má aj rozhodnutie autora, aj konsenzus modelov. Pri 301 z nich sa
+zhodujú. **49 sa stále líši**, v 14 slovných rodinách, a sú tu vypísané, nie
 potichu zmierené:
 
 | povaha rozdielu | tvarov | príklad: autor | príklad: modely |
 | --- | ---: | --- | --- |
 | modely dali prednosť enginu pred autorom | 30 | `dô·stoj·nom` | `dôs·toj·nom` |
 | autor svoje rozhodnutie po behu zmenil | 13 | `o·po·tre·bu·je` | `opot·re·bu·je` |
-| modely odmietli obe odpovede | 4 | `Jac·kson` | `Jack·son` |
 | závisí od výslovnosti cudzieho mena | 4 | `Arch·ae·a·lus` | `Ar·chae·a·lus` |
 | modely uznali obe ako kodifikované varianty | 2 | `pá·čid·lom` | `pá·či·dlom` |
 
 Ide o rodiny `opotrebovať`, `dôstojný`, `najposlednejší`, `neposlať`,
-`apartmán`, `Jackson`, `obojpohlavný`, `alžbetínska`, `avantgarda`,
+`apartmán`, `obojpohlavný`, `alžbetínska`, `avantgarda`,
 `najúhlavnejší`, `Hippokratov`, `páčidlo`, `Archaealus`, `Glendower` a
 `Arbre`/`Lois`. Ani jeden z týchto
 prípadov nie je vyriešený konsenzom — a ani nesmie byť: väčšina modelov nie je

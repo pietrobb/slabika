@@ -32,6 +32,7 @@ from .syllabify import (
     _SK_SUFFIXES_CONS,
     _final_sonorant_needs_following_context,
     _lexical_syllables,
+    breaks_after_stop,
     get_morpheme_parts,
     phoneme_layout,
 )
@@ -67,8 +68,7 @@ _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 _PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 
 # Exact pronunciation-backed points for unadapted foreign spellings. Generic
-# Slovak grapheme rules cannot infer these safely; the damaged ``aliquld`` form
-# is deliberately absent.
+# Slovak grapheme rules cannot infer these safely.
 _REVIEWED_FOREIGN_BREAK_POINTS = {
     'adrienne': (2,),
     'advienne': (2,),
@@ -99,6 +99,14 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'gleisdorfu': (5, 8),
     'glendower': (4,),
     'glenview': (4,),
+    'grossglockner': (5, 10),
+    'grossglocknera': (5, 10, 12),
+    'grossglockneru': (5, 10, 12),
+    'großglockner': (4, 9),
+    'großglocknera': (4, 9, 11),
+    'großglockneri': (4, 9, 11),
+    'großglocknerom': (4, 9, 11),
+    'großglocknerov': (4, 9, 11),
     'hornblende': (4,),
     'immense': (2,),
     'jacques': (),
@@ -152,6 +160,12 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'maisie': (3,),
     'marlene': (3,),
     'oglethorpe': (4,),
+    'salvatorque': (3, 5),
+    'teufelsbrücke': (3, 7, 11),
+    'teufelsgalgen': (3, 7, 10),
+    'teufelsritt': (3, 7),
+    'teufelsstein': (3, 7, 10),
+    'teufelswand': (7,),
 }
 
 
@@ -188,6 +202,8 @@ def _psp_points(word: str, base: int = 0) -> list[int]:
             point = offsets[next_start]          # 2d: genuine hiatus
         elif len(between) == 1:
             point = offsets[between[0]]          # 2a: before the consonant
+        elif breaks_after_stop(phonemes, previous_end - 1, between):
+            point = offsets[between[2]]          # vrst·va, like krst·ná
         else:
             point = offsets[between[1]]          # 2b/2c: after the first
         points.append(base + point)
@@ -268,6 +284,20 @@ def _chran_root_spans(word: str) -> list[tuple[int, int]]:
     return spans
 
 
+def _french_gn_point(word: str) -> int | None:
+    """Offset inside a French word-final ``-gne``, which spells a single /ɲ/.
+
+    Section 5.4 bars tearing a foreign letter group that stands for one sound.
+    A Slovak ``-gne`` is a different structure: a stem-final ``g`` meeting the
+    ``-ne`` ending, and there a consonant precedes the ``g`` (preglg|ne). Only
+    the French shape has a vowel in that position.
+    """
+    folded = word.casefold()
+    if len(folded) < 5 or not folded.endswith('gne') or not is_vowel(folded[-4]):
+        return None
+    return len(word) - 2
+
+
 def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     """Return (preferred, variant, contextual) break offsets for *word*.
 
@@ -289,7 +319,11 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     if not word.isalpha():
         return set(), set(), set()
 
-    reviewed_foreign = _REVIEWED_FOREIGN_BREAK_POINTS.get(word.casefold())
+    # Lower-cased, not case-folded: folding turns ß into ss, which collapses
+    # Großglockner and Grossglockner onto one key although the review divides
+    # them at different offsets (Groß·glock·ner, Gross·glock·ner). No key in
+    # the table has ever relied on the folding.
+    reviewed_foreign = _REVIEWED_FOREIGN_BREAK_POINTS.get(word.lower())
     if reviewed_foreign is not None:
         return set(reviewed_foreign), set(), set()
 
@@ -465,6 +499,12 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
             continue
         points.discard(point)
         contextual.add(point)
+
+    gn_point = _french_gn_point(word)
+    if gn_point is not None:
+        points.discard(gn_point)
+        variants.discard(gn_point)
+        contextual.discard(gn_point)
 
     return points, variants - points, contextual - points - variants
 

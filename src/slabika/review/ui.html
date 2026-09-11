@@ -145,6 +145,10 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
           title="ponechá iba tvary, pri ktorých sa delenie slepého AI a človeka líši">Slepý AI ≠ človek</button>
   <button id="human-diff" class="voice-filter" aria-pressed="false"
           title="ponechá iba tvary, kde sa dnešný výstup enginu líši od uloženého rozhodnutia človeka">Engine ≠ človek</button>
+  <button id="worklist" class="voice-filter" aria-pressed="false" disabled
+          title="ponechá iba tvary z nahraného súboru, v jeho poradí">Zo súboru</button>
+  <button id="worklist-pick" title="nahrať súbor so zoznamom tvarov; z každého riadka sa berie prvé slovo">Nahrať súbor…</button>
+  <input id="worklist-file" type="file" accept=".txt,.csv,.tsv,text/plain" hidden>
   <select id="limit" title="koľko riadkov naraz">
     <option>200</option><option selected>500</option>
     <option>1000</option><option>2000</option>
@@ -203,10 +207,11 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 const S = {
   items: [], total: 0, offset: 0, limit: 500, focus: 0, pending: false,
   q: "", mode: "prefix", status: "all", texDiff: false, blindHumanDiff: false,
-  humanDiff: false,
+  humanDiff: false, worklist: false, worklistName: "",
   loadVersion: 0,
   applied: {q: "", mode: "prefix", status: "all", limit: 500,
-            texDiff: false, blindHumanDiff: false, humanDiff: false},
+            texDiff: false, blindHumanDiff: false, humanDiff: false,
+            worklist: false},
 };
 
 const $ = id => document.getElementById(id);
@@ -258,15 +263,17 @@ function setPending(value) {
   if (value) ++S.loadVersion;
   S.pending = value;
   for (const id of ["q", "mode", "status", "tex-diff", "blind-human-diff",
-                    "human-diff", "limit",
+                    "human-diff", "worklist", "worklist-pick", "limit",
                     "undo", "bulk", "export", "prev", "next"])
     $(id).disabled = value;
+  $("worklist").disabled = value || !S.worklistName;
   document.querySelectorAll(".edit").forEach(input => { input.disabled = value; });
 }
 function syncVoiceFilters() {
   for (const [id, active] of [["tex-diff", S.texDiff],
                               ["blind-human-diff", S.blindHumanDiff],
-                              ["human-diff", S.humanDiff]]) {
+                              ["human-diff", S.humanDiff],
+                              ["worklist", S.worklist]]) {
     $(id).classList.toggle("on", active);
     $(id).setAttribute("aria-pressed", String(active));
   }
@@ -487,12 +494,13 @@ async function load(offset = 0, focus = 0, field = "h") {
   }
   const request = {q: S.q, mode: S.mode, status: S.status, limit: S.limit,
                    texDiff: S.texDiff, blindHumanDiff: S.blindHumanDiff,
-                   humanDiff: S.humanDiff};
+                   humanDiff: S.humanDiff, worklist: S.worklist};
   const p = new URLSearchParams({q: request.q, mode: request.mode,
     status: request.status, limit: request.limit, offset: Math.max(0, offset),
     tex_diff: request.texDiff ? 1 : 0,
     blind_human_diff: request.blindHumanDiff ? 1 : 0,
-    human_diff: request.humanDiff ? 1 : 0});
+    human_diff: request.humanDiff ? 1 : 0,
+    worklist: request.worklist ? 1 : 0});
   const data = await api("/api/list?" + p);
   if (version !== S.loadVersion) return;
   if (hasDirty() || S.pending) {
@@ -684,6 +692,52 @@ $("blind-human-diff").addEventListener("click", () => {
 });
 $("human-diff").addEventListener("click", () => {
   S.humanDiff = !S.humanDiff; syncVoiceFilters(); load(0);
+});
+$("worklist").addEventListener("click", () => {
+  if (!S.worklistName) { toast("najprv nahrajte súbor"); return; }
+  S.worklist = !S.worklist; syncVoiceFilters(); load(0);
+});
+$("worklist-pick").addEventListener("click", () => $("worklist-file").click());
+$("worklist-file").addEventListener("change", async event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  event.target.value = "";
+  let data = await api("/api/worklist", {text: await file.text(), name: file.name});
+  if (data.error) { toast(data.error); return; }
+  let addedNote = "";
+  if (data.addable && confirm(
+        `${file.name}: ${data.addable} tvarov v korpuse nie je.` +
+        (data.prose ? ` (čítané ako text, ${data.lines} slov` +
+          (data.recased ? `, ${data.recased} × zrušené veľké písmeno na začiatku vety` : "") +
+          ")" : "") + `\n\n` +
+        data.addable_sample.slice(0, 12).join(", ") +
+        (data.addable > 12 ? ", …" : "") +
+        `\n\nPridať ich do korpusu?`)) {
+    setPending(true);
+    const added = await api("/api/worklist/add", {});
+    setPending(false);
+    if (added.error) { toast(added.error); return; }
+    data = added;
+    addedNote = `, pridaných ${added.added}`;
+    if (added.retired) addedNote += `, ${added.retired} zneplatnených preskočených`;
+  }
+  S.worklistName = data.matched ? data.name : "";
+  $("worklist").disabled = !S.worklistName;
+  if (!data.matched) {
+    S.worklist = false; syncVoiceFilters();
+    toast(`${file.name}: žiaden z ${data.lines} tvarov nie je v korpuse${addedNote}`);
+    return;
+  }
+  $("worklist").textContent = `Zo súboru (${data.matched.toLocaleString("sk")})`;
+  $("worklist").title = `${data.name}: ${data.matched} tvarov z korpusu` +
+    (data.prose ? ` (čítané ako text, ${data.lines} slov)` : "") +
+    (data.unknown ? `, ${data.unknown} nenájdených: ${data.unknown_sample.join(", ")}` : "");
+  S.worklist = true; syncVoiceFilters();
+  const mode = data.prose ? ` (text, ${data.lines} slov)` : "";
+  toast(data.unknown
+    ? `${data.name}: ${data.matched} tvarov${mode}, ${data.unknown} nie je v korpuse${addedNote}`
+    : `${data.name}: ${data.matched} tvarov${mode}${addedNote}`);
+  load(0);
 });
 $("limit").addEventListener("change", () => { S.limit = +$("limit").value; load(0); });
 $("bulk").addEventListener("click", bulkConfirm);

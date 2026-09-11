@@ -1057,3 +1057,105 @@ def test_every_vocabulary_reader_skips_retired_forms():
             f"LEFT JOIN adjudications USING (form) and "
             f"coalesce(a.review_status, 'pending') <> 'invalid'."
         )
+
+
+def test_uploaded_worklist_filters_the_queue_in_file_order(corpus):
+    """A file of forms is a filter: only those forms, in the order given.
+
+    The queue is otherwise alphabetical, so a file that groups forms by a
+    linguistic class would lose the grouping if the order were not kept.
+    Lines may carry anything after the form, so a measurement file can be
+    uploaded unchanged.
+    """
+    info = corpus.load_worklist(
+        "# a comment line\n\nokno\nmaslo   prefix mas|lo   compositum ma|slo\n"
+        "MASLO\nnie-taky-tvar\n",
+        "worklist.txt",
+    )
+    assert info["lines"] == 4
+    assert info["matched"] == 2
+    assert info["unknown"] == 1
+    assert info["unknown_sample"] == ["nie-taky-tvar"]
+
+    page = corpus.page("", "prefix", "all", 0, 10, worklist=True)
+    assert [item["form"] for item in page["items"]] == ["okno", "maslo"]
+    assert page["total"] == 2
+
+    unfiltered = corpus.page("", "prefix", "all", 0, 10)
+    assert [item["form"] for item in unfiltered["items"]] != ["okno", "maslo"]
+
+    narrowed = corpus.page("okno", "exact", "all", 0, 10, worklist=True)
+    assert [item["form"] for item in narrowed["items"]] == ["okno"]
+
+    corpus.clear_worklist()
+    assert corpus.page("", "prefix", "all", 0, 10, worklist=True)["total"] == 0
+
+
+def test_uploaded_running_text_is_cut_into_the_words_it_contains(corpus):
+    """Sentences may be uploaded: punctuation falls away, words stay.
+
+    The capital a full stop forces is undone, because sentence-initial
+    position says nothing about the word; a capital that also stands inside a
+    sentence is evidence of a name and is kept. A column file keeps its old
+    reading -- only the first token per line -- so the engine's own
+    measurement output cannot smuggle its second column into the corpus.
+    """
+    info = corpus.load_worklist(
+        "Maslo bolo na okne, okno bolo otvorené.\n"
+        "KAPITOLA PRVÁ\n"
+        "Okno zavrel Aaah; 2026 rokov mlčal!\n",
+        "veta.txt",
+    )
+    assert info["prose"] is True
+    assert info["recased"] == 4
+    assert "maslo" in corpus.worklist and "okno" in corpus.worklist
+    assert corpus.worklist.count("okno") == 1
+    assert "Aaah" in corpus.worklist
+    assert not any(token[0].isdigit() for token in corpus.worklist_unknown)
+
+    columns = corpus.load_worklist(
+        "maslo   prefix mas|lo\nokno    prefix ok|no\n", "meranie.txt"
+    )
+    assert columns["prose"] is False
+    assert columns["lines"] == 2
+
+
+def test_uploaded_worklist_can_append_the_forms_the_corpus_lacks(corpus):
+    """The upload offers to add what is missing, and only what is a word.
+
+    An upload is a boundary, so the file's own headings and marked-up output
+    are not words: only letters (with an internal hyphen or apostrophe) pass.
+    A form the corpus retired as invalid is not revived by a file either --
+    that decision belongs to the reviewer who made it.
+    """
+    with sqlite3.connect(corpus.inventory_path) as connection:
+        connection.execute(
+            """UPDATE adjudications
+                  SET review_status = 'invalid', reason = 'Human review: OCR fragment.'
+                WHERE form = 'Aaah'"""
+        )
+    corpus._index_forms()
+
+    info = corpus.load_worklist(
+        "maslo\nchlieb\nsol-ka\nchlie·b\n2026\nAaah\n", "nove.txt"
+    )
+    assert (info["matched"], info["unknown"], info["addable"]) == (1, 5, 3)
+
+    added = corpus.add_worklist_forms()
+    assert (added["added"], added["retired"], added["rejected"]) == (2, 1, 2)
+    assert added["added_sample"] == ["chlieb", "sol-ka"]
+    assert added["matched"] == 3
+
+    assert "chlieb" in corpus.form_set
+    assert "Aaah" not in corpus.form_set, "a retired word stays retired"
+    page = corpus.page("", "prefix", "all", 0, 10, worklist=True)
+    assert [item["form"] for item in page["items"]] == ["maslo", "chlieb", "sol-ka"]
+
+    with sqlite3.connect(corpus.inventory_path) as check:
+        stored = dict(
+            check.execute(
+                "SELECT form, source FROM adjudications WHERE form IN ('chlieb', 'Aaah')"
+            )
+        )
+    assert stored["chlieb"] == "review_console:nove.txt"
+    assert stored["Aaah"] == ""
