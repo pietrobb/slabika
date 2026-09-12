@@ -1,0 +1,4 @@
+@echo off
+@rem SPDX-FileCopyrightText: 2026 Peter Bezemek
+@rem SPDX-License-Identifier: Apache-2.0 OR MIT
+call "%~dp0run_review.bat" --language fr --db "%~dp0tests\data\foreign_review\fr.sqlite" --decisions "%~dp0tests\data\foreign_review\fr_decisions.sqlite" %*

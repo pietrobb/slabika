@@ -11,7 +11,9 @@ venv/
 scratch/
 .claude/
 *.sqlite
-*.log
+*.sqlite-wal
+*.sqlite-shm
+*.log*
 ClaudeSupervisor*
 models.yaml
 skills/

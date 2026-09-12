@@ -118,3 +118,94 @@ def test_reading_inventory_and_all_inflections_preserve_spelling_offsets():
                     "·", ""
                 ) == word
     assert routed > 1000
+
+
+@pytest.mark.parametrize(("word", "expected"), [
+    ("pickelheringen", "pi·ckel·he·rin·gen"),
+    ("Pickelgeringen", "Pi·ckel·ge·rin·gen"),
+    ("PICKELHERINGEN", "PI·CKEL·HE·RIN·GEN"),
+    ("Wasser", "Was·ser"),
+    ("Fenster", "Fen·ster"),
+    ("Katze", "Ka·tze"),
+    ("Compiègne", "Com·piègne"),
+])
+def test_native_patterns_are_routed_through_core_and_slovak_review(word, expected):
+    from slabika.review.server import _engine
+
+    assert hyphenate(word) == expected
+    assert hyphenate(word, separator="-") == expected.replace("·", "-")
+    for all_points, contextual in ((False, False), (True, False), (False, True), (True, True)):
+        assert hyphenate(word, all_points=all_points, contextual=contextual) == expected
+    division, _, error = _engine(word)
+    assert error is None
+    assert division == expected
+
+
+@pytest.mark.parametrize(("word", "expected"), [
+    ("polceste", "pol·ces·te"), ("protismerné", "pro·ti·smer·né"),
+    ("magnete", "mag·ne·te"), ("prosme", "pros·me"),
+    ("miliarda", "mi·li·ar·da"), ("Belehrad", "Be·le·hrad"),
+    ("gangster", "gan·gster"), ("gangstra", "gan·gstra"),
+    ("abeundi", "abe·un·di"), ("reume", "re·u·me"),
+    ("Agnes", "Ag·nes"), ("Archelaus", "Ar·che·la·us"),
+])
+def test_automatic_pattern_routing_preserves_local_readings(word, expected):
+    assert hyphenate(word) == expected
+
+
+@pytest.mark.parametrize(("word", "expected"), [
+    ("Arbeitsunfähigkeitsbescheinigungovská", "Ar·beits·un·fä·hig·keits·be·schei·ni·gu·ngov·ská"),
+    ("Schneiderová", "Schnei·de·ro·vá"),
+    ("Schneiderovi", "Schnei·de·ro·vi"),
+    ("Schneiderovská", "Schnei·de·rov·ská"),
+    ("Schneiderovci", "Schnei·de·rov·ci"),
+    ("Einsteinová", "Ein·stei·no·vá"),
+    ("Einsteinovská", "Ein·stei·nov·ská"),
+    ("Weißová", "Wei·ßo·vá"),
+    ("WEIẞOVÁ", "WEI·ẞO·VÁ"),
+    ("Schneiderský", "Schnei·der·ský"),
+])
+def test_german_stem_with_slovak_ending_in_core_and_review(word, expected):
+    from slabika.review.server import _engine
+
+    assert german_evidence(word).ending
+    for spelling, rendered in ((word, expected), (word.lower(), expected.lower())):
+        for all_points, contextual in ((False, False), (True, False), (False, True), (True, True)):
+            assert hyphenate(spelling, all_points=all_points, contextual=contextual) == rendered
+        assert hyphenate(spelling, separator="-") == rendered.replace("·", "-")
+        assert _engine(spelling)[0] == rendered
+        assert _engine(spelling)[2] is None
+
+
+def test_german_derivative_keeps_interior_stem_points():
+    stem = "Arbeitsunfähigkeitsbescheinigung"
+    # Retain German ng as one sound even before Slovak vowel endings.
+    for ending in ("ová", "ovská", "ovi", "ovci", "ský"):
+        points = break_points(stem + ending)
+        assert [p for p in points if p < len(stem) - 2] == break_points(stem)
+        assert len(stem) - 1 not in points
+        assert hyphenate(stem + ending).replace("·", "") == stem + ending
+
+
+def test_mixed_word_still_requires_shared_stem_language_evidence(monkeypatch):
+    typo = import_module("slabika.typo")
+    monkeypatch.setattr(typo, "detect_language", lambda word: "slovak")
+    monkeypatch.setattr(typo, "german_inflected_points", lambda *args: pytest.fail("ungated route"))
+    typo.hyphenate("Schneiderová")
+
+
+def test_pattern_routing_requires_shared_and_language_specific_evidence(monkeypatch):
+    typo = import_module("slabika.typo")
+    monkeypatch.setattr(typo, "is_german", lambda word: False)
+    assert typo.hyphenate("pickelheringen") == "pic·kel·he·rin·gen"
+    monkeypatch.setattr(typo, "is_german", lambda word: True)
+    monkeypatch.setattr(typo, "detect_language", lambda word: "slovak")
+    assert typo.hyphenate("pickelheringen") == "pic·kel·he·rin·gen"
+
+
+def test_pattern_routing_does_not_send_unsupported_letters_to_adapter(monkeypatch):
+    typo = import_module("slabika.typo")
+    monkeypatch.setattr(typo, "detect_language", lambda word: "german")
+    monkeypatch.setattr(typo, "is_german", lambda word: True)
+    assert typo.hyphenate("slovenčina") == "slo·ven·či·na"
+    assert typo.hyphenate("pickel-heringen") == "pickel-heringen"

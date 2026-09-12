@@ -22,6 +22,8 @@ or call :func:`break_points` for raw character offsets.
 """
 
 from .foreign import foreign_points
+from .foreign_patterns import _LETTERS, adapt_foreign_word, german_inflected_points
+from .language import detect_language, german_evidence, is_french, is_german
 from .phonology import (
     HYPHENATABLE_LETTERS,
     is_consonant,
@@ -29,6 +31,7 @@ from .phonology import (
 )
 from .syllabify import (
     _DLO_INFLECTIONS,
+    _LEXICAL_FALLING_HIATUS,
     _PREFIXES,
     _SK_SUFFIXES_CONS,
     _final_sonorant_needs_following_context,
@@ -67,6 +70,8 @@ _CHRAN_ROOT_CONTEXTS = (
 )
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 _PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
+# Adapted Slovak loans keep their local consonant reading despite foreign spelling matches.
+_SLOVAK_READING_STEMS = ('gangst', 'soused')
 
 # Exact pronunciation-backed points for unadapted foreign spellings. Generic
 # Slovak grapheme rules cannot infer these safely.
@@ -76,6 +81,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'aequata': (2, 5),
     'again': (),
     'against': (),
+    'agnes': (2,),  # /g/ + /n/, not the French gn digraph.
     'albastone': (2, 4),
     'aliquandiu': (3, 7),
     'aliquid': (3,),
@@ -332,10 +338,36 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     if routed is not None:
         return routed
 
+    lexical_parts = _lexical_syllables(word)
+    language = detect_language(word)
+    german = german_evidence(word)
+    if german.is_german and german.ending and detect_language(german.stem) == "german":
+        # The Slovak ending can obscure the whole-word language vote.
+        language = "german"
+    if (
+        lexical_parts is None
+        and not word.casefold().startswith(_SLOVAK_READING_STEMS)
+        and not any(word.casefold().startswith(stem) for stem, _ in _LEXICAL_FALLING_HIATUS)
+        and language in _LETTERS
+        and (is_german(word) if language == "german" else is_french(word))
+    ):
+        if language == "german":
+            if german.is_german and german.ending:
+                stem = word[:-len(german.ending)]
+                ending = word[len(stem):]
+                if (
+                    stem.lower() == german.stem
+                    and ending.lower() == german.ending
+                    and all(char.lower() in _LETTERS[language] for char in stem)
+                    and all(char.lower() in _DIVISIBLE_LETTERS for char in ending)
+                ):
+                    return german_inflected_points(stem, ending, _psp_points), set(), set()
+        if all(char.lower() in _LETTERS[language] for char in word):
+            return set(adapt_foreign_word(word, language).points), set(), set()
+
     if any(char.lower() not in _DIVISIBLE_LETTERS for char in word):
         return set(), set(), set()
 
-    lexical_parts = _lexical_syllables(word)
     if len(_nucleus_spans(word)[2]) <= 1 and lexical_parts is None:
         return set(), set(), set()
 
@@ -579,8 +611,9 @@ def hyphenate(
     """
     Return *word* with *separator* inserted at every valid break point.
 
-    Original casing is preserved. Tokens containing punctuation or non-native
-    graphemes, and known unadapted foreign spellings, are returned unchanged.
+    Original casing is preserved. Supported DE/FR words use native patterns
+    adapted to PSP when both the shared router and language evidence agree.
+    Existing lexical readings take precedence; unsupported spellings stay unchanged.
 
     >>> hyphenate('Prekladateľský')
     'Pre·kla·da·teľ·ský'

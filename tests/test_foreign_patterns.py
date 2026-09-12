@@ -127,6 +127,31 @@ def test_invalid_morpheme_offset(point):
         adapt_foreign_word("théâtre", "fr", morpheme_points=(point,))
 
 
+@pytest.mark.parametrize(("stem", "ending", "expected"), [
+    ("Schneider", "ová", "Schnei·de·ro·vá"),
+    ("Schneider", "ský", "Schnei·der·ský"),
+    ("Heinrich", "ová", "Hein·ri·cho·vá"),
+    ("Wolfgang", "ovská", "Wolf·ga·ngov·ská"),
+    ("Busch", "ová", "Bu·scho·vá"),
+    ("Glück", "ová", "Glü·cko·vá"),
+    ("Fritz", "ová", "Fri·tzo·vá"),
+    ("Weiß", "ová", "Wei·ßo·vá"),
+    ("Reh", "ová", "Reh·o·vá"),
+    ("Schnee", "ová", "Schnee·o·vá"),
+    ("Schneider", "a", "Schnei·de·ra"),
+    ("Schnee", "a", "Schneea"),
+])
+def test_german_slovak_junction_respects_sound_units_and_margins(stem, ending, expected):
+    from slabika.foreign_patterns import german_inflected_points
+    from slabika.typo import _psp_points
+
+    word = stem + ending
+    points = german_inflected_points(stem, ending, _psp_points)
+    actual = "".join(("·" if i in points else "") + char for i, char in enumerate(word))
+    assert actual == expected
+    assert all(2 <= p <= len(word) - 2 for p in points)
+
+
 def test_verbatim_mit_pattern_resources():
     root = Path(__file__).resolve().parents[1] / "src/slabika/patterns/foreign"
     for filename, sha in {

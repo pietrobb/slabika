@@ -13,7 +13,7 @@ This package is intentionally separate from the pure-Python `slabika` wheel beca
 
 ## Safety status
 
-Pronunciation generation is operational, including unseen words. Automatic conversion of a pronunciation into Slovak PSP line-break positions remains conservative and is not enabled globally in `slabika` 0.1.0. A September 2026 benchmark against 255 unambiguously profile-routed reviewed forms found breakpoint precision of 93.9% for English, 82.2% for German and 61.9% for French with the best tested conservative projection. Those values are insufficient for silently changing production typography. The models are therefore shipped as an explicit pronunciation API and review aid; PSP and verified human decisions remain authoritative.
+Pronunciation generation is operational, including unseen words. As of 2026-09-12, `slabika` uses the optional English model automatically for eligible English words, through its shared experimental `english_projection` layer; missing runtime, model errors or incomplete alignment fall back to the existing division path. German and French automatic division instead uses native-pattern PSP adapters, not these G2P models; generated DE/FR IPA remains a review aid. The earlier 255-form pronunciation-projection benchmark (EN 93.9%, DE 82.2%, FR 61.9% breakpoint precision) describes the older experiment, not the current adapters' accuracy. PSP remains the authority; model outputs and human proposals require independent verification.
 
 ## Build and test
 

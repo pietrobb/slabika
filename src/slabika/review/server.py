@@ -27,6 +27,7 @@ import sqlite3
 import threading
 import unicodedata
 import webbrowser
+from contextlib import closing
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -477,7 +478,19 @@ class Corpus:
             f"file:{inventory.as_posix()}?mode=ro", uri=True, check_same_thread=False
         )
         self.inventory.row_factory = sqlite3.Row
+        if not hasattr(self, "language") and self.inventory.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='foreign_evidence'"
+        ).fetchone():
+            self.inventory.close()
+            raise ValueError("Foreign inventory requires --language de/fr/en and a separate decision store")
 
+        if not hasattr(self, "language") and decisions.exists():
+            with closing(sqlite3.connect(f"{decisions.resolve().as_uri()}?mode=ro", uri=True)) as saved:
+                if saved.execute(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name='foreign_review_metadata'"
+                ).fetchone():
+                    self.inventory.close()
+                    raise ValueError("Foreign decision store cannot be used with a Slovak inventory")
         self.store = sqlite3.connect(decisions, check_same_thread=False)
         self.store.row_factory = sqlite3.Row
         self.store.executescript(DECISION_SCHEMA)
@@ -590,6 +603,20 @@ class Corpus:
         self.worklist_name = ""
         self.worklist_text = ""
         self.worklist_unknown: list[str] = []
+
+    require_syllabification = True
+
+    def _engine(self, form: str) -> tuple[str, str, str | None]:
+        return _engine(form)
+
+    def _match_mode(self, form: str, expected: str | None, preferred: str) -> str | None:
+        return _hyphenation_match_mode(form, expected, preferred)
+
+    def _tex(self, form: str) -> str | None:
+        return _recase_marked(tex_hyphenate(form.lower()), form)
+
+    def _profiles(self, form: str) -> dict[str, bool]:
+        return {"english": is_english(form), "german": is_german(form), "french": is_french(form)}
 
     def _index_forms(self) -> None:
         """Build the in-memory vocabulary from the inventory.
@@ -897,7 +924,7 @@ class Corpus:
         psp: sqlite3.Row | None = None,
     ) -> dict:
         review_form = self.review_forms[form]
-        hyphenation, syllabification, error = _engine(review_form)
+        hyphenation, syllabification, error = self._engine(review_form)
         engine_tex = _tex_mode(hyphenation, review_form)
         ai_expected = _recase_marked(
             ai["expected_hyphenation"] if ai else None, review_form
@@ -908,7 +935,7 @@ class Corpus:
         my_expected = _recase_marked(
             mine["expected_hyphenation"] if mine else None, review_form
         )
-        my_match_mode = _hyphenation_match_mode(review_form, my_expected, hyphenation)
+        my_match_mode = self._match_mode(review_form, my_expected, hyphenation)
         my_hyphenation_action = mine["hyphenation_action"] if mine else None
         my_syllabification_action = mine["syllabification_action"] if mine else None
 
@@ -922,7 +949,7 @@ class Corpus:
             _recase_marked(variant, review_form) for variant in blind.get("variants", [])
         ]
         try:
-            tex = _recase_marked(tex_hyphenate(review_form.lower()), review_form)
+            tex = self._tex(review_form)
         except Exception:  # noqa: BLE001 - an advisory voice must never break a row
             tex = None
         psp_comparison = None
@@ -979,11 +1006,7 @@ class Corpus:
             "syllabification": syllabification,
             "engine_error": error,
             "syllabification_unsupported": not syllabification and error is None,
-            "language_profiles": {
-                "english": is_english(review_form),
-                "german": is_german(review_form),
-                "french": is_french(review_form),
-            },
+            "language_profiles": self._profiles(review_form),
             "tex": tex,
             "tex_disagrees": bool(tex) and tex != engine_tex,
             "psp_comparison": psp_comparison,
@@ -1125,7 +1148,7 @@ class Corpus:
                 for form in forms
                 if form in rows
                 and rows[form][field]
-                and rows[form][field].lower() != _engine(form)[engine_index].lower()
+                and rows[form][field].lower() != self._engine(form)[engine_index].lower()
             ]
         if status == "engine_disagree":
             rows = self._decision_rows(forms)
@@ -1134,16 +1157,16 @@ class Corpus:
                 for form in forms
                 if form in rows
                 and _recase_marked(rows[form]["expected_hyphenation"], form)
-                and _hyphenation_match_mode(
+                and self._match_mode(
                     form,
                     _recase_marked(rows[form]["expected_hyphenation"], form),
-                    _engine(form)[0],
+                    self._engine(form)[0],
                 ) is None
             ]
         if status == "syllabification_unsupported":
-            return [form for form in forms if _engine(form)[1:] == ("", None)]
+            return [form for form in forms if self._engine(form)[1:] == ("", None)]
         if status == "engine_error":
-            return [form for form in forms if _engine(form)[2] is not None]
+            return [form for form in forms if self._engine(form)[2] is not None]
         rows = self._ai_rows(forms)
         return [
             form
@@ -1154,7 +1177,7 @@ class Corpus:
     def _engine_hyphenation(self, review_form: str) -> str:
         """Engine output is stable inside one process; human decisions are not."""
         if review_form not in self._engine_cache:
-            self._engine_cache[review_form] = _engine(review_form)[0]
+            self._engine_cache[review_form] = self._engine(review_form)[0]
         return self._engine_cache[review_form]
 
     def precompute_voice_filters(self) -> None:
@@ -1164,10 +1187,10 @@ class Corpus:
         for form in self.forms:
             review_form = self.review_forms[form]
             try:
-                tex = _recase_marked(tex_hyphenate(review_form.lower()), review_form)
+                tex = self._tex(review_form)
             except Exception:  # noqa: BLE001 - an unavailable voice is not a disagreement
                 continue
-            engine_tex = _tex_mode(_engine(review_form)[0], review_form)
+            engine_tex = _tex_mode(self._engine(review_form)[0], review_form)
             if tex != engine_tex:
                 matching.add(form)
         self._tex_disagreements = frozenset(matching)
@@ -1192,7 +1215,7 @@ class Corpus:
             key=lambda form: (_fold(form), form),
         )
         for form in forms:
-            engine_hyphenation, _, engine_error = _engine(form)
+            engine_hyphenation, _, engine_error = self._engine(form)
             if engine_error:
                 raise RuntimeError(
                     f"engine zlyhal pri zmrazovaní PSP auditu pre {form!r}: "
@@ -1371,7 +1394,7 @@ class Corpus:
         ]))
         psp_tex = _tex_mode(psp_hyphenation, form)
         psp_tex_variants = {_tex_mode(variant, form) for variant in psp_variants}
-        engine_after, _, engine_error = _engine(form)
+        engine_after, _, engine_error = self._engine(form)
         if engine_error and not unresolved:
             raise RuntimeError(
                 f"engine zlyhal pri PSP rozhodovaní pre {form!r}: {engine_error}"
@@ -1662,8 +1685,8 @@ class Corpus:
                 continue
             review_form = self.review_forms[form]
             expected = _recase_marked(row["expected_hyphenation"], review_form)
-            engine_hyphenation, _, engine_error = _engine(review_form)
-            if _hyphenation_match_mode(review_form, expected, engine_hyphenation):
+            engine_hyphenation, _, engine_error = self._engine(review_form)
+            if self._match_mode(review_form, expected, engine_hyphenation):
                 continue
             corrections.append(
                 {
@@ -1710,8 +1733,8 @@ class Corpus:
 
         form = self.representative_for_form[form]
         review_form = form
-        display_hyphenation, display_syllabification, engine_error = _engine(review_form)
-        if payload.get("bulk") and (engine_error or not display_syllabification):
+        display_hyphenation, display_syllabification, engine_error = self._engine(review_form)
+        if payload.get("bulk") and (engine_error or (self.require_syllabification and not display_syllabification)):
             raise ValueError(f"výstup enginu nemožno hromadne potvrdiť: {engine_error or 'nepodporované slabikovanie'}")
         hyphenation = _recase_marked(display_hyphenation, form)
         syllabification = _recase_marked(display_syllabification, form)
@@ -2268,7 +2291,7 @@ def main() -> int:
     parser.add_argument(
         "--db",
         type=Path,
-        default=DEFAULT_INVENTORY,
+        default=None,
         help="inventory sqlite (default: inventory bundled with slabika)",
     )
     parser.add_argument(
@@ -2282,16 +2305,24 @@ def main() -> int:
         action="append",
         help="blind audit results; repeat to merge multiple read-only audits",
     )
-    parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--language", choices=("de", "fr", "en"), help="separate foreign corpus with stored PSP proposals and IPA")
+    parser.add_argument("--foreign-dir", type=Path, default=_SOURCE_DATA / "foreign_review")
+    parser.add_argument("--port", type=int, default=None)
     parser.add_argument("--no-browser", action="store_true")
     arguments = parser.parse_args()
 
+    arguments.db = arguments.db or (arguments.foreign_dir / f"{arguments.language}.sqlite" if arguments.language else DEFAULT_INVENTORY)
+    arguments.port = arguments.port if arguments.port is not None else {"de": 8766, "fr": 8767, "en": 8768}.get(arguments.language, 8765)
     if not arguments.db.exists():
         parser.error(f"inventory not found: {arguments.db}")
-    decisions = arguments.decisions or Path.cwd() / "review_decisions.sqlite"
-    blind = arguments.blind or DEFAULT_BLIND
+    decisions = arguments.decisions or (arguments.db.with_name(f"{arguments.db.stem}_decisions.sqlite") if arguments.language else Path.cwd() / "review_decisions.sqlite")
+    blind = [] if arguments.language else arguments.blind or DEFAULT_BLIND
 
-    Handler.corpus = Corpus(arguments.db, decisions, blind)
+    if arguments.language:
+        from .foreign import ForeignCorpus
+        Handler.corpus = ForeignCorpus(arguments.db, decisions, arguments.language)
+    else:
+        Handler.corpus = Corpus(arguments.db, decisions, blind)
     server = _bind_server(arguments.port)
     url = f"http://127.0.0.1:{server.server_address[1]}/"
     print(f"inventory  {arguments.db}  ({len(Handler.corpus.forms)} forms, read-only)")

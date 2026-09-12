@@ -1,8 +1,6 @@
 # slabika
 
-Slovak syllabification and typographic word division — two distinct results
-built on a shared phonological and morphological analysis, not on a guessed
-pattern table.
+Slovak syllabification and typographic word division — two distinct results built on a shared phonological and morphological analysis.
 
 ```python
 >>> import slabika
@@ -12,336 +10,269 @@ pattern table.
 'Pre-kla-da-teľ-ský'
 >>> slabika.break_points("Prekladateľský")
 [3, 6, 8, 11]
->>> slabika.is_german("Frankensteinov")
-True
->>> slabika.is_french("français")
-True
->>> slabika.is_english("thought")
-True
+>>> slabika.hyphenate("Schneiderovská")
+'Schnei·de·rov·ská'
+>>> slabika.hyphenate("théâtre")
+'thé·âtre'
 ```
 
-`is_german`, `is_french` and `is_english` provide conservative routing evidence
-from bundled corpus profiles; they are not independently adjudicated language
-labels or division rules. `hyphenate()` now uses them automatically for supported
-EN/DE/FR pronunciation families and their Slovak inflections, for example
-`Frankensteinovi → Fran·ken·stei·no·vi`, `Sternwoodovi → Stern·woo·do·vi`,
-and `Beaurevoiru → Beau·re·voi·ru`. Slovak PSP rules generate points from declared
-pronunciation units; no foreign hyphenation patterns are used. This is a limited
-reading inventory, not a universal three-language hyphenator. Unsupported readings
-or conflicting profiles retain the existing division path.
+The package also handles supported foreign words **inside Slovak text**. The target is Slovak PSP division, not native English, German or French typography. All three foreign routes are connected to `hyphenate`, `break_points`, `divisions` and the Slovak review console. Broader English support requires the optional pronunciation package; German and French pattern adaptation does not.
 
-> 🇸🇰 Po slovensky: [README.sk.md](README.sk.md)
+Po slovensky: [README.sk.md](README.sk.md).
 
 ## Why this exists
 
-This did not start as a linguistics project. It started as a typesetting
-problem: the author needed to set Slovak text automatically — to a measure,
-justified, with correct hyphenation — without a person walking through the
-output line by line. Word division is the part of that job a machine has to get
-right, because a justified line is either broken in a legal place or it is
-wrong, and the reader sees it immediately.
+This did not start as a linguistics project. It started as a typesetting problem: the author needed to set Slovak text automatically — to a measure, justified, with correct hyphenation — without a person walking through the output line by line. A justified line is either broken in a legal place or it is wrong, and the reader sees it immediately.
 
-So the first step was to find something to use. What existed was a set of TeX
-patterns from 1992, and nothing that could be inspected, corrected in a single
-place and rebuilt: the word list those patterns were learned from was never
-published, no open engine derived Slovak divisions from stated rules, and there
-was no way to fix one wrong word without hand-patching a compiled table. A
-pattern file that cannot be re-derived can only be replaced, never repaired.
+What existed was a set of TeX patterns from 1992, but not the complete word list and reproducible pipeline that produced it. There was no way to fix one wrong word by changing an inspectable rule and rebuilding everything downstream. A pattern file that cannot be re-derived can only be replaced, never repaired.
 
-The conclusion was that the missing piece was not another algorithm but the
-input, and that it would have to be built. That is what this repository is:
-first the vocabulary and the rules, then the patterns as a by-product.
+The missing piece was not another pattern-matching algorithm but the input: vocabulary, explicit linguistic rules, and traceable adjudication. That is what this repository builds. Fix a rule, add vocabulary, rerun the generator, and obtain new patterns plus a machine-readable report of what changed. Jana Chlebíková published Slovak TeX patterns in 1992; this project claims no priority for Slovak hyphenation itself. Its contribution is an inspectable input-to-pattern chain.
 
-The author's own translations exposed another problem: good hyphenation of Slovak vocabulary alone is not enough when a Slovak text contains foreign names and words with Slovak endings. They need **Slovak division rules informed by their pronunciation**, not a switch to English, German or French hyphenation rules. Connecting the language profiles to the PSP engine is this project's first step in that direction. It already helps with supported families such as `Frankensteinovi`, `Sternwoodovi` and `Beaurevoiru`; coverage remains limited, but the results are promising. Liang patterns learn from this engine's output: they receive these examples, not the language detector itself or a guarantee of identical results on every foreign word.
+The author's translations exposed another requirement: foreign names with Slovak endings need **Slovak division informed by foreign pronunciation**. Neither treating every letter as Slovak nor blindly applying the foreign language's native hyphenation rules is enough. The two adapter strategies below address this, with explicit limits rather than a claim of universal coverage.
+
 ## What a Liang pattern is
 
-Most published hyphenation is done with the algorithm from Frank Liang's 1983 dissertation, the one built into TeX and, through it, into most typesetting and
-word-processing software. It does not know any grammar. A pattern is a short
-letter fragment carrying digits between the letters, for example `1ná2`: an odd
-digit means a break is allowed at that spot, an even digit forbids it, all
-patterns matching a word are overlaid, and the highest digit at each position
-wins. A few thousand such fragments cover a whole language in a few kilobytes
-and run instantly.
+Frank Liang's 1983 algorithm, used by TeX and many typesetting systems, matches short letter fragments carrying digits between letters. In `1ná2`, an odd digit permits a break and an even digit forbids one. Overlaid matches take the highest digit at each position. The algorithm does not know grammar.
 
-The patterns are not written by hand. A companion program, `patgen`, learns
-them from a list of words in which the divisions are already marked, and then
-keeps adding patterns until it reproduces that list closely enough. This is the
-part worth understanding: **`patgen` reproduces its training list, so the entire
-question of quality is the question of that list.** Whatever is inconsistent in
-the input is generalised into the output, and it is generalised silently,
-because a pattern file records no reason for anything. It cannot be reviewed by
-reading it. That is why this project treats the word list, not the algorithm, as
-the real work.
+The companion program `patgen` learns patterns from words with marked divisions. **Pattern quality is bounded by the quality of that training list.** Inconsistent labels are silently generalized; a pattern records no linguistic reason for its output. This project therefore treats the vocabulary and its division rules as the main work, and the learned patterns as a downstream artefact.
 
-## What is different here
-
-Slovak hyphenation patterns already exist: Jana Chlebíková published TeX
-patterns for Slovak in 1992, and this project claims no priority for the idea.
-What is new is that **the entire chain that produced the patterns in this
-repository is in the repository**, under licences that let anyone rerun it:
-
-| step | where it is | licence |
+| stage | location | licence |
 | --- | --- | --- |
-| the vocabulary — 206,148 isolated word forms | [`tests/data/translatemaster_hyphenation_working.sqlite`](tests/data/translatemaster_hyphenation_working.sqlite) | `CC0-1.0 OR MIT` |
-| the divisions used as training labels | computed by the rule engine in [`src/slabika/`](src/slabika) | `Apache-2.0 OR MIT` |
-| the training, split and evaluation pipeline | [`tools/liang_experiment.py`](tools/liang_experiment.py) | `Apache-2.0 OR MIT` |
-| the resulting Liang patterns | [`patterns/`](patterns) | `CC0-1.0 OR MIT` |
+| project word inventory and review evidence | `tests/data/` | `CC0-1.0 OR MIT` |
+| project engine and training pipeline | `src/slabika/`, `tools/liang_experiment.py` | `Apache-2.0 OR MIT` |
+| generated Slovak Liang patterns | `patterns/` | `CC0-1.0 OR MIT` |
+| upstream DE/FR pattern inputs | `src/slabika/patterns/foreign/` | MIT, original notices retained |
 
-Nothing else is needed: no private prose corpus, no licensed dictionary, no
-pre-divided word list. With `patgen` on `PATH`, two commands rebuild both
-published pattern files from the bundled vocabulary, and independent runs of the
-same checkout produce byte-identical files.
+The training labels are computed by the current engine, not collected from existing Slovak hyphenation dictionaries; see [LICENSING.md](LICENSING.md) §3 for the vocabulary provenance. Foreign-word labels can incorporate the DE/FR pattern adapters or optional English G2P. Reproducibility consequently depends on the exact engine, inventory and optional-runtime environment, not just on the `patgen` command.
 
-That closes a loop which is normally open. A published pattern file is usually a
-terminal artefact: it can be loaded, but not audited, not corrected in one place
-and rebuilt, not re-derived at all. Here every stage is readable and editable —
-fix a rule in the engine, add your own words, change the split or the `patgen`
-parameters, rerun the generator, and you have your own patterns plus a
-machine-readable report of exactly what changed. As far as the author is aware,
-this is the first Slovak hyphenation pattern set published together with the
-complete input it was derived from.
-
-Reproducibility is not correctness. Everything below distinguishes the two: the
-project can prove that the patterns follow from the bundled data and the current
-engine, and it deliberately makes no claim that every division in them is
-correct under *Pravidlá slovenského pravopisu* (PSP).
-
-## Why the labels are computed, not collected
-
-The Liang/`patgen` algorithm is not the disputed part. Pattern quality is bounded
-by the quality and consistency of the labelled words used for training; source
-lists with conflicting divisions propagate those inconsistencies into the
-patterns. The usual practice is to **assemble** that list from existing sources,
-which inherits their inconsistencies without a way to see or fix them.
-
-This project attacks the input instead. The Python engine computes syllables and
-typographic break points from an explicit model of vowel and diphthong nuclei,
-syllabic `ŕ`, `ĺ`, `r`, `l`, consonant clusters and recognised morpheme seams.
-The Liang patterns are then trained on forms labelled by that engine; the labels
-are not collected from existing hyphenation sources. This makes them internally
-consistent with the engine; it does **not** make them automatically correct under
-PSP. Existing text is used only to decide which vocabulary has to be covered;
-see [`LICENSING.md`](LICENSING.md) §3.
+Reproducibility is not correctness. Neither internally consistent labels nor agreement with the engine proves correctness under *Pravidlá slovenského pravopisu* (PSP).
 
 ### The hard part: the perceived stem
 
-Many rules are mechanical once the linguistic analysis is known: vowel nuclei,
-syllabic consonants, consonant distribution and typographic edge constraints can
-be implemented directly. The difficult cases are the morpheme seams for which a
-reader intuitively decides whether part of the word is still perceived as a
-stem. The same sequence of letters may be a productive prefix plus a recognised
-stem in one word, but part of a lexicalised or borrowed whole in another. A
-character-level algorithm cannot reliably recover that distinction from spelling
-alone.
+Vowel nuclei, consonant distribution and edge constraints are often mechanical once the linguistic analysis is known. Morpheme seams are harder: the same spelling can be a productive prefix plus a recognizable stem, or part of a lexicalized whole. Spelling alone cannot reliably recover that distinction.
 
-This is why the project needs a large and varied vocabulary. It is not a source
-of ready-made divisions and not a whole-word exception dictionary; it is the
-evidence against which candidate analyses are found, tested across paradigms and
-contrasted with near misses. Individual cases require review under PSP, but the
-implementation then captures the narrowest supported family rule rather than
-memorising the reviewed word. Cases without enough evidence remain explicitly
-unresolved. Building and adjudicating this lexical evidence is therefore the
-largest part of the work, even though much of the final engine is rule-based.
-
-## How much of the vocabulary has actually been checked
-
-This review snapshot describes an earlier 195,230-form inventory. Computing is not
-checking. Individual review is a separate, much smaller and fully tracked layer,
-and the honest summary is that most of the inventory has never been looked at
-one word at a time:
-
-| review layer | forms | share of 195,230 |
-| --- | ---: | ---: |
-| decided by the author in the review console | 10,210 | 5.23% |
-| decided in four frozen blind audits | 8,028 | 4.11% |
-| either of the above (union, 3,268 in both) | 14,970 | 7.67% |
-| adjudicated by two AI models under PSP | 1,239 | 0.63% |
-| never individually reviewed | ~180,000 | ~92% |
-
-**The author's own review** is in `tests/data/review_decisions.sqlite` and covers
-10,210 forms: 9,519 confirmed the engine, 660 corrected it, 22 were marked
-uncertain, 8 invalid and 1 flagged. These are the decisions that drove the
-engine's rule work.
-
-**The blind audits** are the four `tests/data/blind_*` sets — 5,000, 2,000,
-1,000 and 100 forms, frozen with a manifest hash. Their contract is
-*forms-only*: the reviewer receives the bare word with no engine output, no
-prior decision and no adjudication, so the answer cannot be anchored on what the
-engine already said. These were carried out by isolated LLM reviewers rather
-than by the author, which is exactly why they are stored as evidence and never
-as authority. Of the 8,100 decisions, 6,601 came back resolved, 1,477 uncertain
-and 22 invalid.
-
-**The dual-model adjudication** is in `tests/data/ai_adjudication/` — 17 runs,
-1,346 adjudications over 1,239 distinct forms. Every run used the same two
-independent models, recorded verbatim in each file as `models.A` and `models.B`:
-
-| slot | model as recorded |
-| --- | --- |
-| A | `claude-opus-5[high]` |
-| B | `gpt-6-astra[sub][high]` |
-
-Each model answers alone, without seeing the other. Where the two answers
-differ, each model is shown the other's reasoning and may revise
-(*cross-review*); if they still differ, a reconciliation round follows; if they
-still differ after that, the case is recorded as an open disagreement rather
-than averaged away. Across all runs: 1,079 agreed independently, 145 agreed
-after cross-review, 23 after reconciliation, and 99 remained unresolved — 71
-distinct forms.
-
-### Where AI review and the author's review still disagree
-
-350 forms carry both an author's decision and a model consensus. On 301 of them
-the two agree. **49 still differ**, in 14 word families, and they are listed
-here rather than quietly reconciled:
-
-| pattern | forms | example: author | example: models |
-| --- | ---: | --- | --- |
-| models preferred the engine over the author | 30 | `dô·stoj·nom` | `dôs·toj·nom` |
-| author's decision was revised after the run | 13 | `o·po·tre·bu·je` | `opot·re·bu·je` |
-| depends on the pronunciation of a foreign name | 4 | `Arch·ae·a·lus` | `Ar·chae·a·lus` |
-| models accepted both as codified variants | 2 | `pá·čid·lom` | `pá·či·dlom` |
-
-The families are `opotrebovať`, `dôstojný`, `najposlednejší`, `neposlať`,
-`apartmán`, `obojpohlavný`, `alžbetínska`, `avantgarda`,
-`najúhlavnejší`, `Hippokratov`, `páčidlo`, `Archaealus`, `Glendower` and
-`Arbre`/`Lois`. None of these is
-resolved by consensus, and none of them may be: a model majority is not a
-normative authority. They stay open until a PSP argument settles them, and they
-can be regenerated from the tracked data at any time. Every review layer above
-is a detector of places that need a PSP decision — nothing more.
-
-## How this differs from the 1992 patterns
-
-In the held-out evaluation further below, Jana Chlebíková's patterns reproduce
-the engine's division on 89.70% of whole words, so roughly one word in ten is
-divided differently. The differences are not random. The largest group is the
-morpheme seam: those patterns carry morphology as a hand-written list of 994
-prefixes and stems, so a word outside that list falls through to the
-phonotactic rules and the seam disappears. How the 1992 file was built, in its
-author's own words, and what that predicts about these differences, is
-documented in [`docs/hyph-sk-1992-origin.md`](docs/hyph-sk-1992-origin.md).
-
-| word | 1992 patterns | this engine | what the extra point would allow |
-| --- | --- | --- | --- |
-| bezodkladne | `be·z·od·kladne` | `bez·od·kladne` | `be-zodkladne`, splitting `bez-` |
-| najúspešnejší | `na·jús·peš·nejší` | `naj·ús·peš·nejší` | `na-júspešnejší`, moving `j` out of `naj-` |
-| trojuholník | `tro·j·u·hol·ník` | `troj·uhol·ník` | `tro-juholník` |
-| nadužívanie | `na·du·ží·va·nie` | `nad·uží·va·nie` | `na-dužívanie` |
-| rozorať | `ro·zo·rať` | `roz·orať` | `ro-zorať` |
-| abstrakcia | `ab·s·trak·cia` | `ab·strak·cia` | `abs-trakcia` |
-
-The reverse case exists too: points the older patterns do not offer at all,
-which costs nothing in correctness but does cost line breaks in a narrow
-measure.
-
-| word | 1992 patterns | this engine |
-| --- | --- | --- |
-| rozum | `rozum` (no break) | `ro·zum` |
-| poobede | `po·obede` | `po·o·bede` |
-| predĺžiť | `pre·dĺžiť` | `pre·dĺ·žiť` |
-| administratíva | `ad·mi·ni·stra·tíva` | `ad·mi·nis·tra·tíva` |
-
-Both columns were produced with the same TeX edge minima of 2/3, so the
-comparison is like for like; `tex/hyph-sk.tex` is bundled in this repository, so
-any of these can be checked directly. This is not a defect list. Those patterns
-were built in 1992 with the resources of 1992, they have served Slovak
-typesetting for three decades, and the point of showing the contrast is only
-that a rule engine can carry a distinction — *this is a prefix* — that a table
-of letter fragments has no way to represent.
+A broad vocabulary provides evidence for testing family rules and contrasting near misses. The preferred remedy is the narrowest supported generalization, not a new override for every word. The code nevertheless contains a small explicit reviewed-foreign breakpoint table alongside lexical reading data; it would be inaccurate to describe the current engine as entirely exception-free. Unresolved cases remain visible in tests and review records.
 
 ## Architecture
 
-The package has a shared foundation and two distinct outputs:
-
-| module | what it is |
+| module | responsibility |
 | --- | --- |
 | `slabika.phonology` | shared phoneme inventory: quantity, voicing, place, manner, palatalization |
-| `slabika.syllabify` | phonotactic division of the spoken word into syllables |
-| `slabika.typo` | written-word break points under the project's interpretation of PSP and typographic constraints |
+| `slabika.syllabify` | phonotactic division into spoken syllables |
+| `slabika.typo` | written-word break points, route precedence and typographic constraints |
 | `slabika.phonotactics` | well-formedness, rhythmic law, preposition vocalization |
+| `slabika.language` | shared EN/DE/FR/SK ranking and separate conservative language evidence |
+| `slabika.foreign` | explicit foreign reading families and Slovak inflectional junctions |
+| `slabika.english`, `slabika.english_projection` | optional English G2P, spelling alignment and limited morphology |
+| `slabika.foreign_patterns` | DE/FR native-pattern proposals adapted toward PSP |
+| `slabika.review.server`, `slabika.review.foreign` | Slovak live-engine review and separate stored foreign-proposal review |
 
-`slabika.syllabify` and `slabika.typo` are not a pipeline in which the latter
-merely filters the former's output. Both use the shared phonological and
-morphological analysis, then make separate decisions under different rules. A
-word may therefore syllabify as `ma·slo` while allowing the typographic break
-`mas|lo`. The boundaries often coincide, but the two results are not
-interchangeable.
+`syllabify` and `typo` are not a pipeline in which one merely filters the other. They make separate decisions over shared analysis. Spoken `ma·slo` and typographic `mas|lo` can legitimately differ. Foreign typographic support does **not** imply a general EN/DE/FR implementation of `syllables()`.
 
-Typographic division has three output levels, and they are genuinely different
-outputs of the same algorithm rather than corrections of one another. For
-example, `hyphenate("všeobecne")` returns the preferred `vše·obec·ne`, while
-`hyphenate("všeobecne", contextual=True)` also exposes the legal but discouraged
-point and returns `vše·o·bec·ne`. The latter does not fix the former: it merely
-makes a point available when the preferred points do not fit the measure.
-Codified doublets are exposed by `all_points=True`.
+Typographic results distinguish preferred, equally codified variant and contextual points. For example, `hyphenate("všeobecne")` returns `vše·obec·ne`; `contextual=True` adds a legal but discouraged point, producing `vše·o·bec·ne`. `all_points=True` exposes codified variants. The broad EN and DE/FR adapters currently return preferred points only; they do not independently classify every foreign boundary into all three levels.
 
-## What is in this repository
+## Foreign words in Slovak text
 
-| path | what it is |
+### 1. Language evidence, not a language oracle
+
+`language_scores(word)` ranks English, German, French and Slovak using a shared model of **character 3-, 4- and 5-grams**, including word-edge markers. These are letter fragments inside isolated words, not sequences of words in a sentence. `detect_language(word)` selects the highest-scoring language; the scores are not calibrated probabilities. It can return `None` for unsuitable input or no matches.
+
+Separately, `is_english`, `is_german`, `is_french` and their `*_evidence` functions use language-specific profiles with score, minimum-support and coverage gates. They need not agree with one another or with the shared ranking. Recognized bases and Slovak endings can expose stronger evidence than the whole inflected form. Manual review flags do not override production routing.
+
+The bundled shared profile records a held-out macro accuracy of **91.50%**: EN 88.28%, DE 96.39%, FR 85.67%, SK 95.65%. These are historical measurements against **source-corpus proxy labels**, not independently adjudicated language labels and certainly not division accuracy. Shared spellings were excluded and related spelling families grouped when splitting training, calibration and test data.
+
+### 2. Route precedence
+
+The actual order in `typo._collect_points` matters:
+
+1. Reject non-alphabetic input for automatic whole-word routing; honor the small reviewed-foreign breakpoint table.
+2. Try the explicit reading inventory in `foreign_readings.json`. An unambiguous language-specific profile and matching described reading are required. This established route can also handle declared Slovak endings and takes precedence over the newer models.
+3. Otherwise try the optional English route. It requires the shared English winner plus English profile evidence **or** membership in the bundled English corpus inventory. Existing local lexical readings are protected.
+4. Otherwise try DE/FR pattern adaptation with agreement between the shared ranking and the relevant language-specific evidence, while protecting local lexical readings. For a recognized German base with a Slovak ending, the base's shared ranking can override the whole-word winner.
+5. If a route is unavailable or ineligible, retain the existing Slovak/lexical path; unsupported spellings may remain unchanged. Falling back is not proof of a correct foreign division.
+
+Thus the implementation is more than “detect language, then always use its adapter”. For example, the whole-word rank for `Schneiderovská` is Slovak, but the recognized German base permits German–Slovak composition. The established reading of `Sternwoodovi` can likewise be used without requiring the shared whole-word English winner.
+
+### 3. Pronunciation-first: English and explicitly described families
+
+For declared EN/DE/FR families, `foreign.py` maps spelling units to a simplified sound-role representation, applies Slovak PSP rules and maps the resulting offsets back to the original spelling. Multi-letter sound units are preserved; declared morpheme seams and Slovak endings remain part of the analysis.
+
+For broader English coverage, the separately installed `slabika-pronunciation` package predicts **phones plus spelling-to-phone spans**. `english_projection.py` repairs narrowly recognized alignment errors, identifies nuclei and consonant groups, projects PSP-style boundaries back onto written letters, and handles written doubled consonants. This is our division/projection layer over an external trained pronunciation model — not a pronunciation model trained entirely by this project.
+
+Conservative morphology additionally recognizes supported `-knife/-knives`, `-house/-houses` compounds and some `-ly` formations. It checks corpus constituents and compatible pronunciations; arbitrary concatenations are not treated as compounds. The bundled `english_morphology_members.json` contains **55,637 forms**, not IPA, saved division points or human decisions.
+
+The broad route currently accepts ASCII alphabetic spellings. It does not provide general English-base-plus-Slovak-suffix analysis; that support remains limited to the explicit reading families. If the runtime is absent, fails, returns inconsistent spans or cannot completely project a boundary, the route abstains. Runtime presence can change results: `people` is `peo·ple` with the optional route, but the fallback gives `pe·op·le`.
+
+### 4. Pattern-first: German and French
+
+This second strategy uses **TeX patterns**, not running prose or a G2P transcript at division time. `hyph-de-1996.tex` and `hyph-fr.tex` propose native boundaries; local spelling/sound rules adapt them toward PSP. Most native points remain unchanged, so this is a heuristic adapter, not a full phonological or morphological proof for each word.
+
+Examples of explicit adaptations are German `Kat·ze → Ka·tze` (protecting `tz`) and `Fens·ter → Fen·ster`, French `pa·trie → pat·rie`, and selected written hiatus boundaries. `adapt_foreign_word` returns `native_points`, final `points` and named `changes`. Its optional `morpheme_points` accepts independently established seams that take priority over local moves; automatic routing does not discover all such seams.
+
+The explicit API bypasses language detection and supports only DE/FR:
+
+```python
+>>> slabika.foreign_hyphenate("patrie", "fr")
+'pat·rie'
+>>> result = slabika.adapt_foreign_word("Katze", "de")
+>>> result.native_points, result.points
+((3,), (2,))
+>>> result.render("-")
+'Ka-tze'
+```
+
+Explicit adaptation uses 2/2 letter margins and can normalize decomposed Unicode and handle apostrophes. Automatic whole-word routing is stricter and alphabetic. Neither should be mistaken for native-language hyphenation certification.
+
+### 5. German base with a Slovak ending
+
+A recognized Slovak ending no longer rejects the whole word merely because it contains `á` or another non-German letter. The engine adapts the **German base**, retains its internal boundaries, and uses Slovak rules for the ending and its junction. A consonant-initial suffix preserves the seam; a vowel-initial ending can redistribute the base's final consonants.
+
+At that junction, groups such as `sch`, `ch`, `ck`, `tz` and `ng` are mapped as sound units. German `ng` is kept together on the assumption that its [ŋ] pronunciation survives. A Slovak ending alone does not establish a change to separately pronounced `n+g`; the particular artificial derivative below has no independently documented pronunciation.
+
+| input | current `hyphenate()` output |
 | --- | --- |
-| `src/slabika/` | the rule engine and public API — `syllables`, `break_points`, `divisions`, `hyphenate` |
-| `src/slabika/review/` | the local review console shipped with the package |
-| `tests/data/translatemaster_hyphenation_working.sqlite` | the working word inventory: 206,148 isolated forms with casing and review state |
-| `tests/data/blind_*`, `tests/data/ai_adjudication/` | frozen blind-audit samples and advisory AI adjudications used as evidence, not as authority |
-| `tests/` | the test suite: engine, boundary classes, review console, generated-pattern invariants, provenance and licensing |
-| `tools/liang_experiment.py` | the generator: labels, deterministic split, `patgen` training, evaluation, `report.json` |
-| `tools/review/`, `tools/morph/` | audit, impact and morphology-induction utilities used during adjudication |
-| `patterns/hyph-sk-slabika.tex` | the published preferred Liang pattern set |
-| `patterns/hyph-sk-slabika-permissive.tex` | the published permissive Liang pattern set |
-| `tex/hyph-sk.tex` | Jana Chlebíková's 1992 Slovak patterns, bundled under their MIT licence as the comparison baseline |
-| `docs/pravidla-delenia-slov.md` | the project's independent Slovak restatement of PSP chapter V |
-| `docs/hyph-sk-1992-origin.md` | how Chlebíková's 1992 patterns were built, from her own account, and what it predicts about the differences measured here |
-| `LICENSING.md`, `CONTRIBUTING.md`, `REUSE.toml` | per-layer licensing, data provenance and contribution requirements |
-| `run_review_local.bat`, `run_review.bat` | Windows launchers for the review console (external reviewer / maintainer) |
+| `Frankensteinovi` | `Fran·ken·stei·no·vi` |
+| `Sternwoodovi` | `Stern·woo·do·vi` |
+| `Beaurevoiru` | `Beau·re·voi·ru` |
+| `Pickelgeringen` | `Pi·ckel·ge·rin·gen` |
+| `Schneiderovská` | `Schnei·de·rov·ská` |
+| `Arbeitsunfähigkeitsbescheinigung` | `Ar·beits·un·fä·hig·keits·be·schei·ni·gung` |
+| `Arbeitsunfähigkeitsbescheinigungovská` | `Ar·beits·un·fä·hig·keits·be·schei·ni·gu·ngov·ská` |
+| `people` (optional G2P) | `peo·ple` |
+| `pepper` (optional G2P) | `pep·per` |
+| `penknife` (optional G2P) | `pen·knife` |
+| `modestly` (optional G2P) | `mo·dest·ly` |
+| `penthouse` (optional G2P) | `pent·house` |
 
-No sentences, word order or source-text structure are published: the inventory
-holds isolated forms only.
+These are regression examples verified on 2026-09-12, not a certified PSP gold set. Language inference, pronunciation and morphology remain fallible.
 
-## Reproduce the patterns yourself
+## Installation and review consoles
 
-Requirements are Python 3.10 or newer and the `patgen` executable from TeX Live
-or MiKTeX on `PATH`. To run the full validation suite as well, install the
-development tools with `python -m pip install -e ".[dev]"`.
+The core is an **alpha** (`0.1.0`) for Python 3.10+ with no required third-party runtime packages:
 
-From the repository root, these two commands rebuild all training labels from the
-current engine, train both modes, evaluate them on the deterministic held-out set
-and replace the two tracked pattern files:
+```console
+python -m pip install -e .
+slabika-review
+```
+
+German/French pattern resources and explicit foreign readings are bundled. Broader English G2P requires a separately built/installed `slabika-pronunciation==0.1.0` (the `pronunciation` extra declares that dependency; this is not a claim that a public wheel is available). See [pronunciation/README.md](pronunciation/README.md) for native build instructions and limitations. The optional model bundle has separate attribution/provenance concerns and is **not an unrestricted, MIT-only release**.
+
+### Slovak review
+
+`slabika-review` opens the bundled inventory read-only and keeps decisions separately in `review_decisions.sqlite` in the launch directory. `--db` and `--decisions` choose different files. The Slovak console computes the current engine's output, including eligible foreign routes.
+
+On Windows, `run_review_local.bat` is for independent reviewers: it requires no package installation and stores decisions under `%LOCALAPPDATA%\slabika-review`. `run_review.bat` is the maintainer launcher and deliberately opens tracked project decisions.
+
+The language/classification column separates automatic profile flags, human labels and inherited import/AI flags. An undetected language is not assumed to be Slovak. Text uploads can build a worklist; **Random 200** selects an alphabetical block of unreviewed forms. Typographic division and spoken syllabification are reviewed separately.
+
+### Independent DE/FR/EN review
+
+`run_review_de.bat`, `run_review_fr.bat` and `run_review_en.bat` open separate inventories and human decision stores. Default requested ports are SK 8765, DE 8766, FR 8767, EN 8768; the server can select another free port. Equivalent commands, **after generating the foreign inventories**, are:
+
+```console
+slabika-review --language de
+slabika-review --language fr
+slabika-review --language en
+```
+
+`--foreign-dir` defaults to `tests/data/foreign_review` in a source checkout. Each language uses `<language>.sqlite` plus `<language>_decisions.sqlite`. Those large local databases are not bundled in the ordinary checkout or wheel; the launchers do not download or generate them automatically.
+
+Unlike Slovak review, foreign review displays **stored proposals and generated IPA**, with status, raw phones, alignment and model provenance. The corpus supplies its language, so this view bypasses automatic language detection. DE/FR division proposals are independent of the displayed G2P estimate. IPA is a broad automatic transcription, not a verified pronunciation; stress is not inferred. Local inventories on 2026-09-12 contain DE **131,150**, FR **35,552** and EN **55,638** forms. German IPA and proposals are complete; French has 6 IPA errors but all division proposals; English has 1 pronunciation/proposal error and 2,306 incomplete projections alongside 53,331 complete experimental proposals. There is no foreign spoken-syllable editor or Chlebíková comparison.
+
+The same word can have independent decisions in all three corpora. Guards reject a wrong-language or Slovak decision database. Confirmations, corrections, undo and JSON export retain separate human ownership. Engine or generated-proposal updates do not rewrite human decisions. Restarting the Slovak server loads changed engine code; restarting a foreign console alone does **not** regenerate stored proposals.
+
+## Foreign-data tools
+
+These maintainer tools run from a checkout. Profile/corpus builders use local source inputs (including TranslateMaster and the English source cache), not material silently downloaded by the library. Inspect each script's arguments/defaults before rebuilding; the router builder uses its imported default paths. The current foreign builder uses Python 3.11's `hashlib.file_digest`, although the core supports 3.10.
+
+| tool | purpose and write behavior |
+| --- | --- |
+| `tools/build_german_profile.py` | fit DE-vs-SK n-gram evidence and emit profile/audit metadata |
+| `tools/build_french_profile.py` | fit FR-vs-SK evidence |
+| `tools/build_english_profile.py` | fit EN-vs-SK evidence; optional `--download` for the declared Gutenberg source selection |
+| `tools/build_language_router_profile.py` | fit comparable four-language ranking, family-grouped splits and proxy-label metrics |
+| `tools/audit_foreign_routing.py` | record corpus-wide routing outputs and compare with an optional baseline |
+| `tools/evaluate_foreign_corpora.py` | held-out corpus experiment for language routing and optional pronunciation projection |
+| `tools/evaluate_foreign_adapter.py` | export full DE/FR native-vs-adapted TSV and change/coverage statistics; not an accuracy benchmark |
+| `tools/build_foreign_review.py` | create/resume separate DE/FR/EN evidence inventories, IPA, proposals, statuses and model hashes; leaves human decisions alone |
+| `tools/refresh_english_review.py` | reproject stored EN alignments with shared projection/morphology; dry-run by default, `--apply` backs up and updates generated proposals only |
+| `tools/export_english_morphology.py` | export generated EN form membership to the runtime JSON; no IPA or human breakpoints |
+| `pronunciation/` | separate native pronunciation package, model manifest, notices and tests |
+
+Typical maintainer sequence, with required local corpora and pronunciation runtime already available:
+
+```console
+python tools/build_foreign_review.py --language all
+python tools/refresh_english_review.py
+python tools/refresh_english_review.py --apply
+python tools/export_english_morphology.py
+```
+
+The first command seeds all forms and processes pending/error rows in resumable transactions. `--limit` limits evidence generation, not the seeded vocabulary. Successful old evidence is preserved; it is not a blanket refresh. Run the English dry-run and inspect its report before `--apply`; that second stage adds the shared morphology refinement to builder projections. Export membership when its source inventory changes. Runtime and review share projection code, but explicit-corpus review and automatic routing need not return identical results for every form.
+
+## Data and review statistics
+
+As of 2026-09-12, the Slovak inventory contains **206,272 isolated forms** and the decision store has **17,944 records**: 16,742 `confirm`, 1,149 `correct`, 25 `uncertain`, 19 `classify`, 8 `invalid` and 1 `flag`. These are stored row actions, not necessarily completed reviews of typographic division; syllabification and classification are tracked separately. Review decisions are evidence, not normative authority.
+
+The earlier 195,230-form review snapshot recorded 10,210 author decisions (9,519 confirmations, 660 corrections, 22 uncertain, 8 invalid, 1 flagged) and 8,028 distinct forms across four blind audits. Their union was 14,970 forms, with 3,268 in both. These historical figures are not current coverage percentages.
+
+The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 6,601 resolved, 1,477 uncertain and 22 invalid. Reviewers received bare forms without engine output or earlier decisions. They were isolated LLM reviewers, not the author.
+
+The tracked dual-model evidence contains 17 runs and 1,346 adjudications over 1,239 distinct forms. Recorded model slots are `claude-opus-5[high]` and `gpt-6-astra[sub][high]`. There were 1,079 independent agreements, 145 agreements after cross-review, 23 after reconciliation and 99 unresolved decisions over 71 distinct forms. These layers overlap and must not simply be added to estimate checked vocabulary.
+
+An earlier author/AI comparison found 49 discrepancies among 350 shared forms, in 14 families, including `dôstojný`, `opotrebovať`, `páčidlo` and foreign names. That is a historical comparison, not a fresh count of currently open disputes. Neither human opinion nor model consensus settles a case without an independent PSP argument.
+
+## How this differs from the 1992 patterns
+
+The current evaluation below finds about one whole-word disagreement in ten between Chlebíková's patterns and the integrated engine. A common source is morphology: a rule engine can retain a recognized prefix seam that a letter-pattern table fails to represent. The author's account of how the 1992 patterns were built is discussed in [docs/hyph-sk-1992-origin.md](docs/hyph-sk-1992-origin.md).
+
+| word | 1992 patterns, 2/3 margins | engine, 2/3 margins |
+| --- | --- | --- |
+| `bezodkladne` | `be·z·od·kladne` | `bez·od·kladne` |
+| `najúspešnejší` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
+| `trojuholník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
+| `rozorať` | `ro·zo·rať` | `roz·orať` |
+| `rozum` | `rozum` | `ro·zum` |
+| `administratíva` | `ad·mi·ni·stra·tíva` | `ad·mi·nis·tra·tíva` |
+
+These comparisons are evidence, not a blanket defect list. The 1992 patterns have served Slovak typesetting for decades and remain the bundled baseline in `tex/hyph-sk.tex`.
+
+## Reproduce and evaluate Liang patterns
+
+Install development tools with `python -m pip install -e ".[dev]"` and put `patgen` from TeX Live or MiKTeX on `PATH`. From the repository root:
 
 ```console
 python tools/liang_experiment.py --mode preferred --output-dir scratch/liang-preferred --patterns-output patterns/hyph-sk-slabika.tex
 python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-permissive --patterns-output patterns/hyph-sk-slabika-permissive.tex
 ```
 
-The generator reads `tests/data/translatemaster_hyphenation_working.sqlite`. It
-accepts rows whose casing status is `resolved` or `inferred`, casefolds and
-deduplicates them, rejects unsupported spellings, and uses the stable salt
-`slabika-liang-v1` for the train/test split. The generated `train.dic` contains
-the engine-labelled training words. Each output directory also contains
-`patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and the machine-readable
-`report.json`. The `--patterns-output` path is the final packaged TeX source.
+These commands **replace the tracked pattern files**. The generator reads the working SQLite inventory, accepts `resolved`/`inferred` casing, casefolds and deduplicates, filters unsupported spellings, and splits with salt `slabika-liang-v1`. Outputs include `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and `report.json` with corpus counts, input/output hashes, evaluation metrics and sample mismatches.
 
-For this snapshot, the source inventory has 206,148 rows and SHA-256
-`817e65828bd8f13d507d442f4361a53c80f49b98bb639e54b6a3f6827066127e`. After
-filtering it supplies 203,795 supported unique words: 163,062 training words and
-40,733 held-out words. The resulting preferred and permissive files have SHA-256
-`b3a103709a9db90c4b6c7c1722e50674220c9d8eb6b880b00ba80f432dd9643a` and
-`1c3eaaf8b9774783c0172246996c3318f387aedd0e5453ef8c459fb2ecaa7be5`,
-respectively.
+Both files were **regenerated on 2026-09-12 with the integrated EN/DE/FR routes**. The inventory contains 206,272 rows, SHA-256 `480904efc4f84652bd3d0103f965eaac6b877241c662fcab1525d0a500fd41be`. Of 204,572 eligible source rows, filtering yields 203,919 supported unique words: **163,156 training and 40,763 held out**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
 
-### Verify a rebuild or a contribution
+| current pattern evaluation (2026-09-12) | exact whole words | point precision | point recall |
+| --- | ---: | ---: | ---: |
+| slabika preferred, 5,577 patterns | 98.4643% (40,137/40,763) | 99.5399% | 99.4341% |
+| Chlebíková 1992 against preferred target | 89.5886% | 96.0266% | 95.3947% |
+| slabika permissive, 5,259 patterns | 98.6115% (40,197/40,763) | 99.5682% | 99.5101% |
+| Chlebíková 1992 against permissive target | 89.0489% | 96.3900% | 94.9244% |
 
-1. Read each `report.json`. Its `corpus` and `split` objects explain exactly how
-   many rows were accepted, rejected, deduplicated, trained and held out; `files`
-   records the input, training-dictionary and generated-pattern SHA-256 values;
-   `evaluation` contains exact-word, precision and recall results plus the first
-   30 mismatches.
-2. With the unchanged checkout and matching `patgen`, the two generated files
-   should have the hashes above and `git diff --exit-code -- patterns/` should
-   report no difference. After an intentional engine or vocabulary change, review
-   both the pattern diff and the metric changes rather than expecting the old
-   hashes.
-3. Run the project checks:
+Both sides used TeX 2/3 minima. This measures **fidelity to the engine at generation time**, not independent PSP correctness or current adapter accuracy. Published SHA-256 values are:
+
+- `patterns/hyph-sk-slabika.tex`: `7f7867d214f3e8afcc3596a19b0bee61b1db3e5c2a7ded509f0e5f74c55f218c`;
+- `patterns/hyph-sk-slabika-permissive.tex`: `0a4bfb363880d6cf7eaac5375c6c44369435a6295483f1e3867c36e9ced52368`.
+
+Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output now explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record this run's full evaluation. Earlier exact-word rates were 98.6866%/98.8240% on a different engine and 40,733-word test; the slight decline is not a controlled ablation or a PSP accuracy measurement. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
+
+A single Liang file cannot encode “prefer this boundary, use another only if necessary”. The preferred and permissive files carry those alternatives separately and should not be loaded together. They contain no whole-word exceptions, do not include the language detector or G2P model, and are not a final release.
+
+### Using patterns elsewhere
+
+Standard Liang data can be used by TeX-compatible tools or converted for Hunspell-style hyphenation consumers such as LibreOffice, OpenOffice, Scribus and Pyphen, or JavaScript engines such as Hyphenopoly. Each target needs format/encoding/minima metadata, registration and testing. Copying a `.tex` file does not install it. Browsers provide no web API for loading an arbitrary custom pattern file into CSS `hyphens: auto`.
+
+These pattern files predict written break points only, not spoken syllables, morphological explanations or three ranked output levels.
+
+## Validation and known limits
 
 ```console
 python -m pytest
@@ -349,277 +280,41 @@ python -m ruff check .
 reuse lint
 ```
 
-The test suite covers the engine, review console, generated-pattern invariants,
-provenance and licensing consistency. Ruff checks Python sources and REUSE checks
-that every distributed file has the correct licence metadata. These checks and
-the held-out score establish reproducibility and fidelity to the current engine;
-they do **not** prove that a changed division is correct under PSP. Language
-changes still require PSP evidence and the regression review described below.
+For a source-only Windows run, use `set PYTHONPATH=src&& python -m pytest`. Fresh Python processes avoid stale cached model/engine results after code changes.
 
-## Change the input and rebuild
+The 2026-09-12 full run recorded **931 passed, 1 expected failure and 3 provenance/REUSE failures**. Language and review regressions passed; the repository is not yet fully REUSE-clean. The remaining failures concern optional pronunciation licence declarations, the missing root CC-BY-4.0 licence text, and layer classification for the separate pronunciation subtree. Passing linguistic tests does not clear redistribution provenance.
 
-Everything the generator consumes is editable, and the licences impose no
-condition on redistributing what you derive.
+Known limits include uncertain language identity, incomplete morphology, ambiguous spelling-to-sound alignment and heuristic DE/FR adaptation. Unsupported spelling can remain unchanged in `hyphenate`; `syllables` can raise `ValueError` for unsupported alphabetic characters. An empty breakpoint list does not distinguish unsupported input from a valid word with no allowed break. There is no independently adjudicated overall PSP accuracy claim.
 
-- **Change a language rule.** Edit the engine, run the test suite, then rerun the
-  two generator commands. The labels, both pattern files and the reported metrics
-  follow from the change.
-- **Add vocabulary.** Insert additional forms into the inventory and rerun. More
-  varied evidence is the main lever on quality; new words must be your own
-  material or public domain (see below).
-- **Change the experiment.** The split salt, the held-out fraction, the `patgen`
-  parameters and the output mode are all in `tools/liang_experiment.py`, and each
-  run documents itself in `report.json`.
-- **Keep the result.** Patterns derived from this data may be published,
-  repackaged or shipped commercially under either offered licence, with no
-  obligation back to this project.
+## Review and contribute
 
-### Review and submit PSP-grounded corrections
+PSP chapter V is the authority. The independent project restatement is [docs/pravidla-delenia-slov.md](docs/pravidla-delenia-slov.md). The engine, TeX, AI and human review are comparison signals, not authorities. This project is not affiliated with or endorsed by JÚĽŠ SAV.
 
-The bundled review console lets a reader inspect the vocabulary without editing
-the project's tracked decisions. From a checkout, install and start it with:
+In review, enter boundaries with `-` or `·` without changing letters; use flags for proper names, foreign words, abbreviations, uncertainty and invalid forms. Explain the relevant PSP rule, pronunciation or morpheme analysis and related/contrasting forms. The **Download corrections** action exports a timestamped `slabika-corrections` JSON of proposals still differing from the engine, with notes and provenance. Send it to the maintainer or attach it to an issue; exporting does not make a proposal canonical.
 
-```console
-python -m pip install -e .
-slabika-review
-```
-
-It opens a local address in the default browser. The bundled inventory is
-read-only; the reviewer's work is stored separately in `review_decisions.sqlite`
-in the directory from which the command is run. `--decisions` selects another
-decision store and `--db` selects another inventory.
-
-On Windows, the recommended entry point for an independent reviewer is
-`run_review_local.bat`. It needs no package installation, checks for Python 3.10
-or newer and keeps each user's decisions under `%LOCALAPPDATA%\slabika-review`.
-It therefore cannot modify the project's review database. `run_review.bat` is the
-maintainer launcher: it deliberately opens the tracked project review data and is
-not the right launcher for an external review.
-
-The **language / classification** column separates the automatic EN/DE/FR profile estimate, the reviewer's explicit flags and inherited import/AI flags. An undetected language is shown as unknown, not assumed to be Slovak. Profile filters select EN, DE or FR independently of manual classification; **Random 200** selects a contiguous alphabetical block of unreviewed forms. Manual flags remain review annotations, not instructions to override the production engine.
-The console also keeps two questions separate:
-
-- **typographic division** says where a written word may be broken at the end of a line; this is the output used to train the Liang patterns;
-- **syllabification** describes the spoken syllables and may legitimately have
-  different boundaries.
-
-For a useful correction, search for the word, inspect the current typographic
-result, enter the proposed boundaries and save the suggestion. `-` and `·` may be
-used as boundary markers; neither may change, remove or add letters. Mark a
-proper name, foreign word, abbreviation, invalid form or uncertain case when
-applicable instead of forcing an unsupported answer.
-
-The normative authority is chapter V, *Word division*, of PSP. The independent
-project restatement in
-[`docs/pravidla-delenia-slov.md`](docs/pravidla-delenia-slov.md) is the quickest
-reference. The current engine, syllabification, the 1992 TeX patterns, AI review
-and previous human decisions are evidence or comparison signals, not authorities.
-A submission is strongest when its note gives the exact PSP rule, explains the
-morpheme or sound analysis and lists related forms or a contrasting near miss.
-Please distinguish a preferred point from an equally codified variant or a legal
-but discouraged contextual point.
-
-The **Download corrections** button exports a timestamped `slabika-corrections`
-JSON file containing only saved proposals that still differ from the current
-engine. It includes the form, engine output and version, proposed output, note
-and flags. Send that file unchanged to the project author by email, or attach it
-to an issue; supporting PSP evidence can be written in the message. Sending the
-JSON does not alter the repository and does not make a proposal canonical
-automatically. Every accepted correction is checked against PSP and for
-corpus-wide regressions. Because one bad word is usually evidence of a missing
-family rule, fixes normally add the narrowest supported rule and tests, not a
-whole-word exception.
-
-### Contribute vocabulary
-
-New vocabulary is welcome only when it is the contributor's own material or
-public-domain material. Do not submit extracted third-party dictionary, lexical
-database or word-list content. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the
-licensing and provenance requirements.
-
-## The published Liang pattern files
-
-The project publishes two **work-in-progress** pattern sets learned solely from
-the bundled vocabulary. Of its 206,148 inventory rows, 203,795 supported unique
-words remain after excluding `needs_review` forms and applying alphabet and
-casefold filtering. The deterministic split assigns 163,062 words to training and
-keeps 40,733 words unseen for both evaluations:
-
-- [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) is the default
-  preferred set (5,282 patterns), trained from `break_points(word)`;
-- [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
-  is the permissive set for narrow measures (4,982 patterns), trained from
-  `break_points(word, all_points=True, contextual=True)`.
-
-Both sets contain no whole-word exceptions. TeX edge minima 2/3 were applied to
-both the input and the evaluation.
-
-A standard Liang pattern file exposes one undifferentiated set of points; it
-cannot retain the instruction “prefer this point, use that one only in a narrow
-measure”. Two separate files therefore carry that distinction. Normal typesetting
-should use the preferred set. The permissive set additionally exposes equally
-codified variants and legal but discouraged contextual points; the two sets must
-not be loaded together.
-
-On 40,733 held-out words, with the same TeX left/right minima of 2/3 applied to
-both competitors and to the target, the result was:
-
-| patterns | exact whole words | point precision | point recall |
-| --- | ---: | ---: | ---: |
-| **slabika preferred (5,282 patterns)** | **98.6866%** (40,198/40,733) | **99.6345%** | **99.5108%** |
-| Jana Chlebíková 1992 against the preferred target | 89.7012% | 96.1034% | 95.3957% |
-| **slabika permissive (4,982 patterns)** | **98.8240%** (40,254/40,733) | **99.6544%** | **99.5873%** |
-| Jana Chlebíková 1992 against the permissive target | 89.1660% | 96.4647% | 94.9276% |
-
-This is a benchmark of **fidelity to the current rule engine**, not an
-independent PSP correctness benchmark. Engine points outside the common TeX
-minima were excluded from scoring. The files are useful for testing and
-downstream experiments, but they are not a final pattern release and are not yet
-wired into the Python package.
-
-### Using the patterns elsewhere
-
-The `.tex` suffix describes the source syntax, not the only environment in which
-the patterns can be used. The payload is standard Liang pattern data: it can be
-loaded by TeX-compatible tooling, repackaged as a Hunspell-style hyphenation
-dictionary for applications such as LibreOffice, OpenOffice, Scribus or Pyphen,
-or converted to the pattern format of a JavaScript Liang engine such as
-Hyphenopoly. Each target still needs its own encoding and minima metadata,
-wrapper or compiled format, language registration and testing; merely copying
-this repository file into an application or a website does not install it.
-Browsers do not expose a web API for loading an arbitrary custom pattern file
-into CSS `hyphens: auto`.
-
-The patterns perform one task only: predicting typographic break points in
-words. They do not expose the rule engine's linguistic syllables, morpheme
-analysis, three output levels, or its distinction between an unsupported spelling
-and a supported word with no available break.
-
-## Current status
-
-`slabika` is an **alpha** (`0.1.0`) Python package for Python 3.10 and newer. It
-has no runtime dependencies and can be installed from a checkout with
-`python -m pip install -e .`.
-
-| component | current state |
-| --- | --- |
-| rule-based Python engine | **present** — syllabification and typographic division are implemented and tested separately |
-| public API | **present** — `syllables`, `break_points`, `divisions` and `hyphenate` |
-| output levels in the project's PSP interpretation | **present** — preferred points by default, codified doublets with `all_points=True`, discouraged-but-legal points with `contextual=True` |
-| whole-word exception dictionary | **absent by design** — representative known unresolved cases remain failing `xfail` specifications until a rule can account for them |
-| complete input and pipeline for the published pattern set | **present** — the bundled SQLite vocabulary and tracked generator reproduce both pattern files without an external corpus |
-| source prose corpus | **not published** — no sentences, word order or source-text structure are shipped |
-| experimental Liang patterns | **present** — preferred and permissive sets in `patterns/`, explicitly marked work in progress |
-| use of Liang patterns by the Python package | **not implemented** — the package runs the rule engine directly |
-| independent PSP gold benchmark or certified overall accuracy | **not available yet** |
-| final TeX release and integrations for browsers, office suites or typesetters | **not available yet** |
-
-The tracked engine, review-console and provenance tests cover the language rules,
-boundary classes, public API, local editor and licensing constraints, and they
-run from a clean checkout. Known unresolved language cases stay visible as strict
-expected failures instead of being hidden in a word list. The 195,230-form
-inventory has also been used for corpus-scale robustness checks, but most of
-those forms have not been independently adjudicated. A run without exceptions is
-evidence of robustness, not evidence that every division is correct. The project
-therefore makes no overall accuracy claim for the rule engine today.
-
-### Known limits of the Python engine
-
-- Spelling alone does not always reveal word identity or pronunciation. Apparent
-  prefixes that have lexicalised, borrowed vowel sequences and unadapted foreign
-  names still include known unresolved cases.
-- There is deliberately no table of whole-word overrides. A missing linguistic
-  distinction remains an explicit regression until it can be expressed as a rule
-  or as a justified future language-data layer.
-- `hyphenate` leaves unsupported spellings untouched, while `syllables` raises
-  `ValueError` for alphabetic characters outside the analysable inventory. An
-  empty `break_points` result does not distinguish an unsupported spelling from a
-  supported word with no legal break.
-- The engine's morpheme analysis is rule-based and intentionally incomplete; it
-  is not a general Slovak morphological analyser and it does not know the
-  language or pronunciation of an arbitrary foreign word.
+Vocabulary contributions must be the contributor's own material or public-domain material, not extracts from third-party lexical databases or dictionaries. No source prose, word order or sentence structure is published in the word inventory. See [CONTRIBUTING.md](CONTRIBUTING.md) and [LICENSING.md](LICENSING.md).
 
 ## Licensing
 
-Deliberately split so that no downstream project is ever blocked from using it:
-
 | layer | licence |
 | --- | --- |
-| source code | `Apache-2.0 OR MIT` — your choice |
-| language data | `CC0-1.0 OR MIT` — your choice |
-| generated hyphenation patterns | `CC0-1.0 OR MIT` — your choice |
-| documentation | `CC0-1.0 OR MIT` — your choice |
+| project source code | `Apache-2.0 OR MIT` |
+| project language data | `CC0-1.0 OR MIT` |
+| generated Slovak hyphenation patterns | `CC0-1.0 OR MIT` |
+| project documentation | `CC0-1.0 OR MIT` |
+| bundled upstream DE/FR patterns and Chlebíková baseline | MIT, original notices retained |
+| optional pronunciation models | upstream CC-BY-4.0 declarations; separate attribution and provenance review |
 
-Apache-2.0 carries a patent grant and passes corporate legal review, but it is
-incompatible with GPL-2.0-only, and MPL-1.1 lacks the Apache-2.0 compatibility
-provisions later added in MPL-2.0 — terms that a good deal of existing
-typesetting and dictionary code sits under. Offering the code under MIT as well
-removes that barrier for downstream projects that are genuinely on that side of
-the line: take the patent grant if you want it, take MIT if Apache is the thing
-standing in your way.
+Project-owned layers offer MIT as an alternative for consumers unable to use Apache-2.0 or CC0. This does **not** relicense third-party pronunciation models. The optional native runtime and model package has its own notices; operational use is not proof of redistribution clearance. See [pronunciation/MODEL_ATTRIBUTION.md](pronunciation/MODEL_ATTRIBUTION.md) and [pronunciation/THIRD_PARTY_NOTICES.md](pronunciation/THIRD_PARTY_NOTICES.md).
 
-The same logic runs through the other layers. Data, patterns and documentation
-can be taken under `CC0-1.0` with no licence conditions at all — or under MIT,
-for compliance tooling that expects a conventional OSI licence. **Every layer of
-this project is therefore also offered under MIT**, if that is easier than
-explaining CC0 to a review board. MIT itself does not expressly address the EU
-`sui generis` database right; the `CC0-1.0` dedication does, and that dedication
-applies independently of which alternative a downstream compliance inventory
-records. Writing MIT in your inventory does not opt out of it.
+CC0-1.0 expressly addresses the EU `sui generis` database right; MIT itself does not. Recording MIT in a compliance inventory does not undo the independently applied CC0 dedication. Apache-2.0 offers a patent grant; the MIT alternative avoids incompatibilities with GPL-2.0-only and Apache's incompatibility with MPL-1.1.
 
-See [`LICENSING.md`](LICENSING.md) for the full statement, including data
-provenance and how CC0-1.0 disposes of the EU `sui generis` database right.
-Per-file licensing follows [REUSE 3.3](https://reuse.software/) and is declared in
-`REUSE.toml`. There is deliberately no Apache `NOTICE` file, so no extra notice
-text has to travel with your redistribution.
+**CC0-1.0 itself imposes no attribution requirement.** This does not affect moral or personality rights that cannot be waived under applicable law. Redistribution of code still requires the notices imposed by the chosen MIT or Apache-2.0 licence. There is no project Apache `NOTICE` file adding further attribution text. Binding terms live in `LICENSES/` and per-file declarations; [LICENSING.md](LICENSING.md) explains the architecture.
 
-**`CC0-1.0` itself imposes no attribution requirement.** This does not affect any
-moral or personality right that cannot be waived under applicable law — for the
-documentation, which is authored prose, that reservation is not theoretical.
-CC0-1.0 waives what it can waive, to the fullest extent the applicable law
-allows, and does not purport to reach further. The code carries no advertising or
-acknowledgement requirement either, but redistributing it does mean keeping the
-notices required by whichever licence you pick, MIT or Apache-2.0.
+## Author and acknowledgements
 
-## Conformance
+Created and maintained by **Peter Bezemek** — <peter.bezemek@gmail.com>, [@pietrobb](https://github.com/pietrobb).
 
-Output is intended to conform to the rules of Slovak orthography codified in
-*Pravidlá slovenského pravopisu* (JÚĽŠ SAV), chapter **V. Rozdeľovanie slov**.
-PSP is used as a statement of what the correct answer is — not as a source of
-data. The project's independent Slovak-language restatement is in
-[`docs/pravidla-delenia-slov.md`](docs/pravidla-delenia-slov.md); test vocabulary
-comes from this project's own word material. This project is not affiliated with,
-nor endorsed by, JÚĽŠ SAV.
+The phoneme classification follows **Emil Páleš**, *Sapfo — parafrázovač slovenčiny: počítačový nástroj na modelovanie v jazykovede* (VEDA, Bratislava, 1994, ISBN 80-224-0109-9), chapter 2 *Fonológia*. Páleš in turn credits **J. Dvončová** (1980) and **J. Horecký** (1977). The classification provides the phonological foundation; the project's syllabification, morphology and division algorithms above it are separate work. Páleš's book does not address hyphenation.
 
-## Author and contact
-
-Created and maintained by **Peter Bezemek** — <peter.bezemek@gmail.com>,
-[@pietrobb](https://github.com/pietrobb).
-
-The implementation, the syllabification and hyphenation algorithms and the
-underlying Slovak word material are his own work. Questions about the rules, the
-data, or about relicensing for a specific downstream project go to him directly.
-
-## Acknowledgements
-
-The phoneme classification this library is built on comes from **Emil Páleš**,
-*Sapfo — parafrázovač slovenčiny: počítačový nástroj na modelovanie v jazykovede*
-(VEDA, vydavateľstvo Slovenskej akadémie vied, Bratislava, 1994,
-ISBN 80-224-0109-9), chapter 2 *Fonológia*. That book makes the case this project
-rests on: that a formal model of a language has to start from its sound system,
-and that morphology cannot be done correctly without consulting phonology. The
-classification given there — vowel quantity and resonance, hardness, voicing
-pairs, place and manner of articulation, syllabic consonants, the rhythmic law —
-is what `slabika.phonology` encodes. Páleš in turn credits **J. Dvončová** (1980)
-and **J. Horecký** (1977) for the classification itself.
-
-The algorithms above that layer — syllabification, morpheme-seam handling and the
-typographic convention — are this project's own work; Páleš's book does not
-address hyphenation.
-
-Jana Chlebíková's 1992 Slovak TeX patterns are bundled in `tex/hyph-sk.tex` under
-their MIT licence and are used here only as a comparison baseline.
-
-The benchmarking methodology and the case for treating word-list quality as the
-real bottleneck follow O. Metelka and P. Sojka, *Hyph-bench: Benchmark Dataset of
-Hyphenated Words for Generating Hyphenation Patterns*, RASLAN 2025.
+Jana Chlebíková's 1992 Slovak patterns remain the MIT-licensed comparison baseline. The benchmark methodology and focus on training-list quality also draw on O. Metelka and P. Sojka, *Hyph-bench: Benchmark Dataset of Hyphenated Words for Generating Hyphenation Patterns*, RASLAN 2025.

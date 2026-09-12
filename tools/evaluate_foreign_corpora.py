@@ -11,23 +11,18 @@ import json
 from collections import Counter
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import build_english_profile as english
 import build_french_profile as french
 import build_german_profile as german
 import build_language_router_profile as router
 from slabika import hyphenate, language_scores
-
-if TYPE_CHECKING:
-    from slabika_pronunciation import Pronunciation
+from slabika.english_projection import project_psp_points
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "scratch/foreign-corpus-benchmark"
 PROFILE = ROOT / "src/slabika/data/language_router_profile.json"
 FOREIGN_LANGUAGES = ("english", "german", "french")
-IPA_VOWELS = frozenset("aeiouyæɑɒɐəɛɜɞɪɔœɘɵɤøɨʉɯɚɝʌʊɶ")
-WRITTEN_VOWELS = frozenset("aeiouyàâäæéèêëîïôöœùûüÿ")
 
 
 @dataclass(frozen=True)
@@ -81,66 +76,6 @@ def held_out_corpora(translate_master: Path) -> dict[str, set[str]]:
     if observed != expected:
         raise RuntimeError(f"held-out corpus drift: expected {expected}, observed {observed}")
     return {language: test[language] for language in FOREIGN_LANGUAGES}
-
-
-def _is_vowel_phone(phone: str) -> bool:
-    return any(character in IPA_VOWELS for character in phone) or "\u0329" in phone
-
-
-def _phone_boundary_offset(
-    spans: tuple[tuple[str, tuple[str, ...]], ...],
-    span_offsets: list[int],
-    left: tuple[int, int],
-    right: tuple[int, int],
-) -> int | None:
-    left_span, _ = left
-    right_span, right_phone = right
-    if left_span != right_span:
-        return span_offsets[right_span]
-    spelling, phones = spans[right_span]
-    if len(spelling) != len(phones):
-        return None
-    return span_offsets[right_span] + right_phone
-
-
-def project_psp_points(pronunciation: Pronunciation) -> tuple[tuple[int, ...], bool]:
-    """Conservatively project pronunciation nuclei to written PSP-style points."""
-    spans = pronunciation.spans
-    span_offsets: list[int] = []
-    offset = 0
-    phones: list[tuple[str, int, int]] = []
-    for span_index, (spelling, values) in enumerate(spans):
-        span_offsets.append(offset)
-        offset += len(spelling)
-        phones.extend((phone, span_index, index) for index, phone in enumerate(values))
-
-    nuclei: list[int] = []
-    for index, (phone, span_index, _) in enumerate(phones):
-        spelling = spans[span_index][0]
-        if not _is_vowel_phone(phone) or not (set(spelling) & WRITTEN_VOWELS):
-            continue
-        if nuclei and phones[nuclei[-1]][1] == span_index:
-            continue
-        nuclei.append(index)
-
-    points: set[int] = set()
-    complete = True
-    for previous, following in zip(nuclei, nuclei[1:]):
-        between = list(range(previous + 1, following))
-        boundary = following if not between else between[0]
-        if len(between) >= 2:
-            boundary = between[0] + 1
-        point = _phone_boundary_offset(
-            spans,
-            span_offsets,
-            (phones[boundary - 1][1], phones[boundary - 1][2]),
-            (phones[boundary][1], phones[boundary][2]),
-        )
-        if point is None:
-            complete = False
-        elif 1 < point < len(pronunciation.word) - 1:
-            points.add(point)
-    return tuple(sorted(points)), complete
 
 
 def divided(word: str, points: tuple[int, ...]) -> str:

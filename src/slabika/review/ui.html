@@ -304,7 +304,8 @@ const BLIND_LABEL = {uncertain: "neviem", invalid: "nie je slovo"};
 
 function voicesHtml(it) {
   const engine = engineText(it);
-  const lines = [["engine", engine, null]];
+  const lines = [[it.corpus_language ? "návrh PSP" : "engine", engine, null]];
+  if (it.corpus_language) lines.unshift(["IPA (odhad)", it.pronunciation.ipa || "nedostupná", null]);
   if (it.engine_tex !== it.hyphenation)
     lines.push(["engine (TeX 2/3)", dash(it.engine_tex), null]);
   if (it.my_expected) lines.push(["človek", it.my_expected, it.my_disagrees]);
@@ -343,6 +344,13 @@ function paint(row, it) {
   row.querySelector(".voices").innerHTML = voicesHtml(it);
 
   const parts = [it.ai_adjudication_html || ""];
+  if (it.corpus_language) {
+    const p = it.pronunciation;
+    parts.push(`<details class="psp-audit"><summary>${esc(p.proposal_status || "pending")} · výslovnosť ${esc(p.pronunciation_status || "pending")}</summary>` +
+      `<div>Automatický návrh, nie overený PSP verdikt.<br>Metóda: ${esc(p.proposal_source || "—")}` +
+      `<br>IPA (odhad): ${esc(p.ipa || "—")}<br>Pôvodné fonémy: ${esc(p.raw_phones || "—")}` +
+      `<br>Model: ${esc(p.model_json || "—")}${p.error ? "<br>Chyba: " + esc(p.error) : ""}</div></details>`);
+  }
   const action = myAction(it);
   if (action) {
     const [text, colour] = LABEL[action];
@@ -361,14 +369,14 @@ function paint(row, it) {
   const flagLabels = Object.entries({foreign: "cudzie slovo", proper: "meno", abbreviation: "skratka"});
   const manual = flagLabels.filter(([key]) => it.my_flags[key] != null).map(([key, label]) => it.my_flags[key] ? label : `nie je ${label}`);
   const imported = flagLabels.filter(([key]) => it.my_flags[key] == null && it.flags[key] != null).map(([key, label]) => it.flags[key] ? label : `nie je ${label}`);
-  row.querySelector(".classification").innerHTML = `<div><b>Automaticky:</b> ${esc(automatic.join(" / ") || "jazyk neurčený")}</div>` +
+  row.querySelector(".classification").innerHTML = `<div><b>${it.corpus_language ? "Jazyk korpusu:" : "Automaticky:"}</b> ${esc(automatic.join(" / ") || "jazyk neurčený")}</div>` +
     `<div><b>Ručne:</b> ${esc(manual.join(", ") || "neoznačené")}</div>` +
     (imported.length ? `<div><b>Import/AI:</b> ${esc(imported.join(", "))}</div>` : "");
   if (it.corrected_form) parts.push(`<b>opraviť na: ${esc(it.corrected_form)}</b>`);
   if (it.flags.deleted) parts.push("<b>označené na vymazanie</b>");
   else if (it.my_flags.deleted === 0) parts.push("ponechať v korpuse");
   if (it.syllabification_unsupported) parts.push("slabikovanie nedostupné — nepodporovaný zápis; výslovnosť treba overiť");
-  if (it.engine_error) parts.push(`<span style="color:var(--bad)">engine spadol</span>`);
+  if (it.engine_error) parts.push(`<span style="color:var(--bad)">${it.corpus_language ? esc(it.engine_error) : "engine spadol"}</span>`);
   if (it.psp_comparison) {
     const p = it.psp_comparison;
     const note = p.comparison_note ? `<br><b>Záver:</b> ${esc(p.comparison_note)}` : "";
@@ -527,7 +535,16 @@ async function load(offset = 0, focus = 0, field = "h") {
 
 async function stats() {
   const s = await api("/api/stats");
-  const pct = (100 * s.reviewed / s.total).toFixed(2);
+  const pct = (100 * s.reviewed / (s.total || 1)).toFixed(2);
+  if (s.corpus_language) {
+    const name = {de: "Nemčina", fr: "Francúzština", en: "Angličtina"}[s.corpus_language];
+    document.title = `slabika — ${name} — PSP review`;
+    ["tex-diff", "blind-human-diff"].forEach(id => { $(id).hidden = true; });
+    $("status").querySelectorAll('option[value="psp_comparison"], option[value^="profile_"], option[value^="ai_"], option[value="human_review"], option[value="verified"], option[value="syllabification_unsupported"]').forEach(option => { option.hidden = true; });
+    document.querySelector(".head span:nth-child(4)").textContent = "IPA / návrh / človek";
+    document.querySelector(".hint").textContent = `${name}: delenie cudzích slov v slovenskom texte podľa PSP. IPA je automatický odhad bez ručného overenia. Návrhy delenia sú pracovné, anglické experimentálne. Enter uloží delenie; Opraviť mení návrh slovného tvaru.`;
+  }
+  const pronunciation = s.corpus_language ? ` · IPA <b>${(s.pronunciation_counts.generated || 0).toLocaleString("sk")}</b> / ${s.total.toLocaleString("sk")} · bez IPA <b>${s.pronunciation_counts.error || 0}</b>` : "";
   const audit = s.psp_audit
     ? ` · PSP audit <b>${s.psp_audit.adjudicated.toLocaleString("sk")}` +
       ` / ${s.psp_audit.total.toLocaleString("sk")}</b>` +
@@ -538,7 +555,7 @@ async function stats() {
     `<b>${s.reviewed.toLocaleString("sk")}</b> (${pct} %)` +
     ` · delenie opravené <b>${s.correct}</b> · zlé <b>${s.flag}</b>` +
     ` · mená <b>${s.proper}</b> · cudzie <b>${s.foreign}</b>` +
-    ` · skratky <b>${s.abbreviation}</b> · na vymazanie <b>${s.deleted}</b>${audit}`;
+    ` · skratky <b>${s.abbreviation}</b> · na vymazanie <b>${s.deleted}</b>${audit}${pronunciation}`;
   const store = $("store");
   store.textContent = "uložené do " + s.decisions_path.split(/[\\/]/).pop();
   store.title = s.decisions_path + "  (engine slabika " + s.engine_version + ")";

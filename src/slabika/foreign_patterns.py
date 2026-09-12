@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 """DE/FR native-pattern proposals with a local PSP adaptation layer.
 
-This opt-in API is not a complete morphological analyser or a PSP gold standard.
+This adapter is not a complete morphological analyser or a PSP gold standard.
 Native boundaries are the baseline; every adaptation is exposed for audit.
 Verified morpheme boundaries take precedence over local spelling rules. English
-and automatic routing deliberately remain outside this adapter.
+is unsupported; typo selects DE/FR automatically using language evidence.
 """
 
 from __future__ import annotations
@@ -15,6 +15,9 @@ import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
+from typing import Callable
+
+from .phonology import is_vowel
 
 from .review.tex_patterns import break_points, load_tex
 
@@ -146,6 +149,43 @@ def adapt_foreign_word(
         tuple(mapping[p] for p in sorted(points) if 2 <= p <= len(lower) - 2),
         tuple(changes),
     )
+
+
+def german_inflected_points(
+    stem: str, ending: str, psp_points: Callable[[str], list[int]]
+) -> set[int]:
+    """Keep DE stem points and apply PSP at an evidenced Slovak ending.
+
+    Only the final consonant run is resyllabified before a vowel-initial ending;
+    the rest of the stem is never fed to Slovak spelling rules.
+    """
+    points = set(adapt_foreign_word(stem, "german").points)
+    seam = len(stem)
+    if not is_vowel(ending[0]):
+        points.add(seam)
+        points.update(seam + p for p in psp_points(ending))
+    else:
+        lower = stem.lower()
+        start = seam
+        while start and lower[start - 1] not in _VOWELS:
+            start -= 1
+        # German postvocalic h marks vowel length, not a new consonant.
+        if start < seam and lower[start] == "h":
+            start += 1
+        # A synthetic nucleus protects ei/ie/au/etc.; map consonant units back
+        # as whole spellings, retaining German ng as a single consonant.
+        mapping = [0, start]
+        proxy = "a"
+        for match in re.finditer(r"tsch|dsch|sch|ch|ck|tz|ph|th|ng|.", lower[start:]):
+            unit = match[0]
+            proxy += {"tsch": "č", "dsch": "ž", "sch": "š", "ch": "h",
+                      "ck": "k", "tz": "c", "ph": "f", "th": "t", "ng": "n"}.get(unit, unit)
+            mapping.append(start + match.end())
+        proxy += ending
+        mapping.extend(range(seam + 1, seam + len(ending) + 1))
+        points = {p for p in points if p < start}
+        points.update(mapping[p] for p in psp_points(proxy))
+    return {p for p in points if 2 <= p <= seam + len(ending) - 2}
 
 
 def foreign_hyphenate(

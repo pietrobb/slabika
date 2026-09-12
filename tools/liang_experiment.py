@@ -251,7 +251,7 @@ def write_tex_patterns(raw_patterns: Path, output: Path, mode: str) -> int:
         "% REUSE-IgnoreEnd",
         "",
     ]
-    output.write_text("\n".join(lines), encoding="utf-8")
+    output.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     return len(tokens)
 
 

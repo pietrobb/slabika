@@ -5081,9 +5081,9 @@ def test_a_foreign_letter_with_a_known_sound_is_divided_by_slovak_rules():
     assert hyphenate("München") == "Mün·chen"
     assert hyphenate("Straße") == "Stra·ße"
     assert hyphenate("Noël") == "No·ël"
-    # è is one vowel slot and divides like any other, but gn beside it is the
-    # French group for a single /ɲ/ — §5.4 bars tearing that, so it stays whole.
-    assert hyphenate("Compiègne") == "Com·pi·ègne"
+    # French /kɔ̃.pjɛɲ/: iè belongs to one syllable and gn spells /ɲ/.
+    # PSP §5.4 preserves both groups rather than applying Slovak vowel slots.
+    assert hyphenate("Compiègne") == "Com·piègne"
     assert hyphenate("Neufchâteau") == "Ne·uf·châ·te·au"
 
     # ř fills the r slot, so a cluster containing it divides where the one

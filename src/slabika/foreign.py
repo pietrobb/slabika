@@ -10,6 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
+from .english import english_points
 from .phonology import is_vowel
 
 
@@ -91,7 +92,7 @@ def foreign_points(
     """Map PSP offsets back to the original spelling; never import foreign breaks."""
     reading = foreign_reading(word)
     if reading is None:
-        return None
+        return english_points(word)
     # Lowercasing may expand a Unicode letter. Never map those offsets to input.
     if len(word.lower()) != len(word):
         return None
