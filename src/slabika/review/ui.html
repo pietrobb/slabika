@@ -140,6 +140,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
     <option value="ai_disagree">AI má iné delenie slov</option>
     <option value="human_review">AI: rozpor alebo neistota</option>
     <option value="verified">overené ľuďmi (import)</option>
+    <option value="syllabification_unsupported">nepodporované slabikovanie</option>
     <option value="engine_error">engine spadol</option>
   </select>
   <button id="tex-diff" class="voice-filter" aria-pressed="false"
@@ -366,6 +367,7 @@ function paint(row, it) {
   if (it.corrected_form) parts.push(`<b>opraviť na: ${esc(it.corrected_form)}</b>`);
   if (it.flags.deleted) parts.push("<b>označené na vymazanie</b>");
   else if (it.my_flags.deleted === 0) parts.push("ponechať v korpuse");
+  if (it.syllabification_unsupported) parts.push("slabikovanie nedostupné — nepodporovaný zápis; výslovnosť treba overiť");
   if (it.engine_error) parts.push(`<span style="color:var(--bad)">engine spadol</span>`);
   if (it.psp_comparison) {
     const p = it.psp_comparison;
@@ -644,7 +646,7 @@ async function bulkConfirm() {
     const it = S.items[i];
     const value = row.querySelector('.edit[data-field="h"]').value;
     if (!myAction(it) && !it.my_row_action && !it.my_classification &&
-        !it.engine_error && value === engineText(it)) entries.push({
+        !it.engine_error && !it.syllabification_unsupported && value === engineText(it)) entries.push({
       form: it.form, action: "confirm", field: "hyphenation", text: value, bulk: true,
     });
   });

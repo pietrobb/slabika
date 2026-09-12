@@ -1,0 +1,42 @@
+[build-system]
+requires = ["maturin>=1.9,<2"]
+build-backend = "maturin"
+
+[project]
+name = "slabika-pronunciation"
+version = "0.1.0"
+description = "Optional pronunciation models for slabika"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT AND CC-BY-4.0"
+license-files = ["LICENSES/*", "THIRD_PARTY_NOTICES.md"]
+authors = [{ name = "Peter Bezemek", email = "peter.bezemek@gmail.com" }]
+dependencies = ["slabika==0.1.0"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Rust",
+    "Topic :: Text Processing :: Linguistic",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.urls]
+Homepage = "https://github.com/pietrobb/slabika"
+Source = "https://github.com/pietrobb/slabika"
+
+[tool.maturin]
+python-source = "python"
+module-name = "slabika_pronunciation._native"
+features = ["pyo3/extension-module"]
+include = [
+    { path = "LICENSES/*", format = ["sdist", "wheel"] },
+    { path = "THIRD_PARTY_NOTICES.md", format = ["sdist", "wheel"] },
+    { path = "THIRD_PARTY_LICENSES.html", format = ["sdist", "wheel"] },
+    { path = "MODEL_ATTRIBUTION.md", format = ["sdist", "wheel"] },
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

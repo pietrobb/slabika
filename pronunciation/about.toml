@@ -1,0 +1,16 @@
+accepted = [
+    "Apache-2.0",
+    "MIT",
+    "Unicode-3.0",
+]
+ignore-build-dependencies = true
+ignore-dev-dependencies = true
+
+# cargo-about cannot accept SPDX WITH expressions. We comply with the stricter
+# Apache-2.0 base terms and reproduce the complete upstream file, including
+# LLVM-exception. The checksum prevents this clarification from drifting.
+[target-lexicon.clarify]
+license = "Apache-2.0"
+[[target-lexicon.clarify.files]]
+path = "LICENSE"
+checksum = "268872b9816f90fd8e85db5a28d33f8150ebb8dd016653fb39ef1f94f2686bc5"

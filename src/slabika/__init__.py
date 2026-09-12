@@ -22,16 +22,20 @@ Typical use::
     'Pre-kla-da-teľ-ský'
 """
 
+from .foreign_patterns import adapt_foreign_word, foreign_hyphenate
 from .language import (
     EnglishEvidence,
     FrenchEvidence,
     GermanEvidence,
+    LanguageScore,
+    detect_language,
     english_evidence,
     french_evidence,
     german_evidence,
     is_english,
     is_french,
     is_german,
+    language_scores,
 )
 from .phonology import (
     is_consonant,
@@ -53,10 +57,11 @@ __version__ = "0.1.0"
 
 __all__ = [
     "__version__",
-    "apply_rhythmic_law",
+    "adapt_foreign_word", "foreign_hyphenate", "apply_rhythmic_law",
     "break_points",
     "check_preposition_form",
     "check_rhythmic_law",
+    "detect_language",
     "divisions",
     "EnglishEvidence",
     "english_evidence",
@@ -73,6 +78,8 @@ __all__ = [
     "is_long_syllable",
     "is_phonotactically_valid",
     "is_vowel",
+    "language_scores",
+    "LanguageScore",
     "split_into_phonemes",
     "syllables",
 ]

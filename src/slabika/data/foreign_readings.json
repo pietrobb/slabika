@@ -3,13 +3,13 @@
   "notation": "Each space-separated spelling unit maps to one Slovak nucleus/consonant proxy; unlisted single letters map to themselves. Parts denote transparent compound members. Double consonant letters before vowels remain separate for the PSP spelling convention. Proxies encode syllabic roles, not IPA.",
   "endings": ["a", "e", "u", "i", "om", "och", "ovi", "ov", "ova", "ovu", "ove", "ovej", "ovou", "ová", "ové", "ovú", "ovým", "ovho", "ovmu", "ovci", "ovcom", "ovcov", "ovská", "ovskej", "ovské", "ovských", "ovskými", "ska", "ske", "skeho", "skej", "ski", "skom", "skou", "sky", "skych", "skym", "skymi", "ský", "ská", "ské", "skí", "skú", "ského", "skému", "ských", "ským", "skými"],
   "english": {
-    "units": {"w": "v", "oo": "u", "ee": "í", "sh": "š", "dg": "č", "le": "l", "owe": "o"},
+    "units": {"w": "v", "oo": "u", "ee": "í", "sh": "š", "dg": "č", "le": "l", "owe": "o", "aw": "ó"},
     "compounds": {
       "terminal": "w oo d",
       "heads": ["s t e r n", "h o l l y", "b r e n t", "f l ee t", "m a p le", "sh e r", "s t i l l", "w e s t", "w i n", "w e dg"]
     },
     "bases": [
-      {"parts": ["w oo d"]},
+      {"parts": ["w oo d"]}, {"parts": ["b r a d sh aw"]},
       {"parts": ["m a r l owe"]}
     ]
   },

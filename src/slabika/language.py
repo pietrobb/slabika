@@ -17,6 +17,15 @@ _PROFILE_PATHS = {
     "french": Path(__file__).parent / "data" / "french_profile.json",
     "english": Path(__file__).parent / "data" / "english_profile.json",
 }
+_ROUTER_PROFILE_PATH = Path(__file__).parent / "data" / "language_router_profile.json"
+
+
+@dataclass(frozen=True)
+class LanguageScore:
+    """Comparable isolated-word score from the shared language model."""
+
+    language: str
+    score: float
 
 
 @dataclass(frozen=True)
@@ -63,6 +72,11 @@ def _profile(language: str) -> dict[str, object]:
     return json.loads(_PROFILE_PATHS[language].read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=1)
+def _router_profile() -> dict[str, object]:
+    return json.loads(_ROUTER_PROFILE_PATH.read_text(encoding="utf-8"))
+
+
 def _features(
     word: str,
     sizes: tuple[int, ...],
@@ -75,6 +89,41 @@ def _features(
         for size in sizes
         for index in range(len(marked) - size + 1)
     } | (set(word) & letters)
+
+
+@lru_cache(maxsize=100_000)
+def language_scores(word: str) -> tuple[LanguageScore, ...]:
+    """Rank EN/DE/FR/SK using one comparable model of the isolated word."""
+    normalized = unicodedata.normalize("NFC", word).lower()
+    if len(normalized) < 3 or not normalized.isalpha():
+        return ()
+    profile = _router_profile()
+    languages = tuple(profile["languages"])
+    totals = [0.0] * len(languages)
+    matched = 0
+    marked = f"^{normalized}$"
+    weights = profile["weights"]
+    for size in profile["gram_sizes"]:
+        for index in range(len(marked) - size + 1):
+            values = weights.get(marked[index : index + size])
+            if values is None:
+                continue
+            matched += 1
+            for language_index, value in enumerate(values):
+                totals[language_index] += value
+    if not matched:
+        return ()
+    return tuple(sorted(
+        (LanguageScore(language, totals[index]) for index, language in enumerate(languages)),
+        key=lambda result: result.score,
+        reverse=True,
+    ))
+
+
+def detect_language(word: str) -> str | None:
+    """Return the most likely EN/DE/FR/SK language from the word alone."""
+    ranking = language_scores(word)
+    return ranking[0].language if ranking else None
 
 
 def _unit_evidence(

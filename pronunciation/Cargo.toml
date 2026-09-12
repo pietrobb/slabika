@@ -1,0 +1,17 @@
+[package]
+name = "slabika-pronunciation-native"
+version = "0.1.0"
+edition = "2024"
+publish = false
+license = "MIT"
+authors = ["Peter Bezemek <peter.bezemek@gmail.com>"]
+description = "Native WFST decoder for slabika-pronunciation"
+
+[lib]
+name = "slabika_pronunciation_native"
+crate-type = ["cdylib"]
+path = "rust/lib.rs"
+
+[dependencies]
+pyo3 = { version = "=0.26.0", features = ["extension-module"] }
+rustfst = "=1.3.1"

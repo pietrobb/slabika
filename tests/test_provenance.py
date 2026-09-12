@@ -71,7 +71,7 @@ ISBN = "80-224-0109-9"
 DECLARED_LICENCES = {"Apache-2.0", "CC0-1.0", "MIT"}
 CODE_LICENCE = "Apache-2.0 OR MIT"
 DATA_LICENCE = "CC0-1.0 OR MIT"
-DISTRIBUTION_LICENCE = "(Apache-2.0 OR MIT) AND (CC0-1.0 OR MIT)"
+DISTRIBUTION_LICENCE = "(Apache-2.0 OR MIT) AND (CC0-1.0 OR MIT) AND MIT"
 
 
 # --------------------------------------------------------------------------
@@ -257,11 +257,15 @@ def test_every_layer_is_reachable_under_one_common_licence():
     options in every expression the project declares — that is what makes the
     whole archive satisfiable under a single conventional OSI licence.
     """
-    for expression in set(re.findall(r'SPDX-License-Identifier = "([^"]+)"', REUSE)):
-        assert "MIT" in expression.split(" OR "), (
-            f"REUSE.toml declares '{expression}', which cannot be satisfied under MIT. "
-            f"Every layer must stay reachable without accepting CC0-1.0."
-        )
+    for block in REUSE.split("[[annotations]]")[1:]:
+        expression = re.search(r'SPDX-License-Identifier = "([^"]+)"', block).group(1)
+        if "pronunciation/python/slabika_pronunciation/models/**" in block:
+            assert expression == "CC-BY-4.0"
+        else:
+            assert "MIT" in expression.split(" OR "), (
+                f"REUSE.toml declares '{expression}', which cannot be satisfied under MIT. "
+                f"Every project-owned layer must stay reachable without accepting CC0-1.0."
+            )
 
 
 def test_non_code_layers_are_licensed_identically():
@@ -272,7 +276,10 @@ def test_non_code_layers_are_licensed_identically():
     distribution metadata.
     """
     blocks = REUSE.split("[[annotations]]")[1:]
-    non_code = [b for b in blocks if f'"{CODE_LICENCE}"' not in b]
+    non_code = [
+        block for block in blocks
+        if f'"{CODE_LICENCE}"' not in block and "pronunciation/" not in block
+    ]
     assert len(non_code) == 3, "expected data, patterns and documentation blocks"
     for block in non_code:
         assert f'SPDX-License-Identifier = "{DATA_LICENCE}"' in block, (
@@ -313,7 +320,7 @@ def test_no_file_under_a_data_path_declares_its_own_licence():
             if tag not in head:
                 continue
             declared = head.split(tag, 1)[1].splitlines()[0].strip().rstrip("*/-# ")
-            assert declared == DATA_LICENCE, (
+            assert declared == ("MIT" if path.relative_to(ROOT).as_posix() in {"src/slabika/patterns/foreign/hyph-de-1996.tex.license", "src/slabika/patterns/foreign/hyph-fr.tex.license"} else DATA_LICENCE), (
                 f"{path.relative_to(ROOT)} declares '{declared}'. Files under a data or "
                 f"pattern path take '{DATA_LICENCE}' from REUSE.toml; a header here "
                 f"relicenses the layer from inside it."
@@ -900,7 +907,7 @@ def test_reuse_resolves_every_file_to_the_licence_of_its_layer():
     # a pattern file in a format not yet listed fail as unclassifiable. A browser
     # interface is source too, so its markup and scripts count as code.
     def expected_licences(name):
-        if name == "tex/hyph-sk.tex":
+        if name in {"tex/hyph-sk.tex", "src/slabika/patterns/foreign/hyph-de-1996.tex", "src/slabika/patterns/foreign/hyph-fr.tex"}:
             return frozenset({"MIT"})
         under_data = any(part in ("data", "patterns") for part in Path(name).parts[:-1])
         code_suffixes = (".py", ".pyc", ".toml", ".html", ".css", ".js", ".bat")

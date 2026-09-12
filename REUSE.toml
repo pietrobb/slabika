@@ -49,3 +49,15 @@ path = ["LICENSE", "README.md", "README.sk.md", "LICENSING.md", "CONTRIBUTING.md
 precedence = "closest"
 SPDX-FileCopyrightText = "2026 Peter Bezemek"
 SPDX-License-Identifier = "CC0-1.0 OR MIT"
+
+[[annotations]]
+path = ["pronunciation/Cargo.lock", "pronunciation/Cargo.toml", "pronunciation/pyproject.toml", "pronunciation/about.hbs", "pronunciation/about.toml", "pronunciation/README.md", "pronunciation/MODEL_ATTRIBUTION.md", "pronunciation/THIRD_PARTY_NOTICES.md", "pronunciation/THIRD_PARTY_LICENSES.html", "pronunciation/python/slabika_pronunciation/model_manifest.json"]
+precedence = "closest"
+SPDX-FileCopyrightText = "2026 Peter Bezemek"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = ["pronunciation/python/slabika_pronunciation/models/**"]
+precedence = "closest"
+SPDX-FileCopyrightText = "Montreal Forced Aligner"
+SPDX-License-Identifier = "CC-BY-4.0"

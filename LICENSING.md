@@ -30,12 +30,12 @@ whose own licence is incompatible with Apache-2.0.
 
 A Python distribution built from this repository therefore contains files under
 more than one licence, and its `License-Expression` metadata is
-`(Apache-2.0 OR MIT) AND (CC0-1.0 OR MIT)`. That `AND` is a statement about the
+`(Apache-2.0 OR MIT) AND (CC0-1.0 OR MIT) AND MIT`. That `AND` is a statement about the
 archive, not about any single file: no file is under both a code licence and a
 data licence at the same time. Each `OR` inside it is a choice you make.
 
-Which layer a file belongs to is decided by where it lives, and there are no
-per-file exceptions to that. Tables of linguistic facts are therefore kept in
+The bundled DE/FR upstream patterns in `src/slabika/patterns/foreign/` are MIT-only; their original copyright and permission notices are retained verbatim, with per-file SPDX sidecars.
+For project-owned files, location determines the layer. Tables of linguistic facts are kept in
 the data layer even when they are consumed only by the code: the phoneme
 inventory is `src/slabika/data/phonology.json`, read at import by
 `slabika.phonology`, rather than a set of literals inside that module. A file

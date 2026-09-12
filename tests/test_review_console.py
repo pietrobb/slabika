@@ -116,6 +116,37 @@ def test_default_review_assets_are_available():
     assert REVIEW.tex_hyphenate("maslo")
 
 
+@pytest.mark.parametrize("word", ["rāqîaʿ", "Ærø", "šālôm", "λόγος", "שלום", "ra\u0304qi\u0302aʿ", "a\u0304na"])
+def test_unsupported_syllabification_is_not_an_engine_crash(word):
+    assert REVIEW._engine(word) == (word, "", None)
+
+
+def test_unsupported_syllabification_preserves_hyphenation(monkeypatch):
+    monkeypatch.setattr(REVIEW, "hyphenate", lambda form: "rā·qîaʿ")
+    assert REVIEW._engine("rāqîaʿ") == ("rā·qîaʿ", "", None)
+
+
+@pytest.mark.parametrize("function", ["hyphenate", "syllables"])
+@pytest.mark.parametrize("error_type", [ValueError, RuntimeError])
+def test_real_engine_errors_are_still_reported(monkeypatch, function, error_type):
+    def fail(form):
+        raise error_type("test failure")
+
+    monkeypatch.setattr(REVIEW, function, fail)
+    assert REVIEW._engine("maslo")[2] == f"{error_type.__name__}: test failure"
+
+
+def test_unsupported_syllabification_is_visible_and_filterable(corpus):
+    corpus.review_forms["okno"] = "rāqîaʿ"
+    item = corpus.page("okno", "exact", "all", 0, 10)["items"][0]
+    assert item["hyphenation"] == "rāqîaʿ"
+    assert item["syllabification"] == ""
+    assert item["syllabification_unsupported"] is True
+    assert item["engine_error"] is None
+    assert corpus._filter_status(["rāqîaʿ", "maslo"], "syllabification_unsupported") == ["rāqîaʿ"]
+    assert corpus._filter_status(["rāqîaʿ", "maslo"], "engine_error") == []
+
+
 def test_human_hyphenation_matches_the_normative_engine_mode():
     assert (
         REVIEW._hyphenation_match_mode("neobopínajú", "ne·o·bo·pí·na·jú")
@@ -988,8 +1019,9 @@ def test_classification_preserves_existing_reviews_and_supports_filters(corpus):
     assert "maslo" not in corpus._filter_status(corpus.forms, "undecided")
 
 
-def test_bulk_confirmation_rejects_an_engine_error(corpus, monkeypatch):
-    monkeypatch.setattr(REVIEW, "_engine", lambda form: (form, form, "engine failed"))
+@pytest.mark.parametrize("result", [("okno", "okno", "engine failed"), ("okno", "", None)])
+def test_bulk_confirmation_rejects_an_engine_error(corpus, monkeypatch, result):
+    monkeypatch.setattr(REVIEW, "_engine", lambda form: result)
     with pytest.raises(ValueError, match="nemožno hromadne potvrdiť"):
         corpus.decide(
             {

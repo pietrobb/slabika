@@ -5,18 +5,54 @@ import json
 from pathlib import Path
 
 from slabika import (
+    detect_language,
     english_evidence,
     french_evidence,
     german_evidence,
     is_english,
     is_french,
     is_german,
+    language_scores,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
 GERMAN_PROFILE = ROOT / "src/slabika/data/german_profile.json"
 FRENCH_PROFILE = ROOT / "src/slabika/data/french_profile.json"
 ENGLISH_PROFILE = ROOT / "src/slabika/data/english_profile.json"
+ROUTER_PROFILE = ROOT / "src/slabika/data/language_router_profile.json"
+
+
+def test_shared_router_classifies_isolated_words_without_manual_language_labels():
+    expected = {
+        "Abdrushin": "english",
+        "Bradshaw": "english",
+        "unknownword": "english",
+        "Teufelsstein": "german",
+        "unbekannteswort": "german",
+        "Molière": "french",
+        "inconnue": "french",
+        "slovenčina": "slovak",
+        "schopný": "slovak",
+    }
+    assert {word: detect_language(word) for word in expected} == expected
+
+
+def test_shared_router_returns_comparable_ranked_scores_and_rejects_non_words():
+    ranking = language_scores("Abdrushin")
+    assert [result.language for result in ranking] == ["english", "german", "french", "slovak"]
+    assert [result.score for result in ranking] == sorted(
+        (result.score for result in ranking), reverse=True
+    )
+    assert language_scores("de") == ()
+    assert detect_language("two words") is None
+
+
+def test_distributed_router_profile_records_blind_family_split_metrics():
+    profile = json.loads(ROUTER_PROFILE.read_text(encoding="utf-8"))
+    assert profile["languages"] == ["english", "german", "french", "slovak"]
+    assert len(profile["weights"]) == 149_280
+    assert profile["test"]["macro_accuracy"] > 0.91
+    assert min(profile["test"]["accuracy"].values()) > 0.85
 
 
 def test_german_corpus_profile_routes_known_german_forms():

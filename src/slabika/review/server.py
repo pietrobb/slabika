@@ -34,9 +34,10 @@ from urllib.parse import parse_qs, urlparse
 
 from slabika import __version__ as ENGINE_VERSION
 from slabika import hyphenate, is_english, is_french, is_german, syllables
+from slabika.syllabify import UnsupportedSpellingError
 from .ai_adjudication import form_history_html, get_form_history
 from .tex_patterns import tex_hyphenate
-
+from .schema import allow_classification_action
 _PACKAGE_DIR = Path(__file__).resolve().parent
 _SOURCE_ROOT = _PACKAGE_DIR.parents[2]
 _SOURCE_DATA = _SOURCE_ROOT / "tests" / "data"
@@ -379,7 +380,12 @@ def _tex_mode(marked: str, form: str, left_min: int = 2, right_min: int = 3) -> 
 
 def _engine(form: str) -> tuple[str, str, str | None]:
     try:
-        return hyphenate(form), _recase(syllables(form), form), None
+        hyphenation = hyphenate(form)
+        try:
+            syllabification = _recase(syllables(form), form)
+        except UnsupportedSpellingError:
+            syllabification = ""
+        return hyphenation, syllabification, None
     except Exception as error:  # noqa: BLE001 - shown to the reviewer
         return form, form, f"{type(error).__name__}: {error}"
 
@@ -550,8 +556,8 @@ class Corpus:
                 self.store.execute(
                     f"ALTER TABLE decision_log ADD COLUMN {column} {definition}"
                 )
-        self.store.execute(
-            """UPDATE decisions SET row_action = action
+        allow_classification_action(self.store)
+        self.store.execute("""UPDATE decisions SET row_action = action
                WHERE action IN ('flag', 'uncertain', 'invalid') AND row_action IS NULL"""
         )
         self.store.execute(
@@ -972,6 +978,7 @@ class Corpus:
             "engine_tex": engine_tex,
             "syllabification": syllabification,
             "engine_error": error,
+            "syllabification_unsupported": not syllabification and error is None,
             "language_profiles": {
                 "english": is_english(review_form),
                 "german": is_german(review_form),
@@ -1133,6 +1140,8 @@ class Corpus:
                     _engine(form)[0],
                 ) is None
             ]
+        if status == "syllabification_unsupported":
+            return [form for form in forms if _engine(form)[1:] == ("", None)]
         if status == "engine_error":
             return [form for form in forms if _engine(form)[2] is not None]
         rows = self._ai_rows(forms)
@@ -1702,8 +1711,8 @@ class Corpus:
         form = self.representative_for_form[form]
         review_form = form
         display_hyphenation, display_syllabification, engine_error = _engine(review_form)
-        if payload.get("bulk") and engine_error:
-            raise ValueError(f"výstup enginu nemožno hromadne potvrdiť: {engine_error}")
+        if payload.get("bulk") and (engine_error or not display_syllabification):
+            raise ValueError(f"výstup enginu nemožno hromadne potvrdiť: {engine_error or 'nepodporované slabikovanie'}")
         hyphenation = _recase_marked(display_hyphenation, form)
         syllabification = _recase_marked(display_syllabification, form)
         field = None
@@ -1817,7 +1826,7 @@ class Corpus:
                 if "correct" in (hyphenation_action, syllabification_action)
                 else "confirm"
                 if "confirm" in (hyphenation_action, syllabification_action)
-                else "confirm"
+                else "classify"
             )
             try:
                 self.store.execute(

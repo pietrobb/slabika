@@ -43,7 +43,7 @@ def load_manual(path: Path) -> dict[str, dict]:
         if deleted:
             continue
         out[form] = {
-            "action": hyph_action or action,
+            "action": hyph_action or (action if expected else None),
             "expected": expected.lower() if expected else None,
             "prior": prior.lower() if prior else None,
             "foreign": bool(foreign),

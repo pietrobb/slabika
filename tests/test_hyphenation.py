@@ -14,6 +14,7 @@ from slabika import (
     split_into_phonemes,
     syllables as get_syllables,
 )
+from slabika.syllabify import UnsupportedSpellingError
 from tools.liang_experiment import (
     cardinal_parts,
     cardinal_word,
@@ -5051,6 +5052,15 @@ def test_a_foreign_spelling_is_refused_rather_than_guessed_at():
     """
     with pytest.raises(ValueError, match="not spelled in Slovak"):
         get_syllables("Ærø")
+
+
+@pytest.mark.parametrize("word", ["rāqîaʿ", "RĀQÎAʿ", "Ærø", "šālôm", "λόγος", "שלום", "ra\u0304qi\u0302aʿ", "a\u0304na"])
+def test_unsupported_unicode_is_preserved_without_guessed_breaks(word):
+    with pytest.raises(UnsupportedSpellingError):
+        get_syllables(word)
+    for all_points in (False, True):
+        for contextual in (False, True):
+            assert hyphenate(word, all_points=all_points, contextual=contextual) == word
 
 
 def test_a_foreign_letter_with_a_known_sound_is_divided_by_slovak_rules():

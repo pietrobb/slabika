@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Slovak syllabification and hyphenation, derived from a full phonological inventory"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "(Apache-2.0 OR MIT) AND (CC0-1.0 OR MIT)"
+license = "(Apache-2.0 OR MIT) AND (CC0-1.0 OR MIT) AND MIT"
 license-files = ["LICENSE", "LICENSES/*"]
 authors = [{ name = "Peter Bezemek", email = "peter.bezemek@gmail.com" }]
 keywords = ["slovak", "slovencina", "hyphenation", "syllabification", "phonology", "typography", "patgen"]
@@ -29,6 +29,7 @@ slabika-review = "slabika.review.server:main"
 [project.optional-dependencies]
 dev = ["pytest>=7", "ruff", "reuse"]
 morph = ["PyMuPDF>=1.24"]
+pronunciation = ["slabika-pronunciation==0.1.0"]
 
 [project.urls]
 Homepage = "https://github.com/pietrobb/slabika"

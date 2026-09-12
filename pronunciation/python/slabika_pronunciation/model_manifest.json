@@ -1,0 +1,32 @@
+{
+  "english": {
+    "archive": "english_us_mfa-v3.0.0.zip",
+    "member": "english_us_mfa/model.fst",
+    "sha256": "9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02",
+    "title": "English (US) MFA G2P model v3.0.0",
+    "maintainer": "Montreal Forced Aligner",
+    "license": "CC-BY-4.0",
+    "source": "https://github.com/MontrealCorpusTools/mfa-models/releases/tag/g2p-english_us_mfa-v3.0.0",
+    "modified": false
+  },
+  "german": {
+    "archive": "german_mfa-v3.0.0.zip",
+    "member": "german_mfa/model.fst",
+    "sha256": "ab5340cb0ff19a5e383564b4adf5db301e8d8bf23218d6b0e4e37d38a8943f73",
+    "title": "German MFA G2P model v3.0.0",
+    "maintainer": "Montreal Forced Aligner",
+    "license": "CC-BY-4.0",
+    "source": "https://github.com/MontrealCorpusTools/mfa-models/releases/tag/g2p-german_mfa-v3.0.0",
+    "modified": false
+  },
+  "french": {
+    "archive": "french_mfa-v3.0.0.zip",
+    "member": "french_mfa/model.fst",
+    "sha256": "d4ebbb146ca123e887d2f0c17d09dff6c4f4a7d51a5be49c5564fb7f4a80d3c4",
+    "title": "French MFA G2P model v3.0.0",
+    "maintainer": "Montreal Forced Aligner",
+    "license": "CC-BY-4.0",
+    "source": "https://github.com/MontrealCorpusTools/mfa-models/releases/tag/g2p-french_mfa-v3.0.0",
+    "modified": false
+  }
+}

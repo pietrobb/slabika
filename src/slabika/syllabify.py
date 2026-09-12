@@ -22,6 +22,7 @@ the syllable boundaries returned here.
 """
 
 import json
+import unicodedata
 from pathlib import Path
 
 from .phonology import (
@@ -1925,6 +1926,10 @@ def get_morpheme_parts(word: str) -> list[str]:
     return [word]
 
 
+class UnsupportedSpellingError(ValueError):
+    """The spelling cannot be syllabified without a known pronunciation."""
+
+
 def get_syllables(word: str) -> list[str]:
     """
     Return linguistic syllable units, without typographic line-break filtering.
@@ -1946,9 +1951,13 @@ def get_syllables(word: str) -> list[str]:
         as a consonant. :func:`slabika.hyphenate` returns such words untouched.
     """
     wl = word.lower()
-    foreign = {char for char in wl if char.isalpha() and char not in ANALYSABLE_LETTERS}
+    foreign = {
+        char for char in wl
+        if (char.isalpha() and char not in ANALYSABLE_LETTERS)
+        or unicodedata.category(char).startswith("M")
+    }
     if foreign:
-        raise ValueError(
+        raise UnsupportedSpellingError(
             f"{word!r} is not spelled in Slovak: {''.join(sorted(foreign))}. "
             "Slovak syllabification cannot be applied to a foreign spelling "
             "without knowing its pronunciation (PSP §5.4)."

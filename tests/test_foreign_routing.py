@@ -21,8 +21,8 @@ from slabika.foreign import _inventory, foreign_reading, reading_candidates
     ("Schloßbergu", "Schloß·ber·gu"),
     ("Schlossbergu", "Schloss·ber·gu"),
     ("Heidelberg", "Hei·del·berg"),
-    ("Sternwood", "Stern·wood"),
-    ("Sternwoodovi", "Stern·woo·do·vi"),
+    ("Sternwood", "Stern·wood"), ("Bradshaw", "Brad·shaw"),
+    ("Sternwoodovi", "Stern·woo·do·vi"), ("Bradshawovi", "Brad·shaw·o·vi"),
     ("Sternwoodovcov", "Stern·woo·dov·cov"),
     ("hollywoodskými", "hol·ly·wood·ský·mi"),
     ("hollywoodskych", "hol·ly·wood·skych"),
@@ -30,7 +30,7 @@ from slabika.foreign import _inventory, foreign_reading, reading_candidates
     ("Beauvais", "Beau·vais"),
     ("Beaupère", "Beau·père"),
     ("Molièrovi", "Mo·liè·ro·vi"),
-    ("Marloweovi", "Mar·lowe·o·vi"),
+    ("Marloweovi", "Mar·lowe·o·vi"), ("Bradshawom", "Brad·shaw·om"),
     ("STERNWOODOVI", "STERN·WOO·DO·VI"),
 ])
 def test_profile_routes_reading_through_slovak_psp(word, expected):
