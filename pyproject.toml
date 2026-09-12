@@ -46,6 +46,14 @@ packages = ["src/slabika"]
 "tests/data/blind_human_recheck_2000_v3/results.sqlite" = "slabika/review/data/blind-human-recheck-2000.sqlite"
 "tex/hyph-sk.tex" = "slabika/review/tex/hyph-sk.tex"
 
+[tool.hatch.build.targets.sdist.force-include]
+"tests/data/translatemaster_hyphenation_working.sqlite" = "tests/data/translatemaster_hyphenation_working.sqlite"
+"tests/data/blind_word_division_5000_v1/results.sqlite" = "tests/data/blind_word_division_5000_v1/results.sqlite"
+"tests/data/blind_human_recheck_100_v1/results.sqlite" = "tests/data/blind_human_recheck_100_v1/results.sqlite"
+"tests/data/blind_human_recheck_1000_v2/results.sqlite" = "tests/data/blind_human_recheck_1000_v2/results.sqlite"
+"tests/data/blind_human_recheck_2000_v3/results.sqlite" = "tests/data/blind_human_recheck_2000_v3/results.sqlite"
+"tex/hyph-sk.tex" = "tex/hyph-sk.tex"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]

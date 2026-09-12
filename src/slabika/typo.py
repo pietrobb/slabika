@@ -21,6 +21,7 @@ tests; pass ``separator="-"`` or ``separator="\\u00ad"`` for line-breaking use,
 or call :func:`break_points` for raw character offsets.
 """
 
+from .foreign import foreign_points
 from .phonology import (
     HYPHENATABLE_LETTERS,
     is_consonant,
@@ -164,7 +165,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'teufelsbrücke': (3, 7, 11),
     'teufelsgalgen': (3, 7, 10),
     'teufelsritt': (3, 7),
-    'teufelsstein': (3, 7, 10),
+
     'teufelswand': (7,),
 }
 
@@ -326,6 +327,10 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     reviewed_foreign = _REVIEWED_FOREIGN_BREAK_POINTS.get(word.lower())
     if reviewed_foreign is not None:
         return set(reviewed_foreign), set(), set()
+
+    routed = foreign_points(word, _psp_points)
+    if routed is not None:
+        return routed
 
     if any(char.lower() not in _DIVISIBLE_LETTERS for char in word):
         return set(), set(), set()

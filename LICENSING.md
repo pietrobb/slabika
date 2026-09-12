@@ -175,7 +175,7 @@ Two different things are called "word material" in this project, and they are
 deliberately kept apart: what the datasets *are*, and where the *vocabulary*
 they cover was drawn from.
 
-**What the datasets are.** They consist of isolated word forms and the
+**What the word-division datasets are.** They consist of isolated word forms and the
 positions of syllable boundaries within them. They are deduplicated and sorted.
 They retain no running text, no sentence order, no word order, and no n-gram,
 frequency or collocation information, and therefore do not preserve the sequence
@@ -197,6 +197,33 @@ isolated lexical items is carried over from it.
 Where that prose is a translation, only isolated Slovak word forms survive
 deduplication and sorting. No sentence, sequence, structure or other expressive
 element of an underlying work is retained in the dataset.
+
+**German, French and English language profiles.** The JSON files in
+`src/slabika/data/` are separate statistical layers. The German and French profiles
+were trained from maintainer-approved prose in the local TranslateMaster corpus;
+the French sources are *Histoire de ma vie* and *L’Île mystérieuse*. The English
+profile was trained from 66 English-language Project Gutenberg transcriptions,
+plus the seven Raymond Chandler projects in the maintainer-approved local
+TranslateMaster corpus. The Gutenberg selection comprises 46 works by Jack London
+and 20 works by 14 other authors whose selected works are in the public domain in
+both the United States and the European Union. Editions with an unexpired or
+unresolved European contributor term were deliberately excluded, including *The
+Kempton-Wace Letters* and two Gordon Grant illustrated editions. The Chandler
+source texts are local build inputs and are not distributed by this project. The
+build script records every Gutenberg eBook identifier and a hash of every input
+text. The distributed profiles contain only aggregate character n-gram log-odds;
+they contain no sentences, word order, frequencies or source-word lists. The Slovak
+contrast is
+this project's independently assembled inventory described above. Hunspell
+dictionaries are used only as external evaluation aids and contribute no weights
+or lexical entries to the distributed profiles.
+
+`foreign_readings.json` is a separate, independently written description of
+spelling-to-syllabic-role facts for a limited set of foreign lexical families.
+It contains no copied dictionary entries, foreign hyphenation patterns or Human
+review breakpoints. The production engine maps these units to Slovak PSP rules,
+including Slovak inflectional junctions. Like the other linguistic data, it is
+offered under `CC0-1.0 OR MIT`; this adds no runtime dependency.
 
 No dataset in this repository is a copy, extract or re-arrangement of a
 third-party lexical database, dictionary, or word list.

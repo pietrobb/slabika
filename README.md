@@ -12,7 +12,23 @@ pattern table.
 'Pre-kla-da-teľ-ský'
 >>> slabika.break_points("Prekladateľský")
 [3, 6, 8, 11]
+>>> slabika.is_german("Frankensteinov")
+True
+>>> slabika.is_french("français")
+True
+>>> slabika.is_english("thought")
+True
 ```
+
+`is_german`, `is_french` and `is_english` provide conservative routing evidence
+from bundled corpus profiles; they are not independently adjudicated language
+labels or division rules. `hyphenate()` now uses them automatically for supported
+EN/DE/FR pronunciation families and their Slovak inflections, for example
+`Frankensteinovi → Fran·ken·stei·no·vi`, `Sternwoodovi → Stern·woo·do·vi`,
+and `Beaurevoiru → Beau·re·voi·ru`. Slovak PSP rules generate points from declared
+pronunciation units; no foreign hyphenation patterns are used. This is a limited
+reading inventory, not a universal three-language hyphenator. Unsupported readings
+or conflicting profiles retain the existing division path.
 
 > 🇸🇰 Po slovensky: [README.sk.md](README.sk.md)
 
@@ -36,10 +52,10 @@ The conclusion was that the missing piece was not another algorithm but the
 input, and that it would have to be built. That is what this repository is:
 first the vocabulary and the rules, then the patterns as a by-product.
 
+The author's own translations exposed another problem: good hyphenation of Slovak vocabulary alone is not enough when a Slovak text contains foreign names and words with Slovak endings. They need **Slovak division rules informed by their pronunciation**, not a switch to English, German or French hyphenation rules. Connecting the language profiles to the PSP engine is this project's first step in that direction. It already helps with supported families such as `Frankensteinovi`, `Sternwoodovi` and `Beaurevoiru`; coverage remains limited, but the results are promising. Liang patterns learn from this engine's output: they receive these examples, not the language detector itself or a guarantee of identical results on every foreign word.
 ## What a Liang pattern is
 
-Most published hyphenation is done with the algorithm from Frank Liang's 1983
-dissertation, the one built into TeX and, through it, into most typesetting and
+Most published hyphenation is done with the algorithm from Frank Liang's 1983 dissertation, the one built into TeX and, through it, into most typesetting and
 word-processing software. It does not know any grammar. A pattern is a short
 letter fragment carrying digits between the letters, for example `1ná2`: an odd
 digit means a break is allowed at that spot, an even digit forbids it, all
@@ -66,7 +82,7 @@ repository is in the repository**, under licences that let anyone rerun it:
 
 | step | where it is | licence |
 | --- | --- | --- |
-| the vocabulary — 195,230 isolated word forms | [`tests/data/translatemaster_hyphenation_working.sqlite`](tests/data/translatemaster_hyphenation_working.sqlite) | `CC0-1.0 OR MIT` |
+| the vocabulary — 206,148 isolated word forms | [`tests/data/translatemaster_hyphenation_working.sqlite`](tests/data/translatemaster_hyphenation_working.sqlite) | `CC0-1.0 OR MIT` |
 | the divisions used as training labels | computed by the rule engine in [`src/slabika/`](src/slabika) | `Apache-2.0 OR MIT` |
 | the training, split and evaluation pipeline | [`tools/liang_experiment.py`](tools/liang_experiment.py) | `Apache-2.0 OR MIT` |
 | the resulting Liang patterns | [`patterns/`](patterns) | `CC0-1.0 OR MIT` |
@@ -129,7 +145,7 @@ largest part of the work, even though much of the final engine is rule-based.
 
 ## How much of the vocabulary has actually been checked
 
-The engine computes a division for all 195,230 forms, but computing is not
+This review snapshot describes an earlier 195,230-form inventory. Computing is not
 checking. Individual review is a separate, much smaller and fully tracked layer,
 and the honest summary is that most of the inventory has never been looked at
 one word at a time:
@@ -198,7 +214,7 @@ is a detector of places that need a PSP decision — nothing more.
 ## How this differs from the 1992 patterns
 
 In the held-out evaluation further below, Jana Chlebíková's patterns reproduce
-the engine's division on 89.63% of whole words, so roughly one word in ten is
+the engine's division on 89.70% of whole words, so roughly one word in ten is
 divided differently. The differences are not random. The largest group is the
 morpheme seam: those patterns carry morphology as a hand-written list of 994
 prefixes and stems, so a word outside that list falls through to the
@@ -266,7 +282,7 @@ Codified doublets are exposed by `all_points=True`.
 | --- | --- |
 | `src/slabika/` | the rule engine and public API — `syllables`, `break_points`, `divisions`, `hyphenate` |
 | `src/slabika/review/` | the local review console shipped with the package |
-| `tests/data/translatemaster_hyphenation_working.sqlite` | the working word inventory: 195,230 isolated forms with casing and review state |
+| `tests/data/translatemaster_hyphenation_working.sqlite` | the working word inventory: 206,148 isolated forms with casing and review state |
 | `tests/data/blind_*`, `tests/data/ai_adjudication/` | frozen blind-audit samples and advisory AI adjudications used as evidence, not as authority |
 | `tests/` | the test suite: engine, boundary classes, review console, generated-pattern invariants, provenance and licensing |
 | `tools/liang_experiment.py` | the generator: labels, deterministic split, `patgen` training, evaluation, `report.json` |
@@ -305,12 +321,12 @@ the engine-labelled training words. Each output directory also contains
 `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and the machine-readable
 `report.json`. The `--patterns-output` path is the final packaged TeX source.
 
-For this snapshot, the source inventory has 195,767 rows and SHA-256
-`d2bcafa945c86cf7eca000bc8ee6a4dc272311977669aa057ffa6182b1d2b821`. After
-filtering it supplies 193,119 supported unique words: 154,496 training words and
-38,623 held-out words. The resulting preferred and permissive files have SHA-256
-`3460bdc9e28bd657cb926d1f1a74d069db09733e6b43cce6e300d882b1208743` and
-`61f6346392bde47e8aaf77635c67fbc3e3c76a9c393090927b27f62724e7ab57`,
+For this snapshot, the source inventory has 206,148 rows and SHA-256
+`817e65828bd8f13d507d442f4361a53c80f49b98bb639e54b6a3f6827066127e`. After
+filtering it supplies 203,795 supported unique words: 163,062 training words and
+40,733 held-out words. The resulting preferred and permissive files have SHA-256
+`b3a103709a9db90c4b6c7c1722e50674220c9d8eb6b880b00ba80f432dd9643a` and
+`1c3eaaf8b9774783c0172246996c3318f387aedd0e5453ef8c459fb2ecaa7be5`,
 respectively.
 
 ### Verify a rebuild or a contribution
@@ -380,10 +396,10 @@ It therefore cannot modify the project's review database. `run_review.bat` is th
 maintainer launcher: it deliberately opens the tracked project review data and is
 not the right launcher for an external review.
 
-The console keeps two questions separate:
+The **language / classification** column separates the automatic EN/DE/FR profile estimate, the reviewer's explicit flags and inherited import/AI flags. An undetected language is shown as unknown, not assumed to be Slovak. Profile filters select EN, DE or FR independently of manual classification; **Random 200** selects a contiguous alphabetical block of unreviewed forms. Manual flags remain review annotations, not instructions to override the production engine.
+The console also keeps two questions separate:
 
-- **typographic division** says where a written word may be broken at the end of
-  a line; this is the output used to train the Liang patterns;
+- **typographic division** says where a written word may be broken at the end of a line; this is the output used to train the Liang patterns;
 - **syllabification** describes the spoken syllables and may legitimately have
   different boundaries.
 
@@ -424,15 +440,15 @@ licensing and provenance requirements.
 ## The published Liang pattern files
 
 The project publishes two **work-in-progress** pattern sets learned solely from
-the bundled vocabulary. Of its 195,767 inventory rows, 193,119 supported unique
+the bundled vocabulary. Of its 206,148 inventory rows, 203,795 supported unique
 words remain after excluding `needs_review` forms and applying alphabet and
-casefold filtering. The deterministic split assigns 154,496 words to training and
-keeps 38,623 words unseen for both evaluations:
+casefold filtering. The deterministic split assigns 163,062 words to training and
+keeps 40,733 words unseen for both evaluations:
 
 - [`patterns/hyph-sk-slabika.tex`](patterns/hyph-sk-slabika.tex) is the default
-  preferred set (5,231 patterns), trained from `break_points(word)`;
+  preferred set (5,282 patterns), trained from `break_points(word)`;
 - [`patterns/hyph-sk-slabika-permissive.tex`](patterns/hyph-sk-slabika-permissive.tex)
-  is the permissive set for narrow measures (4,835 patterns), trained from
+  is the permissive set for narrow measures (4,982 patterns), trained from
   `break_points(word, all_points=True, contextual=True)`.
 
 Both sets contain no whole-word exceptions. TeX edge minima 2/3 were applied to
@@ -445,15 +461,15 @@ should use the preferred set. The permissive set additionally exposes equally
 codified variants and legal but discouraged contextual points; the two sets must
 not be loaded together.
 
-On 38,623 held-out words, with the same TeX left/right minima of 2/3 applied to
+On 40,733 held-out words, with the same TeX left/right minima of 2/3 applied to
 both competitors and to the target, the result was:
 
 | patterns | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| **slabika preferred (5,231 patterns)** | **98.6770%** (38,112/38,623) | **99.6283%** | **99.5121%** |
-| Jana Chlebíková 1992 against the preferred target | 89.6279% | 96.0111% | 95.3423% |
-| **slabika permissive (4,835 patterns)** | **98.7728%** (38,149/38,623) | **99.6545%** | **99.5635%** |
-| Jana Chlebíková 1992 against the permissive target | 89.1023% | 96.3877% | 94.8691% |
+| **slabika preferred (5,282 patterns)** | **98.6866%** (40,198/40,733) | **99.6345%** | **99.5108%** |
+| Jana Chlebíková 1992 against the preferred target | 89.7012% | 96.1034% | 95.3957% |
+| **slabika permissive (4,982 patterns)** | **98.8240%** (40,254/40,733) | **99.6544%** | **99.5873%** |
+| Jana Chlebíková 1992 against the permissive target | 89.1660% | 96.4647% | 94.9276% |
 
 This is a benchmark of **fidelity to the current rule engine**, not an
 independent PSP correctness benchmark. Engine points outside the common TeX

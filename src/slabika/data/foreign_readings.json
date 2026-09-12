@@ -1,0 +1,46 @@
+{
+  "provenance": "Independently described spelling-to-syllabic-role facts for the multilingual pilot families. No Pyphen patterns, Hunspell entries or Human breakpoints are imported. PSP V governs every derived point. This is a limited pronunciation inventory, not a general G2P model.",
+  "notation": "Each space-separated spelling unit maps to one Slovak nucleus/consonant proxy; unlisted single letters map to themselves. Parts denote transparent compound members. Double consonant letters before vowels remain separate for the PSP spelling convention. Proxies encode syllabic roles, not IPA.",
+  "endings": ["a", "e", "u", "i", "om", "och", "ovi", "ov", "ova", "ovu", "ove", "ovej", "ovou", "ová", "ové", "ovú", "ovým", "ovho", "ovmu", "ovci", "ovcom", "ovcov", "ovská", "ovskej", "ovské", "ovských", "ovskými", "ska", "ske", "skeho", "skej", "ski", "skom", "skou", "sky", "skych", "skym", "skymi", "ský", "ská", "ské", "skí", "skú", "ského", "skému", "ských", "ským", "skými"],
+  "english": {
+    "units": {"w": "v", "oo": "u", "ee": "í", "sh": "š", "dg": "č", "le": "l", "owe": "o"},
+    "compounds": {
+      "terminal": "w oo d",
+      "heads": ["s t e r n", "h o l l y", "b r e n t", "f l ee t", "m a p le", "sh e r", "s t i l l", "w e s t", "w i n", "w e dg"]
+    },
+    "bases": [
+      {"parts": ["w oo d"]},
+      {"parts": ["m a r l owe"]}
+    ]
+  },
+  "german": {
+    "units": {"ei": "a", "ie": "í", "eu": "o", "sch": "š", "ch": "h", "ck": "k", "ß": "s", "ö": "e", "ü": "u", "w": "v", "eh": "é"},
+    "compounds": {
+      "terminals": ["s t ei n", "b e r g"],
+      "heads": ["f r a n k e n", "b e r n|h a r d s", "b l o ck s", "b r a n", "eh r e n", "f l a sch", "h ei d e l", "k l o p", "k u l m", "r o s e n", "r u b i n", "sch l o s s", "sch l o ß", "sch ö ck e l", "v o m p e r", "w a l d", "w a l l e n", "w ei n s", "w ie n e r", "t eu f e l s"]
+    },
+    "bases": [
+      {"parts": ["s t ei n"]},
+      {"parts": ["b e r g"]},
+      {"parts": ["t eu f e l s"]}
+    ]
+  },
+  "french": {
+    "units": {"eau": "o", "ce": "s", "g": "ž", "c": "s", "ai": "é", "ais": "é", "ieu": "u", "re": "r", "oi": "o", "ou": "u", "ont": "o", "iè": "e", "è": "e"},
+    "bases": [
+      {"parts": ["b eau ce"], "inflect": false},
+      {"parts": ["b eau g e n c y"]},
+      {"parts": ["b eau j o l ais"], "inflect": false},
+      {"parts": ["b eau l ieu"]},
+      {"parts": ["b eau p è re"]},
+      {"parts": ["b eau p e re"]},
+      {"parts": ["b eau p e r"]},
+      {"parts": ["b eau p è r"]},
+      {"parts": ["b eau r e v oi r"]},
+      {"parts": ["b eau v ais"], "inflect": false},
+      {"parts": ["b ou r l e m ont"], "inflect": false},
+      {"parts": ["m o l iè re"]},
+      {"parts": ["m o l iè r"]}
+    ]
+  }
+}

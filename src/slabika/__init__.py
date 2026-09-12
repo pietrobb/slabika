@@ -22,6 +22,17 @@ Typical use::
     'Pre-kla-da-teľ-ský'
 """
 
+from .language import (
+    EnglishEvidence,
+    FrenchEvidence,
+    GermanEvidence,
+    english_evidence,
+    french_evidence,
+    german_evidence,
+    is_english,
+    is_french,
+    is_german,
+)
 from .phonology import (
     is_consonant,
     is_diphthong,
@@ -47,9 +58,18 @@ __all__ = [
     "check_preposition_form",
     "check_rhythmic_law",
     "divisions",
+    "EnglishEvidence",
+    "english_evidence",
+    "FrenchEvidence",
+    "french_evidence",
+    "GermanEvidence",
+    "german_evidence",
     "hyphenate",
     "is_consonant",
     "is_diphthong",
+    "is_english",
+    "is_french",
+    "is_german",
     "is_long_syllable",
     "is_phonotactically_valid",
     "is_vowel",

@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import errno
 import json
+import random
 import re
 import sqlite3
 import threading
@@ -32,7 +33,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from slabika import __version__ as ENGINE_VERSION
-from slabika import hyphenate, syllables
+from slabika import hyphenate, is_english, is_french, is_german, syllables
 from .ai_adjudication import form_history_html, get_form_history
 from .tex_patterns import tex_hyphenate
 
@@ -633,6 +634,7 @@ class Corpus:
         self.folded: list[str] = [_fold(form) for form in self.forms]
         self.form_set: set[str] = set(self.review_forms)
         self._tex_disagreements: frozenset[str] | None = None
+        self._language_forms: dict[str, frozenset[str]] = {}
 
     # -- reading ---------------------------------------------------------
 
@@ -658,6 +660,28 @@ class Corpus:
         else:
             test = str.__contains__
         return [self.forms[i] for i, folded in enumerate(self.folded) if test(folded, needle)]
+
+    def random_unreviewed_worklist(self, count: int = 200) -> dict:
+        """Select a random, alphabetically contiguous window of unreviewed forms."""
+        rows = self._decision_rows(self.forms)
+        unreviewed = [
+            form
+            for form in self.forms
+            if form not in rows or not self._is_reviewed(rows[form])
+        ]
+        window_size = min(count, len(unreviewed))
+        start = random.randrange(len(unreviewed) - window_size + 1) if window_size else 0
+        self.worklist = unreviewed[start : start + window_size]
+        self.worklist_name = f"náhodný blok {window_size} nerevidovaných slov"
+        self.worklist_text = ""
+        self.worklist_unknown = []
+        return {
+            "name": self.worklist_name,
+            "matched": window_size,
+            "total_unreviewed": len(unreviewed),
+            "first": self.worklist[0] if self.worklist else None,
+            "last": self.worklist[-1] if self.worklist else None,
+        }
 
     def load_worklist(self, text: str, name: str = "") -> dict:
         """Read an upload as a list of forms, or as running text.
@@ -948,6 +972,11 @@ class Corpus:
             "engine_tex": engine_tex,
             "syllabification": syllabification,
             "engine_error": error,
+            "language_profiles": {
+                "english": is_english(review_form),
+                "german": is_german(review_form),
+                "french": is_french(review_form),
+            },
             "tex": tex,
             "tex_disagrees": bool(tex) and tex != engine_tex,
             "psp_comparison": psp_comparison,
@@ -1031,9 +1060,24 @@ class Corpus:
             )
         )
 
+    def _forms_for_language(self, language: str) -> frozenset[str]:
+        if language not in self._language_forms:
+            detector = {
+                "english": is_english,
+                "german": is_german,
+                "french": is_french,
+            }[language]
+            self._language_forms[language] = frozenset(
+                form for form in self.forms if detector(self.review_forms[form])
+            )
+        return self._language_forms[language]
+
     def _filter_status(self, forms: list[str], status: str) -> list[str]:
         if status in ("", "all"):
             return forms
+        if status.startswith("profile_"):
+            matching = self._forms_for_language(status.removeprefix("profile_"))
+            return [form for form in forms if form in matching]
         if status in ("undecided", "incomplete"):
             rows = self._decision_rows(forms)
             return [
@@ -2166,6 +2210,9 @@ class Handler(BaseHTTPRequestHandler):
                 return
             if parsed.path == "/api/worklist/add":
                 self._json(self.corpus.add_worklist_forms())
+                return
+            if parsed.path == "/api/worklist/random-unreviewed":
+                self._json(self.corpus.random_unreviewed_worklist())
                 return
             if parsed.path == "/api/worklist":
                 self._json(

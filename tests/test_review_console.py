@@ -197,12 +197,16 @@ def test_ui_reviews_only_typographic_word_division():
     assert '["engine (TeX 2/3)", dash(it.engine_tex), null]' in html
     assert '["Chlebíková teraz", it.tex, it.tex_disagrees]' in html
     assert 'value="psp_comparison"' in html
+    for language in ("english", "german", "french"):
+        assert f'value="profile_{language}"' in html
+    assert 'id="random-unreviewed"' in html
+    assert 'api("/api/worklist/random-unreviewed", {})' in html
     assert '<details class="psp-audit">' in html
     assert "Aktuálny engine (" in html
     assert "Správne podľa PSP (" in html
-    assert 'correct: "SPRÁVNE"' in html
-    assert 'incorrect: "NESPRÁVNE"' in html
-
+    assert 'correct: "SPRÁVNE"' in html and 'incorrect: "NESPRÁVNE"' in html
+    for label in ('class="classification"', 'Automaticky:', 'Ručne:', 'Import/AI:', 'jazyk neurčený'):
+        assert label in html
 
 def test_ui_uses_editable_correction_dialog_and_ignores_stale_filter_results():
     html = REVIEW.UI_PATH.read_text(encoding="utf-8")
@@ -340,6 +344,46 @@ def test_hyphenation_filters_ignore_legacy_syllable_only_decisions(corpus):
     corpus.decide({"form": "okno", "action": "flag", "reason": "wrong"})
     assert "okno" not in corpus._filter_status(corpus.forms, "undecided")
     assert corpus.stats()["reviewed"] == 1
+
+
+def test_language_profile_filters_are_independent_and_visible(corpus, monkeypatch):
+    monkeypatch.setattr(REVIEW, "is_english", lambda form: form.lower() == "maslo")
+    monkeypatch.setattr(REVIEW, "is_german", lambda form: form.lower() == "okno")
+    monkeypatch.setattr(REVIEW, "is_french", lambda form: form.lower() == "iphone")
+
+    english = corpus.page("", "prefix", "profile_english", 0, 10)
+    assert [item["review_form"] for item in english["items"]] == ["maslo"]
+    assert english["items"][0]["language_profiles"] == {
+        "english": True,
+        "german": False,
+        "french": False,
+    }
+    assert [item["review_form"] for item in corpus.page(
+        "o", "suffix", "profile_german", 0, 10
+    )["items"]] == ["okno"]
+    assert {item["review_form"] for item in corpus.page(
+        "iphone", "exact", "profile_french", 0, 10
+    )["items"]} == {"iPhone", "iphone"}
+
+
+def test_random_worklist_is_a_contiguous_unreviewed_window(corpus, monkeypatch):
+    corpus.decide({"form": "Aaah", "action": "flag", "reason": "reviewed"})
+    rows = corpus._decision_rows(corpus.forms)
+    unreviewed = [
+        form
+        for form in corpus.forms
+        if form not in rows or not corpus._is_reviewed(rows[form])
+    ]
+    monkeypatch.setattr(REVIEW.random, "randrange", lambda stop: 1)
+
+    result = corpus.random_unreviewed_worklist(3)
+
+    assert corpus.worklist == unreviewed[1:4]
+    assert result["matched"] == 3
+    assert result["total_unreviewed"] == len(unreviewed)
+    assert result["first"] == unreviewed[1]
+    assert result["last"] == unreviewed[3]
+    assert "Aaah" not in corpus.worklist
 
 
 def test_voice_disagreement_filters_compose_with_query_and_status(corpus, monkeypatch):

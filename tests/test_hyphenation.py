@@ -5834,7 +5834,7 @@ def test_operator_approved_foreign_divisions_are_pronunciation_guarded():
         "Teufelsbrücke": "Teu·fels·brüc·ke",
         "Teufelsgalgen": "Teu·fels·gal·gen",
         "Teufelsritt": "Teu·fels·ritt",
-        "Teufelsstein": "Teu·fels·ste·in",
+        "Teufelsstein": "Teu·fels·stein",
         "Teufelswand": "Teufels·wand",
         "advienne": "ad·vienne",
         "aequata": "ae·qua·ta",

@@ -35,7 +35,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .spacer { flex: 1; }
 
   .grid { display: grid;
-          grid-template-columns: 46px 180px 210px 250px 250px 430px;
+          grid-template-columns: 46px 180px 210px 250px 240px 250px 430px;
           gap: 0 8px; align-items: center; width: max-content; }
   .hint { padding: 5px 12px; color: var(--dim); background: var(--panel);
           border-bottom: 1px solid var(--line); font-size: 12px; }
@@ -78,7 +78,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   .state { font-size: 11.5px; color: var(--dim); white-space: nowrap;
            overflow: hidden; text-overflow: ellipsis; }
   .state b { font-weight: 600; } .ai-adjudication { white-space: normal; overflow-wrap: anywhere; }
-  .psp-audit { white-space: normal; color: var(--text); }
+  .classification { font-size: 12px; overflow-wrap: anywhere; } .psp-audit { white-space: normal; color: var(--text); }
   .psp-audit summary { color: var(--accent); cursor: pointer; font-weight: 600; }
   .psp-audit div { margin-top: 4px; padding: 6px; border: 1px solid var(--line);
                    border-radius: 5px; background: var(--panel); line-height: 1.45; }
@@ -129,6 +129,9 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
     <option value="invalid">nie je slovo</option>
     <option value="proper">označené: meno</option>
     <option value="foreign">označené: cudzie slovo</option>
+    <option value="profile_english">profil: angličtina</option>
+    <option value="profile_german">profil: nemčina</option>
+    <option value="profile_french">profil: francúzština</option>
     <option value="abbreviation">označené: skratka</option>
     <option value="corrected_form">slovo má opravený tvar</option>
     <option value="deleted">označené na vymazanie</option>
@@ -148,6 +151,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   <button id="worklist" class="voice-filter" aria-pressed="false" disabled
           title="ponechá iba tvary z nahraného súboru, v jeho poradí">Zo súboru</button>
   <button id="worklist-pick" title="nahrať súbor so zoznamom tvarov; z každého riadka sa berie prvé slovo">Nahrať súbor…</button>
+  <button id="random-unreviewed" title="vyberie náhodný abecedne súvislý blok 200 ešte nerevidovaných slov">Náhodných 200</button>
   <input id="worklist-file" type="file" accept=".txt,.csv,.tsv,text/plain" hidden>
   <select id="limit" title="koľko riadkov naraz">
     <option>200</option><option selected>500</option>
@@ -168,7 +172,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   <span style="text-align:right">#</span>
   <span>tvar</span>
   <span>delenie riadka (PSP)</span>
-  <span>hlasy</span>
+  <span>hlasy</span><span>jazyk / označenie</span>
   <span>stav</span>
   <span>akcia</span>
 </div>
@@ -263,8 +267,8 @@ function setPending(value) {
   if (value) ++S.loadVersion;
   S.pending = value;
   for (const id of ["q", "mode", "status", "tex-diff", "blind-human-diff",
-                    "human-diff", "worklist", "worklist-pick", "limit",
-                    "undo", "bulk", "export", "prev", "next"])
+                    "human-diff", "worklist", "worklist-pick", "random-unreviewed",
+                    "limit", "undo", "bulk", "export", "prev", "next"])
     $(id).disabled = value;
   $("worklist").disabled = value || !S.worklistName;
   document.querySelectorAll(".edit").forEach(input => { input.disabled = value; });
@@ -351,12 +355,14 @@ function paint(row, it) {
     const [text, colour] = LABEL[it.my_row_action];
     parts.push(`<b style="color:${colour}">${text}</b>`);
   }
-  if (it.flags.proper) parts.push("<b>meno</b>");
-  else if (it.my_flags.proper === 0) parts.push("nie je meno");
-  if (it.flags.foreign) parts.push("<b>cudzie slovo</b>");
-  else if (it.my_flags.foreign === 0) parts.push("nie je cudzie slovo");
-  if (it.flags.abbreviation) parts.push("<b>skratka</b>");
-  else if (it.my_flags.abbreviation === 0) parts.push("nie je skratka");
+  const languages = Object.entries({english: "EN — angličtina", german: "DE — nemčina", french: "FR — francúzština"});
+  const automatic = languages.filter(([key]) => it.language_profiles[key]).map(([, label]) => label);
+  const flagLabels = Object.entries({foreign: "cudzie slovo", proper: "meno", abbreviation: "skratka"});
+  const manual = flagLabels.filter(([key]) => it.my_flags[key] != null).map(([key, label]) => it.my_flags[key] ? label : `nie je ${label}`);
+  const imported = flagLabels.filter(([key]) => it.my_flags[key] == null && it.flags[key] != null).map(([key, label]) => it.flags[key] ? label : `nie je ${label}`);
+  row.querySelector(".classification").innerHTML = `<div><b>Automaticky:</b> ${esc(automatic.join(" / ") || "jazyk neurčený")}</div>` +
+    `<div><b>Ručne:</b> ${esc(manual.join(", ") || "neoznačené")}</div>` +
+    (imported.length ? `<div><b>Import/AI:</b> ${esc(imported.join(", "))}</div>` : "");
   if (it.corrected_form) parts.push(`<b>opraviť na: ${esc(it.corrected_form)}</b>`);
   if (it.flags.deleted) parts.push("<b>označené na vymazanie</b>");
   else if (it.my_flags.deleted === 0) parts.push("ponechať v korpuse");
@@ -390,7 +396,7 @@ function makeRow(it, i) {
     `<span class="idx">${S.offset + i + 1}</span>` +
     `<span class="form" title="${esc(it.review_form)}">${formText}</span>` +
     `<input class="edit" data-field="h" title="typografické delenie podľa PSP" spellcheck="false" autocomplete="off">` +
-    `<span class="voices"></span>` +
+    `<span class="voices"></span><div class="classification"></div>` +
     `<div class="state"></div>` +
     `<span class="acts">` +
       `<button data-a="flag" title="je to zle (Ctrl+Enter)">⚑</button>` +
@@ -671,6 +677,29 @@ async function undo() {
   stats();
 }
 
+async function randomUnreviewed() {
+  if (S.pending) { toast("počkajte na uloženie"); return; }
+  if (hasDirty()) { toast("najprv uložte alebo zahoďte rozpracované úpravy"); return; }
+  setPending(true);
+  const data = await api("/api/worklist/random-unreviewed", {});
+  setPending(false);
+  if (data.error) { toast(data.error); return; }
+  if (!data.matched) { toast("všetky slová už majú review"); return; }
+  S.worklistName = data.name;
+  S.worklist = true;
+  S.status = "all";
+  S.limit = 200;
+  $("status").value = S.status;
+  $("limit").value = String(S.limit);
+  $("worklist").disabled = false;
+  $("worklist").textContent = `Náhodný blok (${data.matched.toLocaleString("sk")})`;
+  $("worklist").title = `${data.first} – ${data.last}; ` +
+    `${data.total_unreviewed.toLocaleString("sk")} slov bez review`;
+  syncVoiceFilters();
+  toast(`vybraných ${data.matched} slov: ${data.first} – ${data.last}`);
+  load(0);
+}
+
 // -- wiring ------------------------------------------------------------
 
 let timer = null;
@@ -698,6 +727,7 @@ $("worklist").addEventListener("click", () => {
   S.worklist = !S.worklist; syncVoiceFilters(); load(0);
 });
 $("worklist-pick").addEventListener("click", () => $("worklist-file").click());
+$("random-unreviewed").addEventListener("click", randomUnreviewed);
 $("worklist-file").addEventListener("change", async event => {
   const file = event.target.files[0];
   if (!file) return;
