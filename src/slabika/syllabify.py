@@ -206,11 +206,15 @@ _AVANTGARDA_ENDINGS = frozenset({'a', 'e', 'ou', 'u', 'y'})
 # head of the stem here keeps every form of the family on one division; the
 # tail is left whole so the phonotactic rules place the remaining points.
 _PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
+    ('mrštnos', (4,)),      # mršt·nosť, mršt·nos·ťou
+    ('nazlos', (2,)),       # na·zlos·te·ná, not na·zlo·ste·ná
     ('nevyhnut', (2, 2)),    # ne·vy·hnut·ný, ne·vy·hnut·nosť
     ('zatrpknu', (2,)),      # za·trp·knu·tý, za·trp·knu·tos·ťou
     ('nenaklon', (2, 2)),    # ne·na·klo·ne·ný, ne·na·klo·ni·la
     ('umiestne', (6,)),      # umiest·ne·nej, umiest·ne·nie
+    ('leskl', (4,)),         # lesk·lý, lesk·lá
     ('úzkostliv', ()),       # úz·kos·tli·vosť, úz·kos·tli·vos·ťou
+    ('vrchnostensk', ()),    # vrch·nos·ten·ský, vrch·nos·ten·skú
     ('vlastnost', ()),       # vlast·nos·tiach, vlast·nost·né
     # Families below were found by the same invariant, applied to the whole
     # corpus instead of one word at a time: forms sharing a stem and the two
@@ -405,6 +409,8 @@ def _is_podrobit_form(word: str) -> bool:
 
 _LEXICAL_PREFIX_ROOTS = (
     ('bezo', ('zvyšk',)),
+    ('bohvie', ('ak',)),
+    ('kveto', ('slav',)),
     ('de', ('flog', 'flor', 'grad')),
     ('hoci', ('ktor',)),
     ('hvezdo', ('prav',)),
@@ -458,16 +464,16 @@ _LEXICAL_PREFIX_ROOTS = (
     ('činu', ('schop',)),
     ('človeko', ('zviera',)),
     ('dva', ('uhol',)),
-    ('dvoj', ('okamih', 'uch')),
+    ('dvoj', ('izb', 'okamih', 'uch')),
     ('päť', ('uhol',)),
-    ('sedem', ('uhol',)),
+    ('sedem', ('miest', 'uhol')),
     ('štvor', ('uhol', 'uhl')),
     ('porno', ('graf',)),
     ('pso', ('hlav',)),
     ('prvo', ('stvor', 'tlač', 'tried')),
     ('rozo', ('br', 'ber', 'chv', 'dn', 'dr', 'hna', 'hr', 'kl', 'mel', 'mieľ', 'mlet', 'pín', 'pl', 'pn', 'pol', 'pre', 'pri', 'rv', 'sad', 'sáp', 'sej', 'sia', 'sie', 'sl', 'smej', 'smia', 'smie', 'smut', 'spa', 'spie', 'sta', 'stl', 'strel', 'stret', 'strú', 'stup', 'stúp', 'tn', 'tret', 'trie', 'trú', 'vr', 'zvo', 'zvu', 'zna', 'zná', 'štv', 'šl', 'žen', 'žer', 'žier', 'žl', 'žr')),  # rozo·staviť, rozo·znať — not roz·os-
     ('zo', ('tn', 'žn')),
-    ('samo', ('chvál', 'hlás', 'spravod', 'stvoriteľ', 'svet', 'sviet', 'vlád', 'vrav', 'vzdel', 'vznie', 'vytvor', 'zrej')),
+    ('samo', ('chvál', 'hlás', 'mluv', 'spravod', 'stvoriteľ', 'svet', 'sviet', 'vlád', 'vrav', 'vzdel', 'vznie', 'vytvor', 'zrej')),
     ('sedmo', ('spáč',)),
     ('slovo', ('sled',)),
     ('polo', (
@@ -478,6 +484,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pohano', ('kresťan',)),
     ('pomsty', ('chtiv',)),
     ('pro', ('stred',)),
+    ('re', ('produ',)),
     ('zraku', ('chtiv',)),
     ('písmeno', ('žrút',)),
     ('pre', ('dchn', 'diabol', 'dier', 'dik', 'disk', 'dispoz', 'div', 'dra', 'driek', 'duchov', 'dup', 'glej', 'lst', 'sťah', 'tn', 'žhav', 'ľst')),
@@ -496,6 +503,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('veľko', ('kráľ',)),
     ('vice', ('kráľ',)),
     ('uza', ('vrel',)),
+    ('zu', ('šľach',)),
     ('vele', ('cten', 'zrad')),
     ('víťazo', ('sláv',)),
     ('vlaso', ('štiep',)),
@@ -517,18 +525,18 @@ _LEXICAL_PREFIX_ROOTS = (
     )),
     ('in', ('štruk',)),
     ('šéf', ('lekár',)),
-    ('pa', ('kľúč',)),
+    ('pa', ('kľúč', 'svetl')),
     ('para', ('fráz', 'graf')),
     ('pra', ('arch',)),
     ('pri', ('sťah',)),
     ('prie', ('hlav', 'hľad', 'hrad', 'klep', 'strel', 'stup', 'svit', 'zrač')),
     ('prí', ('klad', 'krat', 'krov', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'streš', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zrak', 'zvuk')),
     ('naj', ('všestran',)),
-    ('ne', ('mst', 'ochot', 'oficiál', 'scudzolož', 'sčet', 'sčerv', 'sčísel', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
+    ('ne', ('exist', 'mst', 'obyčaj', 'ocen', 'ochot', 'oficiál', 'opís', 'otes', 'očak', 'scudzolož', 'sčet', 'sčerv', 'sčísel', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
     ('novo', ('povst', 'prij', 'stan', 'stvor', 'vzbud', 'vznik', 'vysvät', 'zdol', 'zhotov', 'zjav', 'zrod', 'zvol')),
     ('ono', ('svet',)),
     ('na', (
-        'daj', 'dal', 'dan', 'darm', 'dať', 'dáv', 'del', 'deľ', 'dikt', 'div', 'dív', 'dobr',
+        'daj', 'dal', 'dan', 'darm', 'dať', 'dáv', 'del', 'deľ', 'dikt', 'div', 'dív', 'dobr', 'drie',
         'dobud', 'dobúd', 'doďak', 'doj', 'dopov', 'doraz', 'dostač',
         'cp', 'ctiutŕh', 'drob', 'duj', 'dul', 'dur', 'dut', 'dúv', 'jal', 'jat', 'jav', 'jazd',
         'jedia', 'jedl', 'jedo', 'jedz', 'jeme', 'jemn', 'jesť', 'jež', 'jím', 'ozaj', 'stup', 'sťah',
@@ -544,7 +552,7 @@ _LEXICAL_PREFIX_ROOTS = (
     # adjective and its adverbs are the frequent reading of the string.
     ('pod', ('oblas',)),
     # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
-    ('do', ('čk',)),
+    ('do', ('opek', 'čk')),
     ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'sled', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač')),
     ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'pokoj', 'poslúch', 'pri', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
@@ -564,7 +572,7 @@ _NESTED_PREFIX_ROOTS = (
     ('ob', ('íd', 'išiel', 'išl', 'ísť', 'omkn', 'oznám')),
     ('obo', ('p', 'zret')),
     ('od', ('íd', 'išiel', 'išl', 'ísť', 'opier', 'tiah', 'umier', 'umr', 'vih', 'zrkadľ', 'ži')),
-    ('odo', ('ber', 'hnal', 'hrá', 'hral', 'hráv', 'mkn', 'prel', 'pri', 'vzd', 'žen')),
+    ('odo', ('ber', 'bral', 'hnal', 'hrá', 'hral', 'hráv', 'mkn', 'prel', 'pri', 'vzd', 'žen')),
     ('po', ('hl', 'hn', 'klon')),
     ('pod', ('uj',)),
     ('pri', ('klon', 'sn')),
@@ -649,7 +657,7 @@ _D_FINAL_PAST_ROOTS = ('bud', 'hlad', 'hliad', 'krad', 'pad', 'vlád')
 _D_FINAL_PAST_STEMS = frozenset({'zjed'})
 _LEXICAL_PAST_STEMS = frozenset({'žmurk'})
 _TINA_INFLECTIONS = ('tinami', 'tinách', 'tinám', 'tinou', 'tine', 'tinu', 'tiny')
-_TINA_NUMERAL_STEMS = frozenset({'miliard'})
+_TINA_NUMERAL_STEMS = frozenset({'biliard', 'miliard'})
 _SKNUT_FINITE_SUFFIXES = ('neme', 'nete', 'nem', 'neš', 'ni')
 
 # Short grammatical suffixes are boundaries only after consonant-final stems.
@@ -659,6 +667,11 @@ _SK_GRAMMATICAL_SUFFIXES_CONS = ('mi', 'me', 'te', 'ne', 'la', 'li', 'lo')
 _SHORT_COMPARATIVE_INFLECTIONS = (
     'šieho', 'šiemu', 'šími', 'šej', 'ších', 'šia', 'šie', 'ším', 'šiu', 'šom', 'šou', 'ší',
 )
+_STAROSTLIV_DERIVATIVE_TAILS = frozenset({
+    'ejšia', 'ejšie', 'ejšieho', 'ejšiemu', 'ejšej', 'ejších', 'ejší', 'ejším',
+    'ejšími', 'ejšiu', 'ejšom', 'ejšou',
+    'osť', 'osti', 'ostiam', 'ostiach', 'osťami', 'osťou', 'ostí',
+})
 
 # The nominal suffix ·k· cannot be listed above, because the vowel that follows
 # it belongs to the ending, not to the suffix: klient·ka, klient·ky, klient·kou.
@@ -741,8 +754,12 @@ _SK_COMPOUND_TAILS = ('krát',)
 # The member is searched inside the form
 # (aristokratickými), and it needs a first part of its own: the s- of Sokrates
 # is not one, and neither is the word-initial krat- of kratochvíľa.
-_SK_BOUND_SECOND_MEMBERS = ('scholast', 'vysvetľ', 'príchod', 'prenik', 'služob', 'chtiv', 'schop', 'blond', 'kniež', 'žrav', 'znej', 'žiar', 'zvan', 'hlúp', 'krat', 'krac', 'hrad', 'hned', 'naut', 'tvor', 'plav', 'plec', 'prázd', 'vrah', 'zlat', 'zvyk', 'zver', 'znič', 'vlás', 'vlas', 'hlav')
+_SK_BOUND_SECOND_MEMBERS = ('scholast', 'vysvetľ', 'príchod', 'prenik', 'služob', 'vzdor', 'chtiv', 'schop', 'blond', 'kniež', 'žrav', 'znej', 'žiar', 'zvan', 'hlúp', 'krat', 'krac', 'hrad', 'hned', 'naut', 'stán', 'tvár', 'tvor', 'znal', 'plav', 'plec', 'prázd', 'vrah', 'zlat', 'zvyk', 'zver', 'znič', 'vlás', 'vlas', 'hlav')
 _BOUND_SECOND_MEMBER_HEADS = {
+    'stán': frozenset({'sväto'}),
+    'tvár': frozenset({'jedno', 'kyslo', 'mnoho'}),
+    'vzdor': frozenset({'ohňo', 'prdo'}),
+    'znal': frozenset({'hviezdo', 'písma', 'písmo', 'sveta', 'vše'}),
     'znej': frozenset({'hlboko', 'vysoko'}),
     'vlás': frozenset({'hnedo', 'svetlo', 'tmavo', 'zlato'}),
     'plec': frozenset({'široko', 'úzko'}),
@@ -1016,7 +1033,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         'steto': ('skop',),
         'svetsko': ('práv',),
         'veľa': ('cten', 'dôstoj', 'sľub', 'vedom', 'vrav', 'váž', 'význam', 'vznešen'),
-        'veľko': ('slúž', 'vlád', 'zvuč', 'človek', 'šťast', 'špekulant'),
+        'veľko': ('slúž', 'svet', 'vlád', 'zvuč', 'človek', 'šťast', 'špekulant'),
     }
     guarded_roots = guarded_compounds.get(comp)
     if guarded_roots is not None and not reml.startswith(guarded_roots):
@@ -1560,6 +1577,15 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
                 ):
                     return w[:start], w[start:]
 
+    for tail in _STAROSTLIV_DERIVATIVE_TAILS:
+        marker = 'liv' + tail
+        if not wl.endswith(marker):
+            continue
+        start = len(w) - len(marker)
+        steml = wl[:start]
+        if steml.endswith('starost'):
+            return w[:start], w[start:]
+
     for length, group in _SUFFIXES_BY_LEN:
         for tail_length in range(_MAX_INFLECTION + 1):
             start = len(w) - length - tail_length
@@ -1676,15 +1702,17 @@ def _split_bound_second_member(w: str) -> tuple[str, str] | None:
     wl = w.lower()
     for member in _SK_BOUND_SECOND_MEMBERS:
         seam = wl.find(member)
-        if member in _BOUND_SECOND_MEMBER_HEADS and wl[:seam] not in _BOUND_SECOND_MEMBER_HEADS[member]:
+        licensed_heads = _BOUND_SECOND_MEMBER_HEADS.get(member)
+        if licensed_heads is not None and wl[:seam] not in licensed_heads:
             continue
         if seam < 3:
             continue
-        if member in {'chtiv', 'schop'}:
-            if wl[:seam].startswith('naj') or wl[seam - 1] not in _VOWEL_LETTERS:
+        if licensed_heads is None:
+            if member in {'chtiv', 'schop'}:
+                if wl[:seam].startswith('naj') or wl[seam - 1] not in _VOWEL_LETTERS:
+                    continue
+            elif wl[seam - 1] not in _LINKING_VOWELS:
                 continue
-        elif wl[seam - 1] not in _LINKING_VOWELS:
-            continue
         # The head has to be a first part, not a prefix. In neohrada the ne- is
         # negation and the o- belongs to ohrada, so neo is no compositum stem
         # the way vino is in vinohrad.
@@ -1718,8 +1746,11 @@ def _strip_grammatical_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
             continue
         if sfx == 'me' and steml.endswith('st'):
             continue
-        # pomst-e and smršt-e are noun inflections, not imperative suffixes.
-        if sfx == 'te' and wl in {'pomste', 'smršte'}:
+        # pomst-e and smršt-e are noun inflections, not imperative suffixes;
+        # svet-št-e and ľud-št-e are derivational stems, not imperatives either.
+        if sfx == 'te' and (
+            wl in {'pomste', 'smršte'} or steml.endswith(('svetš', 'ľudš'))
+        ):
             continue
         if is_consonant(steml[-1]) and any(c in _VOWELS_SK for c in steml):
             return stem, w[-len(sfx):]
@@ -1879,12 +1910,16 @@ def get_morpheme_parts(word: str) -> list[str]:
     comparative_n = wl.find('nejš')
     if comparative_n > 0:
         # The comparative is cut off first, and the stem it leaves is shorter
-        # than the compound it came from: vysoko|ctenejší would lose its seam
-        # over vysokocte. Ask the whole word about the compound first.
-        compositum = _split_compositum(word)
+        # than the compound it came from: samo|statnejší would lose its seam
+        # over samostat. Reconstruct the positive samostatný before asking.
+        positive = word[:comparative_n] + 'ný'
+        compositum = _split_compositum(positive) or _split_compositum(word)
         if compositum is not None:
-            first, rest = compositum
-            return [*get_morpheme_parts(first), *get_morpheme_parts(rest)]
+            seam = len(compositum[0])
+            return [
+                *get_morpheme_parts(word[:seam]),
+                *get_morpheme_parts(word[seam:]),
+            ]
         return [*get_morpheme_parts(word[:comparative_n]), word[comparative_n:]]
 
     comparative_t = wl.find('tejš')

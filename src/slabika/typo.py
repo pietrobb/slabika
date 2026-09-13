@@ -192,6 +192,17 @@ def _preferred_internal_vowel_points(word: str) -> set[int]:
     return set()
 
 
+def _points_inside_preferred_roots(word: str) -> set[int]:
+    """Syllabic points suppressed to preserve operator-approved native roots."""
+    folded = word.casefold()
+    if folded.startswith('úhlav'):
+        return {2}
+    for leader in ('ne', 'seba'):
+        if folded.startswith(leader + 'ovlád'):
+            return {len(leader) + 2}
+    return set()
+
+
 def _nucleus_spans(word: str) -> tuple[list[str], list[int], list[tuple[int, int]]]:
     """Return phonemes, offsets, and logical nucleus spans for PSP division."""
     phonemes, offsets, nuclei = phoneme_layout(word)
@@ -477,15 +488,10 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         ):
             variants.add(seam - 1)
 
-    # Instrumental plural -ciami has the inflectional seam ci|ami. Its raw
-    # syllable points also contain cia|mi, but offering both together would
-    # isolate the one-letter syllable a; the morpheme seam is the preferred one.
-    if word.casefold().endswith('ciami'):
-        instrumental_seam = len(word) - 3
-        points.add(instrumental_seam)
-        points.discard(instrumental_seam + 1)
-        variants.discard(instrumental_seam + 1)
-        contextual.discard(instrumental_seam + 1)
+    for point in _points_inside_preferred_roots(word):
+        points.discard(point)
+        variants.discard(point)
+        contextual.discard(point)
 
     for seam, end in _chran_root_spans(word):
         points.add(seam)
@@ -501,7 +507,11 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     # is dropped from every level. Detaching a one-letter opening syllable is
     # merely discouraged — "predvolene odstrániť", admitted in exceptionally
     # narrow measure — which is the contextual level and nothing stronger.
-    if word and is_vowel(word[0]) and 1 not in preferred_internal_vowels:
+    if (
+        word
+        and (is_vowel(word[0]) or word.casefold().startswith(('rdús', 'rčen')))
+        and 1 not in preferred_internal_vowels
+    ):
         if 1 in points or 1 in variants:
             contextual.add(1)
         points.discard(1)

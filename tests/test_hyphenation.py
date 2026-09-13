@@ -78,8 +78,9 @@ def test_slovak_hyphenation_golden_cases():
         "úkryt": "úkryt",
         "samozrejme": "sa·mo·zrej·me",
         "afrodiziakum": "af·ro·di·zi·a·kum",
-        "akciami": "ak·ci·ami",
-        "funkciami": "funk·ci·ami",
+        "akciami": "ak·ci·a·mi",
+        "funkciami": "funk·ci·a·mi",
+        "licenciami": "li·cen·ci·a·mi",
         "klientka": "klient·ka",
         "koeficientom": "ko·e·fi·ci·en·tom",
         "kocúrieho": "ko·cú·rie·ho",
@@ -461,6 +462,15 @@ def test_generated_inventory_divides_compounds_nobody_typed_in():
         "veľkoslužobník": "veľ·ko·slu·žob·ník",
         "vinobranie": "vi·no·bra·nie",
         "domobranec": "do·mo·bra·nec",
+        "samostatnejšie": "sa·mo·stat·nej·šie",
+        "najsamostatnejšia": "naj·sa·mo·stat·nej·šia",
+        "svätostánku": "svä·to·stán·ku",
+        "kyslotvárnych": "kys·lo·tvár·nych",
+        "prdovzdorný": "pr·do·vzdor·ný",
+        "hviezdoznalí": "hviez·do·zna·lí",
+        "písmaznalí": "pís·ma·zna·lí",
+        "svetaznalý": "sve·ta·zna·lý",
+        "všeznalosti": "vše·zna·los·ti",
     }
     assert {word: hyphenate(word) for word in expected} == expected
 
@@ -475,6 +485,75 @@ def test_generated_inventory_divides_compounds_nobody_typed_in():
     assert hyphenate("celebrite") == "ce·leb·ri·te"
     # A second member that opens with a prefix of its own is not one.
     assert hyphenate("staroosvedčenými") == "sta·ro·os·ved·če·ný·mi"
+    assert hyphenate("mimoriadnych") == "mi·mo·riad·nych"
+    assert hyphenate("dotvára") == "do·tvá·ra"
+    assert hyphenate("navzdory") == "na·vzdo·ry"
+
+
+def test_reviewed_derivatives_keep_their_established_stem_boundary():
+    expected = {
+        "starostlivejšie": "sta·rost·li·vej·šie",
+        "starostlivosťou": "sta·rost·li·vos·ťou",
+        "najstarostlivejších": "naj·sta·rost·li·vej·ších",
+        "vrchnostenskú": "vrch·nos·ten·skú",
+        "zosvetšteného": "zo·svet·šte·né·ho",
+        "odľudštených": "od·ľud·šte·ných",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("najúzkostlivejšie") == "naj·úz·kos·tli·vej·šie"
+    assert hyphenate("najjednotlivejších") == "naj·jed·no·tli·vej·ších"
+    assert hyphenate("rostlivejšie") == "ros·tli·vej·šie"
+
+
+def test_next_reviewed_batch_keeps_clear_stems_and_compound_seams():
+    expected = {
+        "biliardtina": "bi·liard·ti·na",
+        "biliardtinu": "bi·liard·ti·nu",
+        "bohvieakej": "boh·vie·akej",
+        "bohvieaký": "boh·vie·aký",
+        "Kvetoslavov": "Kve·to·sla·vov",
+        "dvojizbový": "dvoj·iz·bo·vý",
+        "lesklý": "lesk·lý",
+        "mrštnosťou": "mršt·nos·ťou",
+        "nazlostená": "na·zlos·te·ná",
+        "Praveľkosvetového": "Pra·veľ·ko·sve·to·vé·ho",
+        "samomluvu": "sa·mo·mlu·vu",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("bohviečo") == "boh·vie·čo"
+    assert hyphenate("dvojitý") == "dvo·ji·tý"
+
+
+def test_reviewed_prefix_seams_and_one_letter_syllabic_r():
+    expected = {
+        "doopekaj": "do·ope·kaj",
+        "nadrie": "na·drie",
+        "najneobyčajnejšie": "naj·ne·oby·čaj·nej·šie",
+        "najneoceniteľnejšie": "naj·ne·oce·ni·teľ·nej·šie",
+        "najneopísateľnejšie": "naj·ne·opí·sa·teľ·nej·šie",
+        "najneotesanejšieho": "naj·ne·ote·sa·nej·šie·ho",
+        "neexistoval": "ne·exis·to·val",
+        "neočakávané": "ne·oča·ká·va·né",
+        "reprodukuje": "re·pro·du·ku·je",
+        "sedemmiestny": "se·dem·miest·ny",
+        "zušľachtenejšie": "zu·šľach·te·nej·šie",
+        "zušľachtiť": "zu·šľach·tiť",
+        "rdúsenie": "rdú·se·nie",
+        "rdúsite": "rdú·si·te",
+        "rčenie": "rče·nie",
+        "úhlavný": "úhlav·ný",
+        "úhlavné": "úhlav·né",
+        "úhlavného": "úhlav·né·ho",
+        "úhlavnému": "úhlav·né·mu",
+        "úhlavní": "úhlav·ní",
+        "úhlavnom": "úhlav·nom",
+        "úhlavných": "úhlav·ných",
+        "úhlavným": "úhlav·ným",
+        "úhlavnými": "úhlav·ný·mi",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("rdúsenie", contextual=True) == "r·dú·se·nie"
+    assert hyphenate("rčenie", contextual=True) == "r·če·nie"
 
 
 def test_third_discovered_family_batch_keeps_only_clear_seams():
@@ -643,7 +722,7 @@ def test_tenth_discovered_family_batch_keeps_only_clear_seams():
         "praarchanjel": "pra·arch·an·jel",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("pasvetla") == "pas·vet·la"
+    assert hyphenate("pasvetla") == "pa·svet·la"
     assert hyphenate("samovysvetľujúce") == "sa·mo·vy·svet·ľu·jú·ce"
     assert hyphenate("zásvetie") == "zás·ve·tie"
     assert hyphenate("ostáva") == "os·tá·va"
@@ -847,7 +926,7 @@ def test_fourteenth_discovered_family_batch_keeps_only_clear_seams():
         "nevhodný": "ne·vhod·ný",
         "najnevhodnejší": "naj·ne·vhod·nej·ší",
         "vševíťaznou": "vše·ví·ťaz·nou",
-        "sedemmiestny": "se·dem·mies·tny",
+        "sedemmiestny": "se·dem·miest·ny",
         "veľkomiest": "veľ·ko·miest",
     }
     assert {word: hyphenate(word) for word in expected} == expected
@@ -1175,7 +1254,7 @@ def test_twenty_seventh_discovered_family_batch_has_no_safe_new_seams():
         "zvelebovať": "zve·le·bo·vať",
         "ovládať": "ov·lá·dať",
         "zvládať": "zvlá·dať",
-        "sebaovládanie": "se·ba·ov·lá·da·nie",
+        "sebaovládanie": "se·ba·ovlá·da·nie",
     }
     assert {word: hyphenate(word) for word in expected} == expected
 
@@ -1392,7 +1471,7 @@ def test_thirty_eighth_discovered_family_batch_has_no_safe_new_seams():
         "presklené": "pre·skle·né",
         "zasklený": "za·skle·ný",
         "pošteklenie": "po·štek·le·nie",
-        "pasvetla": "pas·vet·la",
+        "pasvetla": "pa·svet·la",
         "samovysvetľujúce": "sa·mo·vy·svet·ľu·jú·ce",
         "zásvetie": "zás·ve·tie",
         "bostonské": "bos·ton·ské",
@@ -1446,7 +1525,7 @@ def test_fortieth_discovered_family_batch_keeps_only_pol_ostrov_seams():
         "guráž": "gu·ráž",
         "kurážne": "ku·ráž·ne",
         "samovládca": "sa·mo·vlád·ca",
-        "neovláda": "ne·ov·lá·da",
+        "neovláda": "ne·ovlá·da",
         "umiestniť": "umiest·niť",
         "vmiesť": "vmiesť",
         "zmiesť": "zmiesť",
@@ -4160,6 +4239,7 @@ def test_batch_67_keeps_documented_nested_od_and_odo_prefix_seams():
         "neodišli": "ne·od·iš·li",
         "neodísť": "ne·od·ísť",
         "neodoberie": "ne·odo·be·rie",
+        "neodobral": "ne·odo·bral",
         "neodohnal": "ne·odo·hnal",
         "neodohrá": "ne·odo·hrá",
         "neodohráva": "ne·odo·hrá·va",
