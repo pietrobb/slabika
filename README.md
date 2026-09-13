@@ -224,18 +224,35 @@ An earlier author/AI comparison found 49 discrepancies among 350 shared forms, i
 
 ## How this differs from the 1992 patterns
 
-The current evaluation below finds about one whole-word disagreement in ten between Chlebíková's patterns and the integrated engine. A common source is morphology: a rule engine can retain a recognized prefix seam that a letter-pattern table fails to represent. The author's account of how the 1992 patterns were built is discussed in [docs/hyph-sk-1992-origin.md](docs/hyph-sk-1992-origin.md).
+The current evaluation below finds about one whole-word disagreement in ten between Chlebíková's patterns and the integrated engine. A common source is morphology. The precise umbrella term is **recognized morphological structure**, not just a stem: a prefix plus base, the members of a compound, or a base plus a derivational or grammatical suffix. A letter-pattern table sees recurring character fragments but does not retain that analysis.
 
-| word | 1992 patterns, 2/3 margins | engine, 2/3 margins |
-| --- | --- | --- |
-| `bezodkladne` | `be·z·od·kladne` | `bez·od·kladne` |
-| `najúspešnejší` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
-| `trojuholník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
-| `rozorať` | `ro·zo·rať` | `roz·orať` |
-| `rozum` | `rozum` | `ro·zum` |
-| `administratíva` | `ad·mi·ni·stra·tíva` | `ad·mi·nis·tra·tíva` |
+The following are 21 verified examples in which the difference is morphological rather than a disagreement inferred to be an error merely because the outputs differ. Both outputs use the same TeX left/right minima of 2/3; `·` marks an available line break. The 1992 result either offers a break through a recognized unit or misses the useful morpheme seam shown by the engine.
 
-These comparisons are evidence, not a blanket defect list. The 1992 patterns have served Slovak typesetting for decades and remain the bundled baseline in `tex/hyph-sk.tex`.
+| kind | word | recognized structure | 1992 patterns | current engine |
+| --- | --- | --- | --- | --- |
+| prefix and base | `bezodkladne` | `bez-|od-|klad-` | `be·z·od·kladne` | `bez·od·kladne` |
+| prefix and base | `najúspešnejší` | `naj-|úspeš-|nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
+| prefix and base | `rozkroj` | `roz-|kroj-` | `rozk·roj` | `roz·kroj` |
+| nested prefixes | `neočistí` | `ne-|o-|čist-` | `ne·očistí` | `ne·o·čistí` |
+| prefix and base | `predúradné` | `pred-|úrad-|n-` | `pre·dú·radné` | `pred·úradné` |
+| compound | `trojuholník` | `troj-|uhol-|ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
+| compound | `samoobslužný` | `samo-|ob-|služ-|n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služný` |
+| compound | `sebaistý` | `seba-|ist-` | `se·baistý` | `se·ba·istý` |
+| compound | `pravouhlý` | `pravo-|uhl-` | `pra·vouhlý` | `pra·vo·uhlý` |
+| compound | `novovzbudený` | `novo-|vzbud-|en-` | `no·vovz·bu·dený` | `no·vo·vzbu·dený` |
+| compound | `mäsožravce` | `mäso-|žrav-|ec` | `mä·sož·ravce` | `mä·so·žravce` |
+| compound | `pomstychtivý` | `pomsty-|chtiv-` | `po·mstych·tivý` | `pom·sty·chtivý` |
+| derivation | `kováčsky` | `kováč-|sk-` | `ko·váčsky` | `ko·váč·sky` |
+| derivation | `dedičstiev` | `dedič-|stv-` | `de·dičs·tiev` | `de·dič·stiev` |
+| derivation | `hráčske` | `hráč-|sk-` | `hráčske` | `hráč·ske` |
+| derivation | `šéfstvom` | `šéf-|stv-` | `šéfs·tvom` | `šéf·stvom` |
+| derivation | `víťazstvo` | `víťaz-|stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
+| numeral derivative | `Dvanástka` | `dvanásť-|k-` | `Dva·nás·tka` | `Dva·nástka` |
+| compound numeral | `dvadsaťdva` | `dvadsať-|dva` | `dvad·saťdva` | `dvad·sať·dva` |
+| compound numeral | `dvestotri` | `dve-|sto-|tri` | `dve·stotri` | `dve·sto·tri` |
+| compound numeral | `šesťstodeväťdesiatosem` | `šesť-|sto-|deväťdesiat-|osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
+
+The right margin explains why a final seam such as `dvanásť-|k-` is not itself offered in this 2/3 view; its analysis still prevents the incorrect `nás|tka` break. These examples do not turn every disagreement into a defect: each other case must still be decided under PSP. The 1992 patterns have served Slovak typesetting for decades and remain the bundled baseline in `tex/hyph-sk.tex`; the author's account of their origin is discussed in [docs/hyph-sk-1992-origin.md](docs/hyph-sk-1992-origin.md).
 
 ## Reproduce and evaluate Liang patterns
 
@@ -248,21 +265,21 @@ python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-pe
 
 These commands **replace the tracked pattern files**. The generator reads the working SQLite inventory, accepts `resolved`/`inferred` casing, casefolds and deduplicates, filters unsupported spellings, and splits with salt `slabika-liang-v1`. Outputs include `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and `report.json` with corpus counts, input/output hashes, evaluation metrics and sample mismatches.
 
-Both files were **regenerated on 2026-09-12 with the integrated EN/DE/FR routes**. The inventory contains 206,272 rows, SHA-256 `480904efc4f84652bd3d0103f965eaac6b877241c662fcab1525d0a500fd41be`. Of 204,572 eligible source rows, filtering yields 203,919 supported unique words: **163,156 training and 40,763 held out**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
+Both files were **regenerated on 2026-09-13 with the integrated EN/DE/FR routes**. The inventory contains 206,272 rows, SHA-256 `480904efc4f84652bd3d0103f965eaac6b877241c662fcab1525d0a500fd41be`. Of 204,572 eligible source rows, filtering yields 203,919 supported unique words: **163,156 training and 40,763 held out**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
 
-| current pattern evaluation (2026-09-12) | exact whole words | point precision | point recall |
+| current pattern evaluation (2026-09-13) | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| slabika preferred, 5,577 patterns | 98.4643% (40,137/40,763) | 99.5399% | 99.4341% |
-| Chlebíková 1992 against preferred target | 89.5886% | 96.0266% | 95.3947% |
-| slabika permissive, 5,259 patterns | 98.6115% (40,197/40,763) | 99.5682% | 99.5101% |
-| Chlebíková 1992 against permissive target | 89.0489% | 96.3900% | 94.9244% |
+| slabika preferred, 5,580 patterns | 98.4618% (40,136/40,763) | 99.5526% | 99.4277% |
+| Chlebíková 1992 against preferred target | 89.5175% | 95.9841% | 95.3573% |
+| slabika permissive, 5,268 patterns | 98.6017% (40,193/40,763) | 99.5770% | 99.5024% |
+| Chlebíková 1992 against permissive target | 88.9777% | 96.3475% | 94.8874% |
 
 Both sides used TeX 2/3 minima. This measures **fidelity to the engine at generation time**, not independent PSP correctness or current adapter accuracy. Published SHA-256 values are:
 
-- `patterns/hyph-sk-slabika.tex`: `7f7867d214f3e8afcc3596a19b0bee61b1db3e5c2a7ded509f0e5f74c55f218c`;
-- `patterns/hyph-sk-slabika-permissive.tex`: `0a4bfb363880d6cf7eaac5375c6c44369435a6295483f1e3867c36e9ced52368`.
+- `patterns/hyph-sk-slabika.tex`: `28def9dbc642b4af31be5e889a5f1a0b3f2adfa925a71c3ec03e54f1bb18332c`;
+- `patterns/hyph-sk-slabika-permissive.tex`: `d535e183f78025b68c35c26905e32f1fff837e7328ae255ecc656908460beb99`.
 
-Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output now explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record this run's full evaluation. Earlier exact-word rates were 98.6866%/98.8240% on a different engine and 40,733-word test; the slight decline is not a controlled ablation or a PSP accuracy measurement. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
+Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output now explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record this run's full evaluation. The preceding published run reached 98.4643%/98.6115% on the same-sized test before the latest morphology changes; the small shift is not a controlled ablation or a PSP accuracy measurement. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
 
 A single Liang file cannot encode “prefer this boundary, use another only if necessary”. The preferred and permissive files carry those alternatives separately and should not be loaded together. They contain no whole-word exceptions, do not include the language detector or G2P model, and are not a final release.
 
@@ -282,7 +299,7 @@ reuse lint
 
 For a source-only Windows run, use `set PYTHONPATH=src&& python -m pytest`. Fresh Python processes avoid stale cached model/engine results after code changes.
 
-The 2026-09-12 full run recorded **931 passed, 1 expected failure and 3 provenance/REUSE failures**. Language and review regressions passed; the repository is not yet fully REUSE-clean. The remaining failures concern optional pronunciation licence declarations, the missing root CC-BY-4.0 licence text, and layer classification for the separate pronunciation subtree. Passing linguistic tests does not clear redistribution provenance.
+The 2026-09-13 full run recorded **934 passed, 1 expected failure and no unexpected failures**. Ruff and REUSE 3.3 checks also passed. REUSE compliance records the declared licences and notices; it does not resolve the still-uncertain provenance and rights clearance of the optional MFA models' training data.
 
 Known limits include uncertain language identity, incomplete morphology, ambiguous spelling-to-sound alignment and heuristic DE/FR adaptation. Unsupported spelling can remain unchanged in `hyphenate`; `syllables` can raise `ValueError` for unsupported alphabetic characters. An empty breakpoint list does not distinguish unsupported input from a valid word with no allowed break. There is no independently adjudicated overall PSP accuracy claim.
 

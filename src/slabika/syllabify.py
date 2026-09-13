@@ -411,12 +411,14 @@ _LEXICAL_PREFIX_ROOTS = (
     ('hrozo', ('straš',)),
     ('miesto', ('kráľ',)),
     ('mimo', ('priestor',)),
+    ('domo', ('bran',)),
+    ('vino', ('bran',)),
     ('zhrubo', ('hmot',)),
     ('zimo', ('mrav',)),
     ('žiaru', ('vzdor',)),
     ('zvero', ('kruh',)),
     ('kde', ('ktor',)),
-    ('ni', ('kde', 'kdy', 'kto')),
+    ('ni', ('kde', 'kto')),
     ('nie', ('kde', 'kto', 'ktor')),
     ('non', ('plusultra',)),
     ('north', ('rup',)),
@@ -739,8 +741,10 @@ _SK_COMPOUND_TAILS = ('krát',)
 # The member is searched inside the form
 # (aristokratickými), and it needs a first part of its own: the s- of Sokrates
 # is not one, and neither is the word-initial krat- of kratochvíľa.
-_SK_BOUND_SECOND_MEMBERS = ('krat', 'krac', 'hrad', 'hned', 'naut', 'tvor', 'plav', 'plec', 'prázd', 'vrah', 'zlat', 'zvyk', 'zver', 'znič', 'vlas', 'hlav')
+_SK_BOUND_SECOND_MEMBERS = ('scholast', 'vysvetľ', 'príchod', 'prenik', 'služob', 'chtiv', 'schop', 'blond', 'kniež', 'žrav', 'znej', 'žiar', 'zvan', 'hlúp', 'krat', 'krac', 'hrad', 'hned', 'naut', 'tvor', 'plav', 'plec', 'prázd', 'vrah', 'zlat', 'zvyk', 'zver', 'znič', 'vlás', 'vlas', 'hlav')
 _BOUND_SECOND_MEMBER_HEADS = {
+    'znej': frozenset({'hlboko', 'vysoko'}),
+    'vlás': frozenset({'hnedo', 'svetlo', 'tmavo', 'zlato'}),
     'plec': frozenset({'široko', 'úzko'}),
     'prázd': frozenset({'polo', 'vzducho', 'ľudo'}),
     'vlas': frozenset({
@@ -811,7 +815,7 @@ del _GENERATED_COMPOSITA
 _COMPOSITUM_INFLECTIONS = frozenset("""
 a e i o u y á é í ú ý ou ov om ovi ove ova ovo ovu ej ého ému ých ým ými ia iu
 ie mi ch och ami iam iach am ám te me la lo li ly ne ná né ný nú ní nej
-nom nou ného nému ných ným nými vej vou vom
+nom nou ného nému ných ným nými vej vou vom osť osti ostí ostiam ostiach osťami osťou
 """.split())
 
 
@@ -1138,6 +1142,10 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     wl = w.lower()
 
     if any(wl.startswith(stem) for stem, _ in _LEXICAL_FALLING_DIPHTHONGS):
+        return None, None
+    if wl == 'dobrôt' or (
+        wl.startswith('súst') and wl[4:] in ('', 'a', 'e', 'o', 'om', 'u')
+    ):
         return None, None
     # Nadácia is a borrowed lexical stem, not na-/nad- plus dácia/ácia.
     if wl.startswith('nadáci'):
@@ -1670,14 +1678,22 @@ def _split_bound_second_member(w: str) -> tuple[str, str] | None:
         seam = wl.find(member)
         if member in _BOUND_SECOND_MEMBER_HEADS and wl[:seam] not in _BOUND_SECOND_MEMBER_HEADS[member]:
             continue
-        if seam < 3 or wl[seam - 1] not in _LINKING_VOWELS:
+        if seam < 3:
+            continue
+        if member in {'chtiv', 'schop'}:
+            if wl[:seam].startswith('naj') or wl[seam - 1] not in _VOWEL_LETTERS:
+                continue
+        elif wl[seam - 1] not in _LINKING_VOWELS:
             continue
         # The head has to be a first part, not a prefix. In neohrada the ne- is
         # negation and the o- belongs to ohrada, so neo is no compositum stem
         # the way vino is in vinohrad.
         if wl[:seam - 1] in _PREFIXES:
             continue
-        if any(c in _VOWELS_SK for c in wl[:seam - 1]):
+        if (
+            any(c in _VOWELS_SK for c in wl[:seam - 1])
+            or wl[:seam] in _SK_COMPOSITA
+        ):
             return w[:seam], w[seam:]
     return None
 
@@ -1885,6 +1901,14 @@ def get_morpheme_parts(word: str) -> list[str]:
     if stem is not None and (
         sfx.casefold().startswith(('ník', 'níc')) or suffix_keeps_prefix
     ):
+        compositum = _generated_compositum(word)
+        if (
+            pfx is not None
+            and compositum is not None
+            and len(compositum[0]) > len(pfx)
+        ):
+            first, rest = compositum
+            return [*get_morpheme_parts(first), *get_morpheme_parts(rest)]
         return [*get_morpheme_parts(stem), sfx]
 
     grammatical_stem, grammatical_sfx = _strip_grammatical_suffix(word)
@@ -1912,6 +1936,10 @@ def get_morpheme_parts(word: str) -> list[str]:
         return [pfx, *get_morpheme_parts(rem)]
 
     if grammatical_stem is not None:
+        compositum = _generated_compositum(word)
+        if compositum is not None:
+            first, rest = compositum
+            return [*get_morpheme_parts(first), *get_morpheme_parts(rest)]
         return [*get_morpheme_parts(grammatical_stem), grammatical_sfx]
 
     compositum = _split_compositum(word)
@@ -2217,8 +2245,14 @@ def _resolve_hiatus(word: str, phonemes: list[str]) -> list[str]:
                 ph == 'ie' and i > 0 and phonemes[i - 1] == 'k'
                 and phonemes[i + 1:i + 2] == ['n']
             )
+            active_ziar_participle = (
+                ph == 'ia'
+                and ''.join(phonemes[:i]).endswith('žiar')
+                and ''.join(phonemes[i + 1:])
+                in {f'c{ending}' for ending in _ACTIVE_PARTICIPLE_INFLECTIONS}
+            )
             if (
-                not (native_ieho or native_kien)
+                not (native_ieho or native_kien or active_ziar_participle)
                 and (
                     latin_neuter or after_long or learned_iakum
                     or learned_milliard or cia_instrumental or learned_ient

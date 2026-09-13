@@ -425,15 +425,42 @@ def test_generated_inventory_divides_compounds_nobody_typed_in():
     # hand-written list, so it is found in words the list never named.
     expected = {
         "samostatný": "sa·mo·stat·ný",
+        "samostatne": "sa·mo·stat·ne",
+        "samostatnosti": "sa·mo·stat·nos·ti",
+        "samospokojnosti": "sa·mo·spo·koj·nos·ti",
         "samovrah": "sa·mo·vrah",
         "tmavovlasý": "tma·vo·vla·sý",
+        "tmavovláska": "tma·vo·vlás·ka",
+        "medenoblond": "me·de·no·blond",
+        "platinovoblond": "pla·ti·no·vo·blond",
         "bojachtivý": "bo·ja·chti·vý",
+        "bylinožravec": "by·li·no·žra·vec",
+        "hmyzožravec": "hmy·zo·žra·vec",
+        "všežravec": "vše·žra·vec",
+        "cestovaniachtiví": "ces·to·va·nia·chti·ví",
+        "svetachtivý": "sve·ta·chti·vý",
         "svätostánok": "svä·to·stá·nok",
         "dennobdelé": "den·no·bde·lé",
         "žltochvost": "žl·to·chvost",
         "demograf": "de·mo·graf",
         "všadeprítomný": "vša·de·prí·tom·ný",
         "svetlochladne": "svet·lo·chlad·ne",
+        "vysokofrekvenčný": "vy·so·ko·frek·venč·ný",
+        "vysokokvalitný": "vy·so·ko·kva·lit·ný",
+        "hlbokoznejúcu": "hl·bo·ko·zne·jú·cu",
+        "vysokoznejúci": "vy·so·ko·zne·jú·ci",
+        "samožiariace": "sa·mo·žia·ria·ce",
+        "svetložiariaci": "svet·lo·žia·ria·ci",
+        "samovysvetľujúce": "sa·mo·vy·svet·ľu·jú·ce",
+        "samozvaný": "sa·mo·zva·ný",
+        "novopríchodzí": "no·vo·prí·cho·dzí",
+        "novoscholastici": "no·vo·scho·las·ti·ci",
+        "všetkoprenikajúca": "všet·ko·pre·ni·ka·jú·ca",
+        "slepohlúpymi": "sle·po·hlú·py·mi",
+        "veľkoknieža": "veľ·ko·knie·ža",
+        "veľkoslužobník": "veľ·ko·slu·žob·ník",
+        "vinobranie": "vi·no·bra·nie",
+        "domobranec": "do·mo·bra·nec",
     }
     assert {word: hyphenate(word) for word in expected} == expected
 
@@ -557,6 +584,8 @@ def test_seventh_discovered_family_batch_keeps_only_clear_seams():
 def test_eighth_discovered_family_batch_keeps_only_clear_seams():
     expected = {
         "životaschopnosť": "ži·vo·ta·schop·nosť",
+        "konkurencieschopnosť": "kon·ku·ren·cie·schop·nosť",
+        "uznášaniaschopnosť": "uz·ná·ša·nia·schop·nosť",
         "práceschopným": "prá·ce·schop·ným",
         "vydajaschopného": "vy·da·ja·schop·né·ho",
         "činuschopnou": "či·nu·schop·nou",
@@ -615,7 +644,7 @@ def test_tenth_discovered_family_batch_keeps_only_clear_seams():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("pasvetla") == "pas·vet·la"
-    assert hyphenate("samovysvetľujúce") == "sa·mo·vys·vet·ľu·jú·ce"
+    assert hyphenate("samovysvetľujúce") == "sa·mo·vy·svet·ľu·jú·ce"
     assert hyphenate("zásvetie") == "zás·ve·tie"
     assert hyphenate("ostáva") == "os·tá·va"
     assert hyphenate("zhrozenie") == "zhro·ze·nie"
@@ -1364,7 +1393,7 @@ def test_thirty_eighth_discovered_family_batch_has_no_safe_new_seams():
         "zasklený": "za·skle·ný",
         "pošteklenie": "po·štek·le·nie",
         "pasvetla": "pas·vet·la",
-        "samovysvetľujúce": "sa·mo·vys·vet·ľu·jú·ce",
+        "samovysvetľujúce": "sa·mo·vy·svet·ľu·jú·ce",
         "zásvetie": "zás·ve·tie",
         "bostonské": "bos·ton·ské",
         "albastone": "al·ba·stone",
@@ -1818,7 +1847,7 @@ def test_fifty_sixth_discovered_family_batch_keeps_only_bystro_sluch_seam():
         "nádych": "ná·dych",
         "vdychovať": "vdy·cho·vať",
         "vzdych": "vzdych",
-        "vládychtivý": "vlá·dych·ti·vý",
+        "vládychtivý": "vlá·dy·chti·vý",
         "očista": "očis·ta",
         "najočistnejšie": "naj·očist·nej·šie",
         "nastoknutý": "na·stok·nu·tý",
@@ -2803,12 +2832,18 @@ def test_batch_96_keeps_only_documented_prefix_and_compound_seams():
         "niekde": "nie·kde",
         "niekto": "nie·kto",
         "nikde": "ni·kde",
-        "nikdy": "ni·kdy",
+        "nikdy": "nik·dy",
+        "prenikdy": "pre·nik·dy",
         "nikto": "ni·kto",
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("niekdajší") == "niek·daj·ší"
     assert hyphenate("niklák") == "nik·lák"
+    assert hyphenate("dobrôt") == "dob·rôt"
+    assert hyphenate("sústo") == "sús·to"
+    assert hyphenate("sústa") == "sús·ta"
+    assert hyphenate("sústom") == "sús·tom"
+    assert hyphenate("sústava") == "sú·sta·va"
     assert hyphenate("nezostrojí") == "ne·zo·stro·jí"
 
 
@@ -6045,7 +6080,7 @@ def test_batch_227_preserves_the_zazraku_chtiv_compound_seam():
         "zázrakuchtivejší": "zá·zra·ku·chti·vej·ší",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("vládychtivý") == "vlá·dych·ti·vý"
+    assert hyphenate("vládychtivý") == "vlá·dy·chti·vý"
 
 
 def test_batch_228_preserves_clear_compound_seams():

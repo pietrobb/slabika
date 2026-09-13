@@ -22,7 +22,7 @@ English: [README.md](README.md), referenčný dokument pre balenie a licenčné 
 
 ## Prečo tento projekt vznikol
 
-Nezačalo sa to ako jazykovedný projekt, ale ako sadzobný problém: autor potreboval sádzať slovenský text automaticky — na danú šírku, do bloku a so správnym delením — bez človeka, ktorý by výsledok prechádzal riadok po riadku. Zarovnaný riadok je buď zlomený na prípustnom mieste, alebo je zle a čitateľ to vidí okamžite.
+Nezačalo sa to ako jazykovedný projekt, ale ako sadzobný problém: autor potreboval sádzať slovenský text automaticky — na danú šírku, do bloku a so správnym delením — bez človeka, ktorý by výsledok prechádzal riadok po riadku. Zarovnaný riadok je buď zalomený na prípustnom mieste alebo je nesprávne a čitateľ to vidí okamžite.
 
 Existovali TeXové vzory z roku 1992, nie však úplný zoznam slov a reprodukovateľný postup, ktorým vznikli. Chýbala možnosť opraviť jedno zlé delenie zmenou preskúmateľného pravidla a nanovo zostaviť výsledok. Súbor vzorov, ktorý sa nedá odvodiť nanovo, možno nahradiť, ale nemožno opraviť jeho nezverejnený vstup.
 
@@ -227,11 +227,41 @@ python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-pe
 
 Príkazy prepíšu dva verzované súbory vzorov. Generátor prijíma `resolved`/`inferred` tvary, vynechá vyradené `invalid`, prevedie na malé písmená, odstráni duplikáty a nepodporované zápisy. Deterministické rozdelenie používa soľ `slabika-liang-v1`. Pridáva generované číslovky; príslušné korpusové číslovky presunie do tréningu, aby neboli aj v teste. Výstup zahŕňa `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` a `report.json` s počtami, hashmi, metrikami a ukážkami nezhôd.
 
-Generovanie **2026-09-12** prijalo 203 919 podporovaných unikátnych slov: **163 156 tréningových a 40 763 odložených**. Preferovaný súbor má **5 577 vzorov**, presné celé slová **98,4643 %** (40 137/40 763), precision bodov 99,5399 % a recall 99,4341 %. Permisívny má **5 259 vzorov**, presné celé slová **98,6115 %** (40 197/40 763), precision 99,5682 % a recall 99,5101 %. Pri rovnakých minimách TeXu 2/3 zopakuje základňa Chlebíkovej príslušné ciele na 89,5886 % a 89,0489 % celých slov. Ide o **vernosť enginu**, nie nezávislú správnosť podľa PSP. Použitý bol Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5) a `slabika-pronunciation==0.1.0` s anglickým MFA G2P v3.0.0. Súbory sa zapisujú s LF aj na Windows; presné SHA-256 sú v časti **Reproduce and evaluate Liang patterns** v [anglickom README](README.md), úplné reporty v `patterns/`. Oproti starším 98,6866 %/98,8240 % ide o mierny pokles, ale zmenil sa aj engine a testovací inventár. Zmena enginu, inventára alebo prítomnosti anglického runtime môže zmeniť výsledné hashe.
+Generovanie **2026-09-13** prijalo 203 919 podporovaných unikátnych slov: **163 156 tréningových a 40 763 odložených**. Preferovaný súbor má **5 580 vzorov**, presné celé slová **98,4618 %** (40 136/40 763), precision bodov 99,5526 % a recall 99,4277 %. Permisívny má **5 268 vzorov**, presné celé slová **98,6017 %** (40 193/40 763), precision 99,5770 % a recall 99,5024 %. Pri rovnakých minimách TeXu 2/3 zopakuje základňa Chlebíkovej príslušné ciele na 89,5175 % a 88,9777 % celých slov. Ide o **vernosť enginu**, nie nezávislú správnosť podľa PSP. Použitý bol Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5) a `slabika-pronunciation==0.1.0` s anglickým MFA G2P v3.0.0. Súbory sa zapisujú s LF aj na Windows; presné SHA-256 sú v časti **Reproduce and evaluate Liang patterns** v [anglickom README](README.md), úplné reporty v `patterns/`. Predchádzajúci publikovaný beh dosiahol 98,4643 %/98,6115 % na rovnako veľkom teste pred najnovšími morfologickými zmenami; malý posun nie je kontrolovaná ablácia ani meranie správnosti podľa PSP. Zmena enginu, inventára alebo prítomnosti anglického runtime môže zmeniť výsledné hashe.
 
 Preferovaný súbor sa učí z `break_points(word)`, permisívny z `break_points(word, all_points=True, contextual=True)`. Jeden Liangov súbor nevie niesť prioritu bodov, preto sa tieto politiky publikujú samostatne a **nesmú sa načítať naraz**. Nemajú výnimky celých slov, neobsahujú jazykový detektor ani model výslovnosti a nie sú finálnym vydaním. Python balík nepoužíva vlastné slovenské vzory; DE/FR upstream vzory však používa.
 
-Staršie vzory Chlebíkovej slúžia ako porovnávacia základňa v `tex/hyph-sk.tex`. Ich vznik podľa autorky opisuje [docs/hyph-sk-1992-povod.md](docs/hyph-sk-1992-povod.md). Rozdiely často ukazujú morfematické švíky: pri minimách 2/3 napríklad `be·z·od·kladne` oproti `bez·od·kladne`, `na·jús·peš·nejší` oproti `naj·ús·peš·nejší`, či `rozum` oproti `ro·zum`. Nie je to automaticky zoznam chýb: nesúhlas dvoch systémov treba posúdiť podľa PSP.
+### Morfologické rozdiely oproti vzorom z roku 1992
+
+Aktuálne meranie uvedené vyššie nachádza medzi vzormi Chlebíkovej a integrovaným enginom približne jednu nezhodu celého slova z desiatich. Častou príčinou je morfológia. Presný súhrnný názov nie je iba kmeň či slovotvorný základ, ale **rozpoznaná morfematická stavba**: predpona a základ, členy zloženiny alebo základ a slovotvorná či gramatická prípona. Písmenové vzory vidia opakujúce sa úseky, ale túto analýzu si neuchovávajú.
+
+Nasleduje 21 overených príkladov, pri ktorých rozdiel naozaj vyplýva z morfológie; chyba sa neodvodzuje iba z toho, že sa dva systémy nezhodli. Oba stĺpce používajú rovnaké TeXové minimá 2/3 a `·` označuje dostupné miesto zalomenia. Výstup z roku 1992 buď ponúka bod uprostred rozpoznanej jednotky, alebo vynecháva užitočný morfematický švík, ktorý engine zachováva.
+
+| typ | slovo | rozpoznaná stavba | vzory 1992 | aktuálny engine |
+| --- | --- | --- | --- | --- |
+| predpona a základ | `bezodkladne` | `bez-|od-|klad-` | `be·z·od·kladne` | `bez·od·kladne` |
+| predpona a základ | `najúspešnejší` | `naj-|úspeš-|nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
+| predpona a základ | `rozkroj` | `roz-|kroj-` | `rozk·roj` | `roz·kroj` |
+| vnorené predpony | `neočistí` | `ne-|o-|čist-` | `ne·očistí` | `ne·o·čistí` |
+| predpona a základ | `predúradné` | `pred-|úrad-|n-` | `pre·dú·radné` | `pred·úradné` |
+| zloženina | `trojuholník` | `troj-|uhol-|ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
+| zloženina | `samoobslužný` | `samo-|ob-|služ-|n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služný` |
+| zloženina | `sebaistý` | `seba-|ist-` | `se·baistý` | `se·ba·istý` |
+| zloženina | `pravouhlý` | `pravo-|uhl-` | `pra·vouhlý` | `pra·vo·uhlý` |
+| zloženina | `novovzbudený` | `novo-|vzbud-|en-` | `no·vovz·bu·dený` | `no·vo·vzbu·dený` |
+| zloženina | `mäsožravce` | `mäso-|žrav-|ec` | `mä·sož·ravce` | `mä·so·žravce` |
+| zloženina | `pomstychtivý` | `pomsty-|chtiv-` | `po·mstych·tivý` | `pom·sty·chtivý` |
+| odvodzovanie | `kováčsky` | `kováč-|sk-` | `ko·váčsky` | `ko·váč·sky` |
+| odvodzovanie | `dedičstiev` | `dedič-|stv-` | `de·dičs·tiev` | `de·dič·stiev` |
+| odvodzovanie | `hráčske` | `hráč-|sk-` | `hráčske` | `hráč·ske` |
+| odvodzovanie | `šéfstvom` | `šéf-|stv-` | `šéfs·tvom` | `šéf·stvom` |
+| odvodzovanie | `víťazstvo` | `víťaz-|stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
+| odvodená číslovka | `Dvanástka` | `dvanásť-|k-` | `Dva·nás·tka` | `Dva·nástka` |
+| zložená číslovka | `dvadsaťdva` | `dvadsať-|dva` | `dvad·saťdva` | `dvad·sať·dva` |
+| zložená číslovka | `dvestotri` | `dve-|sto-|tri` | `dve·stotri` | `dve·sto·tri` |
+| zložená číslovka | `šesťstodeväťdesiatosem` | `šesť-|sto-|deväťdesiat-|osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
+
+Pravé minimum vysvetľuje, prečo sa koncový švík ako `dvanásť-|k-` v zobrazení 2/3 sám neponúkne; jeho analýza napriek tomu zabráni chybnému bodu `nás|tka`. Príklady neznamenajú, že každá ďalšia nezhoda je chybou: každý prípad treba naďalej rozhodnúť podľa PSP. Vzory z roku 1992 slúžia slovenskej sadzbe celé desaťročia a zostávajú porovnávacou základňou v `tex/hyph-sk.tex`; ich vznik podľa autorky opisuje [docs/hyph-sk-1992-povod.md](docs/hyph-sk-1992-povod.md).
 
 ### Použitie inde
 
@@ -247,7 +277,7 @@ python -m ruff check .
 reuse lint
 ```
 
-Pri zdrojovom Windows behu použite `set PYTHONPATH=src&& python -m pytest`; po zmene enginu overujte v čerstvom procese, nie cez staré importy. Plný beh z 2026-09-12 eviduje **931 úspešných testov, 1 očakávané zlyhanie a 3 licenčné/provenienčné zlyhania**. Jazykové a revízne regresie prešli; otvorené sú deklarácie voliteľných modelov, chýbajúci koreňový text CC-BY-4.0 a klasifikácia samostatného výslovnostného podstromu. Testy správnosti kódu nie sú schválením redistribučnej proveniencie.
+Pri zdrojovom Windows behu použite `set PYTHONPATH=src&& python -m pytest`; po zmene enginu overujte v čerstvom procese, nie cez staré importy. Plný beh z 2026-09-13 eviduje **934 úspešných testov, 1 očakávané zlyhanie a žiadne neočakávané zlyhania**. Prešli aj Ruff a kontroly REUSE 3.3. Súlad s REUSE eviduje deklarované licencie a oznámenia; nerieši stále neistý pôvod a právne vysporiadanie tréningových dát voliteľných modelov MFA.
 
 Obmedzenia zahŕňajú neistú identitu jazyka, neúplnú morfológiu, nejednoznačné zarovnanie písmen a hlások a heuristické DE/FR úpravy. `hyphenate` môže nepodporovaný zápis ponechať nezmenený; `syllables` pri nepodporovaných alfabetických znakoch môže vyvolať `ValueError`. Prázdne body nerozlišujú nepodporovaný vstup od správneho slova bez možného delenia. Projekt neuvádza certifikovanú celkovú PSP presnosť.
 

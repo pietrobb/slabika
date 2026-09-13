@@ -68,11 +68,11 @@ NOTICE = re.compile(
 # REUSE-IgnoreEnd
 ISBN = "80-224-0109-9"
 
-DECLARED_LICENCES = {"Apache-2.0", "CC0-1.0", "MIT"}
+DECLARED_LICENCES = {"Apache-2.0", "CC0-1.0", "MIT"}  # Core Slabika layers only.
 CODE_LICENCE = "Apache-2.0 OR MIT"
 DATA_LICENCE = "CC0-1.0 OR MIT"
 DISTRIBUTION_LICENCE = "(Apache-2.0 OR MIT) AND (CC0-1.0 OR MIT) AND MIT"
-
+REPOSITORY_LICENCES = DECLARED_LICENCES | {"CC-BY-4.0"}  # Optional MFA models.
 
 # --------------------------------------------------------------------------
 # The Páleš citation must be identical wherever it appears
@@ -185,7 +185,7 @@ def test_contact_address_is_consistent(name, text):
 
 def test_every_declared_licence_has_its_full_text():
     """REUSE requires the text of every SPDX identifier actually used."""
-    for licence in DECLARED_LICENCES:
+    for licence in REPOSITORY_LICENCES:
         path = ROOT / "LICENSES" / f"{licence}.txt"
         assert path.is_file(), f"REUSE.toml declares {licence} but LICENSES/{licence}.txt is missing"
         assert path.read_text(encoding="utf-8").strip(), f"LICENSES/{licence}.txt is empty"
@@ -211,7 +211,7 @@ def test_licence_texts_are_verbatim_and_carry_no_holder_name():
     a name into LICENSES/MIT.txt makes the central text wrong the moment someone
     else contributes; the holder belongs in SPDX-FileCopyrightText, per file.
     """
-    for licence in DECLARED_LICENCES:
+    for licence in REPOSITORY_LICENCES:
         text = (ROOT / "LICENSES" / f"{licence}.txt").read_text(encoding="utf-8")
         assert HOLDER not in text, (
             f"LICENSES/{licence}.txt names '{HOLDER}'. Restore the verbatim text "
@@ -430,7 +430,7 @@ def test_no_unexpected_licence_is_introduced():
     """A new SPDX identifier in REUSE.toml must be a conscious decision."""
     used = set(re.findall(r'SPDX-License-Identifier = "([^"]+)"', REUSE))
     ids = {token for entry in used for token in entry.replace(" OR ", " ").split()}
-    assert ids == DECLARED_LICENCES, f"unexpected licence(s) in REUSE.toml: {ids ^ DECLARED_LICENCES}"
+    assert ids == REPOSITORY_LICENCES, f"unexpected licence(s) in REUSE.toml: {ids ^ REPOSITORY_LICENCES}"
 
 
 def test_three_layer_split_is_stated_in_both_readmes():
@@ -907,8 +907,8 @@ def test_reuse_resolves_every_file_to_the_licence_of_its_layer():
     # a pattern file in a format not yet listed fail as unclassifiable. A browser
     # interface is source too, so its markup and scripts count as code.
     def expected_licences(name):
-        if name in {"tex/hyph-sk.tex", "src/slabika/patterns/foreign/hyph-de-1996.tex", "src/slabika/patterns/foreign/hyph-fr.tex"}:
-            return frozenset({"MIT"})
+        if name.startswith("pronunciation/") or name in {"tex/hyph-sk.tex", "src/slabika/patterns/foreign/hyph-de-1996.tex", "src/slabika/patterns/foreign/hyph-fr.tex"}:
+            return frozenset({"CC-BY-4.0" if name.startswith("pronunciation/python/slabika_pronunciation/models/") else "MIT"})
         under_data = any(part in ("data", "patterns") for part in Path(name).parts[:-1])
         code_suffixes = (".py", ".pyc", ".toml", ".html", ".css", ".js", ".bat")
         is_code = Path(name).suffix in code_suffixes and not under_data

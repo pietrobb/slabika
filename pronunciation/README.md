@@ -9,7 +9,7 @@ result = pronounce("Bradshaw", "english")
 assert result.phones == "bɹædʃɒː"
 ```
 
-This package is intentionally separate from the pure-Python `slabika` wheel because the compressed model archives total about 41 MB and carry CC BY 4.0 attribution duties. Commercial use, modification and redistribution are permitted under the included licences. Preserve `MODEL_ATTRIBUTION.md`, `THIRD_PARTY_NOTICES.md`, and the applicable texts in `LICENSES/` when redistributing the package.
+This package is intentionally separate from the pure-Python `slabika` wheel because the compressed model archives total about 41 MB and carry CC BY 4.0 attribution duties. The declared licences permit commercial use, modification and redistribution subject to their terms, but the exact provenance and rights clearance of the MFA models' training data remain unresolved; passing REUSE checks does not resolve that gap. Preserve `MODEL_ATTRIBUTION.md`, `THIRD_PARTY_NOTICES.md`, and the applicable texts in `LICENSES/` when redistributing the package.
 
 ## Safety status
 
