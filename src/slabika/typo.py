@@ -187,6 +187,8 @@ def _preferred_internal_vowel_points(word: str) -> set[int]:
         return {4}
     if folded.startswith('dvojokamih'):
         return {5}
+    if folded.startswith('kvartsextakord'):
+        return {10}
     if folded.startswith('najúhlavnejš'):
         return {4}
     return set()

@@ -4,8 +4,8 @@ Slovak syllabification and typographic word division — two distinct results bu
 
 ```python
 >>> import slabika
->>> slabika.syllables("najneuveriteľnejšími")
-['naj', 'ne', 'u', 've', 'ri', 'teľ', 'nej', 'ší', 'mi']
+>>> slabika.syllables("spravodlivosť")
+['spra', 'vod', 'li', 'vosť']
 >>> slabika.hyphenate("Prekladateľský", separator="-")
 'Pre-kla-da-teľ-ský'
 >>> slabika.break_points("Prekladateľský")
@@ -52,6 +52,16 @@ Reproducibility is not correctness. Neither internally consistent labels nor agr
 Vowel nuclei, consonant distribution and edge constraints are often mechanical once the linguistic analysis is known. Morpheme seams are harder: the same spelling can be a productive prefix plus a recognizable stem, or part of a lexicalized whole. Spelling alone cannot reliably recover that distinction.
 
 A broad vocabulary provides evidence for testing family rules and contrasting near misses. The preferred remedy is the narrowest supported generalization, not a new override for every word. The code nevertheless contains a small explicit reviewed-foreign breakpoint table alongside lexical reading data; it would be inaccurate to describe the current engine as entirely exception-free. Unresolved cases remain visible in tests and review records.
+
+### Where morphological boundaries come from
+
+There is no single database of finished boundaries. `get_morpheme_parts()` combines three layers: manually maintained and regression-tested rules for prefixes, suffixes and ambiguous families; guarded rules for numerals, prefixoids and particular compounds; and a generated inventory for productive compounds. `syllabify` and `typo` share that analysis but apply their own spoken-syllable and written-division rules inside each recognized part. A morpheme seam takes precedence over mechanical consonant redistribution in the preferred typographic result.
+
+The productive compound layer is built by `python tools/build_composita.py` from the local Sapfo lexicon at `../Sapfo/sapfo/data/sapfo_lexicon.db`. That source database is not part of this repository: a clean checkout uses the finished JSON but cannot rebuild it without the local sibling Sapfo project. The generator derives first members from adverb and adjective stems and from noun stems with linking `-o-/-e-`; it separately records possible second-member heads from adjective, adverb, noun and verb entries. The current `src/slabika/data/composita.json` contains **59,506 first members** and **69,718 second-member heads**. This JSON is versioned, packaged and is all the runtime reads: users need neither Sapfo, RMSS nor the source database. **RMSS was not the source of this systematic layer.** The statistically induced `morphs.json` is used by an audit tool, not for automatic production decisions about Slovak boundaries.
+
+The inventory does not mean “break after every known string”. The engine requires both a credible first member and an attested second-member head followed only by an allowed inflectional tail. It does not combine two weak inferences, and guards several collisions with prefixes and endings. This lets it infer unseen `žlto|modrý`, `svetlo|zelený` or `modro|zelenkastý`, while rejecting a false analysis such as `jahodo|vých`.
+
+Ordinary users do **not** regenerate this inventory. A maintainer rebuilds it only after changing the source lexicon or `tools/build_composita.py`; adding words to the review corpus alone does not change it. Do not edit the generated JSON directly. Add an ordinary productive native member to the source lexicon or `CURATED_NATIVE`, then rebuild. A risky short prefixoid or numeral belongs in `CURATED_NUMERALS` for artefact provenance and also in the guarded runtime layer `_SK_COMPOSITA`/`_licenses_compositum`. Prefixes, suffixes and exceptional families are maintained directly in `syllabify.py` and need no JSON rebuild. Every change needs positive and contrastive regression tests, followed by corpus-wide impact and existing-decision checks.
 
 ## Architecture
 
@@ -148,14 +158,16 @@ These are regression examples verified on 2026-09-12, not a certified PSP gold s
 
 ## Installation and review consoles
 
-The core is an **alpha** (`0.1.0`) for Python 3.10+ with no required third-party runtime packages:
+The core is an **alpha** (`0.2.0`) for Python 3.10+ with no required third-party runtime packages:
 
 ```console
-python -m pip install -e .
+python -m pip install slabika
 slabika-review
 ```
 
-German/French pattern resources and explicit foreign readings are bundled. Broader English G2P requires a separately built/installed `slabika-pronunciation==0.1.0` (the `pronunciation` extra declares that dependency; this is not a claim that a public wheel is available). See [pronunciation/README.md](pronunciation/README.md) for native build instructions and limitations. The optional model bundle has separate attribution/provenance concerns and is **not an unrestricted, MIT-only release**.
+For an editable source checkout with the test and licence tools, use `python -m pip install -e ".[dev]"` instead.
+
+German/French pattern resources and explicit foreign readings are bundled. Broader English G2P requires a separately built/installed `slabika-pronunciation==0.1.0`; it is not on PyPI and is deliberately not declared as an installable extra of the core 0.2.0 release. See [pronunciation/README.md](pronunciation/README.md) for native build instructions and limitations. The optional model bundle has separate attribution/provenance concerns and is **not an unrestricted, MIT-only release**.
 
 ### Slovak review
 
@@ -220,6 +232,14 @@ The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 
 
 The tracked dual-model evidence contains 17 runs and 1,346 adjudications over 1,239 distinct forms. Recorded model slots are `claude-opus-5[high]` and `gpt-6-astra[sub][high]`. There were 1,079 independent agreements, 145 agreements after cross-review, 23 after reconciliation and 99 unresolved decisions over 71 distinct forms. These layers overlap and must not simply be added to estimate checked vocabulary.
 
+### PSP-adjudicated comparison set
+
+The tracked `tests/data/review_decisions.sqlite` contains the immutable audit queue `engine-chlebikova-exhaustive-2026-08-25-v1`: all **23,173 unique forms** on which the frozen engine and the bundled 1992 patterns disagreed with the same 2/3 margins. The forms were sorted deterministically and assessed in 232 batches of at most 100. Each comparison records the original outputs, proposed PSP division and variants, separate verdicts for the engine and Chlebíková, a PSP citation, rationale and unresolved classification. Human decisions, blind reviews and dual-model adjudications remain separate evidence rather than votes that overwrite one another.
+
+The recorded outcomes are **15,313 engine only**, **6,195 both correct**, **1 Chlebíková only**, **5 neither correct** and **1,659 unresolved**: 21,514 resolved comparisons, not 23,173 certified answers. The counts can be reproduced from `psp_comparisons` by filtering on that audit ID and grouping by `comparison_outcome`; every frozen item has a matching comparison row. This is a **PSP-adjudicated comparison set**, not an independent random gold benchmark: the exhaustive PSP interpretation was AI-assisted, its selection is concentrated entirely on historical disagreements, and unresolved foreign pronunciation was preserved rather than guessed.
+
+For later manual morphology checks the maintainer also consults the *Retrográdny morfematický slovník slovenčiny* (RMSS). RMSS is non-normative morphological evidence, not the authority for typographic division, not the source of the generated runtime boundary inventory, and neither its PDF nor local search index is distributed here. PSP chapter V remains the normative authority.
+
 An earlier author/AI comparison found 49 discrepancies among 350 shared forms, in 14 families, including `dôstojný`, `opotrebovať`, `páčidlo` and foreign names. That is a historical comparison, not a fresh count of currently open disputes. Neither human opinion nor model consensus settles a case without an independent PSP argument.
 
 ## How this differs from the 1992 patterns
@@ -269,19 +289,19 @@ Both files were **regenerated on 2026-09-13 with the integrated EN/DE/FR routes*
 
 | current pattern evaluation (2026-09-13) | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| slabika preferred, 5,580 patterns | 98.4618% (40,136/40,763) | 99.5526% | 99.4277% |
-| Chlebíková 1992 against preferred target | 89.5175% | 95.9841% | 95.3573% |
-| slabika permissive, 5,268 patterns | 98.6017% (40,193/40,763) | 99.5770% | 99.5024% |
-| Chlebíková 1992 against permissive target | 88.9777% | 96.3475% | 94.8874% |
+| slabika preferred, 5,581 patterns | 98.4913% (40,148/40,763) | 99.5588% | 99.4415% |
+| Chlebíková 1992 against preferred target | 89.5641% | 95.9699% | 95.3872% |
+| slabika permissive, 5,244 patterns | 98.6311% (40,205/40,763) | 99.5833% | 99.5176% |
+| Chlebíková 1992 against permissive target | 88.9655% | 96.3333% | 94.8878% |
 
 Both sides used TeX 2/3 minima. This measures **fidelity to the engine at generation time**, not independent PSP correctness or current adapter accuracy. Published SHA-256 values are:
 
-- `patterns/hyph-sk-slabika.tex`: `28def9dbc642b4af31be5e889a5f1a0b3f2adfa925a71c3ec03e54f1bb18332c`;
-- `patterns/hyph-sk-slabika-permissive.tex`: `d535e183f78025b68c35c26905e32f1fff837e7328ae255ecc656908460beb99`.
+- `patterns/hyph-sk-slabika.tex`: `e56e2e9c72df9463ed9def08fd87d5c0345e5dc40ce0aeaa2046679628942b6b`;
+- `patterns/hyph-sk-slabika-permissive.tex`: `564f45a25cdfa5f6589d86c061d83b2e0da8be2f9a710c98c51756556d00e4d1`.
 
-Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output now explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record this run's full evaluation. The preceding published run reached 98.4643%/98.6115% on the same-sized test before the latest morphology changes; the small shift is not a controlled ablation or a PSP accuracy measurement. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
+Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record the release run's full evaluation. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
 
-A single Liang file cannot encode “prefer this boundary, use another only if necessary”. The preferred and permissive files carry those alternatives separately and should not be loaded together. They contain no whole-word exceptions, do not include the language detector or G2P model, and are not a final release.
+A single Liang file cannot encode “prefer this boundary, use another only if necessary”. The preferred and permissive files carry those alternatives separately and should not be loaded together. They contain no whole-word exceptions and do not include the language detector or G2P model. They are versioned release artefacts alongside the Python package, but the library does not load them automatically.
 
 ### Using patterns elsewhere
 
@@ -299,7 +319,7 @@ reuse lint
 
 For a source-only Windows run, use `set PYTHONPATH=src&& python -m pytest`. Fresh Python processes avoid stale cached model/engine results after code changes.
 
-The 2026-09-13 full run recorded **934 passed, 1 expected failure and no unexpected failures**. Ruff and REUSE 3.3 checks also passed. REUSE compliance records the declared licences and notices; it does not resolve the still-uncertain provenance and rights clearance of the optional MFA models' training data.
+The 2026-09-13 release run recorded **938 passed, 1 expected failure and no unexpected failures**. Ruff and REUSE 3.3 checks also passed. REUSE compliance records the declared licences and notices; it does not resolve the still-uncertain provenance and rights clearance of the optional MFA models' training data.
 
 Known limits include uncertain language identity, incomplete morphology, ambiguous spelling-to-sound alignment and heuristic DE/FR adaptation. Unsupported spelling can remain unchanged in `hyphenate`; `syllables` can raise `ValueError` for unsupported alphabetic characters. An empty breakpoint list does not distinguish unsupported input from a valid word with no allowed break. There is no independently adjudicated overall PSP accuracy claim.
 

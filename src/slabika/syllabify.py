@@ -467,6 +467,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('dvoj', ('izb', 'okamih', 'uch')),
     ('päť', ('uhol',)),
     ('sedem', ('miest', 'uhol')),
+    ('sext', ('akord',)),
     ('štvor', ('uhol', 'uhl')),
     ('porno', ('graf',)),
     ('pso', ('hlav',)),
@@ -543,7 +544,7 @@ _LEXICAL_PREFIX_ROOTS = (
         'zhromažd', 'žgrl',
     )),
     ('nade', ('všet',)),
-    ('ná', ('cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'klaď', 'prav', 'skok', 'sten', 'stup', 'tlak', 'vnad', 'vrat', 'znak')),
+    ('ná', ('brež', 'cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'klaď', 'prav', 'skok', 'sten', 'stup', 'tlak', 'vnad', 'vrat', 'znak')),
     ('sprí', ('stup',)),
     ('spo', ('plat', 'zná')),
     ('s', ('prostred',)),
@@ -558,7 +559,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'pokoj', 'poslúch', 'pri', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad', 'lh', 'rv', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),
-    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'kryt', 'plat', 'prah', 'skok', 'stup', 'zrak', 'zrač')),
+    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'kryt', 'plat', 'prah', 'skok', 'stup', 'svet', 'zrak', 'zrač')),
     ('ú', ('hrad', 'kryt', 'nav', 'plat', 'rad', 'stred', 'stup', 'tlak', 'toč')),
 )
 
@@ -1832,6 +1833,14 @@ def get_morpheme_parts(word: str) -> list[str]:
         return lexical
     if _is_mastnak_form(word):
         return [word[:4], word[4:]]
+    if wl.startswith('brnk') and len(word) > 4:
+        return [word[:4], word[4:]]
+    if wl.startswith(('odobri', 'odobren', 'odobruj')):
+        return [word[:1], word[1:]]
+    if wl.startswith('ohria'):
+        return [word[:1], word[1:]]
+    if wl.startswith('ostan') and wl[5:] in {'e', 'em', 'eme', 'ete', 'eš', 'ú'}:
+        return [word[:1], word[1:]]
     zneucten_family = _split_zneucten_family(word)
     if zneucten_family is not None:
         prefixes, remainder = zneucten_family

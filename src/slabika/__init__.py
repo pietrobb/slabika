@@ -16,8 +16,8 @@ morphological analysis, but each applies its own boundary rules.
 Typical use::
 
     >>> import slabika
-    >>> slabika.syllables("najneuveriteľnejšími")
-    ['naj', 'ne', 'u', 've', 'ri', 'teľ', 'nej', 'ší', 'mi']
+    >>> slabika.syllables("spravodlivosť")
+    ['spra', 'vod', 'li', 'vosť']
     >>> slabika.hyphenate("Prekladateľský", separator="-")
     'Pre-kla-da-teľ-ský'
 """
@@ -53,7 +53,7 @@ from .phonotactics import (
 from .syllabify import get_syllables as syllables
 from .typo import break_points, divisions, hyphenate
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "__version__",

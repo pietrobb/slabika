@@ -4,8 +4,8 @@ Slovenské slabikovanie a typografické rozdeľovanie slov na konci riadka — d
 
 ```python
 >>> import slabika
->>> slabika.syllables("najneuveriteľnejšími")
-['naj', 'ne', 'u', 've', 'ri', 'teľ', 'nej', 'ší', 'mi']
+>>> slabika.syllables("spravodlivosť")
+['spra', 'vod', 'li', 'vosť']
 >>> slabika.hyphenate("Prekladateľský", separator="-")
 'Pre-kla-da-teľ-ský'
 >>> slabika.break_points("Prekladateľský")
@@ -50,6 +50,16 @@ Tréningové delenia počíta engine, nepreberá sa hotový slovenský slovník 
 Vokalické jadrá, rozdelenie spoluhlások a okrajové obmedzenia sú často mechanické až po určení jazykovej analýzy. Morfematické švíky sú ťažšie: rovnaký zápis môže znamenať produktívnu predponu a rozpoznateľný kmeň alebo zlexikalizovaný celok. Zo samotných písmen sa to nedá spoľahlivo určiť.
 
 Široká slovná zásoba poskytuje evidenciu na testovanie rodín a kontrastných prípadov. Uprednostňujeme najužšie doložené zovšeobecnenie pred zapamätaním jednotlivého slova. Súčasný kód však obsahuje aj malú explicitnú tabuľku posúdených cudzích delení popri lexikálnych čítaniach; tvrdenie, že je úplne bez výnimiek, by nebolo presné. Nevyriešené prípady zostávajú viditeľné.
+
+### Odkiaľ prichádzajú morfematické hranice
+
+Neexistuje jedna databáza hotových hraníc. `get_morpheme_parts()` skladá analýzu z troch vrstiev: ručne udržiavaných a regresne overených pravidiel pre predpony, prípony a nejednoznačné rodiny; strážených pravidiel pre číslovky, prefixoidy a osobitné zloženiny; a generovaného inventára produktívnych zloženín. `syllabify` aj `typo` používajú tú istú analýzu, ale vo vnútri rozpoznaných častí uplatňujú vlastné slabičné, resp. typografické pravidlá. Morfematický švík má v preferovanom typografickom výstupe prednosť pred mechanickým rozdelením spoluhláskovej skupiny.
+
+Produktívna zloženinová vrstva vzniká príkazom `python tools/build_composita.py` z lokálneho lexikónu Sapfo v `../Sapfo/sapfo/data/sapfo_lexicon.db`. Táto zdrojová databáza nie je súčasťou repozitára: čistý checkout používa hotový JSON, ale bez lokálneho súrodeneckého projektu Sapfo ho nanovo nevytvorí. Generátor z lexikónu odvodzuje prvé členy z príslovkových a prídavných kmeňov a z menných kmeňov so spájacím `-o-/-e-`; osobitne eviduje možné hlavy druhého člena z prídavných, príslovkových, menných a slovesných hesiel. Aktuálny `src/slabika/data/composita.json` obsahuje **59 506 prvých členov** a **69 718 hláv druhého člena**. JSON je verzovaný, pribalený do balíka a runtime číta iba ten: používateľ nepotrebuje Sapfo, RMSS ani pôvodnú databázu. **RMSS nebol zdrojom tejto systémovej vrstvy.** Štatisticky indukovaný `morphs.json` sa používa v auditnom nástroji, nie na automatické produkčné určovanie slovenských hraníc.
+
+Inventár neznamená „rozdeľ po každom známom reťazci“. Engine vyžaduje zároveň dôveryhodný prvý člen, doloženú hlavu druhého člena a iba prípustný ohýbací chvost. Nekombinuje dve slabé domnienky a blokuje viaceré kolízie s predponami a koncovkami. Preto vie odvodiť aj predtým nevidené `žlto|modrý`, `svetlo|zelený` či `modro|zelenkastý`, ale nevytvorí napríklad falošné `jahodo|vých`.
+
+Bežný používateľ inventár **neregeneruje**. Správca ho prebuduje iba po zmene zdrojového lexikónu alebo `tools/build_composita.py`; samotné pridanie slov do revízneho korpusu ho nemení. Generovaný JSON sa nemá upravovať ručne. Produktívny domáci člen možno doplniť do zdrojového lexikónu alebo do `CURATED_NATIVE` a následne prebudovať JSON. Rizikový krátky prefixoid či číslovka patrí do `CURATED_NUMERALS` kvôli proveniencii artefaktu a zároveň do stráženej runtime vrstvy `_SK_COMPOSITA`/`_licenses_compositum`. Predpony, prípony a osobitné rodiny sa dopĺňajú priamo v `syllabify.py`, bez regenerovania JSON. Každá zmena musí dostať kladné aj kontrastné regresné testy a pred prijatím sa meria jej dopad na celý korpus a existujúce rozhodnutia.
 
 ## Architektúra
 
@@ -142,14 +152,16 @@ Sú to regresné príklady overené 2026-09-12, nie certifikovaný PSP gold súb
 
 ## Inštalácia a revízne konzoly
 
-Jadro je **alfa verzia 0.1.0** pre Python 3.10+ bez povinných runtime závislostí:
+Jadro je **alfa verzia 0.2.0** pre Python 3.10+ bez povinných runtime závislostí:
 
 ```console
-python -m pip install -e .
+python -m pip install slabika
 slabika-review
 ```
 
-DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebuje samostatne zostavený/nainštalovaný `slabika-pronunciation==0.1.0`; extra `pronunciation` deklaruje závislosť, nie dostupnosť verejného wheelu. Zostavenie a obmedzenia opisuje [pronunciation/README.md](pronunciation/README.md). Modely majú samostatné licencie a otvorené provenienčné otázky; nejde o neobmedzené vydanie iba pod MIT.
+Pre editovateľný zdrojový checkout s testovacími a licenčnými nástrojmi použite namiesto toho `python -m pip install -e ".[dev]"`.
+
+DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebuje samostatne zostavený a nainštalovaný `slabika-pronunciation==0.1.0`; na PyPI nie je a vydanie jadra 0.2.0 ho zámerne nedeklaruje ako inštalovateľný extra balík. Zostavenie a obmedzenia opisuje [pronunciation/README.md](pronunciation/README.md). Modely majú samostatné licencie a otvorené provenienčné otázky; nejde o neobmedzené vydanie iba pod MIT.
 
 Slovenské review číta inventár a počíta **aktuálny výstup enginu**, vrátane prípustných cudzích ciest. Rozhodnutia ukladá oddelene do `review_decisions.sqlite` v spúšťacom priečinku; `--db` a `--decisions` vyberajú iné súbory. `run_review_local.bat` je pre externého recenzenta, bez inštalácie a s rozhodnutiami v `%LOCALAPPDATA%\slabika-review`. Správcovský `run_review.bat` zámerne otvára verzované rozhodnutia projektu.
 
@@ -214,6 +226,14 @@ Tieto počty nie sú presnosť ani počet ľudsky overených slov. Starší inve
 
 Štyri zmrazené slepé audity obsahujú 8 100 rozhodnutí nad 8 028 tvarmi: 6 601 vyriešených, 1 477 neistých a 22 chybných. Izolovaní LLM recenzenti dostali holé tvary bez enginu a starších názorov, neboli to kontroly autora. Dvojmodelová evidencia obsahuje 17 behov, 1 346 posúdení nad 1 239 tvarmi, s modelovými pozíciami `claude-opus-5[high]` a `gpt-6-astra[sub][high]`: 1 079 nezávislých zhôd, 145 po krížovej kontrole, 23 po zmierení a 99 nerozhodnutých posúdení nad 71 tvarmi.
 
+### Porovnávací súbor posúdený podľa PSP
+
+Verzovaná databáza `tests/data/review_decisions.sqlite` obsahuje nemenný auditný rad `engine-chlebikova-exhaustive-2026-08-25-v1`: všetkých **23 173 jedinečných tvarov**, pri ktorých sa zmrazený engine a pribalené vzory z roku 1992 nezhodli pri rovnakých okrajových minimách 2/3. Tvary boli deterministicky zoradené a posúdené v 232 dávkach najviac po 100. Pri každom porovnaní sa uchováva pôvodný výstup, navrhnuté delenie a varianty podľa PSP, samostatný verdikt pre engine a Chlebíkovú, odkaz na PSP, zdôvodnenie a klasifikácia nerozhodnutého prípadu. Autorské rozhodnutia, slepé kontroly a dvojmodelová adjudikácia zostávajú oddelenou evidenciou; nehlasujú a navzájom sa neprepisujú.
+
+Výsledky sú **15 313 iba engine**, **6 195 oba správne**, **1 iba Chlebíková**, **5 ani jeden** a **1 659 nerozhodnutých**: 21 514 uzavretých porovnaní, nie 23 173 certifikovaných odpovedí. Počty možno reprodukovať z tabuľky `psp_comparisons` filtrovaním podľa uvedeného `audit_id` a zoskupením podľa `comparison_outcome`; každý zmrazený tvar má zodpovedajúci riadok posúdenia. Ide o **porovnávací súbor posúdený podľa PSP**, nie o nezávislý náhodný gold benchmark: úplná interpretácia PSP vznikala s pomocou AI, výber obsahuje iba historické nezhody a neistá cudzia výslovnosť zostala zámerne nerozhodnutá.
+
+Pri neskorších ručných morfologických kontrolách správca používa aj *Retrográdny morfematický slovník slovenčiny* (RMSS). RMSS je nenormatívna morfematická evidencia, nie autorita typografického delenia ani zdroj generovaného runtime inventára hraníc; jeho PDF a lokálny vyhľadávací index sa nepribaľujú. Normatívnou autoritou zostáva kapitola V PSP.
+
 Vrstvy sa prekrývajú, preto sa nesčítavajú na „počet skontrolovaných slov“. Staršie porovnanie autora a AI našlo 49 nezhôd v 350 spoločných tvaroch, v 14 rodinách. Je to historické meranie, nie počet dnes otvorených sporov. Ľudský názor ani modelový konsenzus nenahrádza nezávislý argument z PSP.
 
 ## Liangove vzory: regenerovanie a hodnotenie
@@ -227,9 +247,9 @@ python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-pe
 
 Príkazy prepíšu dva verzované súbory vzorov. Generátor prijíma `resolved`/`inferred` tvary, vynechá vyradené `invalid`, prevedie na malé písmená, odstráni duplikáty a nepodporované zápisy. Deterministické rozdelenie používa soľ `slabika-liang-v1`. Pridáva generované číslovky; príslušné korpusové číslovky presunie do tréningu, aby neboli aj v teste. Výstup zahŕňa `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` a `report.json` s počtami, hashmi, metrikami a ukážkami nezhôd.
 
-Generovanie **2026-09-13** prijalo 203 919 podporovaných unikátnych slov: **163 156 tréningových a 40 763 odložených**. Preferovaný súbor má **5 580 vzorov**, presné celé slová **98,4618 %** (40 136/40 763), precision bodov 99,5526 % a recall 99,4277 %. Permisívny má **5 268 vzorov**, presné celé slová **98,6017 %** (40 193/40 763), precision 99,5770 % a recall 99,5024 %. Pri rovnakých minimách TeXu 2/3 zopakuje základňa Chlebíkovej príslušné ciele na 89,5175 % a 88,9777 % celých slov. Ide o **vernosť enginu**, nie nezávislú správnosť podľa PSP. Použitý bol Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5) a `slabika-pronunciation==0.1.0` s anglickým MFA G2P v3.0.0. Súbory sa zapisujú s LF aj na Windows; presné SHA-256 sú v časti **Reproduce and evaluate Liang patterns** v [anglickom README](README.md), úplné reporty v `patterns/`. Predchádzajúci publikovaný beh dosiahol 98,4643 %/98,6115 % na rovnako veľkom teste pred najnovšími morfologickými zmenami; malý posun nie je kontrolovaná ablácia ani meranie správnosti podľa PSP. Zmena enginu, inventára alebo prítomnosti anglického runtime môže zmeniť výsledné hashe.
+Generovanie **2026-09-13** prijalo 203 919 podporovaných unikátnych slov: **163 156 tréningových a 40 763 odložených**. Preferovaný súbor má **5 581 vzorov**, presné celé slová **98,4913 %** (40 148/40 763), precision bodov 99,5588 % a recall 99,4415 %. Permisívny má **5 244 vzorov**, presné celé slová **98,6311 %** (40 205/40 763), precision 99,5833 % a recall 99,5176 %. Pri rovnakých minimách TeXu 2/3 zopakuje základňa Chlebíkovej príslušné ciele na 89,5641 % a 88,9655 % celých slov. Ide o **vernosť enginu**, nie nezávislú správnosť podľa PSP. Použitý bol Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5) a `slabika-pronunciation==0.1.0` s anglickým MFA G2P v3.0.0. Súbory sa zapisujú s LF aj na Windows; presné SHA-256 sú v časti **Reproduce and evaluate Liang patterns** v [anglickom README](README.md), úplné reporty release behu sú v `patterns/`. Zmena enginu, inventára alebo prítomnosti anglického runtime môže zmeniť výsledné hashe.
 
-Preferovaný súbor sa učí z `break_points(word)`, permisívny z `break_points(word, all_points=True, contextual=True)`. Jeden Liangov súbor nevie niesť prioritu bodov, preto sa tieto politiky publikujú samostatne a **nesmú sa načítať naraz**. Nemajú výnimky celých slov, neobsahujú jazykový detektor ani model výslovnosti a nie sú finálnym vydaním. Python balík nepoužíva vlastné slovenské vzory; DE/FR upstream vzory však používa.
+Preferovaný súbor sa učí z `break_points(word)`, permisívny z `break_points(word, all_points=True, contextual=True)`. Jeden Liangov súbor nevie niesť prioritu bodov, preto sa tieto politiky publikujú samostatne a **nesmú sa načítať naraz**. Nemajú výnimky celých slov a neobsahujú jazykový detektor ani model výslovnosti. Sú verzovanými release artefaktmi popri Python balíku, ale knižnica ich automaticky nenačítava; používa iba prevzaté DE/FR vzory.
 
 ### Morfologické rozdiely oproti vzorom z roku 1992
 
@@ -277,7 +297,7 @@ python -m ruff check .
 reuse lint
 ```
 
-Pri zdrojovom Windows behu použite `set PYTHONPATH=src&& python -m pytest`; po zmene enginu overujte v čerstvom procese, nie cez staré importy. Plný beh z 2026-09-13 eviduje **934 úspešných testov, 1 očakávané zlyhanie a žiadne neočakávané zlyhania**. Prešli aj Ruff a kontroly REUSE 3.3. Súlad s REUSE eviduje deklarované licencie a oznámenia; nerieši stále neistý pôvod a právne vysporiadanie tréningových dát voliteľných modelov MFA.
+Pri zdrojovom Windows behu použite `set PYTHONPATH=src&& python -m pytest`; po zmene enginu overujte v čerstvom procese, nie cez staré importy. Release beh z 2026-09-13 eviduje **938 úspešných testov, 1 očakávané zlyhanie a žiadne neočakávané zlyhania**. Prešli aj Ruff a kontroly REUSE 3.3. Súlad s REUSE eviduje deklarované licencie a oznámenia; nerieši stále neistý pôvod a právne vysporiadanie tréningových dát voliteľných modelov MFA.
 
 Obmedzenia zahŕňajú neistú identitu jazyka, neúplnú morfológiu, nejednoznačné zarovnanie písmen a hlások a heuristické DE/FR úpravy. `hyphenate` môže nepodporovaný zápis ponechať nezmenený; `syllables` pri nepodporovaných alfabetických znakoch môže vyvolať `ValueError`. Prázdne body nerozlišujú nepodporovaný vstup od správneho slova bez možného delenia. Projekt neuvádza certifikovanú celkovú PSP presnosť.
 

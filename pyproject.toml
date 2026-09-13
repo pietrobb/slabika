@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "slabika"
-version = "0.1.0"
+version = "0.2.0"
 description = "Slovak syllabification and hyphenation, derived from a full phonological inventory"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -29,7 +29,6 @@ slabika-review = "slabika.review.server:main"
 [project.optional-dependencies]
 dev = ["pytest>=7", "ruff", "reuse"]
 morph = ["PyMuPDF>=1.24"]
-pronunciation = ["slabika-pronunciation==0.1.0"]
 
 [project.urls]
 Homepage = "https://github.com/pietrobb/slabika"
@@ -46,6 +45,9 @@ packages = ["src/slabika"]
 "tests/data/blind_human_recheck_1000_v2/results.sqlite" = "slabika/review/data/blind-human-recheck-1000.sqlite"
 "tests/data/blind_human_recheck_2000_v3/results.sqlite" = "slabika/review/data/blind-human-recheck-2000.sqlite"
 "tex/hyph-sk.tex" = "slabika/review/tex/hyph-sk.tex"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/pronunciation"]
 
 [tool.hatch.build.targets.sdist.force-include]
 "tests/data/translatemaster_hyphenation_working.sqlite" = "tests/data/translatemaster_hyphenation_working.sqlite"

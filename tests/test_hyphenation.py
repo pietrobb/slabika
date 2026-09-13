@@ -724,13 +724,38 @@ def test_tenth_discovered_family_batch_keeps_only_clear_seams():
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("pasvetla") == "pa·svet·la"
     assert hyphenate("samovysvetľujúce") == "sa·mo·vy·svet·ľu·jú·ce"
-    assert hyphenate("zásvetie") == "zás·ve·tie"
+    assert hyphenate("zásvetie") == "zá·sve·tie"
     assert hyphenate("ostáva") == "os·tá·va"
     assert hyphenate("zhrozenie") == "zhro·ze·nie"
     assert hyphenate("evanjelium") == "evan·je·li·um"
     assert hyphenate("transport") == "trans·port"
     assert hyphenate("bezosporu") == "be·zo·spo·ru"
     assert hyphenate("bezozvyšku") == "be·zo·zvyš·ku"
+
+
+def test_reviewed_native_morpheme_seams_replace_false_cluster_points():
+    expected = {
+        "Brnknite": "Brnk·ni·te",
+        "brnkať": "brnk·ať",
+        "brnklo": "brnk·lo",
+        "brnkol": "brnk·ol",
+        "odobrenú": "odob·re·nú",
+        "odobril": "odob·ril",
+        "odobrili": "odob·ri·li",
+        "odobruje": "odob·ru·je",
+        "ohriata": "ohria·ta",
+        "ostane": "osta·ne",
+        "nábrežie": "ná·bre·žie",
+        "kvartsextakord": "kvart·sext·a·kord",
+        "zásvetie": "zá·sve·tie",
+        "zásvetný": "zá·svet·ný",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("neodobral") == "ne·odo·bral"
+    assert hyphenate("portfólia") == "por·tfó·lia"
+    assert hyphenate("kvintesencia") == "kvin·te·sen·cia"
+    assert hyphenate("upravia") == "up·ra·via"
+    assert hyphenate("vytiahnutí") == "vy·tiah·nu·tí"
 
 
 def test_operator_approved_scale_1000_native_forms():
@@ -1473,7 +1498,7 @@ def test_thirty_eighth_discovered_family_batch_has_no_safe_new_seams():
         "pošteklenie": "po·štek·le·nie",
         "pasvetla": "pa·svet·la",
         "samovysvetľujúce": "sa·mo·vy·svet·ľu·jú·ce",
-        "zásvetie": "zás·ve·tie",
+        "zásvetie": "zá·sve·tie",
         "bostonské": "bos·ton·ské",
         "albastone": "al·ba·stone",
         "šestonedelí": "šes·to·ne·de·lí",
@@ -4344,7 +4369,7 @@ def test_audited_lexical_compounds_keep_their_morpheme_seams():
         "dlhochvostý": "dl·ho·chvos·tý",
         "dlhotrvajúci": "dl·ho·tr·va·jú·ci",
         "dlhovlasý": "dl·ho·vla·sý",
-        "kvartsextakord": "kvart·sex·ta·kord",
+        "kvartsextakord": "kvart·sext·a·kord",
         "kvarteto": "kvar·te·to",
     }
     assert {word: hyphenate(word) for word in expected} == expected
