@@ -37,8 +37,8 @@ data licence at the same time. Each `OR` inside it is a choice you make.
 The bundled DE/FR upstream patterns in `src/slabika/patterns/foreign/` are MIT-only; their original copyright and permission notices are retained verbatim, with per-file SPDX sidecars.
 For project-owned files, per-file declarations and `REUSE.toml` determine the layer.
 Runtime linguistic inventories, including `src/slabika/data/phonology.json`,
-are data under `CC0-1.0 OR MIT`. The build-time Python grammar modules under
-`tools/sapfo_grammar/` retain `Apache-2.0 OR MIT` for their implementation,
+are data under `CC0-1.0 OR MIT`. The local build-time Python grammar modules
+are offered under `Apache-2.0 OR MIT` for their implementation,
 including embedded paradigm constants. This implementation licence does not
 claim exclusive rights in grammatical facts or change the runtime data licence.
 
@@ -244,9 +244,9 @@ These classes feed the released compound inventory when present in `forms.form`;
 
 **English membership is separate from the profiles.** `src/slabika/data/english_morphology_members.json` contains 55,637 isolated forms exported by `tools/export_english_morphology.py` from successful English rows of the local generated review inventory. Its input is the union of the same 66 Gutenberg works and seven local Chandler projects described above. The recorded `source_forms_sha256` matches that selection. The export contains no IPA, alignment, model weights or Human divisions; successful pronunciation status affects selection only. The maintainer approved Chandler-derived n-grams on 2026-09-12 while acknowledging that Chandler is not yet in the EU public domain. That approval is not itself an acquisition record for the original-language texts or an explicit rights assessment of a distributed word-membership list. On 2026-09-14 the maintainer stated that the Chandler originals had been downloaded but that the source was no longer remembered. Their acquisition source and terms therefore remain unknown; this is not a finding of infringement. On the same date, the maintainer explicitly instructed that the existing Chandler-derived character n-gram profiles and isolated-word inventory be retained for release. Version 0.3.0 retains them unchanged and does not distribute the source books. This records the maintainer's release decision, not a claim that the originals are already public domain or that all acquisition terms have been independently cleared.
 
-Version 0.3.0 replaces the historical Sapfo-derived compound inventory;
-filtering `source='snk'` alone did not establish the provenance of remaining rows.
-The released replacement reads local grammar and corpus forms, not that lexicon. Its separate `tests/data/grammar_supplement.json` records operator-requested AI-authored surface forms and explicitly typed bound/indeclinable members; these are lexical assumptions, not human-reviewed or independent attestations. The builder hashes this input, lists added forms, and keeps compound examples separate from induced paradigm evidence.
+The compound inventory is generated from local inflectional grammar and
+surface forms in the project's corpus.
+Its separate `tests/data/grammar_supplement.json` records operator-requested AI-authored surface forms and explicitly typed bound/indeclinable members; these are lexical assumptions, not human-reviewed or independent attestations. The builder hashes this input, lists added forms, and keeps compound examples separate from induced paradigm evidence.
 Word forms and grammatical rules are linguistic facts (Act No. 185/2015 Coll., §5(a)),
 but this does not itself clear rights in copied expression or substantial database extraction. The project
 licences apply only to rights held by their grantors. Release clearance must cover
@@ -288,10 +288,10 @@ vowel quantity and resonance, diphthongs, syllabic consonants, consonant
 hardness, voicing pairs, place and manner of articulation, palatalization, and
 the rhythmic law — follows the description given by:
 
-> Emil Páleš, *Sapfo — parafrázovač slovenčiny: počítačový nástroj na
-> modelovanie v jazykovede*, 1st edition, VEDA, vydavateľstvo Slovenskej
-> akadémie vied (publishing house of the Slovak Academy of Sciences),
-> Bratislava, 1994, ISBN 80-224-0109-9, chapter 2 (*Fonológia*).
+> Emil Páleš (1994), chapter 2 (*Fonológia*).
+> 1st edition, VEDA, vydavateľstvo Slovenskej akadémie vied
+> (publishing house of the Slovak Academy of Sciences), Bratislava.
+> ISBN 80-224-0109-9.
 
 In that work the classification is itself attributed to J. Dvončová (1980) and
 J. Horecký (1977).
@@ -312,19 +312,19 @@ independently written expressions of the same linguistic facts.
 The layers built on top of the phoneme inventory — syllabification, the
 handling of morpheme seams, the typographic line-break convention, the word
 material, and the pattern generation pipeline — are original to this project.
-The cited phonological and Sapfo descriptions are not hyphenation specifications. The build-time grammar released in 0.3.0 in `tools/sapfo_grammar/` comes from **Peter Bezemek's AI-assisted Python reimplementation**, not an unidentified third-party software vendor. The sibling Sapfo initial commit `70f96f3f9f9bcc8abaed3eabf798c928fd298bb1` (2026-02-08) records that authorship, a Claude co-author acknowledgement and implementation from Páleš's specification. Slabika commit `0a8cdfdbb3cce24a9a1c78064e2689108669a5c3` (2026-09-14) records the vendored base. The same author's destination files expressly offer `Apache-2.0 OR MIT`; absence of a general upstream Sapfo licence is not absence of permission from that author for his own implementation.
+The local build-time grammar is **Peter Bezemek's AI-assisted Python implementation**, offered under `Apache-2.0 OR MIT`. It implements inflectional paradigms and alternation rules; `tools/build_composita_grammar.py` uses them to derive stems from the project's corpus forms. The cited grammatical and phonological descriptions are not hyphenation specifications; PSP governs the division rules.
 
-The three pattern-module bodies in that vendoring commit exactly match these Sapfo Git blobs (before slabika's four-line provenance header):
+The local grammar separates its inflectional tables by word class:
 
-| upstream path | Git blob |
+| module | role |
 | --- | --- |
-| `sapfo/dictionaries/noun_patterns.py` | `6d00faeda174d9419bfe8169f6215a056c7c86d2` |
-| `sapfo/dictionaries/adjective_patterns.py` | `bb631ed0259b17b76a12e3b8b2abaa61314c6449` |
-| `sapfo/dictionaries/verb_patterns.py` | `ff9824727c28515556d89c349bd8b149cf2a6448` |
+| `noun_patterns.py` | Noun inflectional paradigms |
+| `adjective_patterns.py` | Adjective inflectional paradigms |
+| `verb_patterns.py` | Verb inflectional paradigms |
 
-Alternations use Sapfo blob `32c375ec9bd2e42b34df202a1844861e78d7ff18` with its phonology import made local. The vendored phonology keeps only the build-time portion, not Sapfo's hyphenation implementation; `synth.py` is a local adaptation without lexical overrides. Later slabika work corrects grammatical synthesis and adds corpus induction, role-specific inflection licensing and separately attributed authored supplements. Local lint cleanup removes an unused import and shadowed duplicate dictionary entries without changing the resulting verb-pattern constants. Candidate input metadata records the exact local source SHA-256 values, rather than assuming the sibling repository's latest revision is the source.
+Phonology and alternation rules support paradigm synthesis. Corpus induction requires supporting forms and a synthesis round trip; role-specific inflection licensing determines which generated forms may serve as compound members. Authored supplements are recorded separately from corpus evidence. Build metadata records the exact local source SHA-256 values and normalized input hashes.
 
-The pattern tables cite Páleš (1994), pp. 41–47, for grammatical endings and alternation rules encoded in Python. This is not a grant to reproduce book prose, images or protected presentation, and this provenance account does not certify independent creation of every element of the book's selection/arrangement. The earlier statement about independently expressed **phonology** is not a blanket clearance statement for new morphology tables. `tools/build_composita_grammar.py` reads the local implementation and corpus forms, **not** the old `pales_kmen`, SNK or other lexical tables. Implementing grammatical facts is distinct from redistributing a third-party lexicon; citation alone is not permission. Build-time modules are included in the source archive, not the wheel.
+The pattern tables cite Páleš (1994), pp. 41–47, for grammatical endings and alternation rules encoded in Python. This is not a grant to reproduce book prose, images or protected presentation, and this provenance account does not certify independent creation of every element of the book's selection/arrangement. The statement about independently expressed **phonology** is not a blanket clearance statement for morphology tables. The generator reads the local implementation and corpus forms. Implementing grammatical facts is distinct from redistributing a third-party lexicon; citation alone is not permission. Build-time modules are included in the source archive, not the wheel.
 
 ---
 
