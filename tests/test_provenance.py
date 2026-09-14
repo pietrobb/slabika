@@ -32,6 +32,10 @@ INVENTORY_PATH = ROOT / "src" / "slabika" / "data" / "phonology.json"
 INVENTORY = INVENTORY_PATH.read_text(encoding="utf-8")
 REUSE = (ROOT / "REUSE.toml").read_text(encoding="utf-8")
 PYPROJECT = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+COMPOSITA = json.loads(
+    (ROOT / "src" / "slabika" / "data" / "composita.json").read_text(encoding="utf-8")
+)
+COMPOSITA_BUILDER = (ROOT / "tools" / "build_composita.py").read_text(encoding="utf-8")
 
 ATTRIBUTION_SURFACES = {
     "LICENSING.md": LICENSING,
@@ -44,6 +48,34 @@ ATTRIBUTION_SURFACES = {
 def flat(text):
     """Markdown is hard-wrapped; a phrase test must not depend on where."""
     return re.sub(r"\s+", " ", text)
+
+
+def test_composita_excludes_snk_rows_and_documents_local_residue():
+    assert COMPOSITA["note"] == (
+        "generated from non-SNK Sapfo entries and the local project corpus"
+    )
+    assert set(COMPOSITA["corpus_first_members"]) <= set(COMPOSITA["first_members"])
+    assert set(COMPOSITA["corpus_heads"]) <= set(COMPOSITA["heads"])
+
+    queries = [
+        node.value
+        for node in ast.walk(ast.parse(COMPOSITA_BUILDER))
+        if isinstance(node, ast.Constant)
+        and isinstance(node.value, str)
+        and node.value.lstrip().lower().startswith("select ")
+    ]
+    for query in queries:
+        if any(f" from {table} " in query.lower() for table in (
+            "adverbs", "adjectives", "nouns", "verbs",
+        )):
+            assert "source <> 'snk'" in query.lower()
+
+    first_count = len(COMPOSITA["first_members"])
+    head_count = len(COMPOSITA["heads"])
+    assert f"**{first_count:,} first members**" in README_EN
+    assert f"**{head_count:,} second-member heads**" in README_EN
+    assert f"**{first_count:,} prvých členov**".replace(",", " ") in README_SK
+    assert f"**{head_count:,} hláv druhého člena**".replace(",", " ") in README_SK
 
 
 HOLDER = "Peter Bezemek"

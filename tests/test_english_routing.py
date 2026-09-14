@@ -106,7 +106,7 @@ def test_installed_native_model_matches_review_examples(adapter, word, expected)
 
 @pytest.mark.parametrize("word,expected", [
     ("Arbeitsunfähigkeitsbescheinigung", "Ar·beits·un·fä·hig·keits·be·schei·ni·gung"),
-    ("Arbeitsunfähigkeitsbescheinigungovská", "Ar·beits·un·fä·hig·keits·be·schei·ni·gu·ngov·ská"),
+    ("Arbeitsunfähigkeitsbescheinigungovská", "Ar·beits·un·fä·hig·keits·be·schei·ni·gung·ov·ská"),
 ])
 def test_english_integration_preserves_existing_german_outputs(word, expected):
     assert importlib.import_module("slabika.typo").hyphenate(word) == expected

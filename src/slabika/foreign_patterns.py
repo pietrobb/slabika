@@ -184,7 +184,13 @@ def german_inflected_points(
         proxy += ending
         mapping.extend(range(seam + 1, seam + len(ending) + 1))
         points = {p for p in points if p < start}
-        points.update(mapping[p] for p in psp_points(proxy))
+        resyllabified = {mapping[p] for p in psp_points(proxy)}
+        # German stem-final ng is the coda [ŋ], never the onset of the Slovak
+        # ending. Its spelling stays indivisible and therefore remains left.
+        if lower.endswith("ng") and seam - 2 in resyllabified:
+            resyllabified.remove(seam - 2)
+            resyllabified.add(seam)
+        points.update(resyllabified)
     return {p for p in points if 2 <= p <= seam + len(ending) - 2}
 
 

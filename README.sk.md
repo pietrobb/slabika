@@ -98,7 +98,7 @@ Vokalické jadrá, rozdelenie spoluhlások a okrajové obmedzenia sú často mec
 
 Neexistuje jedna databáza hotových hraníc. `get_morpheme_parts()` skladá analýzu z troch vrstiev: ručne udržiavaných a regresne overených pravidiel pre predpony, prípony a nejednoznačné rodiny; strážených pravidiel pre číslovky, prefixoidy a osobitné zloženiny; a generovaného inventára produktívnych zloženín. `syllabify` aj `typo` používajú tú istú analýzu, ale vo vnútri rozpoznaných častí uplatňujú vlastné slabičné, resp. typografické pravidlá. Morfematický švík má v preferovanom typografickom výstupe prednosť pred mechanickým rozdelením spoluhláskovej skupiny.
 
-Produktívna zloženinová vrstva vzniká príkazom `python tools/build_composita.py` z lokálneho lexikónu Sapfo v `../Sapfo/sapfo/data/sapfo_lexicon.db`. Táto zdrojová databáza nie je súčasťou repozitára: čistý checkout používa hotový JSON, ale bez lokálneho súrodeneckého projektu Sapfo ho nanovo nevytvorí. Generátor z lexikónu odvodzuje prvé členy z príslovkových a prídavných kmeňov a z menných kmeňov so spájacím `-o-/-e-`; osobitne eviduje možné hlavy druhého člena z prídavných, príslovkových, menných a slovesných hesiel. Aktuálny `src/slabika/data/composita.json` obsahuje **59 506 prvých členov** a **69 718 hláv druhého člena**. JSON je verzovaný, pribalený do balíka a runtime číta iba ten: používateľ nepotrebuje Sapfo ani pôvodnú databázu. Štatisticky indukovaný `morphs.json` sa používa v auditnom nástroji, nie na automatické produkčné určovanie slovenských hraníc.
+Produktívna zloženinová vrstva vzniká príkazom `python tools/build_composita.py` z lokálneho lexikónu Sapfo v `../Sapfo/sapfo/data/sapfo_lexicon.db`. Riadky označené `source='snk'` sa zámerne vynechávajú; distribuovaný artefakt používa iba vlastné ručné a nezávisle klasifikované heslá Sapfo, kurátorované zoznamy a malý explicitný zvyšok doložený vo vlastnom korpuse projektu. Generátor odvodzuje prvé členy z príslovkových a prídavných kmeňov a z menných kmeňov so spájacím `-o-/-e-`; osobitne eviduje možné hlavy druhého člena z prídavných, príslovkových, menných a slovesných hesiel. Aktuálny `src/slabika/data/composita.json` obsahuje **989 prvých členov** a **2 547 hláv druhého člena**, vrátane manifestov 27 korpusových prvých členov a 43 korpusových hláv. JSON je verzovaný, pribalený do balíka a runtime číta iba ten. Čistý checkout ho používa bez Sapfo, hoci nové zostavenie stále potrebuje lokálny súrodenecký lexikón. Štatisticky indukovaný `morphs.json` zostáva auditnou pomôckou a produkčné hranice neurčuje.
 
 Inventár neznamená „rozdeľ po každom známom reťazci“. Engine vyžaduje zároveň dôveryhodný prvý člen, doloženú hlavu druhého člena a iba prípustný ohýbací chvost. Nekombinuje dve slabé domnienky a blokuje viaceré kolízie s predponami a koncovkami. Preto vie odvodiť aj predtým nevidené `žlto|modrý`, `svetlo|zelený` či `modro|zelenkastý`, ale nevytvorí napríklad falošné `jahodo|vých`.
 
@@ -174,7 +174,7 @@ Explicitné API obchádza jazykový detektor, podporuje DE/FR, používa okrajov
 
 Slovenské `á` v prípone už samo osebe nevyradí nemecký základ. Adaptér zachová vnútorné nemecké delenie a slovenskými pravidlami spracuje príponu aj spojenie. Pred spoluhláskovou príponou ostáva švík; pred samohláskovou sa môžu prerozdeliť posledné spoluhlásky základu.
 
-Skupiny `sch`, `ch`, `ck`, `tz` a `ng` sa na tomto spojení mapujú ako hláskové jednotky. `ng` zostáva celé pri predpoklade zachovanej nemeckej výslovnosti [ŋ]. Samotná slovenská prípona nedokazuje vznik samostatného [g]. Konkrétny umelo odvodený tvar nižšie nemá nezávisle doloženú výslovnosť.
+Skupiny `sch`, `ch`, `ck`, `tz` a `ng` sa na tomto spojení mapujú ako hláskové jednotky. Samotná nedeliteľnosť ešte neurčuje, na ktorej strane hranice jednotka zostane: koncové nemecké `ng` patrí ako kóda [ŋ] k základu, pretože nemôže otvárať nasledujúcu slovenskú slabiku. Samotná slovenská prípona nedokazuje vznik samostatného [g]. Konkrétny umelo odvodený tvar nižšie nemá nezávisle doloženú výslovnosť.
 
 | vstup | aktuálny výstup `hyphenate()` |
 | --- | --- |
@@ -184,7 +184,7 @@ Skupiny `sch`, `ch`, `ck`, `tz` a `ng` sa na tomto spojení mapujú ako hláskov
 | `Pickelgeringen` | `Pi·ckel·ge·rin·gen` |
 | `Schneiderovská` | `Schnei·de·rov·ská` |
 | `Arbeitsunfähigkeitsbescheinigung` | `Ar·beits·un·fä·hig·keits·be·schei·ni·gung` |
-| `Arbeitsunfähigkeitsbescheinigungovská` | `Ar·beits·un·fä·hig·keits·be·schei·ni·gu·ngov·ská` |
+| `Arbeitsunfähigkeitsbescheinigungovská` | `Ar·beits·un·fä·hig·keits·be·schei·ni·gung·ov·ská` |
 | `people` (voliteľné G2P) | `peo·ple` |
 | `pepper` (voliteľné G2P) | `pep·per` |
 | `penknife` (voliteľné G2P) | `pen·knife` |
@@ -195,7 +195,7 @@ Sú to regresné príklady overené 2026-09-12, nie certifikovaný PSP gold súb
 
 ## Inštalácia a revízne konzoly
 
-Jadro je **alfa verzia 0.2.0** pre Python 3.10+ bez povinných runtime závislostí:
+Jadro je **alfa verzia 0.2.1** pre Python 3.10+ bez povinných runtime závislostí:
 
 ```console
 python -m pip install slabika
@@ -204,7 +204,7 @@ slabika-review
 
 Pre editovateľný zdrojový checkout s testovacími a licenčnými nástrojmi použite namiesto toho `python -m pip install -e ".[dev]"`.
 
-DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebuje samostatne zostavený a nainštalovaný `slabika-pronunciation==0.1.0`; na PyPI nie je a vydanie jadra 0.2.0 ho zámerne nedeklaruje ako inštalovateľný extra balík. Zostavenie a obmedzenia opisuje [pronunciation/README.md](pronunciation/README.md). Modely majú samostatné licencie a otvorené provenienčné otázky; nejde o neobmedzené vydanie iba pod MIT.
+DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebuje samostatne zostavený a nainštalovaný `slabika-pronunciation==0.1.0`; na PyPI nie je a vydanie jadra 0.2.1 ho zámerne nedeklaruje ako inštalovateľný extra balík. Zostavenie a obmedzenia opisuje [pronunciation/README.md](pronunciation/README.md). Modely majú samostatné licencie a otvorené provenienčné otázky; nejde o neobmedzené vydanie iba pod MIT.
 
 Slovenské review číta inventár a počíta **aktuálny výstup enginu**, vrátane prípustných cudzích ciest. Rozhodnutia ukladá oddelene do `review_decisions.sqlite` v spúšťacom priečinku; `--db` a `--decisions` vyberajú iné súbory. `run_review_local.bat` je pre externého recenzenta, bez inštalácie a s rozhodnutiami v `%LOCALAPPDATA%\slabika-review`. Správcovský `run_review.bat` zámerne otvára verzované rozhodnutia projektu.
 

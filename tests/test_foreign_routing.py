@@ -154,7 +154,7 @@ def test_automatic_pattern_routing_preserves_local_readings(word, expected):
 
 
 @pytest.mark.parametrize(("word", "expected"), [
-    ("Arbeitsunfähigkeitsbescheinigungovská", "Ar·beits·un·fä·hig·keits·be·schei·ni·gu·ngov·ská"),
+    ("Arbeitsunfähigkeitsbescheinigungovská", "Ar·beits·un·fä·hig·keits·be·schei·ni·gung·ov·ská"),
     ("Schneiderová", "Schnei·de·ro·vá"),
     ("Schneiderovi", "Schnei·de·ro·vi"),
     ("Schneiderovská", "Schnei·de·rov·ská"),
@@ -183,7 +183,9 @@ def test_german_derivative_keeps_interior_stem_points():
     for ending in ("ová", "ovská", "ovi", "ovci", "ský"):
         points = break_points(stem + ending)
         assert [p for p in points if p < len(stem) - 2] == break_points(stem)
+        assert len(stem) - 2 not in points
         assert len(stem) - 1 not in points
+        assert len(stem) in points
         assert hyphenate(stem + ending).replace("·", "") == stem + ending
 
 

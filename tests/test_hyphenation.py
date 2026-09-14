@@ -504,6 +504,11 @@ def test_generated_inventory_divides_compounds_nobody_typed_in():
     assert hyphenate("navzdory") == "na·vzdo·ry"
 
 
+def test_snk_free_inventory_preserves_reviewed_families():
+    assert hyphenate("vysokošľachtický") == "vy·so·ko·šľach·tic·ký"
+    assert hyphenate("sankcionovaného") == "sank·ci·o·no·va·né·ho"
+
+
 def test_reviewed_derivatives_keep_their_established_stem_boundary():
     expected = {
         "starostlivejšie": "sta·rost·li·vej·šie",

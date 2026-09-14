@@ -335,6 +335,8 @@ def _with_original_spelling(word: str, parts: list[str]) -> list[str]:
 
 def _lexical_syllables(word: str) -> list[str] | None:
     folded = word.casefold()
+    if folded.startswith('sankcionov'):
+        return [word[:4], *_syllabify_simple(word[4:])]
     if folded.startswith('allbright') and folded[9:] in _ALLBRIGHT_ENDINGS:
         return [word[:3], word[3:9], *([word[9:]] if len(word) > 9 else [])]
     if (
@@ -1966,6 +1968,10 @@ def get_morpheme_parts(word: str) -> list[str]:
         return [*get_morpheme_parts(grammatical_stem), grammatical_sfx]
 
     if pfx is not None:
+        compositum = _generated_compositum(word)
+        if compositum is not None and len(compositum[0]) > len(pfx):
+            first, rest = compositum
+            return [*get_morpheme_parts(first), *get_morpheme_parts(rest)]
         # The lexicalized po-|dotk- family keeps its outer seam in the contracted
         # masculine past without turning the remainder back into do-|tkol.
         if pfx == 'po' and rem.casefold() == 'dotkol':

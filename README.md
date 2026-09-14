@@ -100,7 +100,7 @@ A broad vocabulary provides evidence for testing family rules and contrasting ne
 
 There is no single database of finished boundaries. `get_morpheme_parts()` combines three layers: manually maintained and regression-tested rules for prefixes, suffixes and ambiguous families; guarded rules for numerals, prefixoids and particular compounds; and a generated inventory for productive compounds. `syllabify` and `typo` share that analysis but apply their own spoken-syllable and written-division rules inside each recognized part. A morpheme seam takes precedence over mechanical consonant redistribution in the preferred typographic result.
 
-The productive compound layer is built by `python tools/build_composita.py` from the local Sapfo lexicon at `../Sapfo/sapfo/data/sapfo_lexicon.db`. That source database is not part of this repository: a clean checkout uses the finished JSON but cannot rebuild it without the local sibling Sapfo project. The generator derives first members from adverb and adjective stems and from noun stems with linking `-o-/-e-`; it separately records possible second-member heads from adjective, adverb, noun and verb entries. The current `src/slabika/data/composita.json` contains **59,506 first members** and **69,718 second-member heads**. This JSON is versioned, packaged and is all the runtime reads: users need neither Sapfo nor the source database. The statistically induced `morphs.json` is used by an audit tool, not for automatic production decisions about Slovak boundaries.
+The productive compound layer is built by `python tools/build_composita.py` from the local Sapfo lexicon at `../Sapfo/sapfo/data/sapfo_lexicon.db`. Rows marked `source='snk'` are deliberately excluded; the distributed artifact uses only the project's manual and independently classified Sapfo entries, curated lists, and a small explicit residue attested in this project's own corpus. The generator derives first members from adverb and adjective stems and from noun stems with linking `-o-/-e-`; it separately records possible second-member heads from adjective, adverb, noun and verb entries. The current `src/slabika/data/composita.json` contains **989 first members** and **2,547 second-member heads**, including manifest lists for the 27 corpus first members and 43 corpus heads. The JSON is versioned, packaged and is all the runtime reads. A clean checkout can use it without Sapfo, although rebuilding still needs the local sibling lexicon. The statistically induced `morphs.json` remains an audit aid and does not determine production boundaries.
 
 The inventory does not mean “break after every known string”. The engine requires both a credible first member and an attested second-member head followed only by an allowed inflectional tail. It does not combine two weak inferences, and guards several collisions with prefixes and endings. This lets it infer unseen `žlto|modrý`, `svetlo|zelený` or `modro|zelenkastý`, while rejecting a false analysis such as `jahodo|vých`.
 
@@ -180,7 +180,7 @@ Explicit adaptation uses 2/2 letter margins and can normalize decomposed Unicode
 
 A recognized Slovak ending no longer rejects the whole word merely because it contains `á` or another non-German letter. The engine adapts the **German base**, retains its internal boundaries, and uses Slovak rules for the ending and its junction. A consonant-initial suffix preserves the seam; a vowel-initial ending can redistribute the base's final consonants.
 
-At that junction, groups such as `sch`, `ch`, `ck`, `tz` and `ng` are mapped as sound units. German `ng` is kept together on the assumption that its [ŋ] pronunciation survives. A Slovak ending alone does not establish a change to separately pronounced `n+g`; the particular artificial derivative below has no independently documented pronunciation.
+At that junction, groups such as `sch`, `ch`, `ck`, `tz` and `ng` are mapped as sound units. Indivisibility alone does not decide which side of a boundary contains the unit: stem-final German `ng` remains the coda [ŋ] because it cannot open the following Slovak syllable. A Slovak ending alone does not establish a change to separately pronounced `n+g`; the particular artificial derivative below has no independently documented pronunciation.
 
 | input | current `hyphenate()` output |
 | --- | --- |
@@ -190,7 +190,7 @@ At that junction, groups such as `sch`, `ch`, `ck`, `tz` and `ng` are mapped as 
 | `Pickelgeringen` | `Pi·ckel·ge·rin·gen` |
 | `Schneiderovská` | `Schnei·de·rov·ská` |
 | `Arbeitsunfähigkeitsbescheinigung` | `Ar·beits·un·fä·hig·keits·be·schei·ni·gung` |
-| `Arbeitsunfähigkeitsbescheinigungovská` | `Ar·beits·un·fä·hig·keits·be·schei·ni·gu·ngov·ská` |
+| `Arbeitsunfähigkeitsbescheinigungovská` | `Ar·beits·un·fä·hig·keits·be·schei·ni·gung·ov·ská` |
 | `people` (optional G2P) | `peo·ple` |
 | `pepper` (optional G2P) | `pep·per` |
 | `penknife` (optional G2P) | `pen·knife` |
@@ -201,7 +201,7 @@ These are regression examples verified on 2026-09-12, not a certified PSP gold s
 
 ## Installation and review consoles
 
-The core is an **alpha** (`0.2.0`) for Python 3.10+ with no required third-party runtime packages:
+The core is an **alpha** (`0.2.1`) for Python 3.10+ with no required third-party runtime packages:
 
 ```console
 python -m pip install slabika
@@ -210,7 +210,7 @@ slabika-review
 
 For an editable source checkout with the test and licence tools, use `python -m pip install -e ".[dev]"` instead.
 
-German/French pattern resources and explicit foreign readings are bundled. Broader English G2P requires a separately built/installed `slabika-pronunciation==0.1.0`; it is not on PyPI and is deliberately not declared as an installable extra of the core 0.2.0 release. See [pronunciation/README.md](pronunciation/README.md) for native build instructions and limitations. The optional model bundle has separate attribution/provenance concerns and is **not an unrestricted, MIT-only release**.
+German/French pattern resources and explicit foreign readings are bundled. Broader English G2P requires a separately built/installed `slabika-pronunciation==0.1.0`; it is not on PyPI and is deliberately not declared as an installable extra of the core 0.2.1 release. See [pronunciation/README.md](pronunciation/README.md) for native build instructions and limitations. The optional model bundle has separate attribution/provenance concerns and is **not an unrestricted, MIT-only release**.
 
 ### Slovak review
 

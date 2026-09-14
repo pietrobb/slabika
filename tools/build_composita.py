@@ -11,7 +11,9 @@ The first member of such a compound is the adverbial stem of the first word:
 lexicon already stores as ``root + positive_suffix``. Adjective roots supply the
 same stem for the adjectives whose adverb the lexicon has not recorded, and noun
 lemmas in ``-o`` supply the ones that are nouns to begin with (``slovo·tvorný``,
-``zlato·hnedý``, ``striebro·biely``).
+``zlato·hnedý``, ``striebro·biely``). Entries marked ``source = 'snk'`` are
+excluded: the distributed artifact is built only from the project's manual and
+independently classified lexicon entries plus the curated lists below.
 
 So the inventory is generated, and the only hand-written part left is the
 residue the lexicon cannot know: the international prefixoids (``geo``, ``hydro``,
@@ -73,6 +75,88 @@ CURATED_NATIVE = [
     'svetlozlato', 'tmavozlato',
 ]
 
+# Productive seams attested by this project's own corpus. Human-confirmed
+# families and unchanged legacy behavior are kept as a small explicit residue;
+# unlabelled surface forms are never treated as if they determined morphology.
+CURATED_CORPUS_FIRST_MEMBERS = {
+    'biblio': 'noun stem',
+    'cito': 'noun stem',
+    'demo': 'noun',
+    'denno': 'adjective',
+    'horno': 'adjective',
+    'karto': 'noun stem',
+    'kilo': 'noun',
+    'krypto': 'noun stem',
+    'latinsko': 'adjective',
+    'lexiko': 'noun stem',
+    'logo': 'noun',
+    'mimo': 'adverb',
+    'nízko': 'adverb',
+    'oceáno': 'noun stem',
+    'paro': 'noun stem',
+    'potravinársko': 'adjective',
+    'rovno': 'adverb',
+    'scéno': 'noun stem',
+    'sedmo': 'noun stem',
+    'severo': 'noun stem',
+    'sírovo': 'adjective',
+    'sväto': 'adverb',
+    'tmavo': 'adverb',
+    'tučno': 'adjective',
+    'vnútro': 'noun',
+    'vše': 'adverb',
+    'žlto': 'adverb',
+}
+
+# The value is the runtime evidence kind, not the provenance. Every item below
+# is backed by this project's corpus and preserves a tested or unchanged family;
+# none is copied from an external lexical inventory.
+CURATED_CORPUS_HEADS = {
+    'americk': 'root',
+    'bdel': 'root',
+    'chcen': 'root',
+    'chlad': 'lemma',
+    'chvost': 'lemma',
+    'egyptsk': 'root',
+    'frekvenčn': 'root',
+    'graf': 'lemma',
+    'gram': 'lemma',
+    'hriešn': 'root',
+    'kmeň': 'lemma',
+    'kmeňov': 'root',
+    'krádež': 'lemma',
+    'kráska': 'lemma',
+    'kvalitn': 'root',
+    'oranžov': 'root',
+    'plavba': 'lemma',
+    'plavebn': 'root',
+    'pluk': 'lemma',
+    'prebud': 'verb',
+    'priemyseln': 'root',
+    'prítomn': 'root',
+    'slovce': 'lemma',
+    'smern': 'root',
+    'spokojn': 'root',
+    'statn': 'root',
+    'strann': 'root',
+    'stroj': 'lemma',
+    'stvárn': 'verb',
+    'triedn': 'root',
+    'tropick': 'root',
+    'tvár': 'lemma',
+    'ušn': 'root',
+    'zbožn': 'root',
+    'zrod': 'lemma',
+    'zvol': 'verb',
+    'ázijsk': 'root',
+    'éterick': 'root',
+    'éterov': 'root',
+    'štajersk': 'root',
+    'šľacht': 'verb',
+    'šľachtic': 'lemma',
+    'šľachtick': 'root',
+}
+
 
 def build() -> dict:
     db = sqlite3.connect(f"file:{LEXICON.as_posix()}?mode=ro", uri=True)
@@ -85,7 +169,8 @@ def build() -> dict:
 
     # 1. attested adverbs — the canonical shape of a first member
     for root, suffix in db.execute(
-        "select root, positive_suffix from adverbs where root <> ''"
+        "select root, positive_suffix from adverbs "
+        "where root <> '' and source <> 'snk'"
     ):
         if suffix in ("o", "e"):
             put(root + suffix, "adverb")
@@ -94,13 +179,17 @@ def build() -> dict:
 
     # 2. adjective roots — the adverb the lexicon has not recorded is still
     #    formed the same way, and this is what makes the rule generative
-    for (root,) in db.execute("select root from adjectives where root <> ''"):
+    for (root,) in db.execute(
+        "select root from adjectives where root <> '' and source <> 'snk'"
+    ):
         put(root + "o", "adjective")
         if root[-1] in SOFT_FINALS:
             put(root + "e", "adjective")
 
     # 3. noun lemmas that already end in the linking vowel
-    for (word,) in db.execute("select word from nouns where word <> ''"):
+    for (word,) in db.execute(
+        "select word from nouns where word <> '' and source <> 'snk'"
+    ):
         if word[-1:] in ("o", "e") and len(word) >= 4 and word[0].islower():
             put(word, "noun")
 
@@ -109,7 +198,9 @@ def build() -> dict:
     #    ruka ruko-, srdce srdce-. Without this branch the inventory knew žlto
     #    (from the adjective žltý) and not vodo, so which compounds divided
     #    depended on whether the first word happened to be an adjective.
-    for (word,) in db.execute("select word from nouns where word <> ''"):
+    for (word,) in db.execute(
+        "select word from nouns where word <> '' and source <> 'snk'"
+    ):
         if len(word) < 3 or not word.isalpha() or not word[0].islower():
             continue
         stem = word[:-1] if word[-1] in "aáoe" else word
@@ -119,6 +210,8 @@ def build() -> dict:
 
     for stem in CURATED_NATIVE:
         put(stem, "native")
+    for stem, kind in CURATED_CORPUS_FIRST_MEMBERS.items():
+        put(stem, kind)
     for stem in CURATED_NUMERALS:
         put(stem, "cited")
 
@@ -138,11 +231,11 @@ def build() -> dict:
     # Lemma wins when a string is both.
     heads: dict[str, str] = {}
     for query, floor, kind in (
-        ("select root from adjectives where root <> ''", 3, "root"),
-        ("select root from adverbs where root <> ''", 3, "root"),
-        ("select word from nouns where word <> ''", 4, "lemma"),
+        ("select root from adjectives where root <> '' and source <> 'snk'", 3, "root"),
+        ("select root from adverbs where root <> '' and source <> 'snk'", 3, "root"),
+        ("select word from nouns where word <> '' and source <> 'snk'", 4, "lemma"),
         ("select lemma from pales_kmen where lemma <> ''", 4, "lemma"),
-        ("select inf_stem from verbs where inf_stem <> ''", 4, "verb"),
+        ("select inf_stem from verbs where inf_stem <> '' and source <> 'snk'", 4, "verb"),
     ):
         for (w,) in db.execute(query):
             # A proper name is not a second member of a determinative
@@ -159,9 +252,15 @@ def build() -> dict:
             elif kind == "lemma" or w.lower() not in heads:
                 heads[w.lower()] = kind
 
+    for head, kind in CURATED_CORPUS_HEADS.items():
+        if kind == "lemma" or head not in heads:
+            heads[head] = kind
+
     db.close()
     return {
-        "note": "generated by tools/build_composita.py from the Sapfo lexicon",
+        "note": "generated from non-SNK Sapfo entries and the local project corpus",
+        "corpus_first_members": sorted(CURATED_CORPUS_FIRST_MEMBERS),
+        "corpus_heads": sorted(CURATED_CORPUS_HEADS),
         "first_members": {k: first[k] for k in sorted(first)},
         "heads": {k: heads[k] for k in sorted(heads)},
     }

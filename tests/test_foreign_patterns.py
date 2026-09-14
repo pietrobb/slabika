@@ -131,7 +131,7 @@ def test_invalid_morpheme_offset(point):
     ("Schneider", "ová", "Schnei·de·ro·vá"),
     ("Schneider", "ský", "Schnei·der·ský"),
     ("Heinrich", "ová", "Hein·ri·cho·vá"),
-    ("Wolfgang", "ovská", "Wolf·ga·ngov·ská"),
+    ("Wolfgang", "ovská", "Wolf·gang·ov·ská"),
     ("Busch", "ová", "Bu·scho·vá"),
     ("Glück", "ová", "Glü·cko·vá"),
     ("Fritz", "ová", "Fri·tzo·vá"),
