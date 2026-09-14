@@ -55,7 +55,7 @@ Vokalické jadrá, rozdelenie spoluhlások a okrajové obmedzenia sú často mec
 
 Neexistuje jedna databáza hotových hraníc. `get_morpheme_parts()` skladá analýzu z troch vrstiev: ručne udržiavaných a regresne overených pravidiel pre predpony, prípony a nejednoznačné rodiny; strážených pravidiel pre číslovky, prefixoidy a osobitné zloženiny; a generovaného inventára produktívnych zloženín. `syllabify` aj `typo` používajú tú istú analýzu, ale vo vnútri rozpoznaných častí uplatňujú vlastné slabičné, resp. typografické pravidlá. Morfematický švík má v preferovanom typografickom výstupe prednosť pred mechanickým rozdelením spoluhláskovej skupiny.
 
-Produktívna zloženinová vrstva vzniká príkazom `python tools/build_composita.py` z lokálneho lexikónu Sapfo v `../Sapfo/sapfo/data/sapfo_lexicon.db`. Táto zdrojová databáza nie je súčasťou repozitára: čistý checkout používa hotový JSON, ale bez lokálneho súrodeneckého projektu Sapfo ho nanovo nevytvorí. Generátor z lexikónu odvodzuje prvé členy z príslovkových a prídavných kmeňov a z menných kmeňov so spájacím `-o-/-e-`; osobitne eviduje možné hlavy druhého člena z prídavných, príslovkových, menných a slovesných hesiel. Aktuálny `src/slabika/data/composita.json` obsahuje **59 506 prvých členov** a **69 718 hláv druhého člena**. JSON je verzovaný, pribalený do balíka a runtime číta iba ten: používateľ nepotrebuje Sapfo, RMSS ani pôvodnú databázu. **RMSS nebol zdrojom tejto systémovej vrstvy.** Štatisticky indukovaný `morphs.json` sa používa v auditnom nástroji, nie na automatické produkčné určovanie slovenských hraníc.
+Produktívna zloženinová vrstva vzniká príkazom `python tools/build_composita.py` z lokálneho lexikónu Sapfo v `../Sapfo/sapfo/data/sapfo_lexicon.db`. Táto zdrojová databáza nie je súčasťou repozitára: čistý checkout používa hotový JSON, ale bez lokálneho súrodeneckého projektu Sapfo ho nanovo nevytvorí. Generátor z lexikónu odvodzuje prvé členy z príslovkových a prídavných kmeňov a z menných kmeňov so spájacím `-o-/-e-`; osobitne eviduje možné hlavy druhého člena z prídavných, príslovkových, menných a slovesných hesiel. Aktuálny `src/slabika/data/composita.json` obsahuje **59 506 prvých členov** a **69 718 hláv druhého člena**. JSON je verzovaný, pribalený do balíka a runtime číta iba ten: používateľ nepotrebuje Sapfo ani pôvodnú databázu. Štatisticky indukovaný `morphs.json` sa používa v auditnom nástroji, nie na automatické produkčné určovanie slovenských hraníc.
 
 Inventár neznamená „rozdeľ po každom známom reťazci“. Engine vyžaduje zároveň dôveryhodný prvý člen, doloženú hlavu druhého člena a iba prípustný ohýbací chvost. Nekombinuje dve slabé domnienky a blokuje viaceré kolízie s predponami a koncovkami. Preto vie odvodiť aj predtým nevidené `žlto|modrý`, `svetlo|zelený` či `modro|zelenkastý`, ale nevytvorí napríklad falošné `jahodo|vých`.
 
@@ -232,8 +232,6 @@ Verzovaná databáza `tests/data/review_decisions.sqlite` obsahuje nemenný audi
 
 Výsledky sú **15 313 iba engine**, **6 195 oba správne**, **1 iba Chlebíková**, **5 ani jeden** a **1 659 nerozhodnutých**: 21 514 uzavretých porovnaní, nie 23 173 certifikovaných odpovedí. Počty možno reprodukovať z tabuľky `psp_comparisons` filtrovaním podľa uvedeného `audit_id` a zoskupením podľa `comparison_outcome`; každý zmrazený tvar má zodpovedajúci riadok posúdenia. Ide o **porovnávací súbor posúdený podľa PSP**, nie o nezávislý náhodný gold benchmark: úplná interpretácia PSP vznikala s pomocou AI, výber obsahuje iba historické nezhody a neistá cudzia výslovnosť zostala zámerne nerozhodnutá.
 
-Pri neskorších ručných morfologických kontrolách správca používa aj *Retrográdny morfematický slovník slovenčiny* (RMSS). RMSS je nenormatívna morfematická evidencia, nie autorita typografického delenia ani zdroj generovaného runtime inventára hraníc; jeho PDF a lokálny vyhľadávací index sa nepribaľujú. Normatívnou autoritou zostáva kapitola V PSP.
-
 Vrstvy sa prekrývajú, preto sa nesčítavajú na „počet skontrolovaných slov“. Staršie porovnanie autora a AI našlo 49 nezhôd v 350 spoločných tvaroch, v 14 rodinách. Je to historické meranie, nie počet dnes otvorených sporov. Ľudský názor ani modelový konsenzus nenahrádza nezávislý argument z PSP.
 
 ## Liangove vzory: regenerovanie a hodnotenie
@@ -259,27 +257,27 @@ Nasleduje 21 overených príkladov, pri ktorých rozdiel naozaj vyplýva z morfo
 
 | typ | slovo | rozpoznaná stavba | vzory 1992 | aktuálny engine |
 | --- | --- | --- | --- | --- |
-| predpona a základ | `bezodkladne` | `bez-|od-|klad-` | `be·z·od·kladne` | `bez·od·kladne` |
-| predpona a základ | `najúspešnejší` | `naj-|úspeš-|nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
-| predpona a základ | `rozkroj` | `roz-|kroj-` | `rozk·roj` | `roz·kroj` |
-| vnorené predpony | `neočistí` | `ne-|o-|čist-` | `ne·očistí` | `ne·o·čistí` |
-| predpona a základ | `predúradné` | `pred-|úrad-|n-` | `pre·dú·radné` | `pred·úradné` |
-| zloženina | `trojuholník` | `troj-|uhol-|ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
-| zloženina | `samoobslužný` | `samo-|ob-|služ-|n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služný` |
-| zloženina | `sebaistý` | `seba-|ist-` | `se·baistý` | `se·ba·istý` |
-| zloženina | `pravouhlý` | `pravo-|uhl-` | `pra·vouhlý` | `pra·vo·uhlý` |
-| zloženina | `novovzbudený` | `novo-|vzbud-|en-` | `no·vovz·bu·dený` | `no·vo·vzbu·dený` |
-| zloženina | `mäsožravce` | `mäso-|žrav-|ec` | `mä·sož·ravce` | `mä·so·žravce` |
-| zloženina | `pomstychtivý` | `pomsty-|chtiv-` | `po·mstych·tivý` | `pom·sty·chtivý` |
-| odvodzovanie | `kováčsky` | `kováč-|sk-` | `ko·váčsky` | `ko·váč·sky` |
-| odvodzovanie | `dedičstiev` | `dedič-|stv-` | `de·dičs·tiev` | `de·dič·stiev` |
-| odvodzovanie | `hráčske` | `hráč-|sk-` | `hráčske` | `hráč·ske` |
-| odvodzovanie | `šéfstvom` | `šéf-|stv-` | `šéfs·tvom` | `šéf·stvom` |
-| odvodzovanie | `víťazstvo` | `víťaz-|stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
-| odvodená číslovka | `Dvanástka` | `dvanásť-|k-` | `Dva·nás·tka` | `Dva·nástka` |
-| zložená číslovka | `dvadsaťdva` | `dvadsať-|dva` | `dvad·saťdva` | `dvad·sať·dva` |
-| zložená číslovka | `dvestotri` | `dve-|sto-|tri` | `dve·stotri` | `dve·sto·tri` |
-| zložená číslovka | `šesťstodeväťdesiatosem` | `šesť-|sto-|deväťdesiat-|osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
+| predpona a základ | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·kladne` |
+| predpona a základ | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
+| predpona a základ | `rozkroj` | `roz- + kroj-` | `rozk·roj` | `roz·kroj` |
+| vnorené predpony | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čistí` |
+| predpona a základ | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úradné` |
+| zloženina | `trojuholník` | `troj- + uhol- + ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
+| zloženina | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služný` |
+| zloženina | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·istý` |
+| zloženina | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uhlý` |
+| zloženina | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·dený` |
+| zloženina | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žravce` |
+| zloženina | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chtivý` |
+| odvodzovanie | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
+| odvodzovanie | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
+| odvodzovanie | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
+| odvodzovanie | `šéfstvom` | `šéf- + stv-` | `šéfs·tvom` | `šéf·stvom` |
+| odvodzovanie | `víťazstvo` | `víťaz- + stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
+| odvodená číslovka | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nástka` |
+| zložená číslovka | `dvadsaťdva` | `dvadsať- + dva` | `dvad·saťdva` | `dvad·sať·dva` |
+| zložená číslovka | `dvestotri` | `dve- + sto- + tri` | `dve·stotri` | `dve·sto·tri` |
+| zložená číslovka | `šesťstodeväťdesiatosem` | `šesť- + sto- + deväťdesiat- + osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
 
 Pravé minimum vysvetľuje, prečo sa koncový švík ako `dvanásť-|k-` v zobrazení 2/3 sám neponúkne; jeho analýza napriek tomu zabráni chybnému bodu `nás|tka`. Príklady neznamenajú, že každá ďalšia nezhoda je chybou: každý prípad treba naďalej rozhodnúť podľa PSP. Vzory z roku 1992 slúžia slovenskej sadzbe celé desaťročia a zostávajú porovnávacou základňou v `tex/hyph-sk.tex`; ich vznik podľa autorky opisuje [docs/hyph-sk-1992-povod.md](docs/hyph-sk-1992-povod.md).
 

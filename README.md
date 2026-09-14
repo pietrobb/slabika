@@ -57,7 +57,7 @@ A broad vocabulary provides evidence for testing family rules and contrasting ne
 
 There is no single database of finished boundaries. `get_morpheme_parts()` combines three layers: manually maintained and regression-tested rules for prefixes, suffixes and ambiguous families; guarded rules for numerals, prefixoids and particular compounds; and a generated inventory for productive compounds. `syllabify` and `typo` share that analysis but apply their own spoken-syllable and written-division rules inside each recognized part. A morpheme seam takes precedence over mechanical consonant redistribution in the preferred typographic result.
 
-The productive compound layer is built by `python tools/build_composita.py` from the local Sapfo lexicon at `../Sapfo/sapfo/data/sapfo_lexicon.db`. That source database is not part of this repository: a clean checkout uses the finished JSON but cannot rebuild it without the local sibling Sapfo project. The generator derives first members from adverb and adjective stems and from noun stems with linking `-o-/-e-`; it separately records possible second-member heads from adjective, adverb, noun and verb entries. The current `src/slabika/data/composita.json` contains **59,506 first members** and **69,718 second-member heads**. This JSON is versioned, packaged and is all the runtime reads: users need neither Sapfo, RMSS nor the source database. **RMSS was not the source of this systematic layer.** The statistically induced `morphs.json` is used by an audit tool, not for automatic production decisions about Slovak boundaries.
+The productive compound layer is built by `python tools/build_composita.py` from the local Sapfo lexicon at `../Sapfo/sapfo/data/sapfo_lexicon.db`. That source database is not part of this repository: a clean checkout uses the finished JSON but cannot rebuild it without the local sibling Sapfo project. The generator derives first members from adverb and adjective stems and from noun stems with linking `-o-/-e-`; it separately records possible second-member heads from adjective, adverb, noun and verb entries. The current `src/slabika/data/composita.json` contains **59,506 first members** and **69,718 second-member heads**. This JSON is versioned, packaged and is all the runtime reads: users need neither Sapfo nor the source database. The statistically induced `morphs.json` is used by an audit tool, not for automatic production decisions about Slovak boundaries.
 
 The inventory does not mean “break after every known string”. The engine requires both a credible first member and an attested second-member head followed only by an allowed inflectional tail. It does not combine two weak inferences, and guards several collisions with prefixes and endings. This lets it infer unseen `žlto|modrý`, `svetlo|zelený` or `modro|zelenkastý`, while rejecting a false analysis such as `jahodo|vých`.
 
@@ -238,8 +238,6 @@ The tracked `tests/data/review_decisions.sqlite` contains the immutable audit qu
 
 The recorded outcomes are **15,313 engine only**, **6,195 both correct**, **1 Chlebíková only**, **5 neither correct** and **1,659 unresolved**: 21,514 resolved comparisons, not 23,173 certified answers. The counts can be reproduced from `psp_comparisons` by filtering on that audit ID and grouping by `comparison_outcome`; every frozen item has a matching comparison row. This is a **PSP-adjudicated comparison set**, not an independent random gold benchmark: the exhaustive PSP interpretation was AI-assisted, its selection is concentrated entirely on historical disagreements, and unresolved foreign pronunciation was preserved rather than guessed.
 
-For later manual morphology checks the maintainer also consults the *Retrográdny morfematický slovník slovenčiny* (RMSS). RMSS is non-normative morphological evidence, not the authority for typographic division, not the source of the generated runtime boundary inventory, and neither its PDF nor local search index is distributed here. PSP chapter V remains the normative authority.
-
 An earlier author/AI comparison found 49 discrepancies among 350 shared forms, in 14 families, including `dôstojný`, `opotrebovať`, `páčidlo` and foreign names. That is a historical comparison, not a fresh count of currently open disputes. Neither human opinion nor model consensus settles a case without an independent PSP argument.
 
 ## How this differs from the 1992 patterns
@@ -250,27 +248,27 @@ The following are 21 verified examples in which the difference is morphological 
 
 | kind | word | recognized structure | 1992 patterns | current engine |
 | --- | --- | --- | --- | --- |
-| prefix and base | `bezodkladne` | `bez-|od-|klad-` | `be·z·od·kladne` | `bez·od·kladne` |
-| prefix and base | `najúspešnejší` | `naj-|úspeš-|nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
-| prefix and base | `rozkroj` | `roz-|kroj-` | `rozk·roj` | `roz·kroj` |
-| nested prefixes | `neočistí` | `ne-|o-|čist-` | `ne·očistí` | `ne·o·čistí` |
-| prefix and base | `predúradné` | `pred-|úrad-|n-` | `pre·dú·radné` | `pred·úradné` |
-| compound | `trojuholník` | `troj-|uhol-|ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
-| compound | `samoobslužný` | `samo-|ob-|služ-|n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služný` |
-| compound | `sebaistý` | `seba-|ist-` | `se·baistý` | `se·ba·istý` |
-| compound | `pravouhlý` | `pravo-|uhl-` | `pra·vouhlý` | `pra·vo·uhlý` |
-| compound | `novovzbudený` | `novo-|vzbud-|en-` | `no·vovz·bu·dený` | `no·vo·vzbu·dený` |
-| compound | `mäsožravce` | `mäso-|žrav-|ec` | `mä·sož·ravce` | `mä·so·žravce` |
-| compound | `pomstychtivý` | `pomsty-|chtiv-` | `po·mstych·tivý` | `pom·sty·chtivý` |
-| derivation | `kováčsky` | `kováč-|sk-` | `ko·váčsky` | `ko·váč·sky` |
-| derivation | `dedičstiev` | `dedič-|stv-` | `de·dičs·tiev` | `de·dič·stiev` |
-| derivation | `hráčske` | `hráč-|sk-` | `hráčske` | `hráč·ske` |
-| derivation | `šéfstvom` | `šéf-|stv-` | `šéfs·tvom` | `šéf·stvom` |
-| derivation | `víťazstvo` | `víťaz-|stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
-| numeral derivative | `Dvanástka` | `dvanásť-|k-` | `Dva·nás·tka` | `Dva·nástka` |
-| compound numeral | `dvadsaťdva` | `dvadsať-|dva` | `dvad·saťdva` | `dvad·sať·dva` |
-| compound numeral | `dvestotri` | `dve-|sto-|tri` | `dve·stotri` | `dve·sto·tri` |
-| compound numeral | `šesťstodeväťdesiatosem` | `šesť-|sto-|deväťdesiat-|osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
+| prefix and base | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·kladne` |
+| prefix and base | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
+| prefix and base | `rozkroj` | `roz- + kroj-` | `rozk·roj` | `roz·kroj` |
+| nested prefixes | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čistí` |
+| prefix and base | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úradné` |
+| compound | `trojuholník` | `troj- + uhol- + ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
+| compound | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služný` |
+| compound | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·istý` |
+| compound | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uhlý` |
+| compound | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·dený` |
+| compound | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žravce` |
+| compound | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chtivý` |
+| derivation | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
+| derivation | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
+| derivation | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
+| derivation | `šéfstvom` | `šéf- + stv-` | `šéfs·tvom` | `šéf·stvom` |
+| derivation | `víťazstvo` | `víťaz- + stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
+| numeral derivative | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nástka` |
+| compound numeral | `dvadsaťdva` | `dvadsať- + dva` | `dvad·saťdva` | `dvad·sať·dva` |
+| compound numeral | `dvestotri` | `dve- + sto- + tri` | `dve·stotri` | `dve·sto·tri` |
+| compound numeral | `šesťstodeväťdesiatosem` | `šesť- + sto- + deväťdesiat- + osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
 
 The right margin explains why a final seam such as `dvanásť-|k-` is not itself offered in this 2/3 view; its analysis still prevents the incorrect `nás|tka` break. These examples do not turn every disagreement into a defect: each other case must still be decided under PSP. The 1992 patterns have served Slovak typesetting for decades and remain the bundled baseline in `tex/hyph-sk.tex`; the author's account of their origin is discussed in [docs/hyph-sk-1992-origin.md](docs/hyph-sk-1992-origin.md).
 
