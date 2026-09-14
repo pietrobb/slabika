@@ -86,7 +86,7 @@ A common source of difference is **recognized morphological structure**: a prefi
 | numeral derivative | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nást·ka` |
 | compound numeral | `dvadsaťdva` | `dvadsať- + dva` | `dvad·saťdva` | `dvad·sať·dva` |
 | compound numeral | `dvestotri` | `dve- + sto- + tri` | `dve·stotri` | `dve·sto·tri` |
-| compound numeral | `šesťstodeväťdesiatosem` | `šesť- + sto- + deväťdesiat- + osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
+| compound numeral | `stodvadsaťdva` | `sto- + dvadsať- + dva` | `stod·vad·saťdva` | `sto·dvad·sať·dva` |
 
 The different edge policies explain why the literal engine result `Dva·nást·ka` contains a final point absent from the 2/3 TeX-pattern result. Pattern evaluation filters engine targets to the same TeX minima; this table deliberately shows the public API unchanged. These examples do not turn every other disagreement into a defect: each case must still be decided under PSP.
 
