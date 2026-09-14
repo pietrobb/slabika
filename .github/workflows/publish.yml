@@ -1,0 +1,46 @@
+name: Publish Python distribution to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: GitHub release tag whose artifacts will be published
+        required: true
+        default: v0.2.0
+
+permissions:
+  contents: read
+
+jobs:
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/slabika
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Download distributions from the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag || github.event.release.tag_name }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "Invalid release tag: $RELEASE_TAG" >&2
+            exit 1
+          fi
+          gh release download "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern 'slabika-*.whl' \
+            --pattern 'slabika-*.tar.gz' \
+            --dir dist
+          version="${RELEASE_TAG#v}"
+          test -f "dist/slabika-${version}-py3-none-any.whl"
+          test -f "dist/slabika-${version}.tar.gz"
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33
