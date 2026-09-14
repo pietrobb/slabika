@@ -312,7 +312,7 @@ independently written expressions of the same linguistic facts.
 The layers built on top of the phoneme inventory — syllabification, the
 handling of morpheme seams, the typographic line-break convention, the word
 material, and the pattern generation pipeline — are original to this project.
-The local build-time grammar is **Peter Bezemek's AI-assisted Python implementation**, offered under `Apache-2.0 OR MIT`. It implements inflectional paradigms and alternation rules; `tools/build_composita_grammar.py` uses them to derive stems from the project's corpus forms. The cited grammatical and phonological descriptions are not hyphenation specifications; PSP governs the division rules.
+The build-time grammar implements inflectional paradigms and alternation rules; `tools/build_composita_grammar.py` uses them to derive stems from the project's corpus forms. The cited grammatical and phonological descriptions are not hyphenation specifications; PSP governs the division rules.
 
 The local grammar separates its inflectional tables by word class:
 

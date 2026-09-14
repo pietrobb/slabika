@@ -116,7 +116,7 @@ Here, a “root” is the technical base of an inflectional paradigm, not necess
 4. Derive first members with linking `-o-/-e-`, using oblique noun stems where appropriate (`vietor → vetr- → vetro-`). Store **exact licensed second-member forms by grammatical role**, including alternations, participles and separately recorded derivations. Universal inflectional endings are not appended to every stem.
 5. Declare bound members (`biblio-`, personal `-graf`, adjectival `-tváry`, toponymic `-plukovo`) and indeclinable first members (`všade-`) separately in the supplement. An authored bound head needs at least one original-corpus compound with a recognized first member and a valid form of the declared paradigm. This verifies occurrence of an **authored rule**, not statistical induction; it does not lower the three-form induction threshold or fabricate independent support cells.
 
-The local grammar is **Peter Bezemek's AI-assisted Python implementation**; its paradigm tables follow the grammatical description in Páleš (1994), pp. 41–47. The generator derives stems from corpus forms using these inflectional rules. Authorship and data sources are documented in [LICENSING.md](LICENSING.md). PSP is the authority for word division.
+The generator derives stems from corpus forms using inflectional rules whose paradigm tables follow the grammatical description in Páleš (1994), pp. 41–47. Data sources are documented in [LICENSING.md](LICENSING.md). PSP is the authority for word division.
 
 ### Candidate generation and verification
 

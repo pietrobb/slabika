@@ -114,7 +114,7 @@ Bežný používateľ inventár **neregeneruje**; používa pribalený JSON. Ove
 4. Z prijatých kmeňov odvodia prvé členy so spájacím `-o-/-e-`; pri menách používajú aj nepriamy kmeň (`vietor → vetr- → vetro-`). Pre druhé členy ukladajú **presné povolené tvary podľa gramatickej roly**, vrátane alternácií, príčastí a osobitne evidovaných odvodení. Nepripájajú ku každému kmeňu všetky možné koncovky.
 5. Viazané členy (`biblio-`, osobné `-graf`, prídavné `-tváry`, miestne `-plukovo`) a nesklonné prvé členy (`všade-`) majú osobitné deklarácie v doplnku. Viazaná hlava potrebuje aspoň jeden pôvodný korpusový príklad s rozpoznaným prvým členom a platným tvarom deklarovanej paradigmy. Je to kontrola výskytu **autorského pravidla**, nie oslabenie trojtvarového prahu automatickej indukcie; do auditu sa nezapisujú vymyslené nezávislé doklady.
 
-Lokálna gramatika je **Pythonová implementácia Petra Bezemka vytvorená s pomocou AI**; tabuľky vzorov vychádzajú z gramatického opisu Páleša (1994), s. 41–47. Generátor pomocou týchto ohýbacích pravidiel odvodzuje kmene z korpusových tvarov. Autorstvo a zdroje dát uvádza [LICENSING.md](LICENSING.md). Autoritou pre delenie slov sú PSP.
+Generátor odvodzuje kmene z korpusových tvarov pomocou ohýbacích pravidiel, ktorých tabuľky vzorov vychádzajú z gramatického opisu Páleša (1994), s. 41–47. Zdroje dát uvádza [LICENSING.md](LICENSING.md). Autoritou pre delenie slov sú PSP.
 
 ### Overenie a zostavenie kandidáta
 
