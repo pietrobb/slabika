@@ -3,6 +3,7 @@
 """Regression tests for independent review of both engine outputs."""
 
 import json
+import shutil
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -114,6 +115,95 @@ def test_default_review_assets_are_available():
     assert all(path.exists() for path in REVIEW.DEFAULT_BLIND)
     assert REVIEW.UI_PATH.exists()
     assert REVIEW.tex_hyphenate("maslo")
+
+
+def test_readme_review_statistics_match_tracked_data(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    decisions_path = tmp_path / "review_decisions.sqlite"
+    shutil.copy2(root / "tests/data/review_decisions.sqlite", decisions_path)
+    corpus = REVIEW.Corpus(
+        root / "tests/data/translatemaster_hyphenation_working.sqlite",
+        decisions_path,
+    )
+    try:
+        stats = corpus.stats()
+        selected = list(corpus._decision_rows(corpus.forms).values())
+        raw_total = corpus.store.execute("SELECT COUNT(*) FROM decisions").fetchone()[0]
+        raw_actions = dict(corpus.store.execute(
+            "SELECT action, COUNT(*) FROM decisions GROUP BY action"
+        ))
+        inventory_rows = corpus.inventory.execute("SELECT COUNT(*) FROM forms").fetchone()[0]
+        snapshot = corpus.store.execute(
+            "SELECT MAX(decided_at) FROM decisions"
+        ).fetchone()[0][:10]
+        audit_id = stats["psp_audit"]["audit_id"]
+        overlap_rows = corpus.store.execute(
+            """SELECT d.expected_hyphenation, p.comparison_outcome, p.psp_variants
+               FROM decisions AS d
+               JOIN psp_audit_items AS i
+                 ON i.form = d.form AND i.audit_id = ?
+               LEFT JOIN psp_comparisons AS p
+                 ON p.form = i.form AND p.audit_id = i.audit_id
+               WHERE coalesce(d.is_deleted, 0) = 0""",
+            (audit_id,),
+        ).fetchall()
+    finally:
+        corpus.inventory.close()
+        corpus.store.close()
+
+    comparable = [row for row in overlap_rows if row["expected_hyphenation"] is not None]
+    resolved = [row for row in comparable if row["comparison_outcome"] != "unresolved"]
+    matching = [
+        row for row in resolved
+        if row["expected_hyphenation"] in json.loads(row["psp_variants"])
+    ]
+    hyphenation = stats["reviewed_hyphenation"]
+    syllabification = stats["reviewed_syllabification"]
+    any_human_evidence = len(selected)
+    hyphenation_rate = hyphenation / stats["total"] * 100
+    syllabification_rate = syllabification / stats["total"] * 100
+    evidence_rate = any_human_evidence / stats["total"] * 100
+    agreement_rate = len(matching) / len(resolved) * 100
+
+    readme_en = (root / "README.md").read_text(encoding="utf-8")
+    readme_sk = (root / "README.sk.md").read_text(encoding="utf-8")
+    for expected in (
+        f"As of **{snapshot}**",
+        f"| inventory rows | **{inventory_rows:,}** |",
+        f"| active unique forms shown by the review console after folding case-only aliases | **{stats['total']:,}** |",
+        f"| stored Human decision rows (raw table) | **{raw_total:,}** |",
+        f"| active canonical forms with any Human evidence | **{any_human_evidence:,} ({evidence_rate:.2f}%)** |",
+        f"| typographic divisions reviewed | **{hyphenation:,} ({hyphenation_rate:.2f}%)** — {stats['confirm']:,} confirms, {stats['correct']:,} corrections |",
+        f"| spoken syllabifications reviewed | **{syllabification:,} ({syllabification_rate:.2f}%)** — {stats['reviewed_both']:,} forms have both outputs reviewed |",
+        f"{raw_actions['confirm']:,} latest `confirm`, {raw_actions['correct']:,} `correct`, {raw_actions['classify']:,} `classify`, {raw_actions['uncertain']:,} `uncertain`, {raw_actions['invalid']:,} `invalid` and {raw_actions['flag']:,} `flag`",
+        f"**{len(overlap_rows):,} forms**",
+        f"PSP resolved {len(resolved):,}",
+        f"**{len(matching):,}** and differs in **{len(resolved) - len(matching):,}**, a **{agreement_rate:.2f}%** agreement rate",
+        f"remaining {len(comparable) - len(resolved):,} comparable cases",
+    ):
+        assert expected in readme_en
+
+    def sk_number(value):
+        return f"{value:,}".replace(",", " ")
+
+    def sk_percent(value):
+        return f"{value:.2f}".replace(".", ",")
+
+    for expected in (
+        f"k **{snapshot}**",
+        f"| riadky inventára | **{sk_number(inventory_rows)}** |",
+        f"| aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **{sk_number(stats['total'])}** |",
+        f"| uložené riadky Human rozhodnutí (surová tabuľka) | **{sk_number(raw_total)}** |",
+        f"| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **{sk_number(any_human_evidence)} ({sk_percent(evidence_rate)} %)** |",
+        f"| skontrolované typografické delenia | **{sk_number(hyphenation)} ({sk_percent(hyphenation_rate)} %)** — {sk_number(stats['confirm'])} potvrdení, {sk_number(stats['correct'])} opráv |",
+        f"| skontrolované hovorené slabikovania | **{sk_number(syllabification)} ({sk_percent(syllabification_rate)} %)** — pri {sk_number(stats['reviewed_both'])} tvaroch sú skontrolované oba výstupy |",
+        f"Surových {sk_number(raw_total)} riadkov tvorí {sk_number(raw_actions['confirm'])}",
+        f"**{sk_number(len(overlap_rows))} tvaroch**",
+        f"PSP uzavrelo {sk_number(len(resolved))}",
+        f"v **{sk_number(len(matching))}** a nezhoduje v **{sk_number(len(resolved) - len(matching))}**, teda zhoda je **{sk_percent(agreement_rate)} %**",
+        f"Ďalších {sk_number(len(comparable) - len(resolved))} porovnateľných prípadov",
+    ):
+        assert expected in readme_sk
 
 
 @pytest.mark.parametrize("word", ["rāqîaʿ", "Ærø", "šālôm", "λόγος", "שלום", "ra\u0304qi\u0302aʿ", "a\u0304na"])

@@ -224,9 +224,18 @@ The first command seeds all forms and processes pending/error rows in resumable 
 
 ## Data and review statistics
 
-As of 2026-09-12, the Slovak inventory contains **206,272 isolated forms** and the decision store has **17,944 records**: 16,742 `confirm`, 1,149 `correct`, 25 `uncertain`, 19 `classify`, 8 `invalid` and 1 `flag`. These are stored row actions, not necessarily completed reviews of typographic division; syllabification and classification are tracked separately. Review decisions are evidence, not normative authority.
+As of **2026-09-14**, the tracked Slovak data has this current state:
 
-The earlier 195,230-form review snapshot recorded 10,210 author decisions (9,519 confirmations, 660 corrections, 22 uncertain, 8 invalid, 1 flagged) and 8,028 distinct forms across four blind audits. Their union was 14,970 forms, with 3,268 in both. These historical figures are not current coverage percentages.
+| metric | count |
+| --- | ---: |
+| inventory rows | **206,272** |
+| active unique forms shown by the review console after folding case-only aliases | **206,200** |
+| stored Human decision rows (raw table) | **19,737** |
+| active canonical forms with any Human evidence | **19,572 (9.49%)** |
+| typographic divisions reviewed | **19,406 (9.41%)** — 18,236 confirms, 1,170 corrections |
+| spoken syllabifications reviewed | **346 (0.17%)** — 264 forms have both outputs reviewed |
+
+The raw decision rows comprise 18,448 latest `confirm`, 1,218 `correct`, 37 `classify`, 25 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
 
 The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 6,601 resolved, 1,477 uncertain and 22 invalid. Reviewers received bare forms without engine output or earlier decisions. They were isolated LLM reviewers, not the author.
 
@@ -238,7 +247,7 @@ The tracked `tests/data/review_decisions.sqlite` contains the immutable audit qu
 
 The recorded outcomes are **15,313 engine only**, **6,195 both correct**, **1 Chlebíková only**, **5 neither correct** and **1,659 unresolved**: 21,514 resolved comparisons, not 23,173 certified answers. The counts can be reproduced from `psp_comparisons` by filtering on that audit ID and grouping by `comparison_outcome`; every frozen item has a matching comparison row. This is a **PSP-adjudicated comparison set**, not an independent random gold benchmark: the exhaustive PSP interpretation was AI-assisted, its selection is concentrated entirely on historical disagreements, and unresolved foreign pronunciation was preserved rather than guessed.
 
-An earlier author/AI comparison found 49 discrepancies among 350 shared forms, in 14 families, including `dôstojný`, `opotrebovať`, `páčidlo` and foreign names. That is a historical comparison, not a fresh count of currently open disputes. Neither human opinion nor model consensus settles a case without an independent PSP argument.
+At the 2026-09-14 snapshot, active non-deleted Human rows overlap the PSP queue on **2,236 forms**; 2,224 have a comparable Human division. PSP resolved 1,981 of those comparable cases: Human matches at least one admissible PSP variant in **1,858** and differs in **123**, a **93.79%** agreement rate. The remaining 243 comparable cases are unresolved in the PSP layer. This overlap does not make the two evidence layers identical or independent gold benchmarks, and neither human opinion nor model consensus settles a case without a PSP argument.
 
 ## How this differs from the 1992 patterns
 

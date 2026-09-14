@@ -214,7 +214,18 @@ Builder vloží všetky tvary a v obnoviteľných transakciách spracúva čakaj
 
 ## Dáta a stav kontroly
 
-Stav k **2026-09-12**: slovenský inventár má **206 272 tvarov**, úložisko rozhodnutí **17 944 riadkov**: 16 742 `confirm`, 1 149 `correct`, 25 `uncertain`, 19 `classify`, 8 `invalid`, 1 `flag`. Sú to akcie uložených riadkov, nie automaticky dokončené kontroly typografického delenia; slabikovanie a klasifikácia sa evidujú zvlášť.
+Stav verzovaných slovenských dát k **2026-09-14**:
+
+| metrika | počet |
+| --- | ---: |
+| riadky inventára | **206 272** |
+| aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **206 200** |
+| uložené riadky Human rozhodnutí (surová tabuľka) | **19 737** |
+| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **19 572 (9,49 %)** |
+| skontrolované typografické delenia | **19 406 (9,41 %)** — 18 236 potvrdení, 1 170 opráv |
+| skontrolované hovorené slabikovania | **346 (0,17 %)** — pri 264 tvaroch sú skontrolované oba výstupy |
+
+Surových 19 737 riadkov tvorí 18 448 posledných akcií `confirm`, 1 218 `correct`, 37 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
 
 | lokálny korpus | tvary | vygenerovaná IPA | návrhy delenia |
 | --- | ---: | ---: | --- |
@@ -222,7 +233,7 @@ Stav k **2026-09-12**: slovenský inventár má **206 272 tvarov**, úložisko r
 | FR | 35 552 | 35 546 | 35 552 kandidátnych, aj pri 6 chybách IPA |
 | EN | 55 638 | 55 637 | 53 331 úplných experimentálnych, 2 306 neúplných, 1 chyba |
 
-Tieto počty nie sú presnosť ani počet ľudsky overených slov. Starší inventár 195 230 tvarov mal 10 210 autorských rozhodnutí (9 519 potvrdení, 660 opráv, 22 neistých, 8 chybných, 1 označený). Zjednotenie s vtedajšími slepými auditmi pokrývalo 14 970 tvarov, prienik 3 268; nejde o dnešné percentá pokrytia.
+Počty cudzích korpusov nie sú presnosť ani počet ľudsky overených slov.
 
 Štyri zmrazené slepé audity obsahujú 8 100 rozhodnutí nad 8 028 tvarmi: 6 601 vyriešených, 1 477 neistých a 22 chybných. Izolovaní LLM recenzenti dostali holé tvary bez enginu a starších názorov, neboli to kontroly autora. Dvojmodelová evidencia obsahuje 17 behov, 1 346 posúdení nad 1 239 tvarmi, s modelovými pozíciami `claude-opus-5[high]` a `gpt-6-astra[sub][high]`: 1 079 nezávislých zhôd, 145 po krížovej kontrole, 23 po zmierení a 99 nerozhodnutých posúdení nad 71 tvarmi.
 
@@ -232,7 +243,7 @@ Verzovaná databáza `tests/data/review_decisions.sqlite` obsahuje nemenný audi
 
 Výsledky sú **15 313 iba engine**, **6 195 oba správne**, **1 iba Chlebíková**, **5 ani jeden** a **1 659 nerozhodnutých**: 21 514 uzavretých porovnaní, nie 23 173 certifikovaných odpovedí. Počty možno reprodukovať z tabuľky `psp_comparisons` filtrovaním podľa uvedeného `audit_id` a zoskupením podľa `comparison_outcome`; každý zmrazený tvar má zodpovedajúci riadok posúdenia. Ide o **porovnávací súbor posúdený podľa PSP**, nie o nezávislý náhodný gold benchmark: úplná interpretácia PSP vznikala s pomocou AI, výber obsahuje iba historické nezhody a neistá cudzia výslovnosť zostala zámerne nerozhodnutá.
 
-Vrstvy sa prekrývajú, preto sa nesčítavajú na „počet skontrolovaných slov“. Staršie porovnanie autora a AI našlo 49 nezhôd v 350 spoločných tvaroch, v 14 rodinách. Je to historické meranie, nie počet dnes otvorených sporov. Ľudský názor ani modelový konsenzus nenahrádza nezávislý argument z PSP.
+K 2026-09-14 sa aktívne neodstránené Human riadky prekrývajú s PSP radom na **2 236 tvaroch**; pri 2 224 z nich existuje porovnateľné Human delenie. PSP uzavrelo 1 981 týchto porovnateľných prípadov: Human sa zhoduje aspoň s jedným prípustným PSP variantom v **1 858** a nezhoduje v **123**, teda zhoda je **93,79 %**. Ďalších 243 porovnateľných prípadov zostáva vo vrstve PSP nerozhodnutých. Prienik nerobí z vrstiev totožné ani nezávislé gold benchmarky; ľudský názor ani modelový konsenzus nenahrádza argument z PSP.
 
 ## Liangove vzory: regenerovanie a hodnotenie
 
