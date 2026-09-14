@@ -244,33 +244,33 @@ An earlier author/AI comparison found 49 discrepancies among 350 shared forms, i
 
 The current evaluation below finds about one whole-word disagreement in ten between Chlebíková's patterns and the integrated engine. A common source is morphology. The precise umbrella term is **recognized morphological structure**, not just a stem: a prefix plus base, the members of a compound, or a base plus a derivational or grammatical suffix. A letter-pattern table sees recurring character fragments but does not retain that analysis.
 
-The following are 21 verified examples in which the difference is morphological rather than a disagreement inferred to be an error merely because the outputs differ. Both outputs use the same TeX left/right minima of 2/3; `·` marks an available line break. The 1992 result either offers a break through a recognized unit or misses the useful morpheme seam shown by the engine.
+The following are 21 verified examples in which the difference is morphological rather than a disagreement inferred to be an error merely because the outputs differ. `·` marks an available line break. The 1992 column applies the TeX left/right minima 2/3; the current-engine column is the literal result of `hyphenate(word)`, whose API does not apply those TeX edge minima. The 1992 result either offers a break through a recognized unit or misses the useful morpheme seam shown by the engine.
 
 | kind | word | recognized structure | 1992 patterns | current engine |
 | --- | --- | --- | --- | --- |
-| prefix and base | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·kladne` |
-| prefix and base | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
+| prefix and base | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·klad·ne` |
+| prefix and base | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nej·ší` |
 | prefix and base | `rozkroj` | `roz- + kroj-` | `rozk·roj` | `roz·kroj` |
-| nested prefixes | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čistí` |
-| prefix and base | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úradné` |
+| nested prefixes | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čis·tí` |
+| prefix and base | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úrad·né` |
 | compound | `trojuholník` | `troj- + uhol- + ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
-| compound | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služný` |
-| compound | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·istý` |
-| compound | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uhlý` |
-| compound | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·dený` |
-| compound | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žravce` |
-| compound | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chtivý` |
+| compound | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služ·ný` |
+| compound | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·is·tý` |
+| compound | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uh·lý` |
+| compound | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·de·ný` |
+| compound | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žrav·ce` |
+| compound | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chti·vý` |
 | derivation | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
 | derivation | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
 | derivation | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
 | derivation | `šéfstvom` | `šéf- + stv-` | `šéfs·tvom` | `šéf·stvom` |
 | derivation | `víťazstvo` | `víťaz- + stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
-| numeral derivative | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nástka` |
+| numeral derivative | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nást·ka` |
 | compound numeral | `dvadsaťdva` | `dvadsať- + dva` | `dvad·saťdva` | `dvad·sať·dva` |
 | compound numeral | `dvestotri` | `dve- + sto- + tri` | `dve·stotri` | `dve·sto·tri` |
 | compound numeral | `šesťstodeväťdesiatosem` | `šesť- + sto- + deväťdesiat- + osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
 
-The right margin explains why a final seam such as `dvanásť-|k-` is not itself offered in this 2/3 view; its analysis still prevents the incorrect `nás|tka` break. These examples do not turn every disagreement into a defect: each other case must still be decided under PSP. The 1992 patterns have served Slovak typesetting for decades and remain the bundled baseline in `tex/hyph-sk.tex`; the author's account of their origin is discussed in [docs/hyph-sk-1992-origin.md](docs/hyph-sk-1992-origin.md).
+The different edge policies explain why the literal engine result `Dva·nást·ka` contains a final point that is absent from the 2/3 TeX-pattern result. The pattern evaluation below filters engine targets to the same TeX minima; this table deliberately shows the public API unchanged. These examples do not turn every disagreement into a defect: each other case must still be decided under PSP. The 1992 patterns have served Slovak typesetting for decades and remain the bundled baseline in `tex/hyph-sk.tex`; the author's account of their origin is discussed in [docs/hyph-sk-1992-origin.md](docs/hyph-sk-1992-origin.md).
 
 ## Reproduce and evaluate Liang patterns
 

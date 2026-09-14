@@ -253,33 +253,33 @@ Preferovaný súbor sa učí z `break_points(word)`, permisívny z `break_points
 
 Aktuálne meranie uvedené vyššie nachádza medzi vzormi Chlebíkovej a integrovaným enginom približne jednu nezhodu celého slova z desiatich. Častou príčinou je morfológia. Presný súhrnný názov nie je iba kmeň či slovotvorný základ, ale **rozpoznaná morfematická stavba**: predpona a základ, členy zloženiny alebo základ a slovotvorná či gramatická prípona. Písmenové vzory vidia opakujúce sa úseky, ale túto analýzu si neuchovávajú.
 
-Nasleduje 21 overených príkladov, pri ktorých rozdiel naozaj vyplýva z morfológie; chyba sa neodvodzuje iba z toho, že sa dva systémy nezhodli. Oba stĺpce používajú rovnaké TeXové minimá 2/3 a `·` označuje dostupné miesto zalomenia. Výstup z roku 1992 buď ponúka bod uprostred rozpoznanej jednotky, alebo vynecháva užitočný morfematický švík, ktorý engine zachováva.
+Nasleduje 21 overených príkladov, pri ktorých rozdiel naozaj vyplýva z morfológie; chyba sa neodvodzuje iba z toho, že sa dva systémy nezhodli. `·` označuje dostupné miesto zalomenia. Stĺpec vzorov z roku 1992 používa TeXové okrajové minimá 2/3; stĺpec aktuálneho enginu je doslovný výsledok `hyphenate(word)`, ktorého API tieto TeXové okrajové minimá neuplatňuje. Výstup z roku 1992 buď ponúka bod uprostred rozpoznanej jednotky, alebo vynecháva užitočný morfematický švík, ktorý engine zachováva.
 
 | typ | slovo | rozpoznaná stavba | vzory 1992 | aktuálny engine |
 | --- | --- | --- | --- | --- |
-| predpona a základ | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·kladne` |
-| predpona a základ | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nejší` |
+| predpona a základ | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·klad·ne` |
+| predpona a základ | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nej·ší` |
 | predpona a základ | `rozkroj` | `roz- + kroj-` | `rozk·roj` | `roz·kroj` |
-| vnorené predpony | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čistí` |
-| predpona a základ | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úradné` |
+| vnorené predpony | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čis·tí` |
+| predpona a základ | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úrad·né` |
 | zloženina | `trojuholník` | `troj- + uhol- + ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
-| zloženina | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služný` |
-| zloženina | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·istý` |
-| zloženina | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uhlý` |
-| zloženina | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·dený` |
-| zloženina | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žravce` |
-| zloženina | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chtivý` |
+| zloženina | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služ·ný` |
+| zloženina | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·is·tý` |
+| zloženina | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uh·lý` |
+| zloženina | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·de·ný` |
+| zloženina | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žrav·ce` |
+| zloženina | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chti·vý` |
 | odvodzovanie | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
 | odvodzovanie | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
 | odvodzovanie | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
 | odvodzovanie | `šéfstvom` | `šéf- + stv-` | `šéfs·tvom` | `šéf·stvom` |
 | odvodzovanie | `víťazstvo` | `víťaz- + stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
-| odvodená číslovka | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nástka` |
+| odvodená číslovka | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nást·ka` |
 | zložená číslovka | `dvadsaťdva` | `dvadsať- + dva` | `dvad·saťdva` | `dvad·sať·dva` |
 | zložená číslovka | `dvestotri` | `dve- + sto- + tri` | `dve·stotri` | `dve·sto·tri` |
 | zložená číslovka | `šesťstodeväťdesiatosem` | `šesť- + sto- + deväťdesiat- + osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
 
-Pravé minimum vysvetľuje, prečo sa koncový švík ako `dvanásť-|k-` v zobrazení 2/3 sám neponúkne; jeho analýza napriek tomu zabráni chybnému bodu `nás|tka`. Príklady neznamenajú, že každá ďalšia nezhoda je chybou: každý prípad treba naďalej rozhodnúť podľa PSP. Vzory z roku 1992 slúžia slovenskej sadzbe celé desaťročia a zostávajú porovnávacou základňou v `tex/hyph-sk.tex`; ich vznik podľa autorky opisuje [docs/hyph-sk-1992-povod.md](docs/hyph-sk-1992-povod.md).
+Rozdielna politika okrajov vysvetľuje, prečo doslovný výstup enginu `Dva·nást·ka` obsahuje koncový bod, ktorý vo výsledku TeXových vzorov s minimami 2/3 chýba. Pri hodnotení vzorov nižšie sa ciele enginu filtrujú na rovnaké TeXové minimá; táto tabuľka zámerne ukazuje verejné API bez takej úpravy. Príklady neznamenajú, že každá ďalšia nezhoda je chybou: každý prípad treba naďalej rozhodnúť podľa PSP. Vzory z roku 1992 slúžia slovenskej sadzbe celé desaťročia a zostávajú porovnávacou základňou v `tex/hyph-sk.tex`; ich vznik podľa autorky opisuje [docs/hyph-sk-1992-povod.md](docs/hyph-sk-1992-povod.md).
 
 ### Použitie inde
 

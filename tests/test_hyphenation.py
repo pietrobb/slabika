@@ -3,6 +3,7 @@
 """Golden cases for syllabification and typographic hyphenation."""
 
 import sqlite3
+from pathlib import Path
 
 import pytest
 
@@ -105,6 +106,19 @@ def test_slovak_hyphenation_golden_cases():
     }
 
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_readme_morphology_tables_match_current_engine():
+    root = Path(__file__).resolve().parents[1]
+    for filename in ("README.md", "README.sk.md"):
+        rows = []
+        for line in (root / filename).read_text(encoding="utf-8").splitlines():
+            cells = [cell.strip() for cell in line.strip("|").split("|")]
+            if len(cells) == 5 and " + " in cells[2]:
+                rows.append((cells[1].strip("`"), cells[4].strip("`")))
+
+        assert len(rows) == 21
+        assert {word: hyphenate(word) for word, _ in rows} == dict(rows)
 
 
 def test_client_and_patient_keep_codified_diphthongal_ie():
