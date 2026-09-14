@@ -504,6 +504,36 @@ def test_generated_inventory_divides_compounds_nobody_typed_in():
     assert hyphenate("navzdory") == "na·vzdo·ry"
 
 
+def test_corpus_derived_inventory_finds_seams_the_lexicon_alone_missed():
+    # The second witness in tools/build_composita.py is the project's own
+    # corpus, read as surface forms. These divide because the corpus attests
+    # the paradigm of the second member, not because anyone listed the word.
+    expected = {
+        "vetroplacha": "vet·ro·pla·cha",
+        "vetroplachým": "vet·ro·pla·chým",
+        "človekostroje": "člo·ve·ko·stro·je",
+        "názvoslovie": "náz·vo·slo·vie",
+        "múdrosloví": "múd·ro·slo·ví",
+        "Vševšehomíra": "Vše·vše·ho·mí·ra",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_corpus_derived_first_members_do_not_cut_the_verb_suffix():
+    # -ova- is a verb-forming suffix that ends in the same -o- a linking vowel
+    # does, so an inferred first member would read every -ovať paradigm as a
+    # compound. A cited or native stem is exempt: samovar is one.
+    assert hyphenate("rezervovalo") == "re·zer·vo·va·lo"
+    assert hyphenate("talentovanosť") == "ta·len·to·va·nosť"
+    assert hyphenate("samovar") == "sa·mo·var"
+    # Homographs the corpus evidence cannot settle are refused by name: oslo-
+    # is a first member of osla, and osloviť has a prefix instead.
+    assert hyphenate("oslovila") == "oslo·vi·la"
+    assert hyphenate("našetrené") == "na·šet·re·né"
+    # škár is the genitive plural of škára, not a lemma that heads a compound.
+    assert hyphenate("svätoškársku") == "svä·toš·kár·sku"
+
+
 def test_snk_free_inventory_preserves_reviewed_families():
     assert hyphenate("vysokošľachtický") == "vy·so·ko·šľach·tic·ký"
     assert hyphenate("sankcionovaného") == "sank·ci·o·no·va·né·ho"

@@ -881,6 +881,16 @@ def _generated_compositum(word: str) -> tuple[str, str] | None:
         first = wl[:cut]
         if first not in _GENERATED_FIRST_MEMBERS:
             continue
+        # -ova- is a verb-forming suffix, and an inferred first member ends in
+        # the same -o- a linking vowel does, so rezervo|valo and talento|vanosť
+        # are the paradigm of rezervovať and talentovaný read as compounds. The
+        # cited and native stems are exempt: samo·var is one.
+        if (
+            first in _INFERRED_FIRST_MEMBERS
+            and first.endswith('o')
+            and wl[cut:].startswith('va')
+        ):
+            continue
         if not _heads_a_compositum(wl[cut:], first in _INFERRED_FIRST_MEMBERS):
             continue
         # A second member that opens with a prefix of its own is not a second

@@ -29,6 +29,10 @@ import sqlite3
 from pathlib import Path
 
 LEXICON = Path(__file__).resolve().parents[2] / "Sapfo/sapfo/data/sapfo_lexicon.db"
+CORPUS = (
+    Path(__file__).resolve().parents[1]
+    / "tests/data/translatemaster_hyphenation_working.sqlite"
+)
 OUT = Path(__file__).resolve().parents[1] / "src/slabika/data/composita.json"
 
 # Soft consonants after which the linking vowel is -e, not -o (srdce·rvúci).
@@ -158,6 +162,148 @@ CURATED_CORPUS_HEADS = {
 }
 
 
+# ---------------------------------------------------------------- own corpus
+# The Sapfo branch above can only see what the lexicon records. The project's
+# own word list is the other witness, and the only one whose provenance is
+# entirely ours, so the same inventory is derived from it a second time — from
+# surface forms alone, by asking which paradigm the corpus actually attests.
+#
+# The evidence has to be paradigmatic rather than a suffix match, because a
+# suffix match reads doba as an adjective root dob- and osla as a lemma of its
+# own. Each branch therefore demands the endings that only its own paradigm
+# produces, and the noun branch additionally demands endings no feminine
+# paradigm has, or every genitive plural (škár of škára) becomes a lemma.
+
+#: Endings no other part of speech carries, so their presence identifies an
+#: adjective root rather than a noun that happens to end in -ý.
+_ADJECTIVE_WITNESSES = ('ého', 'ému', 'ých', 'ými', 'ejší', 'ejšia', 'ejšie')
+
+#: What an infinitive is allowed to end in. A bare -ť is not enough: niť and
+#: sieť end in it and are nouns.
+_INFINITIVE_SUFFIXES = (
+    'ovať', 'núť', 'ieť', 'ať', 'iť', 'yť', 'úť', 'sť', 'zť', 'cť',
+)
+
+#: Case endings of the masculine and neuter paradigms. A consonant-final string
+#: is only a lemma if the corpus attests two of these: škár takes škára, škáry,
+#: škáre — all forms of the feminine škára, none of them evidence of a lemma
+#: škár, and without this the inventory heads svätoškár·sku with the genitive
+#: plural of a crack.
+_MASCULINE_WITNESSES = frozenset({'om', 'ovi', 'och', 'ov', 'mi', 'u'})
+
+#: Homographs the evidence cannot settle, because the collision is not with
+#: another analysis of the same word but with a different word:
+#:   oslo-  is a legitimate first member of osla, and every word it divides is
+#:          a form of osloviť, where the o- is a prefix (oslo·vi·la, PSP: a
+#:          single letter may not be left behind).
+#:   naše-  is the possessive pronoun. Pronouns are a closed class; the noun
+#:          branch reads naša as a lemma and na·še·tre·né follows.
+_CORPUS_FIRST_MEMBER_COLLISIONS = frozenset({'oslo', 'naše'})
+
+_VOWEL_LETTERS = frozenset('aáäeéiíoóuúyýô')
+
+
+def _corpus_forms() -> set[str]:
+    """Every lowercase alphabetic form in the project's own corpus."""
+    db = sqlite3.connect(f"file:{CORPUS.as_posix()}?mode=ro", uri=True)
+    forms = {
+        word.lower()
+        for (word,) in db.execute("select form from forms")
+        if word.isalpha() and word[0].islower()
+    }
+    db.close()
+    return forms
+
+
+def _noun_paradigm(word: str, corpus: set[str]) -> tuple[str, bool]:
+    """Return (stem, is_a_lemma) for *word* read as a noun."""
+    if word.endswith('a'):
+        stem, endings, required = word[:-1], ('y', 'e', 'i', 'u', 'ou', 'ách', 'ám', 'ami'), None
+    elif word.endswith('o'):
+        stem, endings, required = word[:-1], ('a', 'u', 'e', 'om', 'á', 'ám', 'ách', 'ami'), None
+    elif word.endswith('e'):
+        stem, endings, required = word[:-1], ('a', 'u', 'om', 'ia', 'iam', 'iach', 'ami'), None
+    elif word[-1] not in _VOWEL_LETTERS:
+        stem = word
+        endings = ('a', 'u', 'e', 'om', 'ovi', 'y', 'i', 'och', 'ov', 'ami', 'mi')
+        required = _MASCULINE_WITNESSES
+    else:
+        return '', False
+    attested = {ending for ending in endings if stem + ending in corpus}
+    enough = len(attested) >= 3 and (
+        required is None or len(attested & required) >= 2
+    )
+    return stem, enough
+
+
+def corpus_inventory() -> tuple[dict[str, str], dict[str, str]]:
+    """Derive first members and heads from this project's own corpus alone."""
+    corpus = _corpus_forms()
+
+    adjective_roots = {
+        word[:-1]
+        for word in corpus
+        if word.endswith(('ý', 'í')) and len(word) >= 4 and len(word) - 1 >= 3
+        and any(word[:-1] + witness in corpus for witness in _ADJECTIVE_WITNESSES)
+    }
+    verb_stems = {
+        word[:-1]
+        for word in corpus
+        if word.endswith('ť') and len(word) >= 5
+        and word.endswith(_INFINITIVE_SUFFIXES)
+        and any(word[:-1] + tail in corpus for tail in ('l', 'la', 'li'))
+    }
+    noun_lemmas: dict[str, str] = {}
+    for word in corpus:
+        # An adjective form is not a noun lemma (krásne is not a thing), and
+        # neither is an l-participle (viedol is not a lemma of viedl-).
+        if len(word) < 4 or word[:-1] in adjective_roots:
+            continue
+        if word in verb_stems or word[:-1] in verb_stems:
+            continue
+        stem, is_lemma = _noun_paradigm(word, corpus)
+        if is_lemma and len(stem) >= 3:
+            noun_lemmas[word] = stem
+
+    first: dict[str, str] = {}
+
+    def put(member: str, source: str) -> None:
+        if (
+            len(member) >= 3
+            and member.isalpha()
+            and member not in _CORPUS_FIRST_MEMBER_COLLISIONS
+        ):
+            first.setdefault(member, source)
+
+    for root in sorted(adjective_roots):
+        put(root + 'o', 'adjective')
+        if root[-1] in SOFT_FINALS:
+            put(root + 'e', 'adjective')
+    for word in sorted(corpus):
+        if len(word) >= 4 and word[-1] in 'oe' and word[:-1] in adjective_roots:
+            put(word, 'adverb')
+    for stem in sorted(noun_lemmas.values()):
+        # The -o- of otravo·val is not a linking vowel but the -ova- of
+        # otravovať, and the corpus says so: where the stem forms a verb in
+        # -ovať, every word the member would divide is that verb's paradigm
+        # (kormidlo·val, komando|vali), so the member is refused outright.
+        if stem + 'ovať' in corpus:
+            continue
+        put(stem + ('e' if stem[-1] in SOFT_FINALS else 'o'), 'noun stem')
+
+    heads: dict[str, str] = {}
+    for root in adjective_roots:
+        if len(root) >= 3:
+            heads[root] = 'root'
+    for stem in verb_stems:
+        if len(stem) >= 4:
+            heads[stem] = 'verb'
+    for lemma in noun_lemmas:
+        if len(lemma) >= 4:
+            heads[lemma] = 'lemma'
+    return first, heads
+
+
 def build() -> dict:
     db = sqlite3.connect(f"file:{LEXICON.as_posix()}?mode=ro", uri=True)
 
@@ -256,11 +402,27 @@ def build() -> dict:
         if kind == "lemma" or head not in heads:
             heads[head] = kind
 
+    # The corpus branch runs last and never overrules the lexicon: a first
+    # member the lexicon already classified keeps its own source label, because
+    # the label is what the runtime reads to decide how much a member may
+    # license. A lemma is the one exception — a string the corpus attests as a
+    # whole word is a word, whichever table guessed at a root before it.
+    corpus_first, corpus_heads = corpus_inventory()
+    for member, source in corpus_first.items():
+        put(member, source)
+    for head, kind in corpus_heads.items():
+        if kind == "lemma" or head not in heads:
+            heads[head] = kind
+
     db.close()
     return {
         "note": "generated from non-SNK Sapfo entries and the local project corpus",
-        "corpus_first_members": sorted(CURATED_CORPUS_FIRST_MEMBERS),
-        "corpus_heads": sorted(CURATED_CORPUS_HEADS),
+        "corpus_first_members": sorted(
+            set(CURATED_CORPUS_FIRST_MEMBERS) | (set(corpus_first) & set(first))
+        ),
+        "corpus_heads": sorted(
+            set(CURATED_CORPUS_HEADS) | (set(corpus_heads) & set(heads))
+        ),
         "first_members": {k: first[k] for k in sorted(first)},
         "heads": {k: heads[k] for k in sorted(heads)},
     }
