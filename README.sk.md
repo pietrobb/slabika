@@ -45,6 +45,49 @@ Program `patgen` sa vzory učí zo slov s vyznačenými hranicami. **Kvalitu vzo
 
 Tréningové delenia počíta engine, nepreberá sa hotový slovenský slovník delenia. Cudzie slová však môžu využívať DE/FR vzorové adaptéry alebo voliteľné anglické G2P. Na presnú reprodukciu preto treba rovnaký engine, inventár **aj výslovnostné prostredie**. Provenienciu slovnej zásoby vysvetľuje [LICENSING.md](LICENSING.md) §3. Reprodukovateľnosť ani zhoda s enginom nedokazujú správnosť podľa PSP.
 
+### Prečo nový súbor slovenských vzorov
+
+Jana Chlebíková zverejnila slovenské Liangove vzory v roku 1992; slúžia slovenskej sadzbe celé desaťročia a v `tex/hyph-sk.tex` zostávajú pribalenou porovnávacou základňou. Jej metóda bola starostlivým ručným prepisom gramatických pravidiel do Liangovej notácie, nie tréningom `patgen` nad zverejneným zoznamom slov. Bolo to dôležité praktické riešenie a tento projekt si nenárokuje prvenstvo delenia slovenčiny. Primárny opis a neskoršie hodnotenie sumarizuje [docs/hyph-sk-1992-povod.md](docs/hyph-sk-1992-povod.md).
+
+Historický súbor však nestačí ako základ systému, ktorý sa má dať preskúmať a zlepšovať. Jeho úplný vznik nemožno zopakovať; písmenové úseky si neuchovávajú jazykové zdôvodnenie ani morfematickú analýzu hranice; cudzie slová a výnimky boli spracované iba obmedzene. To neznamená, že pôvodná práca bola zlá. Je to hodnotná historická základňa, ktorej praktické hranice dnes vieme zmerať a cielene opravovať.
+
+Rozsah týchto hraníc ukazujú dve rozdielne merania:
+
+| evidencia | súčasný projekt | Chlebíková 1992 | čo výsledok dokazuje |
+| --- | ---: | ---: | --- |
+| presné celé slová na odložených dátach oproti preferovanému cieľu enginu, minimá TeXu 2/3 | **98,4913 %** | **89,5641 %** | reprodukovateľnosť enginu, nie správnosť podľa PSP |
+| prijaté podľa PSP medzi 21 514 uzavretými historickými nezhodami | **21 508** | **6 196** | posúdenie súboru nezhôd, nie náhodnú celkovú presnosť |
+
+Druhý riadok tvorí 15 313 prípadov, v ktorých bol prijatý iba zmrazený engine, 6 195 prípadov s oboma prijatými výstupmi, 1 prípad iba pre Chlebíkovú a 5 prípadov, v ktorých nebol prijatý ani jeden výstup. Ďalších 1 659 prípadov zostáva nerozhodnutých. Audit vznikal s pomocou AI a zámerne obsahuje iba nezhody, preto je silnou diagnostickou evidenciou, nie nezávislým percentom presnosti; úplnú metodiku uvádza časť [Porovnávací súbor posúdený podľa PSP](#porovnávací-súbor-posúdený-podľa-psp).
+
+Častou príčinou rozdielu je **rozpoznaná morfematická stavba**: predpona a základ, členy zloženiny alebo základ a slovotvorná či gramatická prípona. Písmenové vzory vidia opakujúce sa úseky, ale túto analýzu si neuchovávajú. Nasleduje 21 overených morfologických príkladov, nie prípadov vyhlásených za chybu iba preto, že sa dva systémy nezhodli. `·` označuje dostupné miesto zalomenia. Stĺpec vzorov z roku 1992 používa TeXové okrajové minimá 2/3; stĺpec aktuálneho enginu je doslovný výsledok `hyphenate(word)`, ktorého API tieto minimá neuplatňuje.
+
+| typ | slovo | rozpoznaná stavba | vzory 1992 | aktuálny engine |
+| --- | --- | --- | --- | --- |
+| predpona a základ | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·klad·ne` |
+| predpona a základ | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nej·ší` |
+| predpona a základ | `rozkroj` | `roz- + kroj-` | `rozk·roj` | `roz·kroj` |
+| vnorené predpony | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čis·tí` |
+| predpona a základ | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úrad·né` |
+| zloženina | `trojuholník` | `troj- + uhol- + ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
+| zloženina | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služ·ný` |
+| zloženina | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·is·tý` |
+| zloženina | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uh·lý` |
+| zloženina | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·de·ný` |
+| zloženina | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žrav·ce` |
+| zloženina | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chti·vý` |
+| odvodzovanie | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
+| odvodzovanie | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
+| odvodzovanie | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
+| odvodzovanie | `šéfstvom` | `šéf- + stv-` | `šéfs·tvom` | `šéf·stvom` |
+| odvodzovanie | `víťazstvo` | `víťaz- + stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
+| odvodená číslovka | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nást·ka` |
+| zložená číslovka | `dvadsaťdva` | `dvadsať- + dva` | `dvad·saťdva` | `dvad·sať·dva` |
+| zložená číslovka | `dvestotri` | `dve- + sto- + tri` | `dve·stotri` | `dve·sto·tri` |
+| zložená číslovka | `šesťstodeväťdesiatosem` | `šesť- + sto- + deväťdesiat- + osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
+
+Rozdielna politika okrajov vysvetľuje, prečo doslovný výstup enginu `Dva·nást·ka` obsahuje koncový bod, ktorý vo výsledku TeXových vzorov s minimami 2/3 chýba. Hodnotenie vzorov filtruje ciele enginu na rovnaké minimá; táto tabuľka zámerne ukazuje verejné API bez takej úpravy. Príklady neznamenajú, že každá ďalšia nezhoda je chybou: každý prípad treba naďalej rozhodnúť podľa PSP.
+
 ### Najťažšia časť: vnímaný kmeň
 
 Vokalické jadrá, rozdelenie spoluhlások a okrajové obmedzenia sú často mechanické až po určení jazykovej analýzy. Morfematické švíky sú ťažšie: rovnaký zápis môže znamenať produktívnu predponu a rozpoznateľný kmeň alebo zlexikalizovaný celok. Zo samotných písmen sa to nedá spoľahlivo určiť.
@@ -259,38 +302,6 @@ Príkazy prepíšu dva verzované súbory vzorov. Generátor prijíma `resolved`
 Generovanie **2026-09-13** prijalo 203 919 podporovaných unikátnych slov: **163 156 tréningových a 40 763 odložených**. Preferovaný súbor má **5 581 vzorov**, presné celé slová **98,4913 %** (40 148/40 763), precision bodov 99,5588 % a recall 99,4415 %. Permisívny má **5 244 vzorov**, presné celé slová **98,6311 %** (40 205/40 763), precision 99,5833 % a recall 99,5176 %. Pri rovnakých minimách TeXu 2/3 zopakuje základňa Chlebíkovej príslušné ciele na 89,5641 % a 88,9655 % celých slov. Ide o **vernosť enginu**, nie nezávislú správnosť podľa PSP. Použitý bol Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5) a `slabika-pronunciation==0.1.0` s anglickým MFA G2P v3.0.0. Súbory sa zapisujú s LF aj na Windows; presné SHA-256 sú v časti **Reproduce and evaluate Liang patterns** v [anglickom README](README.md), úplné reporty release behu sú v `patterns/`. Zmena enginu, inventára alebo prítomnosti anglického runtime môže zmeniť výsledné hashe.
 
 Preferovaný súbor sa učí z `break_points(word)`, permisívny z `break_points(word, all_points=True, contextual=True)`. Jeden Liangov súbor nevie niesť prioritu bodov, preto sa tieto politiky publikujú samostatne a **nesmú sa načítať naraz**. Nemajú výnimky celých slov a neobsahujú jazykový detektor ani model výslovnosti. Sú verzovanými release artefaktmi popri Python balíku, ale knižnica ich automaticky nenačítava; používa iba prevzaté DE/FR vzory.
-
-### Morfologické rozdiely oproti vzorom z roku 1992
-
-Aktuálne meranie uvedené vyššie nachádza medzi vzormi Chlebíkovej a integrovaným enginom približne jednu nezhodu celého slova z desiatich. Častou príčinou je morfológia. Presný súhrnný názov nie je iba kmeň či slovotvorný základ, ale **rozpoznaná morfematická stavba**: predpona a základ, členy zloženiny alebo základ a slovotvorná či gramatická prípona. Písmenové vzory vidia opakujúce sa úseky, ale túto analýzu si neuchovávajú.
-
-Nasleduje 21 overených príkladov, pri ktorých rozdiel naozaj vyplýva z morfológie; chyba sa neodvodzuje iba z toho, že sa dva systémy nezhodli. `·` označuje dostupné miesto zalomenia. Stĺpec vzorov z roku 1992 používa TeXové okrajové minimá 2/3; stĺpec aktuálneho enginu je doslovný výsledok `hyphenate(word)`, ktorého API tieto TeXové okrajové minimá neuplatňuje. Výstup z roku 1992 buď ponúka bod uprostred rozpoznanej jednotky, alebo vynecháva užitočný morfematický švík, ktorý engine zachováva.
-
-| typ | slovo | rozpoznaná stavba | vzory 1992 | aktuálny engine |
-| --- | --- | --- | --- | --- |
-| predpona a základ | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·klad·ne` |
-| predpona a základ | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nej·ší` |
-| predpona a základ | `rozkroj` | `roz- + kroj-` | `rozk·roj` | `roz·kroj` |
-| vnorené predpony | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čis·tí` |
-| predpona a základ | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úrad·né` |
-| zloženina | `trojuholník` | `troj- + uhol- + ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
-| zloženina | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služ·ný` |
-| zloženina | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·is·tý` |
-| zloženina | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uh·lý` |
-| zloženina | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·de·ný` |
-| zloženina | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žrav·ce` |
-| zloženina | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chti·vý` |
-| odvodzovanie | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
-| odvodzovanie | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
-| odvodzovanie | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
-| odvodzovanie | `šéfstvom` | `šéf- + stv-` | `šéfs·tvom` | `šéf·stvom` |
-| odvodzovanie | `víťazstvo` | `víťaz- + stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
-| odvodená číslovka | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nást·ka` |
-| zložená číslovka | `dvadsaťdva` | `dvadsať- + dva` | `dvad·saťdva` | `dvad·sať·dva` |
-| zložená číslovka | `dvestotri` | `dve- + sto- + tri` | `dve·stotri` | `dve·sto·tri` |
-| zložená číslovka | `šesťstodeväťdesiatosem` | `šesť- + sto- + deväťdesiat- + osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
-
-Rozdielna politika okrajov vysvetľuje, prečo doslovný výstup enginu `Dva·nást·ka` obsahuje koncový bod, ktorý vo výsledku TeXových vzorov s minimami 2/3 chýba. Pri hodnotení vzorov nižšie sa ciele enginu filtrujú na rovnaké TeXové minimá; táto tabuľka zámerne ukazuje verejné API bez takej úpravy. Príklady neznamenajú, že každá ďalšia nezhoda je chybou: každý prípad treba naďalej rozhodnúť podľa PSP. Vzory z roku 1992 slúžia slovenskej sadzbe celé desaťročia a zostávajú porovnávacou základňou v `tex/hyph-sk.tex`; ich vznik podľa autorky opisuje [docs/hyph-sk-1992-povod.md](docs/hyph-sk-1992-povod.md).
 
 ### Použitie inde
 

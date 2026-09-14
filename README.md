@@ -47,6 +47,49 @@ The training labels are computed by the current engine, not collected from exist
 
 Reproducibility is not correctness. Neither internally consistent labels nor agreement with the engine proves correctness under *Pravidlá slovenského pravopisu* (PSP).
 
+### Why a new Slovak pattern set
+
+Jana Chlebíková published Slovak Liang patterns in 1992; they have served Slovak typesetting for decades and remain the bundled baseline in `tex/hyph-sk.tex`. Her method was a careful manual transcription of grammatical rules into Liang notation, not `patgen` training over a published word list. It was an important practical solution, and this project claims no priority for Slovak hyphenation. The primary account and later analysis are summarized in [docs/hyph-sk-1992-origin.md](docs/hyph-sk-1992-origin.md).
+
+The historical file is nevertheless not a sufficient foundation for a system that must be inspectable and improvable. Its complete derivation cannot be rerun; letter fragments retain neither a linguistic explanation nor the morphological analysis behind a boundary; and its treatment of foreign words and exceptions was deliberately limited. This does not make the 1992 work poor. It makes it a valuable baseline whose practical limits can now be measured and repaired.
+
+Two different measurements show the size of those limits:
+
+| evidence | current project | Chlebíková 1992 | what it establishes |
+| --- | ---: | ---: | --- |
+| exact held-out words against the preferred engine target, TeX minima 2/3 | **98.4913%** | **89.5641%** | reproducibility of the engine, not PSP correctness |
+| accepted under PSP among 21,514 resolved historical disagreements | **21,508** | **6,196** | adjudication of the disagreement set, not random overall accuracy |
+
+The second row comprises 15,313 cases where only the frozen engine was accepted, 6,195 where both outputs were accepted, 1 where only Chlebíková was accepted and 5 where neither was accepted. Another 1,659 cases remain unresolved. The audit was AI-assisted and deliberately contains only disagreements, so it is strong diagnostic evidence rather than an independent accuracy percentage; its full methodology appears under [PSP-adjudicated comparison set](#psp-adjudicated-comparison-set).
+
+A common source of difference is **recognized morphological structure**: a prefix plus base, the members of a compound, or a base plus a derivational or grammatical suffix. A letter-pattern table sees recurring character fragments but does not retain that analysis. The following are 21 verified morphological examples, not cases declared wrong merely because the outputs differ. `·` marks an available line break. The 1992 column applies the TeX left/right minima 2/3; the current-engine column is the literal result of `hyphenate(word)`, whose API does not apply those TeX edge minima.
+
+| kind | word | recognized structure | 1992 patterns | current engine |
+| --- | --- | --- | --- | --- |
+| prefix and base | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·klad·ne` |
+| prefix and base | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nej·ší` |
+| prefix and base | `rozkroj` | `roz- + kroj-` | `rozk·roj` | `roz·kroj` |
+| nested prefixes | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čis·tí` |
+| prefix and base | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úrad·né` |
+| compound | `trojuholník` | `troj- + uhol- + ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
+| compound | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služ·ný` |
+| compound | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·is·tý` |
+| compound | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uh·lý` |
+| compound | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·de·ný` |
+| compound | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žrav·ce` |
+| compound | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chti·vý` |
+| derivation | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
+| derivation | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
+| derivation | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
+| derivation | `šéfstvom` | `šéf- + stv-` | `šéfs·tvom` | `šéf·stvom` |
+| derivation | `víťazstvo` | `víťaz- + stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
+| numeral derivative | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nást·ka` |
+| compound numeral | `dvadsaťdva` | `dvadsať- + dva` | `dvad·saťdva` | `dvad·sať·dva` |
+| compound numeral | `dvestotri` | `dve- + sto- + tri` | `dve·stotri` | `dve·sto·tri` |
+| compound numeral | `šesťstodeväťdesiatosem` | `šesť- + sto- + deväťdesiat- + osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
+
+The different edge policies explain why the literal engine result `Dva·nást·ka` contains a final point absent from the 2/3 TeX-pattern result. Pattern evaluation filters engine targets to the same TeX minima; this table deliberately shows the public API unchanged. These examples do not turn every other disagreement into a defect: each case must still be decided under PSP.
+
 ### The hard part: the perceived stem
 
 Vowel nuclei, consonant distribution and edge constraints are often mechanical once the linguistic analysis is known. Morpheme seams are harder: the same spelling can be a productive prefix plus a recognizable stem, or part of a lexicalized whole. Spelling alone cannot reliably recover that distinction.
@@ -248,38 +291,6 @@ The tracked `tests/data/review_decisions.sqlite` contains the immutable audit qu
 The recorded outcomes are **15,313 engine only**, **6,195 both correct**, **1 Chlebíková only**, **5 neither correct** and **1,659 unresolved**: 21,514 resolved comparisons, not 23,173 certified answers. The counts can be reproduced from `psp_comparisons` by filtering on that audit ID and grouping by `comparison_outcome`; every frozen item has a matching comparison row. This is a **PSP-adjudicated comparison set**, not an independent random gold benchmark: the exhaustive PSP interpretation was AI-assisted, its selection is concentrated entirely on historical disagreements, and unresolved foreign pronunciation was preserved rather than guessed.
 
 At the 2026-09-14 snapshot, active non-deleted Human rows overlap the PSP queue on **2,236 forms**; 2,224 have a comparable Human division. PSP resolved 1,981 of those comparable cases: Human matches at least one admissible PSP variant in **1,858** and differs in **123**, a **93.79%** agreement rate. The remaining 243 comparable cases are unresolved in the PSP layer. This overlap does not make the two evidence layers identical or independent gold benchmarks, and neither human opinion nor model consensus settles a case without a PSP argument.
-
-## How this differs from the 1992 patterns
-
-The current evaluation below finds about one whole-word disagreement in ten between Chlebíková's patterns and the integrated engine. A common source is morphology. The precise umbrella term is **recognized morphological structure**, not just a stem: a prefix plus base, the members of a compound, or a base plus a derivational or grammatical suffix. A letter-pattern table sees recurring character fragments but does not retain that analysis.
-
-The following are 21 verified examples in which the difference is morphological rather than a disagreement inferred to be an error merely because the outputs differ. `·` marks an available line break. The 1992 column applies the TeX left/right minima 2/3; the current-engine column is the literal result of `hyphenate(word)`, whose API does not apply those TeX edge minima. The 1992 result either offers a break through a recognized unit or misses the useful morpheme seam shown by the engine.
-
-| kind | word | recognized structure | 1992 patterns | current engine |
-| --- | --- | --- | --- | --- |
-| prefix and base | `bezodkladne` | `bez- + od- + klad-` | `be·z·od·kladne` | `bez·od·klad·ne` |
-| prefix and base | `najúspešnejší` | `naj- + úspeš- + nejš-` | `na·jús·peš·nejší` | `naj·ús·peš·nej·ší` |
-| prefix and base | `rozkroj` | `roz- + kroj-` | `rozk·roj` | `roz·kroj` |
-| nested prefixes | `neočistí` | `ne- + o- + čist-` | `ne·očistí` | `ne·o·čis·tí` |
-| prefix and base | `predúradné` | `pred- + úrad- + n-` | `pre·dú·radné` | `pred·úrad·né` |
-| compound | `trojuholník` | `troj- + uhol- + ník` | `tro·j·u·hol·ník` | `troj·uhol·ník` |
-| compound | `samoobslužný` | `samo- + ob- + služ- + n-` | `sa·mo·obs·lužný` | `sa·mo·ob·služ·ný` |
-| compound | `sebaistý` | `seba- + ist-` | `se·baistý` | `se·ba·is·tý` |
-| compound | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uh·lý` |
-| compound | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·de·ný` |
-| compound | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žrav·ce` |
-| compound | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chti·vý` |
-| derivation | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
-| derivation | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
-| derivation | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
-| derivation | `šéfstvom` | `šéf- + stv-` | `šéfs·tvom` | `šéf·stvom` |
-| derivation | `víťazstvo` | `víťaz- + stv-` | `ví·ťazs·tvo` | `ví·ťaz·stvo` |
-| numeral derivative | `Dvanástka` | `dvanásť- + k-` | `Dva·nás·tka` | `Dva·nást·ka` |
-| compound numeral | `dvadsaťdva` | `dvadsať- + dva` | `dvad·saťdva` | `dvad·sať·dva` |
-| compound numeral | `dvestotri` | `dve- + sto- + tri` | `dve·stotri` | `dve·sto·tri` |
-| compound numeral | `šesťstodeväťdesiatosem` | `šesť- + sto- + deväťdesiat- + osem` | `šesť·sto·de·väť·de·sia·to·sem` | `šesť·sto·de·väť·de·siat·osem` |
-
-The different edge policies explain why the literal engine result `Dva·nást·ka` contains a final point that is absent from the 2/3 TeX-pattern result. The pattern evaluation below filters engine targets to the same TeX minima; this table deliberately shows the public API unchanged. These examples do not turn every disagreement into a defect: each other case must still be decided under PSP. The 1992 patterns have served Slovak typesetting for decades and remain the bundled baseline in `tex/hyph-sk.tex`; the author's account of their origin is discussed in [docs/hyph-sk-1992-origin.md](docs/hyph-sk-1992-origin.md).
 
 ## Reproduce and evaluate Liang patterns
 
