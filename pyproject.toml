@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "slabika"
-version = "0.2.1"
+version = "0.3.0"
 description = "Slovak syllabification and hyphenation, derived from a full phonological inventory"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,26 +35,18 @@ Homepage = "https://github.com/pietrobb/slabika"
 Source = "https://github.com/pietrobb/slabika"
 Issues = "https://github.com/pietrobb/slabika/issues"
 
+# Working databases remain local; installed reviewers supply --db explicitly.
 [tool.hatch.build.targets.wheel]
 packages = ["src/slabika"]
+exclude = ["**/*.sqlite", "**/*.sqlite-*", "**/*.db", "**/*.db-*"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"tests/data/translatemaster_hyphenation_working.sqlite" = "slabika/review/data/inventory.sqlite"
-"tests/data/blind_word_division_5000_v1/results.sqlite" = "slabika/review/data/blind-word-division-5000.sqlite"
-"tests/data/blind_human_recheck_100_v1/results.sqlite" = "slabika/review/data/blind-human-recheck-100.sqlite"
-"tests/data/blind_human_recheck_1000_v2/results.sqlite" = "slabika/review/data/blind-human-recheck-1000.sqlite"
-"tests/data/blind_human_recheck_2000_v3/results.sqlite" = "slabika/review/data/blind-human-recheck-2000.sqlite"
 "tex/hyph-sk.tex" = "slabika/review/tex/hyph-sk.tex"
 
 [tool.hatch.build.targets.sdist]
-exclude = ["/pronunciation"]
+exclude = ["/pronunciation", "/3", "**/*.sqlite", "**/*.sqlite-*", "**/*.db", "**/*.db-*"]
 
 [tool.hatch.build.targets.sdist.force-include]
-"tests/data/translatemaster_hyphenation_working.sqlite" = "tests/data/translatemaster_hyphenation_working.sqlite"
-"tests/data/blind_word_division_5000_v1/results.sqlite" = "tests/data/blind_word_division_5000_v1/results.sqlite"
-"tests/data/blind_human_recheck_100_v1/results.sqlite" = "tests/data/blind_human_recheck_100_v1/results.sqlite"
-"tests/data/blind_human_recheck_1000_v2/results.sqlite" = "tests/data/blind_human_recheck_1000_v2/results.sqlite"
-"tests/data/blind_human_recheck_2000_v3/results.sqlite" = "tests/data/blind_human_recheck_2000_v3/results.sqlite"
 "tex/hyph-sk.tex" = "tex/hyph-sk.tex"
 
 [tool.pytest.ini_options]

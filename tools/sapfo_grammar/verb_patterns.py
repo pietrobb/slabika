@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Peter Bezemek
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 # Vendored from the sibling Sapfo project (sapfo/dictionaries/verb_patterns.py) for build-time use
-# by tools/build_composita.py only. Not part of the distributed package.
+# by the compound builders. Included in the sdist, not the runtime wheel.
 """
 Časovacie vzory slovies - All 24 verb conjugation patterns.
 
@@ -94,11 +94,11 @@ STEM_ALTERNATION_RULES = {
     'A2': {
         'description': 'inf.kmeň/préz.kmeň/l-príčastie alternation',
         'pairs': {
-            's': 'd', 'd': 's',
+            'd': 's',
             's': 'ť', 'ť': 's',
-            'c': 'č', 'č': 'c',  # c/č/k
+            'č': 'c',  # c/č/k
             'c': 'k', 'k': 'c',
-            'z': 'ž', 'ž': 'z',  # ž/h
+            'ž': 'z',  # ž/h
             'z': 'h', 'h': 'z',
         },
         'examples': ['tĺcť/tlčie/tĺkol', 'húsť/hudie/húdol'],

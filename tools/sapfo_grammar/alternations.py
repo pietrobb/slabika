@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Peter Bezemek
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 # Vendored from the sibling Sapfo project (sapfo/dictionaries/alternations.py) for build-time use
-# by tools/build_composita.py only. Not part of the distributed package.
+# by the compound builders. Included in the sdist, not the runtime wheel.
 """
 Koreňové alternácie - Root alternation rules for Slovak morphology.
 
@@ -24,7 +24,7 @@ Source: Emil Páleš, Sapfo (1994), pp. 44-45
 
 from .phonology import (
     LENGTHEN_VOWEL, SHORTEN_VOWEL, is_vowel, is_consonant,
-    PALATALIZATION, LINGUAL_DORSAL
+    PALATALIZATION
 )
 
 

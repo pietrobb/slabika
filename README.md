@@ -100,11 +100,41 @@ A broad vocabulary provides evidence for testing family rules and contrasting ne
 
 There is no single database of finished boundaries. `get_morpheme_parts()` combines three layers: manually maintained and regression-tested rules for prefixes, suffixes and ambiguous families; guarded rules for numerals, prefixoids and particular compounds; and a generated inventory for productive compounds. `syllabify` and `typo` share that analysis but apply their own spoken-syllable and written-division rules inside each recognized part. A morpheme seam takes precedence over mechanical consonant redistribution in the preferred typographic result.
 
-The productive compound layer is built by `python tools/build_composita.py` from two independent witnesses. The first is the local Sapfo lexicon at `../Sapfo/sapfo/data/sapfo_lexicon.db`, where rows marked `source='snk'` are deliberately excluded, so only the project's manual and independently classified entries are used. The second is the project's own corpus, `tests/data/translatemaster_hyphenation_working.sqlite`, read as surface forms only: a string counts as an adjective root, a noun lemma or a verb stem when the corpus attests the endings that only that paradigm produces, which is what keeps `doba` from being read as an adjective root and the genitive plural `škár` from being read as a lemma. The generator derives first members from adverb and adjective stems and from noun stems with linking `-o-/-e-`; it separately records possible second-member heads from adjective, adverb, noun and verb evidence. The current `src/slabika/data/composita.json` contains **10,705 first members** and **17,539 second-member heads**, including manifest lists for the 10,123 corpus first members and 15,686 corpus heads. The JSON is versioned, packaged and is all the runtime reads. A clean checkout can use it without Sapfo, although rebuilding still needs the local sibling lexicon and the corpus database. The statistically induced `morphs.json` remains an audit aid and does not determine production boundaries.
+Since **0.3.0**, the productive compound layer is built by `python tools/build_composita_grammar.py` from the project's corpus surface forms, local inflectional grammar and an explicitly attributed supplement. It replaces the historical `tools/build_composita.py` inventory and **does not read the Sapfo/SNK lexicon or merge the old inventory**. The packaged `src/slabika/data/composita.json` contains **11,470 first members** and **20,207 second-member heads**, with role-specific paradigms and input fingerprints. Runtime reads only this versioned JSON: neither Sapfo nor a corpus database is required for ordinary use. Rebuilding requires the separately supplied project corpus and the build-time grammar included in this repository. The statistically induced `morphs.json` remains an audit aid and does not determine production boundaries.
 
 The inventory does not mean “break after every known string”. The engine requires both a credible first member and an attested second-member head followed only by an allowed inflectional tail. It does not combine two weak inferences, and guards several collisions with prefixes and endings — among them the verb-forming `-ova-`, which ends in the same `-o-` a linking vowel does, so an inferred first member may not divide `rezervovalo` or `talentovanosť`. This lets it infer unseen `žlto|modrý`, `svetlo|zelený` or `modro|zelenkastý`, while rejecting a false analysis such as `jahodo|vých`.
 
-Ordinary users do **not** regenerate this inventory; the packaged JSON is the released artifact and no rebuild is expected of anyone installing the package. A maintainer rebuilds it after changing the source lexicon, the corpus or `tools/build_composita.py` — adding words to the corpus now does change it, because the corpus is one of the two sources. That cuts one way only: a **missing** seam is data hunger and new words supply it, while a **wrong** seam is over-generation, which more words can only make worse. Over-generation that the evidence cannot settle is refused by name and with a reason in `_CORPUS_FIRST_MEMBER_COLLISIONS`. A rebuild is therefore never local: one new stem is global, so the measurement is the whole corpus and the recorded decisions, not the word that prompted it. Do not edit the generated JSON directly. Add an ordinary productive native member to the source lexicon or `CURATED_NATIVE`, then rebuild. A risky short prefixoid or numeral belongs in `CURATED_NUMERALS` for artefact provenance and also in the guarded runtime layer `_SK_COMPOSITA`/`_licenses_compositum`. Prefixes, suffixes and exceptional families are maintained directly in `syllabify.py` and need no JSON rebuild. Every change needs positive and contrastive regression tests, followed by corpus-wide impact and existing-decision checks.
+Ordinary users do **not** regenerate this inventory; they use the packaged JSON. The 0.3.0 inventory was checked over **206,272 corpus rows** against the frozen previous engine: all **36 differences** match recorded PSP decisions, with no unapproved changes. The candidate passed **1,143 tests with one expected failure**. These are regression and adjudication results, not a claim of universal linguistic accuracy or comprehensive legal certification. Source declarations and remaining limitations are recorded in [LICENSING.md](LICENSING.md).
+
+### How the new generator obtains roots and stems
+
+Here, a “root” is the technical base of an inflectional paradigm, not necessarily a minimal etymological root. `tools/build_composita_grammar.py` works as follows:
+
+1. Read alphabetic surface forms from `forms.form` in `tests/data/translatemaster_hyphenation_working.sqlite`, lowercase and deduplicate them. **Human decisions and stored divisions are not inputs.** The original vocabulary comes from the author's prose and translations; later additions include Wikidata vocabulary and municipality names, plus AI-generated word lists manually checked by the maintainer. See [LICENSING.md](LICENSING.md) §3 for the provenance limits.
+2. Add separately attributed AI-authored forms from `tests/data/grammar_supplement.json`, such as missing inflections of `gram` or `plavebný`, without changing the original database. These are explicit lexical assumptions, not independent evidence that the synthesis algorithm is correct.
+3. Try noun, adjective, pronoun and verb paradigms from `tools/sapfo_grammar/`. Remove a candidate ending, synthesize the paradigm and require an exact round trip plus its citation form in the corpus. Automatic acceptance requires **at least three distinct supporting forms other than the lemma** owned by that analysis after competition; syncretic cells do not count repeatedly. Ownership is a heuristic, not semantic disambiguation of homographs.
+4. Derive first members with linking `-o-/-e-`, using oblique noun stems where appropriate (`vietor → vetr- → vetro-`). Store **exact licensed second-member forms by grammatical role**, including alternations, participles and separately recorded derivations. Universal inflectional endings are not appended to every stem.
+5. Declare bound members (`biblio-`, personal `-graf`, adjectival `-tváry`, toponymic `-plukovo`) and indeclinable first members (`všade-`) separately in the supplement. An authored bound head needs at least one original-corpus compound with a recognized first member and a valid form of the declared paradigm. This verifies occurrence of an **authored rule**, not statistical induction; it does not lower the three-form induction threshold or fabricate independent support cells.
+
+The local grammar was adapted from **Peter Bezemek's AI-assisted Python implementation in the sibling Sapfo project**; its paradigm tables cite Páleš (1994), pp. 41–47. **The generator does not open the Sapfo or SNK lexicon or merge the old inventory.** Authorship, source revisions and corpus declarations are documented in [LICENSING.md](LICENSING.md). PSP governs the linguistic result, not the input licences.
+
+### Candidate generation and verification
+
+Maintainers first save a full-API baseline before changing the engine/inventory. Each output path must be new:
+
+```console
+python tools/compare_composita.py --output scratch/baseline.json
+python tools/build_composita_grammar.py --output scratch/grammar-audit.json --runtime-output scratch/grammar-runtime.json
+python tools/compare_composita.py --inventory scratch/grammar-runtime.json --baseline scratch/baseline.json --output scratch/comparison.json --allow-engine-changes --check
+python tools/review_composita_changes.py --report scratch/comparison.json --reviews tests/data/grammar_release_review.json --allowlist scratch/approved.json --audit-output scratch/review-audit.json
+python tools/compare_composita.py --inventory scratch/grammar-runtime.json --baseline scratch/baseline.json --output scratch/comparison-checked.json --allow-engine-changes --allowlist scratch/approved.json --check
+```
+
+The first comparison intentionally exits unsuccessfully when differences exist, but saves its report. `--allow-engine-changes` permits comparing revisions; it **does not approve differences**. Review materialization accepts only exact transitions matching recorded PSP decisions; unapproved changes and stale approvals fail the final gate. All four `hyphenate`/`break_points` modes and `divisions` are compared, not just preferred division. AI decisions do not overwrite Human review.
+
+The audit retains analyses, support forms and authored declarations; runtime JSON retains the inventory and input metadata. SHA-256 identifies normalized corpus forms, the supplement, grammar modules and builder, not legal permission. The builder refuses to overwrite production and checks for source changes during generation. Promotion requires the full-API quality gate and an explicit maintainer review of documented source declarations and any remaining uncertainty. A custom `--corpus` does not automatically include the standard supplement; pass `--supplement` explicitly.
+
+Build-time grammar is absent from the wheel but included in the source archive. Working review databases are excluded from both archives and supplied separately; the checkout retains them unchanged. Regeneration requires the separate corpus; ordinary library use does not.
 
 ## Architecture
 
@@ -201,20 +231,20 @@ These are regression examples verified on 2026-09-12, not a certified PSP gold s
 
 ## Installation and review consoles
 
-The core is an **alpha** (`0.2.1`) for Python 3.10+ with no required third-party runtime packages:
+The core is an **alpha** (`0.3.0`) for Python 3.10+ with no required third-party runtime packages:
 
 ```console
 python -m pip install slabika
-slabika-review
+slabika-review --db /path/to/local/inventory.sqlite
 ```
 
 For an editable source checkout with the test and licence tools, use `python -m pip install -e ".[dev]"` instead.
 
-German/French pattern resources and explicit foreign readings are bundled. Broader English G2P requires a separately built/installed `slabika-pronunciation==0.1.0`; it is not on PyPI and is deliberately not declared as an installable extra of the core 0.2.1 release. See [pronunciation/README.md](pronunciation/README.md) for native build instructions and limitations. The optional model bundle has separate attribution/provenance concerns and is **not an unrestricted, MIT-only release**.
+German/French pattern resources and explicit foreign readings are bundled. Broader English G2P requires a separately built/installed `slabika-pronunciation==0.1.0`; it is not on PyPI and is deliberately not declared as an installable extra of the core 0.3.0 release. See [pronunciation/README.md](pronunciation/README.md) for native build instructions and limitations. The optional model bundle has separate attribution/provenance concerns and is **not an unrestricted, MIT-only release**.
 
 ### Slovak review
 
-`slabika-review` opens the bundled inventory read-only and keeps decisions separately in `review_decisions.sqlite` in the launch directory. `--db` and `--decisions` choose different files. The Slovak console computes the current engine's output, including eligible foreign routes.
+From 0.3.0, working inventories and review databases are excluded from both wheel and source archives; they remain separate local working data. `slabika-review --db /path/to/local/inventory.sqlite` opens a separately supplied inventory read-only and keeps decisions in `review_decisions.sqlite` in the launch directory; `--decisions` selects another decision store. A source checkout still finds its local corpus automatically. Full-corpus tests and grammar regeneration require that separate corpus. The Slovak console computes the current engine's output, including eligible foreign routes.
 
 On Windows, `run_review_local.bat` is for independent reviewers: it requires no package installation and stores decisions under `%LOCALAPPDATA%\slabika-review`. `run_review.bat` is the maintainer launcher and deliberately opens tracked project decisions.
 

@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Peter Bezemek
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 # Vendored from the sibling Sapfo project (sapfo/core/phonology.py) for build-time use
-# by tools/build_composita.py only. Not part of the distributed package.
+# by the compound builders. Included in the sdist, not the runtime wheel.
 """
 Fonológia - Phonology module for SAPFO.
 

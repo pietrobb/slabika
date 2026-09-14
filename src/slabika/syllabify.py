@@ -829,9 +829,11 @@ _INFERRED_FIRST_MEMBERS = frozenset(
     if source == 'noun stem'
 )
 _GENERATED_HEADS = dict(_GENERATED_COMPOSITA['heads'])
+_GENERATED_HEAD_FORMS = (_GENERATED_COMPOSITA['head_forms'] if _GENERATED_COMPOSITA.get('schema_version') == 2 else _GENERATED_COMPOSITA.get('head_forms'))
+_GENERATED_HEAD_PARADIGMS = (_GENERATED_COMPOSITA['head_paradigms']
+                             if _GENERATED_COMPOSITA.get('schema_version') == 3 else None)
 del _GENERATED_COMPOSITA
 
-# What a second member may carry behind it and still be a second member.
 _COMPOSITUM_INFLECTIONS = frozenset("""
 a e i o u y á é í ú ý ou ov om ovi ove ova ovo ovu ej ého ému ých ým ými ia iu
 ie mi ch och ami iam iach am ám te me la lo li ly ne ná né ný nú ní nej
@@ -841,29 +843,29 @@ nom nou ného nému ných ným nými vej vou vom osť osti ostí ostiam ostiach 
 
 def _heads_a_compositum(rest: str, inferred_first: bool = False) -> bool:
     for cut in range(len(rest), 2, -1):
-        kind = _GENERATED_HEADS.get(rest[:cut])
+        head = rest[:cut]
+        kind = _GENERATED_HEADS.get(head)
         if kind is None:
             continue
-        # Two inferences do not add up to evidence. A verb stem is not a word —
-        # sten is not Slovak, stenať is — and neither is a first member the
-        # noun-stem branch derived from a lemma. Either one alone still carries:
-        # samo·zvolený keeps its verb head because samo is a cited stem, and
-        # bylino·žravé keeps its derived first member because žrav- is an
-        # adjective root. Put the two guesses together and the seam is whatever
-        # the two tables happen to collide on — rado|stený out of rozradostený,
-        # doko|nali out of dokonali. The price is daktylo·skop, right for a
-        # reason this evidence does not contain: skop heads it as the stem of
-        # skopať, and the word is Greek.
+        # Preserve homographic paradigms without lending a noun's permissions to verbs.
+        if _GENERATED_HEAD_PARADIGMS is not None:
+            roles = _GENERATED_HEAD_PARADIGMS.get(head, {})
+            if any(
+                rest in forms and (role != 'verb' or not inferred_first)
+                for role, forms in roles.items() if role in {'lemma', 'root', 'verb'}
+            ):
+                return True
+            continue
         if kind == 'verb' and inferred_first:
             continue
-        tail = rest[cut:]
-        # A bare root is not a word, so it is an ending in disguise: the -val
-        # of kormidloval is the past tense, not the val of a compound.
-        if not tail:
-            if kind in ('lemma', 'verb'):
+        if _GENERATED_HEAD_FORMS is not None:
+            if rest in _GENERATED_HEAD_FORMS.get(head, ()):
                 return True
-        elif tail in _COMPOSITUM_INFLECTIONS:
+            continue
+        tail = rest[cut:]
+        if (not tail and kind in ('lemma', 'verb')) or tail in _COMPOSITUM_INFLECTIONS:
             return True
+        # With no exact paradigms, only the legacy inventory's endings apply.
     return False
 
 
@@ -879,12 +881,12 @@ def _generated_compositum(word: str) -> tuple[str, str] | None:
     wl = word.lower()
     for cut in range(3, len(wl) - 2):
         first = wl[:cut]
-        if first not in _GENERATED_FIRST_MEMBERS:
+        if first not in _GENERATED_FIRST_MEMBERS or (_GENERATED_HEAD_PARADIGMS is not None and first in _PREFIXES):
             continue
-        # -ova- is a verb-forming suffix, and an inferred first member ends in
-        # the same -o- a linking vowel does, so rezervo|valo and talento|vanosť
-        # are the paradigm of rezervovať and talentovaný read as compounds. The
-        # cited and native stems are exempt: samo·var is one.
+        # A generated lookalike must not displace a prefix with an attested base.
+        pfx, base = _strip_prefix(word) if _GENERATED_HEAD_PARADIGMS is not None else (None, None)
+        if pfx and (pfx.lower() in _PREFIXES or pfx.lower() in {'o', 'u'}) and len(pfx) < cut and ((first == pfx.lower() + 'o' and base[0].lower() in _VOWEL_LETTERS) or _heads_a_compositum(base.lower()) or _GENERATED_HEAD_PARADIGMS.get(base.lower()) or any(wl in _GENERATED_HEAD_PARADIGMS.get(wl[:n], {}).get('verb', ()) for n in range(3, len(wl) + 1))):
+            continue
         if (
             first in _INFERRED_FIRST_MEMBERS
             and first.endswith('o')
@@ -905,14 +907,15 @@ def _generated_compositum(word: str) -> tuple[str, str] | None:
     for cut in range(3, len(wl) - 2):
         first, rest = wl[:cut], wl[cut:]
         if (
-            first not in _GENERATED_FIRST_MEMBERS
+            first not in _GENERATED_FIRST_MEMBERS or (_GENERATED_HEAD_PARADIGMS is not None and first in _PREFIXES)
             or first in _INFERRED_FIRST_MEMBERS
             or rest[0] in _VOWEL_LETTERS
         ):
             continue
         if any(
-            rest.endswith(ending)
-            and _GENERATED_HEADS.get(rest[:-len(ending)]) == 'verb'
+            rest.endswith(ending) and (rest in _GENERATED_HEAD_PARADIGMS.get(rest[:-len(ending)], {}).get('verb', ()) if _GENERATED_HEAD_PARADIGMS is not None else
+                _GENERATED_HEADS.get(rest[:-len(ending)]) == 'verb' and (_GENERATED_HEAD_FORMS is None or
+                    rest in _GENERATED_HEAD_FORMS.get(rest[:-len(ending)], ())))
             for ending in (
                 'ený', 'ená', 'ené', 'enú', 'ení', 'eného', 'enému',
                 'enej', 'enom', 'enou', 'ených', 'eným', 'enými',
@@ -1007,7 +1010,7 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         # The root was named here, which is the same kind of citation
         # guarded_compounds gives: vysoko·ctený needs no further onset proof.
         cited_root = True
-    if comp == 'mäso' and not reml.startswith('žrav'):
+    if (comp == 'mäso' and not reml.startswith('žrav')) or (_GENERATED_HEAD_PARADIGMS is not None and comp == 'jedno' and reml.startswith('tk')):
         return False
     if comp == 'gramo' and not reml.startswith('plat'):
         return False

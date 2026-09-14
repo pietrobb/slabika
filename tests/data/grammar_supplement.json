@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "source": "Project-local AI-authored additions, 2026-09-14, requested by the operator. Not copied from a dictionary or external lexicon; not human-reviewed. These are explicit lexical assumptions, not independent attestations of the synthesis algorithm.",
+  "license": "CC0-1.0 OR MIT",
+  "surface_forms": [
+    "graf", "grafu", "grafe", "grafom", "grafy", "grafov", "grafoch", "grafmi",
+    "gram", "gramu", "grame", "gramom", "gramy", "gramov", "gramoch", "gramami",
+    "triedny", "triedna", "triedne", "triedneho", "triednemu", "triednou",
+    "plavebný", "plavebná", "plavebné", "plavebného", "plavebnému", "plavebnou",
+    "kvalitný", "kvalitná", "kvalitné", "kvalitného", "kvalitnému", "kvalitnou",
+    "frekvenčný", "frekvenčná", "frekvenčné", "frekvenčného", "frekvenčnému", "frekvenčnou",
+    "tropický", "tropická", "tropické", "tropického", "tropickému", "tropickou",
+    "prítomnosť", "prítomnosti", "prítomnosťou", "prítomností", "prítomnostiam", "prítomnostiach",
+    "kráska", "krásky", "kráske", "krásku", "kráskou", "kráskam", "kráskach",
+    "plachý", "plachá", "plaché", "plachého", "plachému", "plachou",
+    "slovce", "slovca", "slovcu", "slovcom", "slovci",
+    "všade", "mimo", "okolo", "niekoľko",
+    "stranný", "stranná", "stranné", "stranného", "strannému", "strannou",
+    "štajerský", "štajerská", "štajerské", "štajerského", "štajerskému", "štajerskou",
+    "chcený", "chcená", "chcené", "chceného", "chcenému", "chcenou",
+    "spokojnosť", "spokojnosti", "spokojnosťou", "spokojností", "spokojnostiam", "spokojnostiach"
+  ],
+  "first_members": [
+    {"form": "biblio", "kind": "bound", "examples": ["bibliograf", "bibliografia"]},
+    {"form": "demo", "kind": "bound", "examples": ["demograf", "demografia"]},
+    {"form": "karto", "kind": "bound", "examples": ["kartograf", "kartografia"]},
+    {"form": "krypto", "kind": "bound", "examples": ["kryptograf"]},
+    {"form": "lexiko", "kind": "bound", "examples": ["lexikograf", "lexikografia"]},
+    {"form": "logo", "kind": "bound", "examples": ["logograf"]},
+    {"form": "oceáno", "kind": "bound", "examples": ["oceánograf"]},
+    {"form": "scéno", "kind": "bound", "examples": ["scénograf", "scénografia"]},
+    {"form": "kilo", "kind": "bound", "examples": ["kilogramu"]},
+    {"form": "sedmo", "kind": "bound", "examples": ["sedmokráska"]},
+    {"form": "všade", "kind": "indeclinable", "examples": ["všadeprítomný"]},
+    {"form": "mimo", "kind": "indeclinable", "examples": ["mimotropického"]},
+    {"form": "vše", "kind": "bound", "examples": ["všeprítomnosti"]}
+  ],
+  "bound_heads": [
+    {"root": "graf", "pattern": "chlap", "examples": ["bibliograf", "demograf", "kartograf"], "reason": "Animate personal designations in -graf; distinct from the independent inanimate noun graf."},
+    {"root": "slov", "pattern": "vysvedčenie", "examples": ["názvoslovie", "múdrosloviu"], "reason": "Bound collective -slovie, not an inflection of the standalone slovo."},
+    {"root": "statnosť", "pattern": "kosť", "examples": ["samostatnosť", "samostatnosti"], "reason": "Nominal derivative of bound -statný in samostatný; not evidence for an independent noun of this meaning."},
+    {"root": "chvost", "pattern": "chlap", "examples": ["žltochvost", "žltochvostovi"], "reason": "Animate bird names; the independent chvost has an inanimate paradigm."},
+    {"root": "plach", "pattern": "černoch", "examples": ["vetroplacha", "vetroplasi"], "reason": "Bound animate head in vetroplach, with ch/s alternation in the plural; not the adjective plachý."},
+    {"root": "tvár", "pos": "adj", "pattern": "krásny", "examples": ["tučnotvára"], "reason": "Explicit authored bound adjective -tváry, distinct from the noun tvár and adjective tvárny; rhythmic shortening applies. One corpus example verifies occurrence, not independent induction support."},
+    {"root": "plukov", "pattern": "mesto", "examples": ["svätoplukovo"], "reason": "Explicit authored bound toponymic head -plukovo in Sväto|plukovo, retaining the personal-name compound seam through the place-name derivation. Not a standalone noun or an inflection of pluk."}
+  ]
+}

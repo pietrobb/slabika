@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "reviewer": "AI, 2026-09-14; not Human review and not an official PSP certification",
+  "authority": "PSP V, applied through docs/pravidla-delenia-slov.md sections 3.2, 3.4, 4.2 and 6.2",
+  "scope": "Exact breakpoint transitions only. Unlisted forms and other transitions remain unapproved. This is linguistic review, not input provenance clearance.",
+  "groups": [{"forms": ["jednotka", "jednotkami", "jednotke", "jednotkou", "jednotku", "jednotky", "jednotkách", "jednotkám"], "remove": [5], "add": [6], "reason": "The noun has the stem jednot- and consonant-initial suffix -ka; it is not the compound jedno|tka. PSP V morphemic division and the two-consonant default agree on jednot|ka."}, {"forms": ["vetroplasi"], "remove": [6], "add": [5], "reason": "Preserve vetro|plach in its animate plural with ch/s alternation: vetro|plasi."},
+    {"forms": ["oslovinu", "oslovinou"], "remove": [], "contextual_remove": [1], "add": [2], "reason": "The noun oslovina derives from osol (osl-), not o- plus a verb. With no prefix seam between o and s, PSP V two-consonant division gives os|lo|vi|nu and os|lo|vi|nou in all modes; the spurious contextual o|slov- is removed."},
+    {
+      "forms": ["etnograf", "etnografa", "etnografi", "etnografmi", "etnografoch", "etnografom", "etnografov", "etnografovi"],
+      "remove": [5], "add": [4],
+      "reason": "PSP compound seam etno|graf, including animate inflections; do not move g into the first constituent."
+    },
+    {
+      "forms": ["Judeogrékov"], "remove": [6], "add": [5],
+      "reason": "PSP compound seam Judeo|grék; linking o remains with the first constituent."
+    },
+    {
+      "forms": ["pologréckych"], "remove": [5], "add": [4],
+      "reason": "PSP compound seam polo|grécky, preserving its adjectival inflection."
+    },
+    {
+      "forms": ["Židogrékom", "židogrék", "židogrékmi", "židogrékov"], "remove": [5], "add": [4],
+      "reason": "PSP compound seam žido|grék; the grammatical reading is independent of capitalization."
+    },
+    {
+      "forms": ["Vetrotvorca"], "remove": [6], "add": [5],
+      "reason": "PSP compound seam vetro|tvorca from the oblique stem vetr- and linking o."
+    },
+    {
+      "forms": ["niekoľkostoročnému"], "remove": [9], "add": [8],
+      "reason": "PSP compound seam niekoľko|storočný; st belongs to the second constituent."
+    },
+    {
+      "forms": ["názvoslovím"], "remove": [6], "add": [5],
+      "reason": "PSP compound seam názvo|slovie, retained in the instrumental názvoslovím."
+    },
+    {
+      "forms": ["polopúštna"], "remove": [7], "add": [8],
+      "reason": "Consonant-initial adjectival suffix: púšt|na, consistent with púšt|ny, not a mechanical shift to púš|tna."
+    },
+    {
+      "forms": ["Hornoegypťan", "Hornoegypťania", "Hornoegypťanmi", "Hornoegypťanoch", "Hornoegypťanov"],
+      "remove": [6], "add": [], "preserve_contextual": true,
+      "reason": "Keep the second constituent's initial e with egypťan in preferred output; Hornoe|gypťan remains available in contextual narrow-measure mode."
+    },
+    {
+      "forms": ["Indoázii"], "remove": [5], "add": [], "preserve_contextual": true,
+      "reason": "Prefer Indo|ázii without moving the second constituent's initial á to the first; retain the displaced-vowel option contextually."
+    },
+    {
+      "forms": ["okoloidúci"], "remove": [6], "add": [], "preserve_contextual": true,
+      "reason": "Prefer okolo|idúci; retain okoloi|dúci contextually, without changing the word-initial o rule."
+    }
+  ]
+}

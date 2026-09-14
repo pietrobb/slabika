@@ -98,11 +98,41 @@ Vokalické jadrá, rozdelenie spoluhlások a okrajové obmedzenia sú často mec
 
 Neexistuje jedna databáza hotových hraníc. `get_morpheme_parts()` skladá analýzu z troch vrstiev: ručne udržiavaných a regresne overených pravidiel pre predpony, prípony a nejednoznačné rodiny; strážených pravidiel pre číslovky, prefixoidy a osobitné zloženiny; a generovaného inventára produktívnych zloženín. `syllabify` aj `typo` používajú tú istú analýzu, ale vo vnútri rozpoznaných častí uplatňujú vlastné slabičné, resp. typografické pravidlá. Morfematický švík má v preferovanom typografickom výstupe prednosť pred mechanickým rozdelením spoluhláskovej skupiny.
 
-Produktívna zloženinová vrstva vzniká príkazom `python tools/build_composita.py` z dvoch nezávislých svedkov. Prvým je lokálny lexikón Sapfo v `../Sapfo/sapfo/data/sapfo_lexicon.db`, kde sa riadky označené `source='snk'` zámerne vynechávajú, takže sa použijú iba vlastné ručné a nezávisle klasifikované heslá. Druhým je vlastný korpus projektu `tests/data/translatemaster_hyphenation_working.sqlite`, čítaný iba ako povrchové tvary: reťazec je prídavný koreň, menná lema alebo slovesný kmeň vtedy, keď korpus doloží koncovky, ktoré tvorí len príslušná paradigma — práve to bráni čítať `doba` ako prídavný koreň `dob-` a genitív množného čísla `škár` ako lemu. Generátor odvodzuje prvé členy z príslovkových a prídavných kmeňov a z menných kmeňov so spájacím `-o-/-e-`; osobitne eviduje možné hlavy druhého člena z prídavnej, príslovkovej, mennej a slovesnej evidencie. Aktuálny `src/slabika/data/composita.json` obsahuje **10 705 prvých členov** a **17 539 hláv druhého člena**, vrátane manifestov 10 123 korpusových prvých členov a 15 686 korpusových hláv. JSON je verzovaný, pribalený do balíka a runtime číta iba ten. Čistý checkout ho používa bez Sapfo, hoci nové zostavenie stále potrebuje lokálny súrodenecký lexikón aj korpusovú databázu. Štatisticky indukovaný `morphs.json` zostáva auditnou pomôckou a produkčné hranice neurčuje.
+Od verzie **0.3.0** vzniká produktívna zloženinová vrstva príkazom `python tools/build_composita_grammar.py` z povrchových tvarov vlastného korpusu, lokálnej ohýbacej gramatiky a osobitne evidovaného doplnku. Nahrádza historický inventár z `tools/build_composita.py` a **nečíta lexikón Sapfo/SNK ani nepreberá starý inventár**. Pribalený `src/slabika/data/composita.json` obsahuje **11 470 prvých členov** a **20 207 hláv druhého člena**, s paradigmami podľa gramatickej roly a odtlačkami vstupov. Runtime číta iba tento verzovaný JSON: bežné používanie nepotrebuje Sapfo ani korpusovú databázu. Regenerovanie vyžaduje samostatne dodaný projektový korpus a gramatiku na zostavenie obsiahnutú v repozitári. Štatisticky indukovaný `morphs.json` zostáva auditnou pomôckou a produkčné hranice neurčuje.
 
 Inventár neznamená „rozdeľ po každom známom reťazci“. Engine vyžaduje zároveň dôveryhodný prvý člen, doloženú hlavu druhého člena a iba prípustný ohýbací chvost. Nekombinuje dve slabé domnienky a blokuje viaceré kolízie s predponami a koncovkami — medzi nimi slovesotvorné `-ova-`, ktoré sa končí tým istým `-o-` ako spájacia samohláska, takže odvodený prvý člen nesmie rozdeliť `rezervovalo` ani `talentovanosť`. Preto vie odvodiť aj predtým nevidené `žlto|modrý`, `svetlo|zelený` či `modro|zelenkastý`, ale nevytvorí napríklad falošné `jahodo|vých`.
 
-Bežný používateľ inventár **neregeneruje**; vydaným artefaktom je pribalený JSON a od nikoho, kto balík inštaluje, sa prebudovanie nečaká. Správca ho prebuduje po zmene zdrojového lexikónu, korpusu alebo `tools/build_composita.py` — pridanie slov do korpusu ho už mení, lebo korpus je jedným z dvoch zdrojov. Platí to však len jedným smerom: **chýbajúci** šev je hlad po dátach a nové slová ho doplnia, kým **nesprávny** šev je nadgenerovanie, ktoré viac slov môže iba zhoršiť. Nadgenerovanie, ktoré evidencia nerozhodne, sa odmieta menovite a s odôvodnením v `_CORPUS_FIRST_MEMBER_COLLISIONS`. Prebudovanie preto nikdy nie je lokálne: jeden nový kmeň platí globálne, takže sa meria celý korpus a existujúce rozhodnutia, nie to jedno slovo, ktoré zmenu vyvolalo. Generovaný JSON sa nemá upravovať ručne. Produktívny domáci člen možno doplniť do zdrojového lexikónu alebo do `CURATED_NATIVE` a následne prebudovať JSON. Rizikový krátky prefixoid či číslovka patrí do `CURATED_NUMERALS` kvôli proveniencii artefaktu a zároveň do stráženej runtime vrstvy `_SK_COMPOSITA`/`_licenses_compositum`. Predpony, prípony a osobitné rodiny sa dopĺňajú priamo v `syllabify.py`, bez regenerovania JSON. Každá zmena musí dostať kladné aj kontrastné regresné testy a pred prijatím sa meria jej dopad na celý korpus a existujúce rozhodnutia.
+Bežný používateľ inventár **neregeneruje**; používa pribalený JSON. Inventár 0.3.0 bol porovnaný so zmrazeným predchádzajúcim enginom na **206 272 korpusových riadkoch**: všetkých **36 rozdielov** zodpovedá evidovaným PSP rozhodnutiam, bez neschválených zmien. Kandidát prešiel **1 143 testami s jedným očakávaným zlyhaním**. Ide o regresné kontroly a posúdenia, nie o tvrdenie univerzálnej jazykovej správnosti či úplnú právnu certifikáciu. Deklarácie pôvodu a zostávajúce obmedzenia uvádza [LICENSING.md](LICENSING.md).
+
+### Ako nový generátor získava korene a kmene
+
+„Koreň“ tu označuje technický základ paradigmy, nie nevyhnutne najmenší etymologický koreň. Nový `tools/build_composita_grammar.py` postupuje takto:
+
+1. Z tabuľky `forms`, stĺpca `form` v `tests/data/translatemaster_hyphenation_working.sqlite` načíta iba alfabetické povrchové tvary, prevedie ich na malé písmená a odstráni duplicity. **Nečíta ľudské rozhodnutia ani uložené delenia.** Základ korpusu pochádza z autorových textov a prekladov; neskoršie prírastky zahŕňajú slovnú zásobu a názvy obcí z Wikidata aj AI-generované zoznamy slov ručne skontrolované správcom. Presné obmedzenia proveniencie uvádza [LICENSING.md](LICENSING.md) §3.
+2. Pridá samostatne evidované AI-autorské tvary z `tests/data/grammar_supplement.json`, napríklad chýbajúce pády `gram` alebo tvary `plavebný`. Pôvodnú databázu nemení. Doplnky sú výslovné jazykové predpoklady, nie nezávislé doklady správnosti algoritmu.
+3. Lokálne pravidlá v `tools/sapfo_grammar/` skúšajú menné, prídavné, zámenné a slovesné paradigmy. Z kandidáta odoberú možnú koncovku, znovu vytvoria paradigmu a overia spätnú zhodu s tvarmi korpusu vrátane základného tvaru. Automatické prijatie vyžaduje **aspoň tri rôzne podporné tvary okrem lemy**, ktoré po súťaži analýz patria danej analýze; synkretické pády sa nepočítajú viackrát. Výber je heuristika, nie dôkaz významu homografu.
+4. Z prijatých kmeňov odvodia prvé členy so spájacím `-o-/-e-`; pri menách používajú aj nepriamy kmeň (`vietor → vetr- → vetro-`). Pre druhé členy ukladajú **presné povolené tvary podľa gramatickej roly**, vrátane alternácií, príčastí a osobitne evidovaných odvodení. Nepripájajú ku každému kmeňu všetky možné koncovky.
+5. Viazané členy (`biblio-`, osobné `-graf`, prídavné `-tváry`, miestne `-plukovo`) a nesklonné prvé členy (`všade-`) majú osobitné deklarácie v doplnku. Viazaná hlava potrebuje aspoň jeden pôvodný korpusový príklad s rozpoznaným prvým členom a platným tvarom deklarovanej paradigmy. Je to kontrola výskytu **autorského pravidla**, nie oslabenie trojtvarového prahu automatickej indukcie; do auditu sa nezapisujú vymyslené nezávislé doklady.
+
+Gramatika bola adaptovaná z **Pythonovej implementácie Petra Bezemka vytvorenej s pomocou AI v súrodeneckom projekte Sapfo**; tabuľky vzorov odkazujú na Páleša (1994), s. 41–47. **Generátor neotvára lexikón Sapfo ani SNK a nepreberá starý inventár.** Autorstvo, zdrojové revízie a deklarácie pôvodu korpusu uvádza [LICENSING.md](LICENSING.md). Pravidlá PSP rozhodujú o delení, nie o licencii vstupných dát.
+
+### Overenie a zostavenie kandidáta
+
+Správca najprv uloží plný API snapshot základne a až potom zmení engine/inventár. Každý výstupný súbor musí byť nový:
+
+```console
+python tools/compare_composita.py --output scratch/baseline.json
+python tools/build_composita_grammar.py --output scratch/grammar-audit.json --runtime-output scratch/grammar-runtime.json
+python tools/compare_composita.py --inventory scratch/grammar-runtime.json --baseline scratch/baseline.json --output scratch/comparison.json --allow-engine-changes --check
+python tools/review_composita_changes.py --report scratch/comparison.json --reviews tests/data/grammar_release_review.json --allowlist scratch/approved.json --audit-output scratch/review-audit.json
+python tools/compare_composita.py --inventory scratch/grammar-runtime.json --baseline scratch/baseline.json --output scratch/comparison-checked.json --allow-engine-changes --allowlist scratch/approved.json --check
+```
+
+Prvé porovnanie pri rozdieloch zámerne skončí neúspešne, ale uloží report. `--allow-engine-changes` povoľuje porovnať rôzne revízie, **neschvaľuje rozdiely**. Posudzovací nástroj schváli len presné prechody podľa evidovaných PSP rozhodnutí; neschválené zmeny aj zastarané schválenia poslednú kontrolu zablokujú. Kontrolujú sa všetky štyri režimy `hyphenate`/`break_points` a `divisions`, nie iba predvolené delenie. Rozhodnutia AI neprepisujú Human review.
+
+Audit uchováva analýzy, podporné tvary a autorské deklarácie; runtime JSON iba inventár a metadáta vstupov. SHA-256 identifikuje normalizovaný korpus, doplnok, gramatické súbory aj generátor, nie právne oprávnenie. Builder odmieta prepísať produkčný inventár a kontroluje zmenu zdrojov počas behu. Nasadenie vyžaduje plnú API kontrolu kvality a výslovné posúdenie zdrojových deklarácií a zostávajúcich neistôt správcom. Pri vlastnom `--corpus` sa štandardný doplnok nepridáva automaticky; treba explicitné `--supplement`.
+
+Gramatika na zostavenie nie je vo wheeli, ale je v zdrojovom archíve. Pracovné review databázy sú vylúčené z oboch archívov a dodávajú sa samostatne; v checkoute zostávajú nedotknuté. Regenerovanie vyžaduje samostatný korpus, bežné používanie knižnice nie.
 
 ## Architektúra
 
@@ -195,18 +225,18 @@ Sú to regresné príklady overené 2026-09-12, nie certifikovaný PSP gold súb
 
 ## Inštalácia a revízne konzoly
 
-Jadro je **alfa verzia 0.2.1** pre Python 3.10+ bez povinných runtime závislostí:
+Jadro je **alfa verzia 0.3.0** pre Python 3.10+ bez povinných runtime závislostí:
 
 ```console
 python -m pip install slabika
-slabika-review
+slabika-review --db /cesta/k/lokalnemu/inventory.sqlite
 ```
 
 Pre editovateľný zdrojový checkout s testovacími a licenčnými nástrojmi použite namiesto toho `python -m pip install -e ".[dev]"`.
 
-DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebuje samostatne zostavený a nainštalovaný `slabika-pronunciation==0.1.0`; na PyPI nie je a vydanie jadra 0.2.1 ho zámerne nedeklaruje ako inštalovateľný extra balík. Zostavenie a obmedzenia opisuje [pronunciation/README.md](pronunciation/README.md). Modely majú samostatné licencie a otvorené provenienčné otázky; nejde o neobmedzené vydanie iba pod MIT.
+DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebuje samostatne zostavený a nainštalovaný `slabika-pronunciation==0.1.0`; na PyPI nie je a vydanie jadra 0.3.0 ho zámerne nedeklaruje ako inštalovateľný extra balík. Zostavenie a obmedzenia opisuje [pronunciation/README.md](pronunciation/README.md). Modely majú samostatné licencie a otvorené provenienčné otázky; nejde o neobmedzené vydanie iba pod MIT.
 
-Slovenské review číta inventár a počíta **aktuálny výstup enginu**, vrátane prípustných cudzích ciest. Rozhodnutia ukladá oddelene do `review_decisions.sqlite` v spúšťacom priečinku; `--db` a `--decisions` vyberajú iné súbory. `run_review_local.bat` je pre externého recenzenta, bez inštalácie a s rozhodnutiami v `%LOCALAPPDATA%\slabika-review`. Správcovský `run_review.bat` zámerne otvára verzované rozhodnutia projektu.
+Od verzie 0.3.0 sú pracovné inventáre a review databázy vylúčené z wheelu aj zdrojového archívu; zostávajú samostatnými lokálnymi pracovnými dátami. Slovenské review otvorí samostatne dodaný inventár cez `--db` a počíta **aktuálny výstup enginu**, vrátane prípustných cudzích ciest. Rozhodnutia ukladá oddelene do `review_decisions.sqlite` v spúšťacom priečinku; `--decisions` vyberá iný súbor. Zdrojový checkout naďalej automaticky nájde svoj lokálny korpus; ten je potrebný aj na celokorpusové testy a regenerovanie gramatického inventára. `run_review_local.bat` je pre externého recenzenta, bez inštalácie a s rozhodnutiami v `%LOCALAPPDATA%\slabika-review`. Správcovský `run_review.bat` zámerne otvára verzované rozhodnutia projektu.
 
 Klasifikácia oddeľuje automatické profily, ľudské príznaky a import/AI. Neurčený jazyk nie je automaticky slovenčina. Textový upload vytvára pracovný zoznam; **Náhodných 200** vyberá abecedný blok nerevidovaných tvarov. Typografické delenie a hovorené slabiky sa posudzujú samostatne.
 

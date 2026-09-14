@@ -3810,9 +3810,9 @@ def test_compound_participle_fallback_preserves_existing_analysis():
     assert hyphenate("vyšetrovali") == "vy·šet·ro·va·li"
 
 
-def test_compound_participle_requires_verb_and_noninferred_first(monkeypatch):
+def test_legacy_compound_participle_requires_verb_and_noninferred_first(monkeypatch):
     import slabika.syllabify as engine
-
+    monkeypatch.setattr(engine, "_GENERATED_HEAD_PARADIGMS", None)
     assert engine._generated_compositum("novoprebudený") == ("novo", "prebudený")
     monkeypatch.setitem(engine._GENERATED_HEADS, "prebud", "root")
     assert engine._generated_compositum("novoprebudený") is None

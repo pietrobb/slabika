@@ -50,12 +50,12 @@ def flat(text):
     return re.sub(r"\s+", " ", text)
 
 
-def test_composita_excludes_snk_rows_and_documents_local_residue():
-    assert COMPOSITA["note"] == (
-        "generated from non-SNK Sapfo entries and the local project corpus"
-    )
-    assert set(COMPOSITA["corpus_first_members"]) <= set(COMPOSITA["first_members"])
-    assert set(COMPOSITA["corpus_heads"]) <= set(COMPOSITA["heads"])
+def test_composita_grammar_provenance_and_historical_snk_filter():
+    assert COMPOSITA["schema_version"] == 3
+    assert COMPOSITA["input"]["min_support"] == 3
+    assert len(COMPOSITA["input"]["surface_forms_sha256"]) == 64
+    assert "corpus_first_members" not in COMPOSITA
+    assert set(COMPOSITA["head_paradigms"]) == set(COMPOSITA["heads"])
 
     queries = [
         node.value
@@ -655,9 +655,9 @@ def test_the_database_waiver_claims_only_rights_the_applier_holds():
     CC0 disposes of the applier's own rights; Creative Commons says to apply it
     only to those, or where one has authority to act for their owner. Listing
     'any right in the selection, arrangement ...' without that bound reads as if
-    the dedication cleared a third party's database right too. Nothing here is
-    taken from a third-party database, so the bound costs nothing and the
-    unbounded sentence would be the only overreach left in §2.
+    the dedication cleared a third party's database right too. The acquisition
+    history must be established independently; a source flag or successful test
+    cannot substitute for evidence of the authority to apply those terms.
     """
     section = flat(LICENSING.split("## 2.")[1].split("## 3.")[0])
     lead = section[: section.index("* **(a)**")]
@@ -665,7 +665,7 @@ def test_the_database_waiver_claims_only_rights_the_applier_holds():
         "§2 presents the CC0 dedication as clearing database rights outright; "
         "it can only clear the rights of whoever applied it."
     )
-    assert "no dataset in this repository is taken over from a third-party database" in section
+    assert "does not clear third-party rights or establish the provenance of an input" in section
 
 
 def test_the_root_licence_map_does_not_imply_mit_forfeits_the_waiver():

@@ -2292,7 +2292,7 @@ def main() -> int:
         "--db",
         type=Path,
         default=None,
-        help="inventory sqlite (default: inventory bundled with slabika)",
+        help="local inventory sqlite (default: project corpus in a source checkout; installed package requires --db)",
     )
     parser.add_argument(
         "--decisions",
@@ -2314,7 +2314,7 @@ def main() -> int:
     arguments.db = arguments.db or (arguments.foreign_dir / f"{arguments.language}.sqlite" if arguments.language else DEFAULT_INVENTORY)
     arguments.port = arguments.port if arguments.port is not None else {"de": 8766, "fr": 8767, "en": 8768}.get(arguments.language, 8765)
     if not arguments.db.exists():
-        parser.error(f"inventory not found: {arguments.db}")
+        parser.error(f"inventory not found: {arguments.db}; supply a local inventory with --db (working databases are not bundled)")
     decisions = arguments.decisions or (arguments.db.with_name(f"{arguments.db.stem}_decisions.sqlite") if arguments.language else Path.cwd() / "review_decisions.sqlite")
     blind = [] if arguments.language else arguments.blind or DEFAULT_BLIND
 

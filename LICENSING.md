@@ -35,12 +35,12 @@ archive, not about any single file: no file is under both a code licence and a
 data licence at the same time. Each `OR` inside it is a choice you make.
 
 The bundled DE/FR upstream patterns in `src/slabika/patterns/foreign/` are MIT-only; their original copyright and permission notices are retained verbatim, with per-file SPDX sidecars.
-For project-owned files, location determines the layer. Tables of linguistic facts are kept in
-the data layer even when they are consumed only by the code: the phoneme
-inventory is `src/slabika/data/phonology.json`, read at import by
-`slabika.phonology`, rather than a set of literals inside that module. A file
-that mixed the two would have to carry a licence that is neither, which is
-exactly the kind of exception a compliance scanner has to escalate to a human.
+For project-owned files, per-file declarations and `REUSE.toml` determine the layer.
+Runtime linguistic inventories, including `src/slabika/data/phonology.json`,
+are data under `CC0-1.0 OR MIT`. The build-time Python grammar modules under
+`tools/sapfo_grammar/` retain `Apache-2.0 OR MIT` for their implementation,
+including embedded paradigm constants. This implementation licence does not
+claim exclusive rights in grammatical facts or change the runtime data licence.
 
 One consequence is deliberate: **every layer of this project is offered under
 MIT**, so an organisation whose compliance policy rejects `CC0-1.0` outright —
@@ -131,10 +131,10 @@ rights are held by the rightsholder who applied it:
 * **(c)** any right to restrict extraction or re-utilisation of the whole or of
   any part of those datasets.
 
-CC0-1.0 can only dispose of rights the person applying it holds, and it is
-applied here only to material in which the rightsholder holds them: no dataset
-in this repository is taken over from a third-party database (see section 3).
-The limitation is therefore formal rather than practical.
+CC0-1.0 can only dispose of rights the person applying it holds. It does not
+clear third-party rights or establish the provenance of an input. The source
+history described in section 3 must be checked separately before claiming a
+replacement artefact has cleared provenance; a licence label is not that check.
 
 **This section adds no conditions to CC0-1.0 and does not modify it.** It is a
 description of what CC0-1.0 does, written out because the database right is the
@@ -191,8 +191,8 @@ translated by the copyright holder, and from literary sources in the public
 domain. That work was carried out independently: it was not commissioned, not
 produced in the course of employment, and is not subject to any publishing
 contract, exclusive licence or other agreement that would restrict the use made
-of it here. It is used as a check on coverage, not as data, and nothing beyond
-isolated lexical items is carried over from it.
+of it here. Isolated lexical items are used for coverage checks and, in the
+grammar builder released in 0.3.0, as surface-form evidence for morphological induction.
 
 Where that prose is a translation, only isolated Slovak word forms survive
 deduplication and sorting. No sentence, sequence, structure or other expressive
@@ -225,16 +225,32 @@ review breakpoints. The production engine maps these units to Slovak PSP rules,
 including Slovak inflectional junctions. Like the other linguistic data, it is
 offered under `CC0-1.0 OR MIT`; this adds no runtime dependency.
 
-No dataset in this repository is a copy, extract or re-arrangement of a
-third-party lexical database, dictionary, or word list.
+The working corpus also contains later additions labelled as PSP/OGS examples,
+Wikidata vocabulary, municipality names, generated paradigms and review imports.
+The annotation source labels are not a complete acquisition or permissions ledger.
+For the original translation vocabulary, the source basis is the maintainer's recorded declarations (2026-08-22, reiterated 2026-09-09), reflected in this document since the initial slabika commit `06b54a2`. These are affirmative provenance declarations, not an independent legal certification. They need not be rediscovered or replaced by a title investigation for each word.
 
-Individual word forms and their syllable boundaries are facts about the Slovak
-language rather than creative expression; Slovak law expressly excludes ideas,
-methods, principles and information from the subject matter of copyright
-(Act No. 185/2015 Coll., §5(a)). Rather than rely on that analysis, the
-datasets are released under the terms in section 2 above — including the
-CC0-1.0 option, which also disposes of the database right — so that the
-question does not have to be answered by anyone downstream.
+| input class | recorded source/use | remaining distinction |
+| --- | --- | --- |
+| Original Slovak prose and translations | Maintainer's independently assembled vocabulary; declarations above | Later annotation changes do not identify a new acquisition source |
+| Generated numerals and family paradigms | Project-generated forms, identified by `generated_numeral` and named paradigm batches | Generated support is not an independent attestation |
+| Wikidata-labelled professions, animals and plants | Operator-supplied lists, corrected and inflected locally on 2026-09-11 | Wikidata structured data is CC0; the label alone does not establish the full supplied-list acquisition chain |
+| Municipality names | Operator-supplied `unikatne_posledne_slova_obci.txt`, 2,299 input forms; source SHA-256 `26ca5da401b3913a40875c3000b8aedbe1958d66dd253126cecf9908c7979214`; maintainer confirmed Wikidata as the source on 2026-09-14 | Wikidata structured data is CC0; exact export/query was not supplied, and is not claimed to have been independently verified |
+| PSP/OGS example vocabulary | Separately labelled examples used to test implementation of the rules | No permission to redistribute book prose or table presentation is asserted |
+| Review-console imports | `test.txt`, `zlozene_slova.txt`, `zakerne_slova.txt`; maintainer confirmed on 2026-09-14 that these word lists were AI-generated and manually checked by him; only their forms enter induction | Generated vocabulary, not independent attestations or normative authority; no external source list is asserted |
+| Grammar supplement | Operator-requested AI-authored forms and bound-member declarations in `tests/data/grammar_supplement.json` | Authored assumptions, not Human review or independent corpus witnesses |
+
+These classes feed the released compound inventory when present in `forms.form`; it would be inaccurate to describe that corpus as testing-only. The builder records its exact normalized input hash separately from this source-class account. Annotation counts are not acquisition counts, and source hashes establish identity, not permission. Missing documentation is not a finding of infringement.
+
+**English membership is separate from the profiles.** `src/slabika/data/english_morphology_members.json` contains 55,637 isolated forms exported by `tools/export_english_morphology.py` from successful English rows of the local generated review inventory. Its input is the union of the same 66 Gutenberg works and seven local Chandler projects described above. The recorded `source_forms_sha256` matches that selection. The export contains no IPA, alignment, model weights or Human divisions; successful pronunciation status affects selection only. The maintainer approved Chandler-derived n-grams on 2026-09-12 while acknowledging that Chandler is not yet in the EU public domain. That approval is not itself an acquisition record for the original-language texts or an explicit rights assessment of a distributed word-membership list. On 2026-09-14 the maintainer stated that the Chandler originals had been downloaded but that the source was no longer remembered. Their acquisition source and terms therefore remain unknown; this is not a finding of infringement. On the same date, the maintainer explicitly instructed that the existing Chandler-derived character n-gram profiles and isolated-word inventory be retained for release. Version 0.3.0 retains them unchanged and does not distribute the source books. This records the maintainer's release decision, not a claim that the originals are already public domain or that all acquisition terms have been independently cleared.
+
+Version 0.3.0 replaces the historical Sapfo-derived compound inventory;
+filtering `source='snk'` alone did not establish the provenance of remaining rows.
+The released replacement reads local grammar and corpus forms, not that lexicon. Its separate `tests/data/grammar_supplement.json` records operator-requested AI-authored surface forms and explicitly typed bound/indeclinable members; these are lexical assumptions, not human-reviewed or independent attestations. The builder hashes this input, lists added forms, and keeps compound examples separate from induced paradigm evidence.
+Word forms and grammatical rules are linguistic facts (Act No. 185/2015 Coll., §5(a)),
+but this does not itself clear rights in copied expression or substantial database extraction. The project
+licences apply only to rights held by their grantors. Release clearance must cover
+the induction inputs and any separately distributed review databases. The 0.3.0 packaging configuration excludes working SQLite databases from wheels and source archives; source checkouts retain their local copies, and installed reviewers provide an inventory with `--db`. This removes automatic database redistribution, not the need to clear the inputs of generated runtime assets.
 
 ---
 
@@ -247,12 +263,12 @@ the Ľudovít Štúr Institute of Linguistics of the Slovak Academy of Sciences
 descriptive phonology of Slovak in the standard reference literature.
 
 PSP is used here as a **normative reference** — a statement of what the correct
-result is. It is not used as a source of data:
+result is. The working corpus also records a small PSP/OGS vocabulary supplement:
 
 * Rule descriptions in this repository are independent restatements written by
   the authors. They are not translations or transcriptions of PSP text.
-* Test vocabulary exercising each rule is drawn from this project's own word
-  material, not from the illustrative examples printed in PSP.
+* Test vocabulary includes independently assembled material and individually
+  consulted examples; the PSP/OGS supplement is labelled in the working corpus.
 
 Conformance to a published standard is not a licence-relevant dependency and
 imposes no restriction on users of this project. This project is not affiliated
@@ -296,7 +312,19 @@ independently written expressions of the same linguistic facts.
 The layers built on top of the phoneme inventory — syllabification, the
 handling of morpheme seams, the typographic line-break convention, the word
 material, and the pattern generation pipeline — are original to this project.
-None of the works cited above deals with hyphenation.
+The cited phonological and Sapfo descriptions are not hyphenation specifications. The build-time grammar released in 0.3.0 in `tools/sapfo_grammar/` comes from **Peter Bezemek's AI-assisted Python reimplementation**, not an unidentified third-party software vendor. The sibling Sapfo initial commit `70f96f3f9f9bcc8abaed3eabf798c928fd298bb1` (2026-02-08) records that authorship, a Claude co-author acknowledgement and implementation from Páleš's specification. Slabika commit `0a8cdfdbb3cce24a9a1c78064e2689108669a5c3` (2026-09-14) records the vendored base. The same author's destination files expressly offer `Apache-2.0 OR MIT`; absence of a general upstream Sapfo licence is not absence of permission from that author for his own implementation.
+
+The three pattern-module bodies in that vendoring commit exactly match these Sapfo Git blobs (before slabika's four-line provenance header):
+
+| upstream path | Git blob |
+| --- | --- |
+| `sapfo/dictionaries/noun_patterns.py` | `6d00faeda174d9419bfe8169f6215a056c7c86d2` |
+| `sapfo/dictionaries/adjective_patterns.py` | `bb631ed0259b17b76a12e3b8b2abaa61314c6449` |
+| `sapfo/dictionaries/verb_patterns.py` | `ff9824727c28515556d89c349bd8b149cf2a6448` |
+
+Alternations use Sapfo blob `32c375ec9bd2e42b34df202a1844861e78d7ff18` with its phonology import made local. The vendored phonology keeps only the build-time portion, not Sapfo's hyphenation implementation; `synth.py` is a local adaptation without lexical overrides. Later slabika work corrects grammatical synthesis and adds corpus induction, role-specific inflection licensing and separately attributed authored supplements. Local lint cleanup removes an unused import and shadowed duplicate dictionary entries without changing the resulting verb-pattern constants. Candidate input metadata records the exact local source SHA-256 values, rather than assuming the sibling repository's latest revision is the source.
+
+The pattern tables cite Páleš (1994), pp. 41–47, for grammatical endings and alternation rules encoded in Python. This is not a grant to reproduce book prose, images or protected presentation, and this provenance account does not certify independent creation of every element of the book's selection/arrangement. The earlier statement about independently expressed **phonology** is not a blanket clearance statement for new morphology tables. `tools/build_composita_grammar.py` reads the local implementation and corpus forms, **not** the old `pales_kmen`, SNK or other lexical tables. Implementing grammatical facts is distinct from redistributing a third-party lexicon; citation alone is not permission. Build-time modules are included in the source archive, not the wheel.
 
 ---
 
