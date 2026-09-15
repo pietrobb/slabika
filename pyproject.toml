@@ -27,7 +27,10 @@ dependencies = []
 slabika-review = "slabika.review.server:main"
 
 [project.optional-dependencies]
-dev = ["pytest>=7", "ruff", "reuse"]
+# Ruff's default rule set changes between minor releases, so an unpinned linter
+# makes "checks passed" unreproducible. reuse needs an encoding detector that is
+# not installed by default on Windows.
+dev = ["pytest>=7", "ruff>=0.15,<0.16", "reuse[charset-normalizer]>=5"]
 morph = ["PyMuPDF>=1.24"]
 
 [project.urls]
@@ -35,7 +38,9 @@ Homepage = "https://github.com/pietrobb/slabika"
 Source = "https://github.com/pietrobb/slabika"
 Issues = "https://github.com/pietrobb/slabika/issues"
 
-# Working databases remain local; installed reviewers supply --db explicitly.
+# The wheel is runtime only: no databases, no tools. The sdist carries the full
+# source of truth (corpus, review decisions, blind audits) so patterns can be
+# regenerated and the test suite can run from an unpacked archive.
 [tool.hatch.build.targets.wheel]
 packages = ["src/slabika"]
 exclude = ["**/*.sqlite", "**/*.sqlite-*", "**/*.db", "**/*.db-*"]
@@ -44,7 +49,7 @@ exclude = ["**/*.sqlite", "**/*.sqlite-*", "**/*.db", "**/*.db-*"]
 "tex/hyph-sk.tex" = "slabika/review/tex/hyph-sk.tex"
 
 [tool.hatch.build.targets.sdist]
-exclude = ["/pronunciation", "/3", "**/*.sqlite", "**/*.sqlite-*", "**/*.db", "**/*.db-*"]
+exclude = ["/pronunciation", "/3", "**/*.sqlite-*", "**/*.db-*"]
 
 [tool.hatch.build.targets.sdist.force-include]
 "tex/hyph-sk.tex" = "tex/hyph-sk.tex"

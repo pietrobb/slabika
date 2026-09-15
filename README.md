@@ -43,7 +43,7 @@ The companion program `patgen` learns patterns from words with marked divisions.
 | generated Slovak Liang patterns | `patterns/` | `CC0-1.0 OR MIT` |
 | upstream DE/FR pattern inputs | `src/slabika/patterns/foreign/` | MIT, original notices retained |
 
-The training labels are computed by the current engine, not collected from existing Slovak hyphenation dictionaries; see [LICENSING.md](LICENSING.md) §3 for the vocabulary provenance. Foreign-word labels can incorporate the DE/FR pattern adapters or optional English G2P. Reproducibility consequently depends on the exact engine, inventory and optional-runtime environment, not just on the `patgen` command.
+The training labels are computed by the current engine, not collected from existing Slovak hyphenation dictionaries; see [LICENSING.md](LICENSING.md) §3 for the vocabulary provenance. Foreign-word labels can incorporate the DE/FR pattern adapters or optional English G2P. Reproducibility consequently depends on the exact engine, inventory and optional-runtime environment, not just on the `patgen` command. Concretely, the chain is re-runnable from the **published source archive** as well as from a Git checkout at the tagged revision: the sdist carries the corpus, the review evidence, the grammar, the labelling engine and the training pipeline, and the published report records every input hash so a third party can tell whether their inputs match. `patgen` and the optional `slabika-pronunciation` runtime are external toolchain and must be installed separately. The wheel is runtime only and deliberately carries no databases, so a `pip install` user can use and inspect the library but cannot re-derive the patterns; see [Reproduce from the published source archive](#reproduce-from-the-published-source-archive).
 
 Reproducibility is not correctness. Neither internally consistent labels nor agreement with the engine proves correctness under *Pravidlá slovenského pravopisu* (PSP).
 
@@ -57,7 +57,7 @@ Two different measurements show the size of those limits:
 
 | evidence | current project | Chlebíková 1992 | what it establishes |
 | --- | ---: | ---: | --- |
-| exact held-out words against the preferred engine target, TeX minima 2/3 | **98.4913%** | **89.5641%** | reproducibility of the engine, not PSP correctness |
+| exact held-out words against the preferred engine target, TeX minima 2/3 | **98.5060%** | **89.5690%** | reproducibility of the engine, not PSP correctness |
 | accepted under PSP among 21,514 resolved historical disagreements | **21,508** | **6,196** | adjudication of the disagreement set, not random overall accuracy |
 
 The second row comprises 15,313 cases where only the frozen engine was accepted, 6,195 where both outputs were accepted, 1 where only Chlebíková was accepted and 5 where neither was accepted. Another 1,659 cases remain unresolved. The audit was AI-assisted and deliberately contains only disagreements, so it is strong diagnostic evidence rather than an independent accuracy percentage; its full methodology appears under [PSP-adjudicated comparison set](#psp-adjudicated-comparison-set).
@@ -100,7 +100,7 @@ A broad vocabulary provides evidence for testing family rules and contrasting ne
 
 There is no single database of finished boundaries. `get_morpheme_parts()` combines three layers: manually maintained and regression-tested rules for prefixes, suffixes and ambiguous families; guarded rules for numerals, prefixoids and particular compounds; and a generated inventory for productive compounds. `syllabify` and `typo` share that analysis but apply their own spoken-syllable and written-division rules inside each recognized part. A morpheme seam takes precedence over mechanical consonant redistribution in the preferred typographic result.
 
-The productive compound layer is built by `python tools/build_composita_grammar.py` from the project's corpus surface forms, local inflectional grammar and an explicitly attributed supplement. The packaged `src/slabika/data/composita.json` contains **11,470 first members** and **20,207 second-member heads**, with role-specific paradigms and input fingerprints. Runtime reads only this versioned JSON; ordinary use requires no corpus database. Rebuilding requires the separately supplied project corpus and the build-time grammar included in this repository. The statistically induced `morphs.json` is an audit aid and does not determine production boundaries.
+The productive compound layer is built by `python tools/build_composita_grammar.py` from the project's corpus surface forms, local inflectional grammar and an explicitly attributed supplement. The packaged `src/slabika/data/composita.json` contains **11,470 first members** and **20,207 second-member heads**, with role-specific paradigms and input fingerprints. Runtime reads only this versioned JSON; ordinary use requires no corpus database. Rebuilding requires the project corpus and the build-time grammar. Both are tracked in this Git repository and both ship in the published source archive; neither is in the wheel. The statistically induced `morphs.json` is an audit aid and does not determine production boundaries.
 
 The inventory does not mean “break after every known string”. The engine requires both a credible first member and an attested second-member head followed only by an allowed inflectional tail. It does not combine two weak inferences, and guards several collisions with prefixes and endings — among them the verb-forming `-ova-`, which ends in the same `-o-` a linking vowel does, so an inferred first member may not divide `rezervovalo` or `talentovanosť`. This lets it infer unseen `žlto|modrý`, `svetlo|zelený` or `modro|zelenkastý`, while rejecting a false analysis such as `jahodo|vých`.
 
@@ -134,7 +134,7 @@ The first comparison intentionally exits unsuccessfully when differences exist, 
 
 The audit retains analyses, support forms and authored declarations; runtime JSON retains the inventory and input metadata. SHA-256 identifies normalized corpus forms, the supplement, grammar modules and builder, not legal permission. The builder refuses to overwrite production and checks for source changes during generation. Promotion requires the full-API quality gate and an explicit maintainer review of documented source declarations and any remaining uncertainty. A custom `--corpus` does not automatically include the standard supplement; pass `--supplement` explicitly.
 
-Build-time grammar is absent from the wheel but included in the source archive. Working review databases are excluded from both archives and supplied separately; the checkout retains them unchanged. Regeneration requires the separate corpus; ordinary library use does not.
+Build-time grammar, the word inventory and the review databases are absent from the wheel and present in the source archive. Regeneration therefore works from either a Git checkout or `pip download --no-binary :all: slabika`; ordinary library use requires neither.
 
 ## Architecture
 
@@ -244,7 +244,7 @@ German/French pattern resources and explicit foreign readings are bundled. Broad
 
 ### Slovak review
 
-From 0.3.0, working inventories and review databases are excluded from both wheel and source archives; they remain separate local working data. `slabika-review --db /path/to/local/inventory.sqlite` opens a separately supplied inventory read-only and keeps decisions in `review_decisions.sqlite` in the launch directory; `--decisions` selects another decision store. A source checkout still finds its local corpus automatically. Full-corpus tests and grammar regeneration require that separate corpus. The Slovak console computes the current engine's output, including eligible foreign routes.
+From 0.3.0, working inventories and review databases are excluded from the wheel but ship in the source archive, and they remain tracked in the Git repository. A source checkout or an unpacked sdist therefore finds its corpus automatically and needs no extra arguments. `slabika-review --db /path/to/inventory.sqlite` is only needed to open an inventory kept outside the checkout; it opens that file read-only and keeps decisions in `review_decisions.sqlite` in the launch directory, while `--decisions` selects another decision store. Full-corpus tests and grammar regeneration require that separate corpus. The Slovak console computes the current engine's output, including eligible foreign routes.
 
 On Windows, `run_review_local.bat` is for independent reviewers: it requires no package installation and stores decisions under `%LOCALAPPDATA%\slabika-review`. `run_review.bat` is the maintainer launcher and deliberately opens tracked project decisions.
 
@@ -331,25 +331,58 @@ python tools/liang_experiment.py --mode preferred --output-dir scratch/liang-pre
 python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-permissive --patterns-output patterns/hyph-sk-slabika-permissive.tex
 ```
 
-These commands **replace the tracked pattern files**. The generator reads the working SQLite inventory, accepts `resolved`/`inferred` casing, casefolds and deduplicates, filters unsupported spellings, and splits with salt `slabika-liang-v1`. Outputs include `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and `report.json` with corpus counts, input/output hashes, evaluation metrics and sample mismatches.
+These commands **replace the tracked pattern files**. Omit `--patterns-output` to leave the release artefacts untouched and write everything into the output directory instead. The generator reads the working SQLite inventory, accepts `resolved`/`inferred` casing, casefolds and deduplicates, filters unsupported spellings, and splits with salt `slabika-liang-v1`. Outputs include `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and `report.json` with corpus counts, input/output hashes, evaluation metrics and sample mismatches.
 
-Both files were **regenerated on 2026-09-13 with the integrated EN/DE/FR routes**. The inventory contains 206,272 rows, SHA-256 `480904efc4f84652bd3d0103f965eaac6b877241c662fcab1525d0a500fd41be`. Of 204,572 eligible source rows, filtering yields 203,919 supported unique words: **163,156 training and 40,763 held out**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
+Both files were **regenerated on 2026-09-15 with the integrated EN/DE/FR routes**. The inventory contains 206,272 rows, SHA-256 `480904efc4f84652bd3d0103f965eaac6b877241c662fcab1525d0a500fd41be`. Of 204,572 eligible source rows, filtering yields 203,919 supported unique words: **163,156 training and 40,763 held out**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
 
-| current pattern evaluation (2026-09-13) | exact whole words | point precision | point recall |
+| current pattern evaluation (2026-09-15) | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| slabika preferred, 5,581 patterns | 98.4913% (40,148/40,763) | 99.5588% | 99.4415% |
-| Chlebíková 1992 against preferred target | 89.5641% | 95.9699% | 95.3872% |
-| slabika permissive, 5,244 patterns | 98.6311% (40,205/40,763) | 99.5833% | 99.5176% |
-| Chlebíková 1992 against permissive target | 88.9655% | 96.3333% | 94.8878% |
+| slabika preferred, 5,562 patterns | 98.5060% (40,154/40,763) | 99.5614% | 99.4479% |
+| Chlebíková 1992 against preferred target | 89.5690% | 95.9673% | 95.3895% |
+| slabika permissive, 5,233 patterns | 98.6409% (40,209/40,763) | 99.5846% | 99.5214% |
+| Chlebíková 1992 against permissive target | 88.9704% | 96.3320% | 94.8890% |
 
 Both sides used TeX 2/3 minima. This measures **fidelity to the engine at generation time**, not independent PSP correctness or current adapter accuracy. Published SHA-256 values are:
 
-- `patterns/hyph-sk-slabika.tex`: `e56e2e9c72df9463ed9def08fd87d5c0345e5dc40ce0aeaa2046679628942b6b`;
-- `patterns/hyph-sk-slabika-permissive.tex`: `564f45a25cdfa5f6589d86c061d83b2e0da8be2f9a710c98c51756556d00e4d1`.
+- `patterns/hyph-sk-slabika.tex`: `f27a1a9ccd19f7d15164b4193573865f5bcce7a155e293a481d9d0d14163b63f`;
+- `patterns/hyph-sk-slabika-permissive.tex`: `7e504a890bb49267a8134cde3deb19d864ad44f08a34bcd574e80a52fe0cf521`.
 
 Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record the release run's full evaluation. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
 
 A single Liang file cannot encode “prefer this boundary, use another only if necessary”. The preferred and permissive files carry those alternatives separately and should not be loaded together. They contain no whole-word exceptions and do not include the language detector or G2P model. They are versioned release artefacts alongside the Python package, but the library does not load them automatically.
+
+### Reproduce from the published source archive
+
+The source archive is self-contained: it carries the inputs, the evidence, the pipeline and the test suite. No Git checkout and no separate corpus download are needed.
+
+```console
+pip download --no-binary :all: --no-deps slabika
+tar -xf slabika-0.3.0.tar.gz
+cd slabika-0.3.0
+python -m pip install -e ".[dev]"
+python -m pytest
+python tools/liang_experiment.py --mode preferred --output-dir liang-preferred
+python tools/liang_experiment.py --mode permissive --output-dir liang-permissive
+```
+
+On Windows without an editable install, use `set PYTHONPATH=src&& python -m pytest`; the generator resolves its own paths and needs no `PYTHONPATH`.
+
+The databases the archive ships, all under `tests/data/`:
+
+| file | size | what it is | needed for |
+| --- | ---: | --- | --- |
+| `translatemaster_hyphenation_working.sqlite` | 13.9 MB | the 206,272-row form inventory, SHA-256 `480904ef…` | pattern regeneration, full-corpus tests, review console |
+| `review_decisions.sqlite` | 42.6 MB | every Human decision, the exhaustive Chlebíková comparison set and the dual-model adjudication runs | auditing the provenance claims, README statistics tests |
+| `blind_*/manifest.sqlite`, `blind_*/results.sqlite` | 3.9 MB | the four frozen blind audits with their signed manifests | blind-audit checks, review console |
+
+They compress well, so the archive is about 16.7 MB; the wheel stays at 3.5 MB and contains no databases at all. `python tools/audit_release_artifacts.py --inventory src/slabika/data/composita.json <archive>` enforces that split: a database anywhere outside `tests/data/` is a defect, and any database in a wheel is a defect.
+
+**What the archive cannot supply.** Two things are external toolchain and are not redistributable here:
+
+- `patgen` — install TeX Live or MiKTeX and put it on `PATH`. Without it the generator stops before pattern synthesis.
+- the optional English G2P model — `pip install slabika-pronunciation` (about 40 MB). Without it the foreign-word labels change, so hashes will not match the published run even though the pipeline completes.
+
+With both installed, the run reproduces end to end. Without them it still runs the engine, the corpus filtering and the evaluation, but the resulting hashes are then your own, not the release's. The report records every input hash precisely so this difference is visible rather than silent.
 
 ### Using patterns elsewhere
 
@@ -367,7 +400,7 @@ reuse lint
 
 For a source-only Windows run, use `set PYTHONPATH=src&& python -m pytest`. Fresh Python processes avoid stale cached model/engine results after code changes.
 
-The 2026-09-13 release run recorded **938 passed, 1 expected failure and no unexpected failures**. Ruff and REUSE 3.3 checks also passed. REUSE compliance records the declared licences and notices; it does not resolve the still-uncertain provenance and rights clearance of the optional MFA models' training data.
+The 2026-09-15 release run recorded **1,145 passed, 1 expected failure and no unexpected failures**. Ruff and REUSE 3.3 checks also passed. The same suite was run from an unpacked source archive in a clean virtual environment: **1,138 passed, 7 skipped, 1 expected failure**, the skips being the English G2P tests that need the optional `slabika-pronunciation` runtime. REUSE compliance records the declared licences and notices; it does not resolve the still-uncertain provenance and rights clearance of the optional MFA models' training data.
 
 Known limits include uncertain language identity, incomplete morphology, ambiguous spelling-to-sound alignment and heuristic DE/FR adaptation. Unsupported spelling can remain unchanged in `hyphenate`; `syllables` can raise `ValueError` for unsupported alphabetic characters. An empty breakpoint list does not distinguish unsupported input from a valid word with no allowed break. There is no independently adjudicated overall PSP accuracy claim.
 
@@ -400,6 +433,6 @@ CC0-1.0 expressly addresses the EU `sui generis` database right; MIT itself does
 
 Created and maintained by **Peter Bezemek** — <peter.bezemek@gmail.com>, [@pietrobb](https://github.com/pietrobb).
 
-The phoneme classification follows **Emil Páleš** (VEDA, Bratislava, 1994, ISBN 80-224-0109-9), chapter 2 *Fonológia*. Páleš in turn credits **J. Dvončová** (1980) and **J. Horecký** (1977). The classification provides the phonological foundation; the project's syllabification, morphology and division algorithms above it are separate work. Páleš's book does not address hyphenation.
+The phoneme classification follows **Emil Páleš**, *Sapfo — parafrázovač slovenčiny: počítačový nástroj na modelovanie v jazykovede* (VEDA, Bratislava, 1994, ISBN 80-224-0109-9), chapter 2 *Fonológia*. Páleš in turn credits **J. Dvončová** (1980) and **J. Horecký** (1977). The classification provides the phonological foundation; the project's syllabification, morphology and division algorithms above it are separate work. Páleš's book does not address hyphenation.
 
 Jana Chlebíková's 1992 Slovak patterns remain the MIT-licensed comparison baseline. The benchmark methodology and focus on training-list quality also draw on O. Metelka and P. Sojka, *Hyph-bench: Benchmark Dataset of Hyphenated Words for Generating Hyphenation Patterns*, RASLAN 2025.

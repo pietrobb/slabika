@@ -89,13 +89,39 @@ def test_cli_does_not_accept_unfingerprinted_legacy_inventory(tmp_path):
     assert result.returncode == 2
 
 
-def test_database_paths_cannot_be_force_included():
+def test_the_wheel_stays_database_free():
     tomllib = pytest.importorskip("tomllib")
     config = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf8"))
     targets = config["tool"]["hatch"]["build"]["targets"]
-    for target in ("wheel", "sdist"):
-        assert "**/*.sqlite" in targets[target]["exclude"]
-        assert "**/*.db" in targets[target]["exclude"]
-        assert not any(
-            ".sqlite" in name or ".db" in name for name in targets[target].get("force-include", {})
-        )
+    assert "**/*.sqlite" in targets["wheel"]["exclude"]
+    assert "**/*.db" in targets["wheel"]["exclude"]
+    assert not any(
+        ".sqlite" in name or ".db" in name for name in targets["wheel"].get("force-include", {})
+    )
+
+
+def test_the_source_archive_still_carries_its_inputs():
+    tomllib = pytest.importorskip("tomllib")
+    config = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf8"))
+    exclude = config["tool"]["hatch"]["build"]["targets"]["sdist"]["exclude"]
+    assert "**/*.sqlite" not in exclude and "**/*.db" not in exclude
+    ignored = (ROOT / ".gitignore").read_text(encoding="utf8").splitlines()
+    for name in ("translatemaster_hyphenation_working.sqlite", "review_decisions.sqlite"):
+        assert f"!tests/data/{name}" in ignored
+
+
+def test_a_database_outside_tests_data_is_rejected_even_in_a_source_archive(tmp_path):
+    path = tmp_path / "test.tar.gz"
+    for member, allowed in (
+        ("slabika-test/tests/data/review_decisions.sqlite", True),
+        ("slabika-test/src/slabika/review/data/inventory.sqlite", False),
+    ):
+        with tarfile.open(path, "w:gz") as out:
+            info = tarfile.TarInfo("slabika-test/src/slabika/data/composita.json")
+            info.size = len(CANDIDATE)
+            out.addfile(info, io.BytesIO(CANDIDATE))
+            payload = b"SQLite format 3\x00payload"
+            info = tarfile.TarInfo(member)
+            info.size = len(payload)
+            out.addfile(info, io.BytesIO(payload))
+        assert inspect_archive(path, CANDIDATE)["passed"] is allowed

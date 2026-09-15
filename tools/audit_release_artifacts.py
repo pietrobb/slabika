@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 """Check actual core archives for unapproved databases and the exact candidate JSON.
 
+Wheels must stay runtime-only: any database is a defect. Source archives ship the
+inputs the published patterns are derived from, so databases are allowed there --
+but only under tests/data/, never inside the importable package.
+
 This is a distribution-content check, not input-rights clearance or PSP approval.
 Run after the separate full-API comparison gate. No archive is extracted or edited.
 """
@@ -16,9 +20,13 @@ import zipfile
 from pathlib import Path, PurePosixPath
 
 
+DATABASE_HOME = ("tests", "data")
+
+
 def inspect_archive(path: Path, inventory: bytes) -> dict:
     issues, seen, compounds = [], set(), []
     expected = hashlib.sha256(inventory).hexdigest()
+    is_wheel = path.suffix == ".whl"
 
     def inspect(name: str, content: bytes):
         if name in seen:
@@ -32,7 +40,8 @@ def inspect_archive(path: Path, inventory: bytes) -> dict:
             basename.endswith(ext) or ext + "-" in basename
             for ext in (".sqlite", ".sqlite3", ".db")
         ) or content.startswith(b"SQLite format 3\x00"):
-            issues.append(f"working database in distribution: {name}")
+            if is_wheel or parts[1:3] != DATABASE_HOME:
+                issues.append(f"working database in distribution: {name}")
         if "pronunciation" in parts or "slabika_pronunciation" in parts:
             issues.append(f"optional pronunciation payload in core: {name}")
         if parts[-3:] == ("slabika", "data", "composita.json"):

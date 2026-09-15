@@ -28,6 +28,12 @@ tests/data/blind_word_division_*/reconciliation.json
 /tex/hyph-cs.tex
 /tex/hyph-la.tex
 
+# Source of truth for the published patterns: the form inventory and the full
+# adjudication trail. Tracked, and shipped in the sdist so the pipeline can be
+# rerun from an unpacked archive.
+!tests/data/translatemaster_hyphenation_working.sqlite
+!tests/data/review_decisions.sqlite
+
 # Signed blind-audit state is project data, not a disposable SQLite cache.
 !tests/data/blind_word_division_5000_v1/manifest.sqlite
 !tests/data/blind_word_division_5000_v1/results.sqlite

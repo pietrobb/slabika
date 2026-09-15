@@ -250,7 +250,7 @@ Its separate `tests/data/grammar_supplement.json` records operator-requested AI-
 Word forms and grammatical rules are linguistic facts (Act No. 185/2015 Coll., §5(a)),
 but this does not itself clear rights in copied expression or substantial database extraction. The project
 licences apply only to rights held by their grantors. Release clearance must cover
-the induction inputs and any separately distributed review databases. The 0.3.0 packaging configuration excludes working SQLite databases from wheels and source archives; source checkouts retain their local copies, and installed reviewers provide an inventory with `--db`. This removes automatic database redistribution, not the need to clear the inputs of generated runtime assets.
+the induction inputs and any separately distributed review databases. The 0.3.0 packaging configuration excludes working SQLite databases from the wheel and ships them in the source archive, under `tests/data/` and licensed `CC0-1.0 OR MIT` with the rest of the project's word inventory and review evidence. This is deliberate redistribution, not an oversight: the reproducibility and provenance claims in the README are only checkable by a third party if the inputs and the adjudication trail travel with the pipeline. It is consistent with §3, where the vocabulary is accounted for as the project's own prose and translations, Wikidata-derived municipality names and reviewed AI-generated lists, rather than an extracted third-party lexicon. It does not relieve the need to clear the inputs of generated runtime assets.
 
 ---
 
@@ -288,7 +288,8 @@ vowel quantity and resonance, diphthongs, syllabic consonants, consonant
 hardness, voicing pairs, place and manner of articulation, palatalization, and
 the rhythmic law — follows the description given by:
 
-> Emil Páleš (1994), chapter 2 (*Fonológia*).
+> Emil Páleš, *Sapfo — parafrázovač slovenčiny: počítačový nástroj na
+> modelovanie v jazykovede* (1994), chapter 2 (*Fonológia*).
 > 1st edition, VEDA, vydavateľstvo Slovenskej akadémie vied
 > (publishing house of the Slovak Academy of Sciences), Bratislava.
 > ISBN 80-224-0109-9.
