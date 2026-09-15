@@ -225,7 +225,7 @@ Sú to regresné príklady overené 2026-09-12, nie certifikovaný PSP gold súb
 
 ## Inštalácia a revízne konzoly
 
-Jadro je **alfa verzia 0.3.0** pre Python 3.10+ bez povinných runtime závislostí:
+Jadro je **alfa verzia 0.4.0** pre Python 3.10+ bez povinných runtime závislostí:
 
 ```console
 python -m pip install slabika
@@ -234,9 +234,9 @@ slabika-review --db /cesta/k/lokalnemu/inventory.sqlite
 
 Pre editovateľný zdrojový checkout s testovacími a licenčnými nástrojmi použite namiesto toho `python -m pip install -e ".[dev]"`.
 
-DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebuje samostatne zostavený a nainštalovaný `slabika-pronunciation==0.1.0`; na PyPI nie je a vydanie jadra 0.3.0 ho zámerne nedeklaruje ako inštalovateľný extra balík. Zostavenie a obmedzenia opisuje [pronunciation/README.md](pronunciation/README.md). Modely majú samostatné licencie a otvorené provenienčné otázky; nejde o neobmedzené vydanie iba pod MIT.
+DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebuje samostatne zostavený a nainštalovaný `slabika-pronunciation==0.1.0`; na PyPI nie je a vydanie jadra 0.4.0 ho zámerne nedeklaruje ako inštalovateľný extra balík. Zostavenie a obmedzenia opisuje [pronunciation/README.md](pronunciation/README.md). Modely majú samostatné licencie a otvorené provenienčné otázky; nejde o neobmedzené vydanie iba pod MIT.
 
-Od verzie 0.3.0 sú pracovné inventáre a review databázy vylúčené z wheelu, ale sú v zdrojovom archíve a zostávajú verzované v repozitári. Checkout aj rozbalený archív si korpus nájdu samy a nepotrebujú ďalšie argumenty; `--db` otvorí inventár mimo nich. Slovenské review počíta **aktuálny výstup enginu**, vrátane prípustných cudzích ciest. Rozhodnutia ukladá oddelene do `review_decisions.sqlite` v spúšťacom priečinku; `--decisions` vyberá iný súbor. Zdrojový checkout naďalej automaticky nájde svoj lokálny korpus; ten je potrebný aj na celokorpusové testy a regenerovanie gramatického inventára. `run_review_local.bat` je pre externého recenzenta, bez inštalácie a s rozhodnutiami v `%LOCALAPPDATA%\slabika-review`. Správcovský `run_review.bat` zámerne otvára verzované rozhodnutia projektu.
+Od verzie 0.4.0 sú pracovné inventáre a review databázy vylúčené z wheelu, ale sú v zdrojovom archíve a zostávajú verzované v repozitári. Checkout aj rozbalený archív si korpus nájdu samy a nepotrebujú ďalšie argumenty; `--db` otvorí inventár mimo nich. Slovenské review počíta **aktuálny výstup enginu**, vrátane prípustných cudzích ciest. Rozhodnutia ukladá oddelene do `review_decisions.sqlite` v spúšťacom priečinku; `--decisions` vyberá iný súbor. Zdrojový checkout naďalej automaticky nájde svoj lokálny korpus; ten je potrebný aj na celokorpusové testy a regenerovanie gramatického inventára. `run_review_local.bat` je pre externého recenzenta, bez inštalácie a s rozhodnutiami v `%LOCALAPPDATA%\slabika-review`. Správcovský `run_review.bat` zámerne otvára verzované rozhodnutia projektu.
 
 Klasifikácia oddeľuje automatické profily, ľudské príznaky a import/AI. Neurčený jazyk nie je automaticky slovenčina. Textový upload vytvára pracovný zoznam; **Náhodných 200** vyberá abecedný blok nerevidovaných tvarov. Typografické delenie a hovorené slabiky sa posudzujú samostatne.
 
@@ -339,8 +339,8 @@ Zdrojový archív je sebestačný: nesie vstupy, dôkazy, pipeline aj testy. Net
 
 ```console
 pip download --no-binary :all: --no-deps slabika
-tar -xf slabika-0.3.0.tar.gz
-cd slabika-0.3.0
+tar -xf slabika-0.4.0.tar.gz
+cd slabika-0.4.0
 python -m pip install -e ".[dev]"
 python -m pytest
 python tools/liang_experiment.py --mode preferred --output-dir liang-preferred

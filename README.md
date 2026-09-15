@@ -231,7 +231,7 @@ These are regression examples verified on 2026-09-12, not a certified PSP gold s
 
 ## Installation and review consoles
 
-The core is an **alpha** (`0.3.0`) for Python 3.10+ with no required third-party runtime packages:
+The core is an **alpha** (`0.4.0`) for Python 3.10+ with no required third-party runtime packages:
 
 ```console
 python -m pip install slabika
@@ -240,11 +240,11 @@ slabika-review --db /path/to/local/inventory.sqlite
 
 For an editable source checkout with the test and licence tools, use `python -m pip install -e ".[dev]"` instead.
 
-German/French pattern resources and explicit foreign readings are bundled. Broader English G2P requires a separately built/installed `slabika-pronunciation==0.1.0`; it is not on PyPI and is deliberately not declared as an installable extra of the core 0.3.0 release. See [pronunciation/README.md](pronunciation/README.md) for native build instructions and limitations. The optional model bundle has separate attribution/provenance concerns and is **not an unrestricted, MIT-only release**.
+German/French pattern resources and explicit foreign readings are bundled. Broader English G2P requires a separately built/installed `slabika-pronunciation==0.1.0`; it is not on PyPI and is deliberately not declared as an installable extra of the core 0.4.0 release. See [pronunciation/README.md](pronunciation/README.md) for native build instructions and limitations. The optional model bundle has separate attribution/provenance concerns and is **not an unrestricted, MIT-only release**.
 
 ### Slovak review
 
-From 0.3.0, working inventories and review databases are excluded from the wheel but ship in the source archive, and they remain tracked in the Git repository. A source checkout or an unpacked sdist therefore finds its corpus automatically and needs no extra arguments. `slabika-review --db /path/to/inventory.sqlite` is only needed to open an inventory kept outside the checkout; it opens that file read-only and keeps decisions in `review_decisions.sqlite` in the launch directory, while `--decisions` selects another decision store. Full-corpus tests and grammar regeneration require that separate corpus. The Slovak console computes the current engine's output, including eligible foreign routes.
+From 0.4.0, working inventories and review databases are excluded from the wheel but ship in the source archive, and they remain tracked in the Git repository. A source checkout or an unpacked sdist therefore finds its corpus automatically and needs no extra arguments. `slabika-review --db /path/to/inventory.sqlite` is only needed to open an inventory kept outside the checkout; it opens that file read-only and keeps decisions in `review_decisions.sqlite` in the launch directory, while `--decisions` selects another decision store. Full-corpus tests and grammar regeneration require that separate corpus. The Slovak console computes the current engine's output, including eligible foreign routes.
 
 On Windows, `run_review_local.bat` is for independent reviewers: it requires no package installation and stores decisions under `%LOCALAPPDATA%\slabika-review`. `run_review.bat` is the maintainer launcher and deliberately opens tracked project decisions.
 
@@ -357,8 +357,8 @@ The source archive is self-contained: it carries the inputs, the evidence, the p
 
 ```console
 pip download --no-binary :all: --no-deps slabika
-tar -xf slabika-0.3.0.tar.gz
-cd slabika-0.3.0
+tar -xf slabika-0.4.0.tar.gz
+cd slabika-0.4.0
 python -m pip install -e ".[dev]"
 python -m pytest
 python tools/liang_experiment.py --mode preferred --output-dir liang-preferred
