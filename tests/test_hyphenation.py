@@ -1229,7 +1229,7 @@ def test_twenty_third_discovered_family_batch_keeps_only_clear_compound_seams():
         "sestroja": "ses·tro·ja",
         "ústrojenstvo": "ús·tro·jen·stvo",
         "splynie": "sply·nie",
-        "neuplynul": "ne·up·ly·nul",
+        "neuplynul": "ne·uply·nul",
         "ochudobniť": "ochu·dob·niť",
         "schudla": "schud·la",
         "dvadsaťdvojok": "dvad·sať·dvo·jok",
@@ -1243,6 +1243,34 @@ def test_twenty_third_discovered_family_batch_keeps_only_clear_compound_seams():
         "vkladať": "vkla·dať",
     }
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_uplyn_family_keeps_the_plyn_root_together():
+    expected = {
+        "uplynie": "uply·nie",
+        "uplynul": "uply·nul",
+        "uplynula": "uply·nu·la",
+        "uplynulej": "uply·nu·lej",
+        "uplynuli": "uply·nu·li",
+        "uplynulo": "uply·nu·lo",
+        "uplynulom": "uply·nu·lom",
+        "uplynulou": "uply·nu·lou",
+        "uplynulé": "uply·nu·lé",
+        "uplynulého": "uply·nu·lé·ho",
+        "uplynulému": "uply·nu·lé·mu",
+        "uplynulú": "uply·nu·lú",
+        "uplynulý": "uply·nu·lý",
+        "uplynulých": "uply·nu·lých",
+        "uplynutie": "uply·nu·tie",
+        "uplynutí": "uply·nu·tí",
+        "uplynutím": "uply·nu·tím",
+        "uplynú": "uply·nú",
+        "uplynúť": "uply·núť",
+        "neuplynul": "ne·uply·nul",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert hyphenate("splynul") == "sply·nul"
+    assert hyphenate("vplynulo") == "vply·nu·lo"
 
 
 def test_twenty_fourth_discovered_family_batch_keeps_only_clear_compound_seams():
@@ -1504,7 +1532,7 @@ def test_thirty_sixth_discovered_family_batch_keeps_only_the_clear_blesk_seam():
         "záblesk": "zá·blesk",
         "zábleskami": "zá·bles·ka·mi",
         "záblesková": "zá·bles·ko·vá",
-        "neuplynul": "ne·up·ly·nul",
+        "neuplynul": "ne·uply·nul",
         "splynul": "sply·nul",
         "vplynulo": "vply·nu·lo",
         "vliezol": "vlie·zol",
@@ -6275,6 +6303,38 @@ def test_batch_230_preserves_clear_zo_and_znovu_seams():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("zotol") == "zo·tol"
+
+
+def test_znovu_recognizes_attested_second_member_without_pair_list():
+    expected = {
+        "znovustaviteľ": "zno·vu·sta·vi·teľ",
+        "znovuprekážka": "zno·vu·pre·káž·ka",
+        "znovuspojenie": "zno·vu·spo·je·nie",
+        "znovustvorenia": "zno·vu·stvo·re·nia",
+        "znovuvteleniach": "zno·vu·vte·le·niach",
+        "znovunastolená": "zno·vu·na·sto·le·ná",
+        "znovupostavení": "zno·vu·po·sta·ve·ní",
+        "znovuzoslaný": "zno·vu·zo·sla·ný",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    assert get_syllables("znovustaviteľ") == ["zno", "vu", "sta", "vi", "teľ"]
+    assert hyphenate("znovuzoslať") == "zno·vu·zo·slať"
+    assert get_syllables("znovuzoslaný") == ["zno", "vu", "zo", "sla", "ný"]
+
+
+def test_znovu_with_z_prefixed_second_member_preserves_compound_seam():
+    expected = {
+        "Znovuzroď": "Zno·vu·zroď",
+        "Znovuzroditeľa": "Zno·vu·zro·di·te·ľa",
+        "znovuzjednotenia": "zno·vu·zjed·no·te·nia",
+        "znovuzrenie": "zno·vu·zre·nie",
+        "znovuzrodenými": "zno·vu·zro·de·ný·mi",
+        "znovuzvolenie": "zno·vu·zvo·le·nie",
+        "znovuzapáleným": "zno·vu·za·pá·le·ným",
+        "znovuzoslaný": "zno·vu·zo·sla·ný",
+        "znovuzískanie": "zno·vu·zís·ka·nie",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
 
 
 def test_batch_223_preserves_clear_za_prefix_seams():

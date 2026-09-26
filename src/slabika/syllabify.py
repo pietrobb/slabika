@@ -512,7 +512,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('vlaso', ('štiep',)),
     ('vlasti', ('zrad',)),
     ('vše', ('spravod', 'svet', 'svät', 'vlád', 'zľutov', 'žrút')),
-    ('znovu', ('navrát', 'smr', 'stret')),
+    ('znovu', ('navrát', 'smr', 'stret', 'zjednot', 'zre', 'zrod', 'zroď', 'zvol')),
     ('žalo', ('spev',)),
     ('žido', ('kresťan',)),
     ('o', (
@@ -867,6 +867,17 @@ def _heads_a_compositum(rest: str, inferred_first: bool = False) -> bool:
             return True
         # With no exact paradigms, only the legacy inventory's endings apply.
     return False
+
+
+def _lexical_znovu_compound(word: str) -> tuple[str, str] | None:
+    wl = word.lower()
+    if (
+        wl.startswith('znovu') and len(word) > 7
+        and wl[5] not in _VOWEL_LETTERS
+        and _heads_a_compositum(wl[5:])
+    ):
+        return word[:5], word[5:]
+    return None
 
 
 def _generated_compositum(word: str) -> tuple[str, str] | None:
@@ -2014,6 +2025,11 @@ def get_morpheme_parts(word: str) -> list[str]:
     if stem is not None:
         return [*get_morpheme_parts(stem), sfx]
 
+    znovu_compound = _lexical_znovu_compound(word)
+    if znovu_compound is not None:
+        first, rest = znovu_compound
+        return [first, *get_morpheme_parts(rest)]
+
     return [word]
 
 
@@ -2107,6 +2123,14 @@ def get_syllables(word: str) -> list[str]:
     comparative_t = wl.find('tejš')
     if comparative_t > 0:
         return get_syllables(word[:comparative_t]) + _syllabify_simple(word[comparative_t:])
+
+    znovu_compound = _lexical_znovu_compound(word)
+    if (
+        znovu_compound is not None
+        and _syllabify_simple(word)[:2] != _syllabify_simple(word[:5])
+    ):
+        first, rest = znovu_compound
+        return _syllabify_simple(first) + get_syllables(rest)
 
     stem, sfx = _strip_suffix(word)
     pfx, rem = _strip_prefix(word)

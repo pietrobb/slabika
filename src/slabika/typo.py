@@ -36,6 +36,7 @@ from .syllabify import (
     _SK_SUFFIXES_CONS,
     _final_sonorant_needs_following_context,
     _lexical_syllables,
+    _lexical_znovu_compound,
     breaks_after_stop,
     get_morpheme_parts,
     phoneme_layout,
@@ -199,6 +200,10 @@ def _points_inside_preferred_roots(word: str) -> set[int]:
     folded = word.casefold()
     if folded.startswith('úhlav'):
         return {2}
+    if folded.startswith('uplyn'):
+        return {2}  # u- + plyn-: keep the root's pl together.
+    if folded.startswith('neuplyn'):
+        return {4}
     for leader in ('ne', 'seba'):
         if folded.startswith(leader + 'ovlád'):
             return {len(leader) + 2}
@@ -554,6 +559,14 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         points.discard(gn_point)
         variants.discard(gn_point)
         contextual.discard(gn_point)
+
+    if lexical_parts is None and _lexical_znovu_compound(word) is not None and 5 not in points:
+        # Move only the competing consonant-cluster point; retain breaks inside the second member.
+        points = {
+            point for point in points
+            if point < 5 or any(is_vowel(char) for char in word[5:point])
+        }
+        points.add(5)
 
     return points, variants - points, contextual - points - variants
 

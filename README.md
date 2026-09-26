@@ -244,7 +244,7 @@ German/French pattern resources and explicit foreign readings are bundled. Broad
 
 ### Slovak review
 
-From 0.4.0, working inventories and review databases are excluded from the wheel but ship in the source archive, and they remain tracked in the Git repository. A source checkout or an unpacked sdist therefore finds its corpus automatically and needs no extra arguments. `slabika-review --db /path/to/inventory.sqlite` is only needed to open an inventory kept outside the checkout; it opens that file read-only and keeps decisions in `review_decisions.sqlite` in the launch directory, while `--decisions` selects another decision store. Full-corpus tests and grammar regeneration require that separate corpus. The Slovak console computes the current engine's output, including eligible foreign routes.
+From 0.4.0, working inventories and review databases are excluded from the wheel but ship in the source archive, and they remain tracked in the Git repository. A source checkout or an unpacked sdist therefore finds its corpus automatically and needs no extra arguments. `slabika-review --db /path/to/inventory.sqlite` is only needed to open an inventory kept outside the checkout; it opens that file read-only and keeps decisions in `review_decisions.sqlite` in the launch directory, while `--decisions` selects another decision store. The Slovak console computes the current engine's output, including eligible foreign routes.
 
 On Windows, `run_review_local.bat` is for independent reviewers: it requires no package installation and stores decisions under `%LOCALAPPDATA%\slabika-review`. `run_review.bat` is the maintainer launcher and deliberately opens tracked project decisions.
 
@@ -297,18 +297,18 @@ The first command seeds all forms and processes pending/error rows in resumable 
 
 ## Data and review statistics
 
-As of **2026-09-14**, the tracked Slovak data has this current state:
+As of **2026-09-26**, the tracked Slovak data has this current state:
 
 | metric | count |
 | --- | ---: |
 | inventory rows | **206,272** |
 | active unique forms shown by the review console after folding case-only aliases | **206,200** |
-| stored Human decision rows (raw table) | **19,737** |
-| active canonical forms with any Human evidence | **19,572 (9.49%)** |
-| typographic divisions reviewed | **19,406 (9.41%)** — 18,236 confirms, 1,170 corrections |
+| stored Human decision rows (raw table) | **19,926** |
+| active canonical forms with any Human evidence | **19,761 (9.58%)** |
+| typographic divisions reviewed | **19,593 (9.50%)** — 18,367 confirms, 1,226 corrections |
 | spoken syllabifications reviewed | **346 (0.17%)** — 264 forms have both outputs reviewed |
 
-The raw decision rows comprise 18,448 latest `confirm`, 1,218 `correct`, 37 `classify`, 25 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
+The raw decision rows comprise 18,579 latest `confirm`, 1,274 `correct`, 39 `classify`, 25 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
 
 The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 6,601 resolved, 1,477 uncertain and 22 invalid. Reviewers received bare forms without engine output or earlier decisions. They were isolated LLM reviewers, not the author.
 
@@ -320,7 +320,7 @@ The tracked `tests/data/review_decisions.sqlite` contains the immutable audit qu
 
 The recorded outcomes are **15,313 engine only**, **6,195 both correct**, **1 Chlebíková only**, **5 neither correct** and **1,659 unresolved**: 21,514 resolved comparisons, not 23,173 certified answers. The counts can be reproduced from `psp_comparisons` by filtering on that audit ID and grouping by `comparison_outcome`; every frozen item has a matching comparison row. This is a **PSP-adjudicated comparison set**, not an independent random gold benchmark: the exhaustive PSP interpretation was AI-assisted, its selection is concentrated entirely on historical disagreements, and unresolved foreign pronunciation was preserved rather than guessed.
 
-At the 2026-09-14 snapshot, active non-deleted Human rows overlap the PSP queue on **2,236 forms**; 2,224 have a comparable Human division. PSP resolved 1,981 of those comparable cases: Human matches at least one admissible PSP variant in **1,858** and differs in **123**, a **93.79%** agreement rate. The remaining 243 comparable cases are unresolved in the PSP layer. This overlap does not make the two evidence layers identical or independent gold benchmarks, and neither human opinion nor model consensus settles a case without a PSP argument.
+At the 2026-09-26 snapshot, active non-deleted Human rows overlap the PSP queue on **2,263 forms**; 2,251 have a comparable Human division. PSP resolved 2,001 of those comparable cases: Human matches at least one admissible PSP variant in **1,859** and differs in **142**, a **92.90%** agreement rate. The remaining 250 comparable cases are unresolved in the PSP layer. This overlap does not make the two evidence layers identical or independent gold benchmarks, and neither human opinion nor model consensus settles a case without a PSP argument.
 
 ## Reproduce and evaluate Liang patterns
 

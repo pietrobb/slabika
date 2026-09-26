@@ -96,19 +96,11 @@ def reconcile(manual: dict[str, dict], blind: dict[str, dict]) -> dict:
             engine_cache[form] = hyphenate(form).lower()
         return engine_cache[form]
 
-    def manual_match_mode(form: str, target: str | None) -> str | None:
-        if target is None:
-            return None
-        candidates = (
-            ("preferred", engine(form)),
-            ("permissive", hyphenate(form, all_points=True).lower()),
-            ("contextual", hyphenate(form, contextual=True).lower()),
-            (
-                "permissive_contextual",
-                hyphenate(form, all_points=True, contextual=True).lower(),
-            ),
-        )
-        return next((mode for mode, output in candidates if output == target), None)
+    def manual_matches(form: str, target: str | None) -> bool:
+        # Both review layers record a single preferred division, so both are
+        # compared against the preferred output only. Accepting permissive or
+        # contextual output here would score the two layers by different rules.
+        return target is not None and engine(form) == target
 
     buckets: dict[str, list] = {
         "blind_vs_engine_conflict": [],
@@ -156,25 +148,23 @@ def reconcile(manual: dict[str, dict], blind: dict[str, dict]) -> dict:
         action = info["action"]
         if action == "correct" and info["expected"]:
             stats["manual_correct"] += 1
-            match_mode = manual_match_mode(form, info["expected"])
-            if match_mode is None:
+            if manual_matches(form, info["expected"]):
+                stats["manual_matches_preferred"] += 1
+            else:
                 stats["manual_correction_open"] += 1
                 buckets["manual_correction_open"].append(
                     {"form": form, "engine": eng, "manual": info["expected"]}
                 )
-            else:
-                stats[f"manual_matches_{match_mode}"] += 1
         elif action == "confirm":
             stats["manual_confirm"] += 1
             target = info["expected"] or info["prior"]
-            match_mode = manual_match_mode(form, target)
-            if target and match_mode is None:
+            if manual_matches(form, target):
+                stats["manual_matches_preferred"] += 1
+            elif target:
                 stats["manual_confirm_regression"] += 1
                 buckets["manual_confirm_regression"].append(
                     {"form": form, "engine": eng, "manual": target}
                 )
-            elif match_mode is not None:
-                stats[f"manual_matches_{match_mode}"] += 1
 
     overlap = sorted(set(manual) & set(blind))
     stats["overlap"] = len(overlap)
@@ -190,7 +180,7 @@ def reconcile(manual: dict[str, dict], blind: dict[str, dict]) -> dict:
         )
         if manual_target in b["variants"]:
             stats["overlap_agree"] += 1
-            if manual_match_mode(form, manual_target) is None:
+            if not manual_matches(form, manual_target):
                 buckets["manual_and_blind_agree_against_engine"].append(
                     {"form": form, "engine": eng, "consensus": manual_target}
                 )

@@ -236,7 +236,7 @@ Pre editovateľný zdrojový checkout s testovacími a licenčnými nástrojmi p
 
 DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebuje samostatne zostavený a nainštalovaný `slabika-pronunciation==0.1.0`; na PyPI nie je a vydanie jadra 0.4.0 ho zámerne nedeklaruje ako inštalovateľný extra balík. Zostavenie a obmedzenia opisuje [pronunciation/README.md](pronunciation/README.md). Modely majú samostatné licencie a otvorené provenienčné otázky; nejde o neobmedzené vydanie iba pod MIT.
 
-Od verzie 0.4.0 sú pracovné inventáre a review databázy vylúčené z wheelu, ale sú v zdrojovom archíve a zostávajú verzované v repozitári. Checkout aj rozbalený archív si korpus nájdu samy a nepotrebujú ďalšie argumenty; `--db` otvorí inventár mimo nich. Slovenské review počíta **aktuálny výstup enginu**, vrátane prípustných cudzích ciest. Rozhodnutia ukladá oddelene do `review_decisions.sqlite` v spúšťacom priečinku; `--decisions` vyberá iný súbor. Zdrojový checkout naďalej automaticky nájde svoj lokálny korpus; ten je potrebný aj na celokorpusové testy a regenerovanie gramatického inventára. `run_review_local.bat` je pre externého recenzenta, bez inštalácie a s rozhodnutiami v `%LOCALAPPDATA%\slabika-review`. Správcovský `run_review.bat` zámerne otvára verzované rozhodnutia projektu.
+Od verzie 0.4.0 sú pracovné inventáre a review databázy vylúčené z wheelu, ale sú v zdrojovom archíve a zostávajú verzované v repozitári. Checkout aj rozbalený archív si korpus nájdu samy a nepotrebujú ďalšie argumenty; `--db` otvorí inventár mimo nich. Slovenské review počíta **aktuálny výstup enginu**, vrátane prípustných cudzích ciest. Rozhodnutia ukladá oddelene do `review_decisions.sqlite` v spúšťacom priečinku; `--decisions` vyberá iný súbor. `run_review_local.bat` je pre externého recenzenta, bez inštalácie a s rozhodnutiami v `%LOCALAPPDATA%\slabika-review`. Správcovský `run_review.bat` zámerne otvára verzované rozhodnutia projektu.
 
 Klasifikácia oddeľuje automatické profily, ľudské príznaky a import/AI. Neurčený jazyk nie je automaticky slovenčina. Textový upload vytvára pracovný zoznam; **Náhodných 200** vyberá abecedný blok nerevidovaných tvarov. Typografické delenie a hovorené slabiky sa posudzujú samostatne.
 
@@ -287,18 +287,18 @@ Builder vloží všetky tvary a v obnoviteľných transakciách spracúva čakaj
 
 ## Dáta a stav kontroly
 
-Stav verzovaných slovenských dát k **2026-09-14**:
+Stav verzovaných slovenských dát k **2026-09-26**:
 
 | metrika | počet |
 | --- | ---: |
 | riadky inventára | **206 272** |
 | aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **206 200** |
-| uložené riadky Human rozhodnutí (surová tabuľka) | **19 737** |
-| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **19 572 (9,49 %)** |
-| skontrolované typografické delenia | **19 406 (9,41 %)** — 18 236 potvrdení, 1 170 opráv |
+| uložené riadky Human rozhodnutí (surová tabuľka) | **19 926** |
+| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **19 761 (9,58 %)** |
+| skontrolované typografické delenia | **19 593 (9,50 %)** — 18 367 potvrdení, 1 226 opráv |
 | skontrolované hovorené slabikovania | **346 (0,17 %)** — pri 264 tvaroch sú skontrolované oba výstupy |
 
-Surových 19 737 riadkov tvorí 18 448 posledných akcií `confirm`, 1 218 `correct`, 37 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
+Surových 19 926 riadkov tvorí 18 579 posledných akcií `confirm`, 1 274 `correct`, 39 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
 
 | lokálny korpus | tvary | vygenerovaná IPA | návrhy delenia |
 | --- | ---: | ---: | --- |
@@ -316,7 +316,7 @@ Verzovaná databáza `tests/data/review_decisions.sqlite` obsahuje nemenný audi
 
 Výsledky sú **15 313 iba engine**, **6 195 oba správne**, **1 iba Chlebíková**, **5 ani jeden** a **1 659 nerozhodnutých**: 21 514 uzavretých porovnaní, nie 23 173 certifikovaných odpovedí. Počty možno reprodukovať z tabuľky `psp_comparisons` filtrovaním podľa uvedeného `audit_id` a zoskupením podľa `comparison_outcome`; každý zmrazený tvar má zodpovedajúci riadok posúdenia. Ide o **porovnávací súbor posúdený podľa PSP**, nie o nezávislý náhodný gold benchmark: úplná interpretácia PSP vznikala s pomocou AI, výber obsahuje iba historické nezhody a neistá cudzia výslovnosť zostala zámerne nerozhodnutá.
 
-K 2026-09-14 sa aktívne neodstránené Human riadky prekrývajú s PSP radom na **2 236 tvaroch**; pri 2 224 z nich existuje porovnateľné Human delenie. PSP uzavrelo 1 981 týchto porovnateľných prípadov: Human sa zhoduje aspoň s jedným prípustným PSP variantom v **1 858** a nezhoduje v **123**, teda zhoda je **93,79 %**. Ďalších 243 porovnateľných prípadov zostáva vo vrstve PSP nerozhodnutých. Prienik nerobí z vrstiev totožné ani nezávislé gold benchmarky; ľudský názor ani modelový konsenzus nenahrádza argument z PSP.
+K 2026-09-26 sa aktívne neodstránené Human riadky prekrývajú s PSP radom na **2 263 tvaroch**; pri 2 251 z nich existuje porovnateľné Human delenie. PSP uzavrelo 2 001 týchto porovnateľných prípadov: Human sa zhoduje aspoň s jedným prípustným PSP variantom v **1 859** a nezhoduje v **142**, teda zhoda je **92,90 %**. Ďalších 250 porovnateľných prípadov zostáva vo vrstve PSP nerozhodnutých. Prienik nerobí z vrstiev totožné ani nezávislé gold benchmarky; ľudský názor ani modelový konsenzus nenahrádza argument z PSP.
 
 ## Liangove vzory: regenerovanie a hodnotenie
 
