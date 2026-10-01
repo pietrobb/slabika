@@ -413,6 +413,38 @@ def _is_podrobit_form(word: str) -> bool:
     )
 
 
+# One root lexicon for the one-letter prefixes o- and u-. A root is a property
+# of the word family, not of the prefix that happened to be reviewed first:
+# o-|krad and u-|krad, o-|sved and u-|sved, o-|štv and u-|štv. Both prefixes
+# read the same list wherever they stand — at the word start, after ne-/naj-,
+# and inside compounds — so a newly met combination needs no extra entry.
+_O_U_ROOTS = tuple(sorted({
+    'berá', 'berať', 'bohat', 'byv', 'býv', 'cit', 'chor', 'die', 'dol', 'hyb', 'káz', 'myl',
+    'pad', 'pak', 'patre', 'patri', 'patrí', 'patrn', 'pis', 'pät', 'sob',
+    'hláv', 'hra', 'hrá', 'hroz', 'chrán', 'chráň', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
+    'plach', 'plách', 'plak', 'plat', 'plášt', 'pleš', 'plet', 'plod', 'plot', 'pľu', 'pľú',
+    'prac', 'prad', 'praď', 'pral', 'pras', 'praš', 'práš', 'prať',
+    'neskor', 'pre', 'pri', 'pros', 'prot',
+    'podstat', 'prav', 'práv', 'pust', 'sln', 'smel', 'spev', 'spra', 'streľ',
+    'strih', 'strieľ', 'sved', 'svet', 'svie', 'svoj', 'sídl', 'tlač', 'tlak',
+    'tras', 'trh', 'tráv', 'trav', 'tup', 'vplyv', 'zbroj', 'znač', 'živ',
+    'tvor', 'tvár',  # o-|tvoriť: otvo·rí·me (operator 2026-10-01)
+    # o-|kraj, o-|krad, o-|kras (operator 2026-10-01): okraj, okrad·li, okráš·le·ní
+    'kraj', 'krad', 'krád', 'kras', 'krás', 'krášl',
+    'bud', 'cten', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'mr', 'pokoj', 'poslúch',
+    'prostred', 'rod', 'smer', 'smej', 'smia', 'smiev', 'spokoj', 'sporiad', 'spôsob',
+    'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp',
+    'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tráp', 'trel',
+    'tret', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvr', 'zamk', 'zdrav', 'zna', 'zná',
+    'znes', 'znie', 'šľacht', 'škrn', 'škŕň', 'štud', 'taj', 'tláč',
+    # u-|smrť, u-|svedčiť, u-|štvať (operator 2026-10-01): ne·usmr·til, usved·čiť, uštva·ný
+    'smr', 'štv',
+    'chlad', 'chrom', 'chvej', 'hlas', 'hlás', 'hluch', 'hmat', 'hnu', 'hol', 'hryz',
+    'klam', 'krídl', 'mdliev', 'slav', 'toč', 'táč', 'šklb',
+    'chvát', 'drž', 'hlad', 'klad', 'mlč', 'mĺk', 'mŕtv', 'sporad', 'trp', 'tvrd', 'tŕž',
+    'vrh', 'zn',
+}))
+
 _LEXICAL_PREFIX_ROOTS = (
     ('bezo', ('zvyšk',)),
     ('bohvie', ('ak',)),
@@ -523,18 +555,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('znovu', ('navrát', 'otvor', 'smr', 'stret', 'zjednot', 'zre', 'zrod', 'zroď', 'zvol')),
     ('žalo', ('spev',)),
     ('žido', ('kresťan',)),
-    ('o', (
-        'berá', 'berať', 'bohat', 'byv', 'býv', 'cit', 'chor', 'die', 'dol', 'hyb', 'káz', 'myl',
-        'pad', 'pak', 'patre', 'patri', 'patrí', 'patrn', 'pis', 'pät', 'sob',
-        'hláv', 'hra', 'hrá', 'hroz', 'chrán', 'chráň', 'slab', 'slad', 'sláv', 'slep', 'slob', 'slov',
-        'plach', 'plách', 'plak', 'plat', 'plášt', 'pleš', 'plet', 'plod', 'plot', 'pľu', 'pľú',
-        'prac', 'prad', 'praď', 'pral', 'pras', 'praš', 'práš', 'prať',
-        'neskor', 'pre', 'pri', 'pros', 'prot',
-        'podstat', 'prav', 'práv', 'pust', 'sln', 'smel', 'spev', 'spra', 'streľ',
-        'strih', 'strieľ', 'sved', 'svet', 'svie', 'svoj', 'sídl', 'tlač', 'tlak',
-        'tras', 'trh', 'tráv', 'trav', 'tup', 'vplyv', 'zbroj', 'znač', 'živ',
-        'tvor', 'tvár',  # o-|tvoriť: otvo·rí·me (operator 2026-10-01)
-    )),
+    ('o', _O_U_ROOTS),
     # i-|hrať (operator 2026-10-01: ihrá is undivided). Only the hra-/hrá-/hris-
     # stems, so German Ihrer keeps its own reading.
     ('i', ('hra', 'hrá', 'hris')),
@@ -570,7 +591,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('do', ('opek', 'čk')),
     ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'klad', 'sled', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač')),
-    ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'mr', 'pokoj', 'poslúch', 'pri', 'prostred', 'rod', 'smer', 'smej', 'smia', 'smiev', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'zna', 'zná', 'znes', 'znie', 'šľacht', 'škrn', 'škŕň', 'štud', 'taj', 'tláč')),
+    ('u', _O_U_ROOTS),
     ('vy', ('čk', 'chlad', 'lh', 'rv', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),
     ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'zrak', 'zrač')),
@@ -583,7 +604,10 @@ _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
 
 _NESTED_PREFIX_ROOTS = (
     ('do', ('tkn',)),
-    ('o', ('brús', 'chlad', 'chrán', 'chráň', 'chrom', 'chvej', 'hlas', 'hlás', 'hluch', 'hmat', 'hnu', 'hol', 'hryz', 'klam', 'krídl', 'mdliev', 'slav', 'strih', 'toč', 'táč', 'vplyv', 'zbroj', 'šklb')),
+    ('o', _O_U_ROOTS),
+    # Human review keeps ob·rú·siť, ob·rú·sok at the word start; o-|brús
+    # stays limited to the negated forms.
+    ('o', ('brús',)),
     ('ob', ('íd', 'išiel', 'išl', 'ísť', 'omkn', 'oznám')),
     ('obo', ('p', 'zret')),
     ('od', ('íd', 'išiel', 'išl', 'ísť', 'opier', 'tiah', 'umier', 'umr', 'vih', 'zrkadľ', 'ži')),
@@ -596,7 +620,7 @@ _NESTED_PREFIX_ROOTS = (
     # and predo-strieť, while roz|ohniť is roz- in front of the vowel-initial
     # ohn- of oheň (PSP roz-ísť sa).
     ('roz', ('ohne', 'ohni', 'ohní', 'ohňo', 'ohňu')),
-    ('u', ('chrán', 'chráň', 'chvát', 'drž', 'hlad', 'hryz', 'klad', 'krad', 'mlč', 'mĺk', 'mŕtv', 'pad', 'plat', 'sporad', 'trp', 'tvrd', 'tŕž', 'vrh', 'zdrav', 'zn')),
+    ('u', _O_U_ROOTS),
     ('za', ('obíd', 'obiš', 'tkn', 'čn', 'hl', 'hn', 'mk', 'žn')),
     ('vy', ('hne', 'kla', 'sch', 'zne')),
     ('zo', ('stáv', 'tn', 'žn')),
@@ -1248,7 +1272,9 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     ):
         return None, None
 
-    if wl.startswith(('ostrihom', 'prepošt')):
+    # Lookalikes of o-/u- + a shared root: Ukrajina is not u-|kraj,
+    # ostrojazyčný is ostro-, not o-|stroj.
+    if wl.startswith(('ostrihom', 'prepošt', 'ukrajin', 'ostrojaz')):
         return None, None
     for pfx, roots in _LEXICAL_PREFIX_ROOTS:
         if any(wl.startswith(pfx + root) for root in roots):

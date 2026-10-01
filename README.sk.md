@@ -288,14 +288,14 @@ Stav verzovaných slovenských dát k **2026-10-01**:
 
 | metrika | počet |
 | --- | ---: |
-| riadky inventára | **206 272** |
-| aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **206 200** |
-| uložené riadky Human rozhodnutí (surová tabuľka) | **21 455** |
-| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **21 290 (10,32 %)** |
-| skontrolované typografické delenia | **21 115 (10,24 %)** — 19 768 potvrdení, 1 347 opráv |
-| skontrolované hovorené slabikovania | **346 (0,17 %)** — pri 265 tvaroch sú skontrolované oba výstupy |
+| riadky inventára | **206 205** |
+| aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **206 133** |
+| uložené riadky Human rozhodnutí (surová tabuľka) | **22 877** |
+| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **22 592 (10,96 %)** |
+| skontrolované typografické delenia | **22 460 (10,90 %)** — 20 946 potvrdení, 1 514 opráv |
+| skontrolované hovorené slabikovania | **349 (0,17 %)** — pri 266 tvaroch sú skontrolované oba výstupy |
 
-Surových 21 455 riadkov tvorí 19 979 posledných akcií `confirm`, 1 395 `correct`, 47 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
+Surových 22 877 riadkov tvorí 21 213 posledných akcií `confirm`, 1 565 `correct`, 65 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
 
 | lokálny korpus | tvary | vygenerovaná IPA | návrhy delenia |
 | --- | ---: | ---: | --- |
