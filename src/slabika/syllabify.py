@@ -418,6 +418,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('bohvie', ('ak',)),
     ('kveto', ('slav',)),
     ('de', ('flog', 'flor', 'grad')),
+    # diakritika: operator 2026-10-01, di·a·kri·tic·kom.
+    ('dia', ('krit',)),
     ('hoci', ('ktor',)),
     ('hvezdo', ('prav',)),
     ('hrozo', ('straš',)),
@@ -433,6 +435,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('ni', ('kde', 'kto')),
     ('nie', ('kde', 'kto', 'ktor')),
     ('non', ('plusultra',)),
+    # pažravý: pa- + žrať, operator 2026-10-01, pa·žrav·ca.
+    ('pa', ('žr',)),
     ('north', ('rup',)),
     ('plus', ('ultra',)),
     ('post', ('gradu',)),
@@ -2227,6 +2231,9 @@ _LATIN_HIATUS_TAILS = ('eum', 'eus')
 _LEXICAL_FALLING_HIATUS = (('abeund', 2), ('aleut', 2), ('reum', 1))
 # fiala/fialka/fialový: operator 2026-10-01, read fi-ja-, hence fi·a·lo·vá.
 _LEXICAL_RISING_HIATUS = (('triumf', 'iu'), ('ctiutŕh', 'iu'), ('fial', 'ia'))
+# Whole morphological parts read with a hiatus: the dia- of dia|kritika
+# (operator 2026-10-01, di·a·kri·tic·kom).
+_LEXICAL_RISING_HIATUS_PARTS = {'dia': 'ia'}
 _LEXICAL_RISING_DIPHTHONG_STEMS = ('klient', 'pacient')
 _LEXICAL_FALLING_DIPHTHONGS = (
     ('puoriad', 'uo'),
@@ -2481,6 +2488,10 @@ def _phonemes(word: str) -> list[str]:
                 phonemes[index:index + 1] = grapheme
                 break
             offset += len(phoneme)
+    part_hiatus = _LEXICAL_RISING_HIATUS_PARTS.get(wl)
+    if part_hiatus in phonemes:
+        index = phonemes.index(part_hiatus)
+        phonemes[index:index + 1] = part_hiatus
     for stem, grapheme in _LEXICAL_FOREIGN_CONSONANT_GRAPHEMES:
         if wl.startswith(stem):
             index = phonemes.index(grapheme[0])

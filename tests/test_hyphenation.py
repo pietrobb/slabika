@@ -431,9 +431,10 @@ def test_linguistic_compound_seams_beat_the_consonant_count():
     assert hyphenate("slovník") == "slov·ník"
     assert hyphenate("mnohý") == "mno·hý"
     assert hyphenate("ortuť") == "or·tuť"
-    # Section 3.5 keeps the syllabic division where the seam is not perceivable:
-    # dia- is no recurring member for a Slovak reader the way orto- is.
-    assert hyphenate("diakritika") == "diak·ri·ti·ka"
+    # dia|kritika is a lexical seam by operator decision (2026-10-01), not a
+    # productive first member: dialóg and diaľnica keep their syllabic division.
+    assert hyphenate("diakritika") == "di·a·kri·ti·ka"
+    assert hyphenate("dialekt") == "dia·lekt"
 
 
 def test_generated_inventory_divides_compounds_nobody_typed_in():
@@ -6526,6 +6527,15 @@ def test_blind1000_v5_operator_verdicts_2026_10_01():
         "fialka": "fi·al·ka",
         "svetlofialovo": "svet·lo·fi·a·lo·vo",
         "tmavofialovomodrej": "tma·vo·fi·a·lo·vo·mod·rej",
+        # diakritika: dia- is read di-ja- and divides from kritika.
+        "diakritickom": "di·a·kri·tic·kom",
+        "diakritika": "di·a·kri·ti·ka",
+        "diakritickými": "di·a·kri·tic·ký·mi",
+        # pažravý: pa- + žrať (operator 2026-10-01).
+        "pažravca": "pa·žrav·ca",
+        "pažravý": "pa·žra·vý",
+        "najpažravejšej": "naj·pa·žra·vej·šej",
+        "dialóg": "dia·lóg",
         "neserte": "ne·ser·te",
         "prostrediu": "pro·stre·diu",
         "Wadeovou": "Wade·o·vou",
