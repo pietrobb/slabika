@@ -569,7 +569,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'mr', 'pokoj', 'poslúch', 'pri', 'prostred', 'rod', 'smer', 'smej', 'smia', 'smiev', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'zna', 'zná', 'znes', 'znie', 'šľacht', 'škrn', 'škŕň', 'štud', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad', 'lh', 'rv', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),
-    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'uj', 'zrak', 'zrač')),
+    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'zrak', 'zrač')),
     ('ú', ('hrad', 'kryt', 'nav', 'plat', 'rad', 'smev', 'stred', 'stup', 'tlak', 'toč')),
 )
 
@@ -705,7 +705,7 @@ _SK_COMPOSITA = [
     'devätnásť', 'osemnásť', 'sedemnásť', 'šestnásť', 'pätnásť',
     'štrnásť', 'trinásť', 'dvanásť', 'jedenásť',
     'video', 'niekoľko', 'deväť', 'sedem', 'osem', 'šesť', 'šest', 'päť', 'zeme', 'vrti',
-    'troj', 'tri', 'dve', 'štyri', 'sto', 'tisíc', 'viac', 'geo', 'teo', 'bio', 'foto', 'auto', 'euro', 'etyl', 'steto',
+    'troj', 'tri', 'dve', 'štyri', 'sto', 'tisíc', 'viac', 'geo', 'teo', 'bio', 'zoo', 'foto', 'auto', 'euro', 'etyl', 'steto',
     'agro', 'agri', 'astro', 'aero', 'anti', 'archi', 'arch',
     'hydro', 'termo', 'elektro', 'mikro', 'makro', 'mono', 'neuro', 'orto', 'poly',
     'pseudo', 'semi', 'hemi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',

@@ -3205,7 +3205,7 @@ def test_batch_144_pre_d_families_keep_real_morpheme_boundaries():
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("predadamiti") == "pred·ada·mi·ti"
     assert hyphenate("Predexistenciu") == "Pred·exis·ten·ciu"
-    assert hyphenate("predgeologických") == "pred·geo·lo·gic·kých"
+    assert hyphenate("predgeologických") == "pred·ge·o·lo·gic·kých"
 
 
 def test_batch_145_distinguishes_pre_pred_and_predo_families():
@@ -5507,6 +5507,18 @@ def test_break_points_agree_with_hyphenate():
         assert "\u00b7".join(rebuilt) == hyphenate(word)
 
 
+def test_left_and_right_min_only_drop_points_near_the_edges():
+    assert break_points("ideál", contextual=True) == [1, 3]
+    assert break_points("ideál", contextual=True, left_min=2) == [3]
+    assert break_points("Prekladateľský", left_min=3, right_min=3) == [3, 6, 8, 11]
+    assert break_points("Prekladateľský", left_min=4, right_min=4) == [6, 8]
+    assert hyphenate("Prekladateľský", left_min=4, right_min=4) == "Prekla·da·teľský"
+    assert hyphenate("lietadlo", all_points=True, right_min=3) == "lie·ta·dlo"
+    assert hyphenate("ideál", left_min=9, right_min=9) == "ideál"
+    with pytest.raises(ValueError):
+        break_points("ideál", left_min=0)
+
+
 def test_separator_is_configurable():
     assert hyphenate("podzemie", separator="-") == "pod-ze-mie"
     assert hyphenate("podzemie", separator="\u00ad") == "pod\u00adze\u00admie"
@@ -6471,8 +6483,15 @@ def test_a_one_letter_vowel_prefix_is_not_left_standing_alone():
         "geológia": "geo·ló·gia",
         "biológmi": "bio·lóg·mi",
         "choreografiek": "cho·reo·gra·fiek",
-        "predgeologických": "pred·geo·lo·gic·kých",
         "videopožičovňa": "vi·deo·po·ži·čov·ňa",
+        # zoo- added by operator 2026-10-01 after the 71-word AI recheck.
+        "zoológ": "zoo·lóg",
+        "zoologický": "zoo·lo·gic·ký",
+        # Operator 2026-10-01: the protection holds only at the word start.
+        "predgeologických": "pred·ge·o·lo·gic·kých",
+        "antizoologičky": "an·ti·zo·o·lo·gič·ky",
+        "antibiotikami": "an·ti·bi·o·ti·ka·mi",
+        "mikrobiológ": "mik·ro·bi·o·lóg",
     }
     assert {word: hyphenate(word) for word in compounds} == compounds
     assert hyphenate("biológmi", all_points=True, contextual=True) == "bi·o·lóg·mi"
@@ -6527,7 +6546,12 @@ def test_johanka_translation_ai_verdicts_2026_10_01():
         "Prozreteľnosti": "Pro·zre·teľ·nos·ti",
         "Zástavníkom": "Zá·stav·ní·kom",
         "zástavy": "zá·sta·vy",
-        "Záujem": "Zá·ujem",
+        "Záujem": "Zá·u·jem",
+        # Operator 2026-10-01: the whole záujem family has u as its own syllable.
+        "zaujímavý": "za·u·jí·ma·vý",
+        "nezaujímať": "ne·za·u·jí·mať",
+        "zaujať": "za·u·jať",
+        "zaujme": "za·uj·me",
         "Nezostalo": "Ne·zo·sta·lo",
         "zostať": "zo·stať",
         "zostávať": "zo·stá·vať",
@@ -6543,8 +6567,26 @@ def test_johanka_translation_ai_verdicts_2026_10_01():
         "Poitiers": "Poi·tiers",
         "Marguerieho": "Mar·gue·rie·ho",
         "Bertrand": "Ber·trand",
+        "Domrémy": "Dom·ré·my",
+        "Domremi": "Dom·re·mi",
+        "domrémyjský": "dom·ré·myj·ský",
+        "Jargeau": "Jar·geau",
+        "Lagny": "La·gny",
+        "Montmartre": "Mont·mar·tre",
+        "Cognac": "Co·gnac",
+        # Case forms keep the reviewed stem points; only the ending is Slovak.
+        "Domrémyho": "Dom·ré·my·ho",
+        "Domrémom": "Dom·ré·mom",
+        "Lagnyho": "La·gny·ho",
+        "Montmartri": "Mont·mar·tri",
+        "Cognacu": "Co·gna·cu",
+        "albastonu": "al·ba·sto·nu",
         "Anglicku": "An·glic·ku",
         # u-|znášať: the one-letter prefix cannot stand alone, zn stays together.
         "uznášaniaschopnosť": "uzná·ša·nia·schop·nosť",
+        # Operator 2026-10-01: zá·u·jem; the záujm- forms keep uj·m.
+        "záujem": "zá·u·jem",
+        "nezáujem": "ne·zá·u·jem",
+        "záujmy": "zá·uj·my",
     }
     assert {word: hyphenate(word) for word in expected} == expected

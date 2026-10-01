@@ -100,6 +100,10 @@ zápornú predponu `ne-` a základ `omylná`. Pôvod: rozhodnutie operátora z 5
 pri rules r3 doplnené výslovne, lebo slepý AI audit (prompt v5) takéto body
 zaraďoval do preferovaného delenia.
 
+Výnimkou je rodina `záujem`: `zá|u|jem`, `za|u|jí|mať`, `za|u|jí|ma|vý`,
+`za|u|jať`, `ne|za|u|ja|tý` (rozhodnutie operátora 2026-10-01). Ak za `u`
+nasleduje skupina spoluhlások, delí sa ako doteraz: `zá|uj|my`, `za|uj|me`.
+
 Z toho istého dôvodu sa nedelí skupina spoluhlások na začiatku základu za
 predponou, rovnako ako by sa nedelila na začiatku slova. Platí to aj vtedy, keď
 bod na hranici predpony blokuje §6.2 (jednopísmenová predpona `u-`, `o-`,
@@ -160,11 +164,14 @@ odôvodnením, že paragraf rieši iba samotný šev zloženiny. Operátor potvr
 
 Ak sa prvá časť zloženiny končí samohláskou, ktorá s predchádzajúcou
 samohláskou tvorí hiát (`bio-`, `geo-`, `teo-`, `video-`, `choreo-`,
-`biblio-`, `rádio-`), prvá časť zostáva v preferovanom delení celá. Hiátový bod
+`biblio-`, `rádio-`, `zoo-`), prvá časť zostáva v preferovanom delení celá. Hiátový bod
 vnútri nej je prípustný, ale menej vhodný, rovnako ako bod za jednopísmenovou
 začiatočnou slabikou (§6.2): `bio|lóg|mi`, `teo|ló|gia`, `geo|met|ria`,
-`vi|deo|po|ži|čov|ňa`; `bi|o|lóg|mi` iba v mimoriadne úzkej sadzbe. Pravidlo sa
-týka iba časti zloženiny. Hiát pred príponou (`ak|ci|o|nár`, `si|tu|á|cia`) ani
+`zoo|lóg`, `vi|deo|po|ži|čov|ňa`; `bi|o|lóg|mi` iba v mimoriadne úzkej sadzbe.
+`zoo-` doplnil operátor 2026-10-01 po AI kontrole (`zoo·lóg`, nie `zo·o·lóg`). Pravidlo sa
+týka iba časti zloženiny, ktorá stojí na začiatku slova. Za predponou alebo inou
+časťou zloženiny platia oba body (operátor 2026-10-01): `an|ti|bi|o|ti|ka|mi`,
+`an|ti|zo|o|lo|gič|ky`, `pred|ge|o|lo|gic|kých`, `mik|ro|bi|o|lóg`. Hiát pred príponou (`ak|ci|o|nár`, `si|tu|á|cia`) ani
 hiát vnútri koreňa bez hranice zloženia (`ar|che|o|lóg`, `pi|o|nier`) sa ním
 neoslabuje.
 

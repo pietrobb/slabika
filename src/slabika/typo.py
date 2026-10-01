@@ -93,8 +93,13 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'blake': (),
     'capehartom': (4, 7),
     'coeli': (3,),
+    'cognac': (2,),  # French gn is one consonant [ɲ]: Co·gnac.
     'cypress': (3,),
     'department': (2, 6),
+    # French Dom + Rémy; om before a consonant is one nasal vowel [ɔ̃] (§5.4).
+    'domremi': (3, 5),
+    'domrémy': (3, 5),
+    'domrémyjský': (3, 5, 8),
     'elenore': (3,),
     'escamillo': (2, 4, 6),  # Spanish ll is one sound: Es·ca·mi·llo.
     'excellence': (2, 5),
@@ -122,6 +127,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'hornblende': (4,),
     'immense': (2,),
     'jacques': (),
+    'jargeau': (3,),  # French eau is one vowel [o]: Jar·geau.
     'jacquesa': (2,),
     'jaira': (3,),
     'joea': (),
@@ -137,6 +143,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'jowette': (2,),
     'joyce': (),
     'joycea': (3,),
+    'lagny': (2,),  # French gn is one consonant [ɲ]: La·gny.
     'lockridge': (4,),
     'loira': (3,),
     'loire': (),
@@ -172,6 +179,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'maisie': (3,),
     'marguerieho': (3, 6, 9),  # French gue: Mar·gue·rie·ho.
     'marlene': (3,),
+    'montmartre': (4, 7),  # French Mont + martre; nasal on is one vowel [ɔ̃].
     'nadejde': (2, 5),  # Czech nadejít; operator 2026-10-01: na·dej·de, not nad·ej·de.
     'oglethorpe': (4,),
     'poitiers': (3,),  # French oi is one nucleus: Poi·tiers.
@@ -184,6 +192,57 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'teufelswand': (7,),
     'wadeovou': (4, 5),
 }
+
+# Slovak case endings a reviewed foreign name takes (Domrémy·ho, Co·gna·cu,
+# Mont·mar·tri). Only the ending is Slovak; the stem keeps its reviewed points.
+_FOREIGN_NAME_ENDINGS = frozenset({
+    'a', 'e', 'i', 'u', 'y', 'á', 'ou', 'om', 'ov', 'ovi', 'ovia', 'och', 'ami',
+    'ách', 'ám', 'ho', 'mu', 'm', 'mi',
+})
+
+
+def _reviewed_foreign_inflected_points(word: str) -> set[int] | None:
+    """Points of a Slovak case form of a name in _REVIEWED_FOREIGN_BREAK_POINTS.
+
+    The stem keeps its reviewed points. A consonant-initial ending is its own
+    syllable (Dom·ré·my·ho); a vowel-initial ending either replaces the final
+    vowel (Mont·mar·tre → Mont·mar·tri, Dom·ré·my → Dom·ré·mom) or takes over
+    the stem-final consonant by PSP 2a–2c (Co·gnac → Co·gna·cu).
+    """
+    lower = word.lower()
+    for key in sorted(_REVIEWED_FOREIGN_BREAK_POINTS, key=len, reverse=True):
+        if len(key) < 5:
+            continue
+        points = _REVIEWED_FOREIGN_BREAK_POINTS[key]
+        ending = lower[len(key):]
+        if lower.startswith(key) and ending in _FOREIGN_NAME_ENDINGS:
+            stem = key
+            if not is_vowel(ending[0]):
+                if not any(is_vowel(char) for char in ending):
+                    return set(points)
+                return {*points, len(stem), *(len(stem) + p for p in _psp_points(ending))}
+            if is_vowel(stem[-1]):
+                return None
+        elif (
+            is_vowel(key[-1])
+            and lower.startswith(key[:-1])
+            and lower[len(key) - 1:] in _FOREIGN_NAME_ENDINGS
+            and is_vowel(lower[len(key) - 1])
+        ):
+            stem, ending = key[:-1], lower[len(key) - 1:]
+        else:
+            continue
+        kept = {p for p in points if p < len(stem)}
+        # The ending replaced the vowel of the last syllable (Mont·mar·tri):
+        # nothing to resyllabify.
+        if not any(is_vowel(char) for char in stem[max(kept, default=0):]):
+            return kept
+        start = len(stem)
+        while start and not is_vowel(stem[start - 1]):
+            start -= 1
+        proxy = 'a' + stem[start:] + ending
+        return {p for p in kept if p < start} | {start - 1 + p for p in _psp_points(proxy)}
+    return None
 
 
 def _preferred_internal_vowel_points(word: str) -> set[int]:
@@ -337,8 +396,20 @@ def _french_gn_point(word: str) -> int | None:
 # Compound first parts that end in a hiatus vowel. Rules r3 (§3.4) keep such a
 # part whole at the basic level: bio|lóg, not bi|o|lóg.
 _HIATUS_FIRST_PARTS = frozenset({
-    'bio', 'geo', 'teo', 'video', 'choreo', 'biblio', 'rádio', 'judeo',
+    'bio', 'geo', 'teo', 'video', 'choreo', 'biblio', 'rádio', 'judeo', 'zoo',
 })
+
+
+def _is_zaujat_family(left: str, right: str) -> bool:
+    """Operator verdict 2026-10-01: za|u|jímať, za|u|jať, zá|u|jem — the u- of
+    this family is a syllable of its own, unlike po|uží|va|nie."""
+    right = right.casefold()
+    return (
+        left.casefold().endswith(('za', 'zá'))
+        and right.startswith('uj')
+        and len(right) > 2
+        and is_vowel(right[2])
+    )
 
 
 def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
@@ -369,6 +440,9 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     reviewed_foreign = _REVIEWED_FOREIGN_BREAK_POINTS.get(word.lower())
     if reviewed_foreign is not None:
         return set(reviewed_foreign), set(), set()
+    reviewed_foreign = _reviewed_foreign_inflected_points(word)
+    if reviewed_foreign is not None:
+        return reviewed_foreign, set(), set()
 
     routed = foreign_points(word, _psp_points)
     if routed is not None:
@@ -459,6 +533,7 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     # syllabic point in these structural classes. The raw whole-word rule gives
     # that second point; only a consonant-only shift across the seam is admitted.
     raw_points = _psp_points(word)
+    zaujat_points: set[int] = set()
     for seam, left, right in seams:
         if folded == 'poslednýkrát' and left.casefold() == 'po':
             variants.add(seam + 1)
@@ -470,7 +545,10 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         # this class, so pou|čiť is no codified doublet of po|učiť; it is a
         # plain 4.1 point the norm asks the typesetter not to take unless the
         # measure forces it. That is the contextual level, not the variant one.
-        if (
+        if _is_zaujat_family(left, right):
+            points.add(seam + 1)
+            zaujat_points.add(seam + 1)
+        elif (
             len(right) > 1
             and is_vowel(right[0])
             and seam + 1 in points
@@ -557,6 +635,7 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     for point in sorted(points):
         if (
             point in preferred_internal_vowels
+            or point in zaujat_points
             or lexical_parts is not None
             or point - 1 not in points
             or not is_vowel(word[point - 1])
@@ -574,8 +653,11 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
         # (rules §3.4, project reading since r3). Only listed first parts
         # qualify: a suffix seam (akcio|nár, situá|cia) is no compound, and two
         # vowels inside a stem with no seam (arche|o|lóg) keep both points.
+        # The protection holds only at the start of the word: after a prefix
+        # (an·ti·bi·o·ti·ka·mi, an·ti·zo·o·lo·gič·ky) both points stay.
         elif (
             left_part_at.get(point) in _HIATUS_FIRST_PARTS
+            and point == len(left_part_at[point])
             and point - 1 not in preferred_internal_vowels
             and is_vowel(word[point - 2])
         ):
@@ -600,7 +682,11 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
 
 
 def break_points(
-    word: str, all_points: bool = False, contextual: bool = False
+    word: str,
+    all_points: bool = False,
+    contextual: bool = False,
+    left_min: int = 1,
+    right_min: int = 1,
 ) -> list[int]:
     """
     Return the character offsets at which *word* may be broken across lines.
@@ -620,6 +706,11 @@ def break_points(
     second part. Ask for these only when setting an exceptionally narrow
     measure — they are legal, and they are ugly.
 
+    ``left_min`` and ``right_min`` are typographic settings, not language
+    rules: a point leaving fewer than ``left_min`` characters before it or
+    fewer than ``right_min`` after it is dropped. The defaults of 1 drop
+    nothing.
+
     >>> break_points("Prekladateľský")
     [3, 6, 8, 11]
     >>> break_points("lietadlo")
@@ -632,14 +723,23 @@ def break_points(
     [2, 3]
     >>> break_points("ideál", contextual=True)
     [1, 3]
+    >>> break_points("ideál", contextual=True, left_min=2)
+    [3]
+    >>> break_points("Prekladateľský", left_min=2, right_min=4)
+    [3, 6, 8]
     """
+    if left_min < 1 or right_min < 1:
+        raise ValueError("left_min and right_min must be at least 1")
     preferred, variants, contextuals = _collect_points(word)
     offsets = set(preferred)
     if all_points:
         offsets |= variants
     if contextual:
         offsets |= contextuals
-    return sorted(offsets)
+    return sorted(
+        offset for offset in offsets
+        if left_min <= offset <= len(word) - right_min
+    )
 
 
 def divisions(word: str) -> list[str]:
@@ -660,6 +760,8 @@ def hyphenate(
     separator: str = MIDDLE_DOT,
     all_points: bool = False,
     contextual: bool = False,
+    left_min: int = 1,
+    right_min: int = 1,
 ) -> str:
     """
     Return *word* with *separator* inserted at every valid break point.
@@ -667,6 +769,7 @@ def hyphenate(
     Original casing is preserved. Supported DE/FR words use native patterns
     adapted to PSP when both the shared router and language evidence agree.
     Existing lexical readings take precedence; unsupported spellings stay unchanged.
+    ``left_min`` and ``right_min`` work as in :func:`break_points`.
 
     >>> hyphenate('Prekladateľský')
     'Pre·kla·da·teľ·ský'
@@ -680,8 +783,10 @@ def hyphenate(
     'po·učiť'
     >>> hyphenate('poučiť', contextual=True)
     'po·u·čiť'
+    >>> hyphenate('Prekladateľský', left_min=2, right_min=4)
+    'Pre·kla·da·teľský'
     """
-    offsets = break_points(word, all_points, contextual)
+    offsets = break_points(word, all_points, contextual, left_min, right_min)
     if not offsets:
         return word
 

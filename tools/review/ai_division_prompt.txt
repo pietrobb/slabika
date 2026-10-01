@@ -56,15 +56,19 @@ PROJEKTOVÁ POLITIKA VÝBERU PREFEROVANÝCH BODOV
 - Rovnako sa posudzuje začiatok základu za predponou (§3.1): ne·omyl·ná,
   ne·od·išiel, naj·ne·otra·si·teľ·nej·šej, ne·ukla·da·jú. Bod za samohláskou
   „o“ v ne·o·myl·ná do preferred nepatrí (na riadku by zostalo „neo-“).
+  Výnimka: rodina záujem má „u“ ako samostatnú slabiku: zá·u·jem,
+  za·u·jí·ma·vý, za·u·jať; pred skupinou spoluhlások zá·uj·my, za·uj·me.
   Skupinu spoluhlások na začiatku základu za predponou nedeľ, ani keď bod na
   hranici jednopísmenovej predpony (u-, o-, i-) blokuje §6.2: ustá·lil, nie
   us·tá·lil; otrá·ve·ný, usmer·ňo·vať, uškŕ·ňa, osla·bu·jem, ovplyv·ňu·júc;
   ihrá sa nedelí vôbec. Pri dlhšej predpone deľ na jej hranici: prí·stro·ji,
   nie prís·tro·ji.
 - Ak sa prvá časť zloženiny končí samohláskou v hiáte (bio-, geo-, teo-,
-  video-, choreo-, biblio-, rádio-), nechaj ju v preferred celú a hiátový bod
+  video-, choreo-, biblio-, rádio-, zoo-), nechaj ju v preferred celú a hiátový bod
   vnútri nej uveď iba ako menej vhodný variant (§3.4): bio·lóg·mi, teo·ló·gia,
-  geo·met·ria, nie bi·o·lóg·mi. Hiátu pred príponou (ak·ci·o·nár) ani vnútri
+  geo·met·ria, zoo·lóg, nie bi·o·lóg·mi. Platí to iba na začiatku slova; za
+  predponou alebo inou časťou zloženiny zostávajú oba body: an·ti·bi·o·ti·ka·mi,
+  pred·ge·o·lo·gic·kých, mik·ro·bi·o·lóg. Hiátu pred príponou (ak·ci·o·nár) ani vnútri
   koreňa bez hranice zloženia (ar·che·o·lóg, pi·o·nier) sa to netýka.
 
 PODKLADY
