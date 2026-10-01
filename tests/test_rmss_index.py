@@ -5,6 +5,7 @@ import importlib.util
 import sqlite3
 from pathlib import Path
 
+from slabika.review.ai_runs import ensure_schema
 
 MODULE_PATH = Path(__file__).parents[1] / "tools/morph/rmss_index.py"
 SPEC = importlib.util.spec_from_file_location("rmss_index", MODULE_PATH)
@@ -76,7 +77,7 @@ def test_rmss_root_audit_helpers_mark_only_requested_seams():
     assert rmss._marked("doktor", {3}) == "dok·tor"
 
 
-def test_rmss_root_audit_classifies_existing_psp_mismatch(tmp_path, monkeypatch):
+def test_rmss_root_audit_classifies_existing_ai_mismatch(tmp_path, monkeypatch):
     from slabika import syllabify, typo
 
     monkeypatch.setattr(typo, "break_points", lambda _word: [2])
@@ -117,24 +118,25 @@ def test_rmss_root_audit_classifies_existing_psp_mismatch(tmp_path, monkeypatch)
 
     review_path = tmp_path / "review.sqlite"
     with sqlite3.connect(review_path) as connection:
+        ensure_schema(connection)
         connection.executescript(
             """
-            CREATE TABLE psp_comparisons (
-                form TEXT, psp_hyphenation TEXT, psp_variants TEXT,
-                engine_current_verdict TEXT, psp_reference TEXT,
-                reason TEXT, audited_at TEXT
-            );
-            INSERT INTO psp_comparisons VALUES (
-                'doktor', 'dok·tor', '["dok·tor"]', 'correct',
-                'PSP V.2.b', 'Dvojica kt sa delí medzi spoluhláskami.',
-                '2026-08-25T20:55:04+00:00'
-            );
+            INSERT INTO ai_rule_sets VALUES (1, 'r1', 'r', 'pravidlá', 'test', '', 't');
+            INSERT INTO ai_prompts VALUES (1, 'v1', 'p', 'prompt', 'test', '', 't');
+            INSERT INTO ai_schemas VALUES (1, 's1', 's', '{}', '', 't');
+            INSERT INTO ai_models VALUES (1, 'a', 'x', 'a', '', ''), (2, 'b', 'x', 'b', '', '');
+            INSERT INTO engine_versions VALUES (1, '0', 'c', 0, 't', '');
+            INSERT INTO ai_runs VALUES ('run', 1, 1, 1, 1, 2, 1, 'test', NULL, 'f', 's',
+                '2026-10-01', '2026-10-01', '{}', 'h', x'00', NULL, '', 't');
+            INSERT INTO ai_verdicts VALUES
+                ('run', 'doktor', 1, 'agreed_independent', 'dok·tor', NULL, 'do·ktor');
             """
         )
 
     report = rmss.audit_root_conflicts(index_path, inventory_path, review_path, 10)
 
-    assert report["status_counts"] == {"confirmed_current_mismatch": 1}
+    assert report["status_counts"] == {"ai_current_mismatch": 1}
+    assert report["items"][0]["ai_rules_version"] == "r1"
     assert report["items"][0]["form"] == "doktor"
     assert report["items"][0]["rmss_root"] == "dokt"
     assert report["items"][0]["syllabic_fallback"] == "dok·tor"

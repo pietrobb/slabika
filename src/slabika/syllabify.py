@@ -213,6 +213,8 @@ _PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
     ('nenaklon', (2, 2)),    # ne·na·klo·ne·ný, ne·na·klo·ni·la
     ('umiestne', (6,)),      # umiest·ne·nej, umiest·ne·nie
     ('leskl', (4,)),         # lesk·lý, lesk·lá
+    ('zadn', (3,)),          # zad·ný: root zad-, not za- (Johanka, AI run 2026-10-01)
+    ('žoldn', (4,)),         # žold·nie·rov: root žold
     ('úzkostliv', ()),       # úz·kos·tli·vosť, úz·kos·tli·vos·ťou
     ('vrchnostensk', ()),    # vrch·nos·ten·ský, vrch·nos·ten·skú
     ('vlastnost', ()),       # vlast·nos·tiach, vlast·nost·né
@@ -239,6 +241,8 @@ _PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
     ('neviestka', (2, 5)),        # ne·viest·kar·ských
     ('nevlastni', (2, 5)),        # ne·vlast·nia
     ('obšťastni', (2, 5)),        # ob·šťast·niť
+    ('novoprišl', (2, 2, 3)),     # no·vo·pri·šlá -- operator 2026-10-01,
+                                  # like ne·pri·šla (r3 §3.1)
     ('svetlopla', (4, 2, 3)),     # svet·lo·pla·chá -- the compound seam the
                                   # operator kept, against both the engine's
                                   # svet·lop·la·chá and the rule's sve·tlo·
@@ -486,7 +490,7 @@ _LEXICAL_PREFIX_ROOTS = (
     )),
     ('pohano', ('kresťan',)),
     ('pomsty', ('chtiv',)),
-    ('pro', ('stred',)),
+    ('pro', ('stred', 'zret')),  # pro·zre·teľ·nosť (Johanka, AI run 2026-10-01)
     ('re', ('produ',)),
     ('zraku', ('chtiv',)),
     ('písmeno', ('žrút',)),
@@ -512,7 +516,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('vlaso', ('štiep',)),
     ('vlasti', ('zrad',)),
     ('vše', ('spravod', 'svet', 'svät', 'vlád', 'zľutov', 'žrút')),
-    ('znovu', ('navrát', 'smr', 'stret', 'zjednot', 'zre', 'zrod', 'zroď', 'zvol')),
+    ('znovu', ('navrát', 'otvor', 'smr', 'stret', 'zjednot', 'zre', 'zrod', 'zroď', 'zvol')),
     ('žalo', ('spev',)),
     ('žido', ('kresťan',)),
     ('o', (
@@ -524,8 +528,12 @@ _LEXICAL_PREFIX_ROOTS = (
         'neskor', 'pre', 'pri', 'pros', 'prot',
         'podstat', 'prav', 'práv', 'pust', 'sln', 'smel', 'spev', 'spra', 'streľ',
         'strih', 'strieľ', 'sved', 'svet', 'svie', 'svoj', 'sídl', 'tlač', 'tlak',
-        'tras', 'trh', 'tup', 'vplyv', 'zbroj', 'znač', 'živ',
+        'tras', 'trh', 'tráv', 'trav', 'tup', 'vplyv', 'zbroj', 'znač', 'živ',
+        'tvor', 'tvár',  # o-|tvoriť: otvo·rí·me (operator 2026-10-01)
     )),
+    # i-|hrať (operator 2026-10-01: ihrá is undivided). Only the hra-/hrá-/hris-
+    # stems, so German Ihrer keeps its own reading.
+    ('i', ('hra', 'hrá', 'hris')),
     ('in', ('štruk',)),
     ('šéf', ('lekár',)),
     ('pa', ('kľúč', 'svetl')),
@@ -533,7 +541,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pra', ('arch',)),
     ('pri', ('sťah',)),
     ('prie', ('hlav', 'hľad', 'hrad', 'klep', 'strel', 'stup', 'svit', 'zrač')),
-    ('prí', ('klad', 'krat', 'krov', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'streš', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zrak', 'zvuk')),
+    ('prí', ('klad', 'krat', 'krov', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'streš', 'stroj', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zrak', 'zvuk')),
     ('naj', ('všestran',)),
     ('ne', ('exist', 'mst', 'obyčaj', 'ocen', 'ochot', 'oficiál', 'opís', 'otes', 'očak', 'scudzolož', 'sčet', 'sčerv', 'sčísel', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
     ('novo', ('povst', 'prij', 'stan', 'stvor', 'vzbud', 'vznik', 'vysvät', 'zdol', 'zhotov', 'zjav', 'zrod', 'zvol')),
@@ -556,13 +564,13 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pod', ('oblas',)),
     # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
     ('do', ('opek', 'čk')),
-    ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'sled', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
+    ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'klad', 'sled', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač')),
-    ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'pokoj', 'poslúch', 'pri', 'prostred', 'rod', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'šľacht', 'štud', 'taj', 'tláč')),
+    ('u', ('bud', 'cten', 'chrán', 'chráň', 'hrad', 'hrád', 'krát', 'kráť', 'kry', 'krý', 'mr', 'pokoj', 'poslúch', 'pri', 'prostred', 'rod', 'smer', 'smej', 'smia', 'smiev', 'spokoj', 'sporiad', 'spôsob', 'staj', 'stal', 'stan', 'stat', 'stať', 'stá', 'staľ', 'stel', 'stl', 'stoj', 'stráp', 'stráž', 'strn', 'stroj', 'stup', 'stúp', 'tiah', 'tích', 'tka', 'tká', 'tlač', 'tráp', 'tras', 'trel', 'tret', 'trh', 'trie', 'tried', 'trus', 'trús', 'tŕh', 'tvor', 'tvr', 'zamk', 'zdrav', 'zna', 'zná', 'znes', 'znie', 'šľacht', 'škrn', 'škŕň', 'štud', 'taj', 'tláč')),
     ('vy', ('čk', 'chlad', 'lh', 'rv', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),
-    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'kryt', 'plat', 'prah', 'skok', 'stup', 'svet', 'zrak', 'zrač')),
-    ('ú', ('hrad', 'kryt', 'nav', 'plat', 'rad', 'stred', 'stup', 'tlak', 'toč')),
+    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'uj', 'zrak', 'zrač')),
+    ('ú', ('hrad', 'kryt', 'nav', 'plat', 'rad', 'smev', 'stred', 'stup', 'tlak', 'toč')),
 )
 
 _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
@@ -571,7 +579,7 @@ _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
 
 _NESTED_PREFIX_ROOTS = (
     ('do', ('tkn',)),
-    ('o', ('brús', 'chlad', 'chrán', 'chráň', 'chrom', 'hlas', 'hlás', 'hluch', 'hmat', 'hnu', 'hol', 'hryz', 'klam', 'krídl', 'mdliev', 'slav', 'strih', 'toč', 'táč', 'vplyv', 'zbroj', 'šklb')),
+    ('o', ('brús', 'chlad', 'chrán', 'chráň', 'chrom', 'chvej', 'hlas', 'hlás', 'hluch', 'hmat', 'hnu', 'hol', 'hryz', 'klam', 'krídl', 'mdliev', 'slav', 'strih', 'toč', 'táč', 'vplyv', 'zbroj', 'šklb')),
     ('ob', ('íd', 'išiel', 'išl', 'ísť', 'omkn', 'oznám')),
     ('obo', ('p', 'zret')),
     ('od', ('íd', 'išiel', 'išl', 'ísť', 'opier', 'tiah', 'umier', 'umr', 'vih', 'zrkadľ', 'ži')),
@@ -1258,16 +1266,13 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                 continue
             if len(rem) < 3:
                 continue
-            # In z-obraz-, z-ohľad-, z-ohnúť, z-ostať and z-otroč- the o belongs
-            # to the vowel-initial base; keep genuine zo- forms such as zo-brať intact.
+            # In z-obraz-, z-ohľad-, z-ohnúť and z-otroč- the o belongs to the
+            # vowel-initial base; keep genuine zo- forms such as zo-brať and
+            # zo-stať (operator 2026-10-01, like zo-stúpiť) intact.
             if pfx == 'zo' and (
                 wl == 'zostra'
-                or reml.startswith((
-                    'braz', 'hľad', 'hnut', 'stať', 'stal', 'staň', 'stan',
-                    'stáv', 'stat', 'troč',
-                ))
+                or reml.startswith(('braz', 'hľad', 'hnut', 'troč'))
                 or reml in _ZOHNUT_INFLECTIONS
-                or reml == 'sta'
             ):
                 continue
             # Residual posl- families are lexical roots. Transparent po-|slint-,
@@ -1903,8 +1908,10 @@ def get_morpheme_parts(word: str) -> list[str]:
         return [word[:4], word[4:]]
     for prefix in ('pro', 'ú'):
         stem = prefix + 'stred'
+        # The -ie ending opens with a vowel, so it gives no seam of its own
+        # (§3.3): pro·stre·die, not pro·stred·ie.
         if wl.startswith(stem) and wl[len(stem):] in _STRED_IE_INFLECTIONS:
-            return [word[:len(prefix)], word[len(prefix):len(stem)], word[len(stem):]]
+            return [word[:len(prefix)], word[len(prefix):]]
     potreb_family = _split_potreb_family(word)
     if potreb_family is not None:
         prefixes, remainder = potreb_family
@@ -2218,7 +2225,8 @@ _LATIN_HIATUS_TAILS = ('eum', 'eus')
 # These lexical families pronounce e-u as two syllables, unlike the otherwise
 # reliable eu nucleus in learned loans.
 _LEXICAL_FALLING_HIATUS = (('abeund', 2), ('aleut', 2), ('reum', 1))
-_LEXICAL_RISING_HIATUS = (('triumf', 'iu'), ('ctiutŕh', 'iu'))
+# fiala/fialka/fialový: operator 2026-10-01, read fi-ja-, hence fi·a·lo·vá.
+_LEXICAL_RISING_HIATUS = (('triumf', 'iu'), ('ctiutŕh', 'iu'), ('fial', 'ia'))
 _LEXICAL_RISING_DIPHTHONG_STEMS = ('klient', 'pacient')
 _LEXICAL_FALLING_DIPHTHONGS = (
     ('puoriad', 'uo'),
@@ -2461,9 +2469,18 @@ def _phonemes(word: str) -> list[str]:
     phonemes = _merge_latin_qu(_resolve_hiatus(word, split_into_phonemes(word)))
     wl = word.casefold()
     for stem, grapheme in _LEXICAL_RISING_HIATUS:
-        if wl.startswith(stem):
-            index = phonemes.index(grapheme)
-            phonemes[index:index + 1] = grapheme
+        # Anywhere in the word, so compounds such as svetlofialovo and
+        # tmavofialovomodrej keep the hiatus too.
+        start = wl.find(stem)
+        if start < 0:
+            continue
+        target = start + stem.index(grapheme)
+        offset = 0
+        for index, phoneme in enumerate(phonemes):
+            if offset == target and phoneme == grapheme:
+                phonemes[index:index + 1] = grapheme
+                break
+            offset += len(phoneme)
     for stem, grapheme in _LEXICAL_FOREIGN_CONSONANT_GRAPHEMES:
         if wl.startswith(stem):
             index = phonemes.index(grapheme[0])

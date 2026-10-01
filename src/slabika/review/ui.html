@@ -47,8 +47,6 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   #rows { overflow-y: auto; }
   .row { padding: 2px 12px 2px 8px; border-left: 4px solid transparent; }
   .row:nth-child(even) { background: #171a1f; }
-  .row.ai-diff { background: #33191c; }
-  .row.ai-diff:nth-child(even) { background: #3a1c20; }
   .row.focus { background: #222a37; }
   .row.d-confirm { border-left-color: var(--good); }
   .row.d-correct { border-left-color: var(--warn); }
@@ -136,17 +134,14 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
     <option value="corrected_form">slovo má opravený tvar</option>
     <option value="deleted">označené na vymazanie</option>
     <option value="engine_disagree">moje ≠ engine</option>
-    <option value="psp_comparison">má PSP porovnanie s Chlebíkovou</option>
-    <option value="ai_disagree">AI má iné delenie slov</option>
-    <option value="human_review">AI: rozpor alebo neistota</option>
+    <option value="ai_verdict">má verdikt dvoch AI modelov</option>
+    <option value="ai_verdict_differs">dohoda dvoch AI ≠ engine</option>
     <option value="verified">overené ľuďmi (import)</option>
     <option value="syllabification_unsupported">nepodporované slabikovanie</option>
     <option value="engine_error">engine spadol</option>
   </select>
   <button id="tex-diff" class="voice-filter" aria-pressed="false"
           title="porovná engine a Chlebíkovú s rovnakým TeX minimom 2 znaky vľavo a 3 vpravo">Engine (TeX 2/3) ≠ Chlebíková</button>
-  <button id="blind-human-diff" class="voice-filter" aria-pressed="false"
-          title="ponechá iba tvary, pri ktorých sa delenie slepého AI a človeka líši">Slepý AI ≠ človek</button>
   <button id="human-diff" class="voice-filter" aria-pressed="false"
           title="ponechá iba tvary, kde sa dnešný výstup enginu líši od uloženého rozhodnutia človeka">Engine ≠ človek</button>
   <button id="worklist" class="voice-filter" aria-pressed="false" disabled
@@ -211,11 +206,11 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
 <script>
 const S = {
   items: [], total: 0, offset: 0, limit: 500, focus: 0, pending: false,
-  q: "", mode: "prefix", status: "all", texDiff: false, blindHumanDiff: false,
+  q: "", mode: "prefix", status: "all", texDiff: false,
   humanDiff: false, worklist: false, worklistName: "",
   loadVersion: 0,
   applied: {q: "", mode: "prefix", status: "all", limit: 500,
-            texDiff: false, blindHumanDiff: false, humanDiff: false,
+            texDiff: false, humanDiff: false,
             worklist: false},
 };
 
@@ -237,8 +232,6 @@ async function api(path, body) {
 
 const engineText = it => dash(it.hyphenation);
 const mineText = it => dash(it.my_expected);
-const aiText = it => dash(it.ai_expected);
-const aiDiffers = it => it.ai_disagrees;
 const myAction = it => it.my_hyphenation_action;
 const unmarked = text => (text || "").replace(/[-·\u2010-\u2015\s]/g, "");
 const isValid = (it, input) => unmarked(input.value) === it.review_form;
@@ -267,7 +260,7 @@ const entriesFor = (row, it, requiredField = null) => [...row.querySelectorAll("
 function setPending(value) {
   if (value) ++S.loadVersion;
   S.pending = value;
-  for (const id of ["q", "mode", "status", "tex-diff", "blind-human-diff",
+  for (const id of ["q", "mode", "status", "tex-diff",
                     "human-diff", "worklist", "worklist-pick", "random-unreviewed",
                     "limit", "undo", "bulk", "export", "prev", "next"])
     $(id).disabled = value;
@@ -276,7 +269,6 @@ function setPending(value) {
 }
 function syncVoiceFilters() {
   for (const [id, active] of [["tex-diff", S.texDiff],
-                              ["blind-human-diff", S.blindHumanDiff],
                               ["human-diff", S.humanDiff],
                               ["worklist", S.worklist]]) {
     $(id).classList.toggle("on", active);
@@ -294,14 +286,14 @@ function restoreAppliedFilters() {
 const LABEL = {confirm: ["potvrdené", "var(--good)"], correct: ["opravené", "var(--warn)"],
                flag: ["⚑ je to zle", "var(--bad)"], uncertain: ["neviem", "var(--accent)"],
                invalid: ["nie je slovo", "var(--grey)"]};
-const PSP_VERDICT = {correct: "SPRÁVNE", incorrect: "NESPRÁVNE", unresolved: "NEROZHODNUTÉ"};
+const AI_VERDICT = {agreed_independent: "zhoda hneď", agreed_after_review: "zhoda po dohadovaní",
+                    uncertain: "neisté", unresolved_disagreement: "nezhoda",
+                    invalid_response: "neplatná odpoveď"};
 
 // Every independent opinion on this form, side by side.  The engine is the
 // yardstick; each other voice is green when it lands on the same points and
 // amber when it does not.  None of them outranks PSP — they only show where
 // a human has to decide.
-const BLIND_LABEL = {uncertain: "neviem", invalid: "nie je slovo"};
-
 function voicesHtml(it) {
   const engine = engineText(it);
   const lines = [[it.corpus_language ? "návrh PSP" : "engine", engine, null]];
@@ -309,18 +301,16 @@ function voicesHtml(it) {
   if (it.engine_tex !== it.hyphenation)
     lines.push(["engine (TeX 2/3)", dash(it.engine_tex), null]);
   if (it.my_expected) lines.push(["človek", it.my_expected, it.my_disagrees]);
-  if (it.ai_expected) lines.push(["AI", it.ai_expected, it.ai_disagrees]);
-  if (it.blind_variants && it.blind_variants.length)
-    lines.push(["slepý AI", it.blind_variants.join("  "), it.blind_disagrees]);
-  else if (it.blind_assessment)
-    lines.push(["slepý AI", BLIND_LABEL[it.blind_assessment] || it.blind_assessment, null]);
-  if (it.psp_comparison) {
-    const p = it.psp_comparison;
-    lines.push(["PSP (TeX 2/3)", dash(p.psp_tex),
-                p.engine_current_verdict !== "correct"]);
-    lines.push(["Chleb. audit", dash(p.chlebikova),
-                p.chlebikova_verdict !== "correct"]);
-  }
+  const v = it.ai_verdict;
+  if (v && v.preferred) lines.push(["2 AI", v.preferred, v.differs_from_engine]);
+  else if (v && v.proposals.length) {
+    const tag = AI_VERDICT[v.status] || v.status;
+    const p = v.proposals;
+    if (p.length === 2 && p[0].preferred === p[1].preferred)
+      lines.push([`2 AI (${tag})`, p[0].preferred, p[0].differs_from_engine]);
+    else p.forEach(x => lines.push([`AI ${x.model.split(/[-\[]/)[0]} (${tag})`,
+                                     x.preferred, x.differs_from_engine]));
+  } else if (v) lines.push(["2 AI", AI_VERDICT[v.status] || v.status, null]);
   if (it.tex) lines.push(["Chlebíková teraz", it.tex, it.tex_disagrees]);
 
   return lines.map(([label, text, differs]) =>
@@ -334,7 +324,6 @@ function paint(row, it) {
   const visibleAction = it.flags.deleted ? "deleted" :
     (it.my_row_action || it.my_hyphenation_action || (classified ? "classify" : null));
   row.className = "row grid" + (visibleAction ? " d-" + visibleAction : "") +
-                  (aiDiffers(it) ? " ai-diff" : "") +
                   (row._i === S.focus ? " focus" : "");
   row.querySelectorAll(".edit").forEach(input => {
     input.classList.toggle("diff", input.value !== engineText(it));
@@ -343,7 +332,7 @@ function paint(row, it) {
 
   row.querySelector(".voices").innerHTML = voicesHtml(it);
 
-  const parts = [it.ai_adjudication_html || ""];
+  const parts = [];
   if (it.corpus_language) {
     const p = it.pronunciation;
     parts.push(`<details class="psp-audit"><summary>${esc(p.proposal_status || "pending")} · výslovnosť ${esc(p.pronunciation_status || "pending")}</summary>` +
@@ -354,12 +343,10 @@ function paint(row, it) {
   const action = myAction(it);
   if (action) {
     const [text, colour] = LABEL[action];
-    parts.push(`<b style="color:${colour}">PSP: ${text}</b>`);
+    parts.push(`<b style="color:${colour}">človek: ${text}</b>`);
   }
   if (it.stale_h)
-    parts.push(`<span style="color:var(--bad)">PSP: engine sa zmenil</span>`);
-  if (aiDiffers(it))
-    parts.push(`<b style="color:var(--bad)">AI PSP: ${esc(aiText(it))}</b>`);
+    parts.push(`<span style="color:var(--bad)">človek: engine sa odvtedy zmenil</span>`);
   if (it.my_row_action) {
     const [text, colour] = LABEL[it.my_row_action];
     parts.push(`<b style="color:${colour}">${text}</b>`);
@@ -377,23 +364,63 @@ function paint(row, it) {
   else if (it.my_flags.deleted === 0) parts.push("ponechať v korpuse");
   if (it.syllabification_unsupported) parts.push("slabikovanie nedostupné — nepodporovaný zápis; výslovnosť treba overiť");
   if (it.engine_error) parts.push(`<span style="color:var(--bad)">${it.corpus_language ? esc(it.engine_error) : "engine spadol"}</span>`);
-  if (it.psp_comparison) {
-    const p = it.psp_comparison;
-    const note = p.comparison_note ? `<br><b>Záver:</b> ${esc(p.comparison_note)}` : "";
+  if (it.ai_verdict) {
+    const v = it.ai_verdict;
+    const old = (v.rules_latest ? "" : " — staršie pravidlá") + (v.prompt_latest ? "" : " — starší prompt");
     parts.push(
-      `<details class="psp-audit"><summary>Dôkaz podľa PSP: ${esc(p.psp_reference)}</summary>` +
-      `<div><b>Rodina:</b> ${esc(p.family)}` +
-      `<br><b>Aktuálny engine (${p.left_min}/${p.right_min}):</b> ${esc(dash(p.engine_tex_after))}` +
-      ` — <b>${PSP_VERDICT[p.engine_current_verdict]}</b>` +
-      `<br><b>Chlebíková (${p.left_min}/${p.right_min}):</b> ${esc(dash(p.chlebikova))}` +
-      ` — <b>${PSP_VERDICT[p.chlebikova_verdict]}</b>` +
-      `<br><b>Správne podľa PSP (${p.left_min}/${p.right_min}):</b> ${esc((p.psp_tex_variants || [p.psp_tex]).map(dash).join(" / "))}` +
-      `<br><b>Pravidlo a dôvod:</b> ${esc(p.reason)}${note}` +
-      `<br><b>Historická zmena enginu:</b> ${esc(dash(p.engine_before))} → ${esc(dash(p.engine_after))}` +
-      `</div></details>`
+      `<details class="psp-audit ai-run"><summary>2 AI: ${esc(AI_VERDICT[v.status] || v.status)}` +
+      ` · pravidlá ${esc(v.rules_version)} · prompt ${esc(v.prompt_version)}${esc(old)}</summary>` +
+      `<div>Poradný verdikt, nie PSP ani Human rozhodnutie.` +
+      `<br><b>Beh:</b> ${esc(v.run_id)} (${esc(v.finished_at)})` +
+      `<br><b>Verzie:</b> pravidlá ${esc(v.rules_version)}, prompt ${esc(v.prompt_version)}, schéma ${esc(v.schema_version)}` +
+      `<br><b>Modely:</b> ${esc(v.models.join(" + "))}` +
+      `<br><b>Engine pri behu:</b> ${esc(v.engine_version)} ${esc(v.engine_commit)} (strom ${esc(v.engine_tree)}): ${esc(v.engine_at_run)}` +
+      `<div class="ai-answers">${v._answersHtml || ""}</div></div></details>`
     );
   }
   row.querySelector(".state").innerHTML = parts.join(" · ") || "—";
+  const run = row.querySelector("details.ai-run");
+  if (run) run.addEventListener("toggle", () => { if (run.open) loadAnswers(it.ai_verdict, run); });
+}
+
+// The full model answers are heavy (morphology, every point with its rule,
+// rejected variants), so they are fetched only when the verdict is expanded.
+async function loadAnswers(v, details) {
+  const box = details.querySelector(".ai-answers");
+  if (v._answersHtml) { box.innerHTML = v._answersHtml; return; }
+  box.innerHTML = "<br>načítavam odpovede modelov…";
+  try {
+    const r = await fetch(`/api/ai_answers?run_id=${encodeURIComponent(v.run_id)}` +
+                          `&form=${encodeURIComponent(v.answers_form)}`);
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || r.status);
+    v._answersHtml = data.answers.map(answerHtml).join("") || "<br>bez uložených odpovedí";
+  } catch (e) {
+    box.innerHTML = `<br><span style="color:var(--bad)">odpovede sa nepodarilo načítať: ${esc(String(e))}</span>`;
+    return;
+  }
+  box.innerHTML = v._answersHtml;
+}
+
+const REJECTED = {forbidden: "zakázané", dispreferred: "menej vhodné"};
+
+function answerHtml(a) {
+  const parts = (a.preferred || "").split("·");
+  const points = a.boundaries.map((b, i) =>
+    `<li>${esc(parts.slice(0, i + 1).join(""))}·${esc(parts.slice(i + 1).join(""))}` +
+    ` — ${esc(b.basis || "")}: ${esc(b.rule || "")}</li>`).join("");
+  const rejected = a.rejected.map(r =>
+    `<li>${esc(r.variant || "—")} — ${esc(REJECTED[r.status] || r.status || "")}: ${esc(r.rule || "")}</li>`).join("");
+  return `<hr><b>${esc(a.model)}</b> (${esc(a.stage)}): ${esc(a.preferred || "—")}` +
+    (a.vote ? ` · ${esc(a.vote)}/${esc(a.confidence || "")}` : "") +
+    (a.error ? `<br><span style="color:var(--bad)">${esc(a.error)}</span>` : "") +
+    (a.reason ? `<br><b>Zdôvodnenie:</b> ${esc(a.reason)}` : "") +
+    (a.language ? `<br><b>Jazyk:</b> ${esc(a.language)}` : "") +
+    (a.pronunciation ? `<br><b>Výslovnosť:</b> ${esc(a.pronunciation)}` : "") +
+    (a.morphology ? `<br><b>Morfológia:</b> ${esc(a.morphology)}` +
+      (a.root ? ` (koreň ${esc(a.root)})` : "") : "") +
+    (points ? `<br><b>Body delenia:</b><ul>${points}</ul>` : "") +
+    (rejected ? `<b>Odmietnuté varianty:</b><ul>${rejected}</ul>` : "");
 }
 
 function makeRow(it, i) {
@@ -509,12 +536,11 @@ async function load(offset = 0, focus = 0, field = "h") {
     [...$("rows").children].forEach((row, i) => paint(row, S.items[i]));
   }
   const request = {q: S.q, mode: S.mode, status: S.status, limit: S.limit,
-                   texDiff: S.texDiff, blindHumanDiff: S.blindHumanDiff,
+                   texDiff: S.texDiff,
                    humanDiff: S.humanDiff, worklist: S.worklist};
   const p = new URLSearchParams({q: request.q, mode: request.mode,
     status: request.status, limit: request.limit, offset: Math.max(0, offset),
     tex_diff: request.texDiff ? 1 : 0,
-    blind_human_diff: request.blindHumanDiff ? 1 : 0,
     human_diff: request.humanDiff ? 1 : 0,
     worklist: request.worklist ? 1 : 0});
   const data = await api("/api/list?" + p);
@@ -539,17 +565,13 @@ async function stats() {
   if (s.corpus_language) {
     const name = {de: "Nemčina", fr: "Francúzština", en: "Angličtina"}[s.corpus_language];
     document.title = `slabika — ${name} — PSP review`;
-    ["tex-diff", "blind-human-diff"].forEach(id => { $(id).hidden = true; });
-    $("status").querySelectorAll('option[value="psp_comparison"], option[value^="profile_"], option[value^="ai_"], option[value="human_review"], option[value="verified"], option[value="syllabification_unsupported"]').forEach(option => { option.hidden = true; });
+    $("tex-diff").hidden = true;
+    $("status").querySelectorAll('option[value^="profile_"], option[value^="ai_"], option[value="verified"], option[value="syllabification_unsupported"]').forEach(option => { option.hidden = true; });
     document.querySelector(".head span:nth-child(4)").textContent = "IPA / návrh / človek";
     document.querySelector(".hint").textContent = `${name}: delenie cudzích slov v slovenskom texte podľa PSP. IPA je automatický odhad bez ručného overenia. Návrhy delenia sú pracovné, anglické experimentálne. Enter uloží delenie; Opraviť mení návrh slovného tvaru.`;
   }
   const pronunciation = s.corpus_language ? ` · IPA <b>${(s.pronunciation_counts.generated || 0).toLocaleString("sk")}</b> / ${s.total.toLocaleString("sk")} · bez IPA <b>${s.pronunciation_counts.error || 0}</b>` : "";
-  const audit = s.psp_audit
-    ? ` · PSP audit <b>${s.psp_audit.adjudicated.toLocaleString("sk")}` +
-      ` / ${s.psp_audit.total.toLocaleString("sk")}</b>` +
-      (s.psp_audit.next_batch ? ` · ďalšia dávka <b>${s.psp_audit.next_batch}</b>` : "")
-    : "";
+  const audit = s.ai_verdicts ? ` · AI verdikty <b>${s.ai_verdicts.toLocaleString("sk")}</b>` : "";
   $("totals").innerHTML =
     `korpus <b>${s.total.toLocaleString("sk")}</b> · skontrolované ` +
     `<b>${s.reviewed.toLocaleString("sk")}</b> (${pct} %)` +
@@ -734,9 +756,6 @@ $("mode").addEventListener("change", () => { S.mode = $("mode").value; load(0); 
 $("status").addEventListener("change", () => { S.status = $("status").value; load(0); });
 $("tex-diff").addEventListener("click", () => {
   S.texDiff = !S.texDiff; syncVoiceFilters(); load(0);
-});
-$("blind-human-diff").addEventListener("click", () => {
-  S.blindHumanDiff = !S.blindHumanDiff; syncVoiceFilters(); load(0);
 });
 $("human-diff").addEventListener("click", () => {
   S.humanDiff = !S.humanDiff; syncVoiceFilters(); load(0);

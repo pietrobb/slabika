@@ -556,51 +556,44 @@ def audit_root_conflicts(
                 "rmss_printed_page": row["printed_page"],
             }
 
-    evidence: dict[str, sqlite3.Row] = {}
+    evidence: dict[str, dict] = {}
     if review_path is not None and candidates:
+        from slabika.review.ai_runs import AGREED, latest_verdicts
+
         forms = sorted({candidate["form"] for candidate in candidates.values()})
-        placeholders = ",".join("?" for _ in forms)
         with closing(_open_readonly(review_path)) as review:
-            rows = review.execute(
-                f"""SELECT form, psp_hyphenation, psp_variants,
-                            engine_current_verdict, psp_reference, reason, audited_at
-                     FROM psp_comparisons
-                     WHERE form IN ({placeholders})
-                     ORDER BY audited_at DESC""",
-                forms,
-            )
-            for row in rows:
-                evidence.setdefault(row["form"].casefold(), row)
+            for form, row in latest_verdicts(review, forms).items():
+                evidence[form.casefold()] = row
 
     counts: defaultdict[str, int] = defaultdict(int)
     items = []
     for key, candidate in candidates.items():
         row = evidence.get(key[0])
         if row is None:
-            status = "needs_psp_review"
-        elif row["engine_current_verdict"] == "unresolved":
-            status = "psp_unresolved"
+            status = "needs_review"
+        elif row["status"] not in AGREED:
+            status = "ai_unresolved"
         else:
-            variants = set(json.loads(row["psp_variants"] or "[]"))
-            variants.add(row["psp_hyphenation"])
             status = (
-                "psp_supported"
-                if candidate["engine_hyphenation"] in variants
-                else "confirmed_current_mismatch"
+                "ai_supported"
+                if candidate["engine_hyphenation"] == row["preferred"]
+                else "ai_current_mismatch"
             )
         counts[status] += 1
         candidate["status"] = status
         if row is not None:
-            candidate["psp_hyphenation"] = row["psp_hyphenation"]
-            candidate["psp_reference"] = row["psp_reference"]
-            candidate["psp_reason"] = row["reason"]
+            candidate["ai_preferred"] = row["preferred"]
+            candidate["ai_status"] = row["status"]
+            candidate["ai_run"] = row["run_id"]
+            candidate["ai_rules_version"] = row["rules_version"]
+            candidate["ai_prompt_version"] = row["prompt_version"]
         items.append(candidate)
 
     priority = {
-        "confirmed_current_mismatch": 0,
-        "needs_psp_review": 1,
-        "psp_unresolved": 2,
-        "psp_supported": 3,
+        "ai_current_mismatch": 0,
+        "needs_review": 1,
+        "ai_unresolved": 2,
+        "ai_supported": 3,
     }
     items.sort(
         key=lambda item: (
@@ -614,7 +607,10 @@ def audit_root_conflicts(
             "engine morpheme seam strictly inside an aligned RMSS bold root, "
             "used as a preferred break, and absent from whole-word PSP syllabic fallback"
         ),
-        "authority_warning": "RMSS is evidence and candidate generation only; PSP decides correctness.",
+        "authority_warning": (
+            "RMSS is evidence and candidate generation only; dual-model AI verdicts are "
+            "advisory; PSP decides correctness."
+        ),
         "corpus_only": inventory_path is not None,
         "aligned_entries": len(aligned),
         "candidate_count": len(items),

@@ -77,12 +77,11 @@ class ForeignCorpus(Corpus):
     def precompute_voice_filters(self) -> None:
         self._tex_disagreements = frozenset()
 
-    def item(self, form, ai, mine, psp=None) -> dict:
+    def item(self, form, ai, mine, verdict=None) -> dict:
         result = super().item(form, ai, mine)
         evidence = self._evidence(self.review_forms[form])
         return result | {
             "corpus_language": self.language,
-            "ai_adjudication_html": "",
             "engine_tex": result["hyphenation"],
             "syllabification_unsupported": False,
             "pronunciation": evidence,
@@ -116,9 +115,3 @@ class ForeignCorpus(Corpus):
         for row in result["corrections"]:
             row["pronunciation"] = self._evidence(row["form"])
         return result | {"corpus_language": self.language, "corpus_metadata": self.metadata}
-
-    def freeze_psp_audit(self, *args, **kwargs):
-        raise ValueError("Chlebíková is not used for foreign corpora")
-
-    def adjudicate_psp(self, payload):
-        raise ValueError("Chlebíková is not used for foreign corpora")

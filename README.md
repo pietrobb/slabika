@@ -53,14 +53,11 @@ Jana Chlebíková published Slovak Liang patterns in 1992; they have served Slov
 
 The historical file is nevertheless not a sufficient foundation for a system that must be inspectable and improvable. Its complete derivation cannot be rerun; letter fragments retain neither a linguistic explanation nor the morphological analysis behind a boundary; and its treatment of foreign words and exceptions was deliberately limited. This does not make the 1992 work poor. It makes it a valuable baseline whose practical limits can now be measured and repaired.
 
-Two different measurements show the size of those limits:
+One measurement shows the size of those limits:
 
 | evidence | current project | Chlebíková 1992 | what it establishes |
 | --- | ---: | ---: | --- |
 | exact held-out words against the preferred engine target, TeX minima 2/3 | **98.5060%** | **89.5690%** | reproducibility of the engine, not PSP correctness |
-| accepted under PSP among 21,514 resolved historical disagreements | **21,508** | **6,196** | adjudication of the disagreement set, not random overall accuracy |
-
-The second row comprises 15,313 cases where only the frozen engine was accepted, 6,195 where both outputs were accepted, 1 where only Chlebíková was accepted and 5 where neither was accepted. Another 1,659 cases remain unresolved. The audit was AI-assisted and deliberately contains only disagreements, so it is strong diagnostic evidence rather than an independent accuracy percentage; its full methodology appears under [PSP-adjudicated comparison set](#psp-adjudicated-comparison-set).
 
 A common source of difference is **recognized morphological structure**: a prefix plus base, the members of a compound, or a base plus a derivational or grammatical suffix. A letter-pattern table sees recurring character fragments but does not retain that analysis. The following are 21 verified morphological examples, not cases declared wrong merely because the outputs differ. `·` marks an available line break. The 1992 column applies the TeX left/right minima 2/3; the current-engine column is the literal result of `hyphenate(word)`, whose API does not apply those TeX edge minima.
 
@@ -297,30 +294,28 @@ The first command seeds all forms and processes pending/error rows in resumable 
 
 ## Data and review statistics
 
-As of **2026-09-26**, the tracked Slovak data has this current state:
+As of **2026-10-01**, the tracked Slovak data has this current state:
 
 | metric | count |
 | --- | ---: |
 | inventory rows | **206,272** |
 | active unique forms shown by the review console after folding case-only aliases | **206,200** |
-| stored Human decision rows (raw table) | **19,926** |
-| active canonical forms with any Human evidence | **19,761 (9.58%)** |
-| typographic divisions reviewed | **19,593 (9.50%)** — 18,367 confirms, 1,226 corrections |
-| spoken syllabifications reviewed | **346 (0.17%)** — 264 forms have both outputs reviewed |
+| stored Human decision rows (raw table) | **21,455** |
+| active canonical forms with any Human evidence | **21,290 (10.32%)** |
+| typographic divisions reviewed | **21,115 (10.24%)** — 19,768 confirms, 1,347 corrections |
+| spoken syllabifications reviewed | **346 (0.17%)** — 265 forms have both outputs reviewed |
 
-The raw decision rows comprise 18,579 latest `confirm`, 1,274 `correct`, 39 `classify`, 25 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
+The raw decision rows comprise 19,979 latest `confirm`, 1,395 `correct`, 47 `classify`, 25 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
 
 The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 6,601 resolved, 1,477 uncertain and 22 invalid. Reviewers received bare forms without engine output or earlier decisions. They were isolated LLM reviewers, not the author.
 
-The tracked dual-model evidence contains 17 runs and 1,346 adjudications over 1,239 distinct forms. Recorded model slots are `claude-opus-5[high]` and `gpt-6-astra[sub][high]`. There were 1,079 independent agreements, 145 agreements after cross-review, 23 after reconciliation and 99 unresolved decisions over 71 distinct forms. These layers overlap and must not simply be added to estimate checked vocabulary.
+### Versioned dual-model verdicts
 
-### PSP-adjudicated comparison set
+`tests/data/review_decisions.sqlite` files every dual-model run together with the exact inputs that produced it. `ai_rule_sets`, `ai_prompts` and `ai_schemas` keep the full rules text, prompt and response schema under version labels; `ai_models` names the models; `engine_versions` records the package version, Git commit, uncommitted-change flag and content hash of the engine that the run was compared with. `ai_runs` links a run to all of these and keeps its compressed transcript, `ai_verdicts` holds one outcome per form, and `ai_model_answers` keeps every model answer in every round. The tables are append-only: a changed rules text becomes a new version, and older verdicts remain readable together with the rules they were produced under. `tools/review/import_ai_run.py` refuses a run whose per-batch hashes do not match the texts it is filed under.
 
-The tracked `tests/data/review_decisions.sqlite` contains the immutable audit queue `engine-chlebikova-exhaustive-2026-08-25-v1`: all **23,173 unique forms** on which the frozen engine and the bundled 1992 patterns disagreed with the same 2/3 margins. The forms were sorted deterministically and assessed in 232 batches of at most 100. Each comparison records the original outputs, proposed PSP division and variants, separate verdicts for the engine and Chlebíková, a PSP citation, rationale and unresolved classification. Human decisions, blind reviews and dual-model adjudications remain separate evidence rather than votes that overwrite one another.
+The first filed run, `blind1000-20260930` (rules r1, prompt v4, schema s1, `claude-opus-5-5[high]` with `gpt-6.1-sol[sub][high]`), covers 1,000 forms sampled uniformly from the inventory: 862 independent agreements, 26 agreements after review, 40 uncertain, 2 unresolved disagreements and 70 invalid responses. Of the 888 agreed forms, 860 match the engine output at run time and 28 differ. Model agreement is advisory evidence, not a PSP verdict, and never overwrites a Human decision.
 
-The recorded outcomes are **15,313 engine only**, **6,195 both correct**, **1 Chlebíková only**, **5 neither correct** and **1,659 unresolved**: 21,514 resolved comparisons, not 23,173 certified answers. The counts can be reproduced from `psp_comparisons` by filtering on that audit ID and grouping by `comparison_outcome`; every frozen item has a matching comparison row. This is a **PSP-adjudicated comparison set**, not an independent random gold benchmark: the exhaustive PSP interpretation was AI-assisted, its selection is concentrated entirely on historical disagreements, and unresolved foreign pronunciation was preserved rather than guessed.
-
-At the 2026-09-26 snapshot, active non-deleted Human rows overlap the PSP queue on **2,263 forms**; 2,251 have a comparable Human division. PSP resolved 2,001 of those comparable cases: Human matches at least one admissible PSP variant in **1,859** and differs in **142**, a **92.90%** agreement rate. The remaining 250 comparable cases are unresolved in the PSP layer. This overlap does not make the two evidence layers identical or independent gold benchmarks, and neither human opinion nor model consensus settles a case without a PSP argument.
+The earlier engine–Chlebíková comparison set and the older dual-model adjudications were removed on 2026-10-01: they could not be tied to a recorded rules text and prompt. They remain available in Git history.
 
 ## Reproduce and evaluate Liang patterns
 
@@ -372,10 +367,10 @@ The databases the archive ships, all under `tests/data/`:
 | file | size | what it is | needed for |
 | --- | ---: | --- | --- |
 | `translatemaster_hyphenation_working.sqlite` | 13.9 MB | the 206,272-row form inventory, SHA-256 `480904ef…` | pattern regeneration, full-corpus tests, review console |
-| `review_decisions.sqlite` | 42.6 MB | every Human decision, the exhaustive Chlebíková comparison set and the dual-model adjudication runs | auditing the provenance claims, README statistics tests |
+| `review_decisions.sqlite` | 10.9 MB | every Human decision and the versioned dual-model runs | auditing the provenance claims, README statistics tests |
 | `blind_*/manifest.sqlite`, `blind_*/results.sqlite` | 3.9 MB | the four frozen blind audits with their signed manifests | blind-audit checks, review console |
 
-They compress well, so the archive is about 16.7 MB; the wheel stays at 3.5 MB and contains no databases at all. `python tools/audit_release_artifacts.py --inventory src/slabika/data/composita.json <archive>` enforces that split: a database anywhere outside `tests/data/` is a defect, and any database in a wheel is a defect.
+They compress well; the wheel stays at 3.5 MB and contains no databases at all. `python tools/audit_release_artifacts.py --inventory src/slabika/data/composita.json <archive>` enforces that split: a database anywhere outside `tests/data/` is a defect, and any database in a wheel is a defect.
 
 **What the archive cannot supply.** Two things are external toolchain and are not redistributable here:
 

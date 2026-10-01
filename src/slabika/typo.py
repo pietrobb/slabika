@@ -72,7 +72,7 @@ _CHRAN_ROOT_CONTEXTS = (
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 _PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 # Adapted Slovak loans keep their local consonant reading despite foreign spelling matches.
-_SLOVAK_READING_STEMS = ('gangst', 'soused')
+_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused')
 
 # Exact pronunciation-backed points for unadapted foreign spellings. Generic
 # Slovak grapheme rules cannot infer these safely.
@@ -88,11 +88,15 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'aliquid': (3,),
     'ambagesque': (2, 4, 7),
     'applausit': (2, 6),
+    'bertrand': (3,),  # French Ber·trand (Johanka, AI run 2026-10-01).
     'blackburna': (5, 8),
     'blake': (),
+    'capehartom': (4, 7),
+    'coeli': (3,),
     'cypress': (3,),
     'department': (2, 6),
     'elenore': (3,),
+    'escamillo': (2, 4, 6),  # Spanish ll is one sound: Es·ca·mi·llo.
     'excellence': (2, 5),
     'fahrenheita': (3, 6, 9),
     'fahrenheitovho': (3, 6, 9, 12),
@@ -166,20 +170,27 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'maioranosa': (2, 4, 6, 8),
     'maiorem': (2, 4),
     'maisie': (3,),
+    'marguerieho': (3, 6, 9),  # French gue: Mar·gue·rie·ho.
     'marlene': (3,),
+    'nadejde': (2, 5),  # Czech nadejít; operator 2026-10-01: na·dej·de, not nad·ej·de.
     'oglethorpe': (4,),
+    'poitiers': (3,),  # French oi is one nucleus: Poi·tiers.
+    'quirina': (3, 5),
     'salvatorque': (3, 5),
     'teufelsbrücke': (3, 7, 11),
     'teufelsgalgen': (3, 7, 10),
     'teufelsritt': (3, 7),
 
     'teufelswand': (7,),
+    'wadeovou': (4, 5),
 }
 
 
 def _preferred_internal_vowel_points(word: str) -> set[int]:
     """Operator-approved family seams that remain preferred around one vowel."""
     folded = word.casefold()
+    if folded.startswith('neoch'):
+        return {3}
     if folded.startswith('opotreb'):
         return {1}
     if folded.startswith('neupotrebiteľn'):
@@ -321,6 +332,13 @@ def _french_gn_point(word: str) -> int | None:
     if len(folded) < 5 or not folded.endswith('gne') or not is_vowel(folded[-4]):
         return None
     return len(word) - 2
+
+
+# Compound first parts that end in a hiatus vowel. Rules r3 (§3.4) keep such a
+# part whole at the basic level: bio|lóg, not bi|o|lóg.
+_HIATUS_FIRST_PARTS = frozenset({
+    'bio', 'geo', 'teo', 'video', 'choreo', 'biblio', 'rádio', 'judeo',
+})
 
 
 def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
@@ -535,6 +553,7 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     # base it belongs to — so the point that closes it drops to the contextual
     # level, admitted only in exceptionally narrow measure.
     seam_offsets = {seam for seam, _, _ in seams}
+    left_part_at = {seam: left.casefold() for seam, left, _ in seams}
     for point in sorted(points):
         if (
             point in preferred_internal_vowels
@@ -543,16 +562,25 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
             or not is_vowel(word[point - 1])
         ):
             continue
-        # Only a prefix does this. The vowel is a morpheme of its own, seamed on
-        # both sides, and breaking after it welds it to what precedes into a
-        # shape the word does not have (naju|tajenejšia reads na-ju-ta). Two
-        # vowels merely meeting inside a stem weld nothing (arche|o|lóg), and a
-        # connecting vowel carries its own seam (§3.4, teo|lógia); both keep
-        # their points at the basic level.
-        if point - 1 not in seam_offsets:
-            continue
-        points.discard(point)
-        contextual.add(point)
+        # A prefix vowel is a morpheme of its own, seamed on both sides, and
+        # breaking after it welds it to what precedes into a shape the word
+        # does not have (naju|tajenejšia reads na-ju-ta).
+        if point - 1 in seam_offsets:
+            points.discard(point)
+            contextual.add(point)
+        # A compound's first part ending in a hiatus vowel (bio|lóg, teo|lógia,
+        # video|požičovňa) keeps its seam; the hiatus point inside that part
+        # (bi|o) tears the part apart and is admitted only in narrow measure
+        # (rules §3.4, project reading since r3). Only listed first parts
+        # qualify: a suffix seam (akcio|nár, situá|cia) is no compound, and two
+        # vowels inside a stem with no seam (arche|o|lóg) keep both points.
+        elif (
+            left_part_at.get(point) in _HIATUS_FIRST_PARTS
+            and point - 1 not in preferred_internal_vowels
+            and is_vowel(word[point - 2])
+        ):
+            points.discard(point - 1)
+            contextual.add(point - 1)
 
     gn_point = _french_gn_point(word)
     if gn_point is not None:

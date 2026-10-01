@@ -136,34 +136,25 @@ def test_readme_review_statistics_match_tracked_data(tmp_path):
         snapshot = corpus.store.execute(
             "SELECT MAX(decided_at) FROM decisions"
         ).fetchone()[0][:10]
-        audit_id = stats["psp_audit"]["audit_id"]
-        overlap_rows = corpus.store.execute(
-            """SELECT d.expected_hyphenation, p.comparison_outcome, p.psp_variants
-               FROM decisions AS d
-               JOIN psp_audit_items AS i
-                 ON i.form = d.form AND i.audit_id = ?
-               LEFT JOIN psp_comparisons AS p
-                 ON p.form = i.form AND p.audit_id = i.audit_id
-               WHERE coalesce(d.is_deleted, 0) = 0""",
-            (audit_id,),
-        ).fetchall()
+        ai_statuses = dict(corpus.store.execute(
+            "SELECT status, COUNT(*) FROM ai_verdicts WHERE run_id = 'blind1000-20260930' "
+            "GROUP BY status"
+        ))
+        ai_matches = corpus.store.execute(
+            "SELECT SUM(preferred = engine_hyphenation), SUM(preferred <> engine_hyphenation) "
+            "FROM ai_verdicts WHERE run_id = 'blind1000-20260930'"
+        ).fetchone()
     finally:
         corpus.inventory.close()
         corpus.store.close()
 
-    comparable = [row for row in overlap_rows if row["expected_hyphenation"] is not None]
-    resolved = [row for row in comparable if row["comparison_outcome"] != "unresolved"]
-    matching = [
-        row for row in resolved
-        if row["expected_hyphenation"] in json.loads(row["psp_variants"])
-    ]
     hyphenation = stats["reviewed_hyphenation"]
     syllabification = stats["reviewed_syllabification"]
     any_human_evidence = len(selected)
     hyphenation_rate = hyphenation / stats["total"] * 100
     syllabification_rate = syllabification / stats["total"] * 100
     evidence_rate = any_human_evidence / stats["total"] * 100
-    agreement_rate = len(matching) / len(resolved) * 100
+    agreed = ai_statuses["agreed_independent"] + ai_statuses["agreed_after_review"]
 
     readme_en = (root / "README.md").read_text(encoding="utf-8")
     readme_sk = (root / "README.sk.md").read_text(encoding="utf-8")
@@ -176,10 +167,12 @@ def test_readme_review_statistics_match_tracked_data(tmp_path):
         f"| typographic divisions reviewed | **{hyphenation:,} ({hyphenation_rate:.2f}%)** — {stats['confirm']:,} confirms, {stats['correct']:,} corrections |",
         f"| spoken syllabifications reviewed | **{syllabification:,} ({syllabification_rate:.2f}%)** — {stats['reviewed_both']:,} forms have both outputs reviewed |",
         f"{raw_actions['confirm']:,} latest `confirm`, {raw_actions['correct']:,} `correct`, {raw_actions['classify']:,} `classify`, {raw_actions['uncertain']:,} `uncertain`, {raw_actions['invalid']:,} `invalid` and {raw_actions['flag']:,} `flag`",
-        f"**{len(overlap_rows):,} forms**",
-        f"PSP resolved {len(resolved):,}",
-        f"**{len(matching):,}** and differs in **{len(resolved) - len(matching):,}**, a **{agreement_rate:.2f}%** agreement rate",
-        f"remaining {len(comparable) - len(resolved):,} comparable cases",
+        f"{ai_statuses['agreed_independent']:,} independent agreements, "
+        f"{ai_statuses['agreed_after_review']} agreements after review, "
+        f"{ai_statuses['uncertain']} uncertain, {ai_statuses['unresolved_disagreement']} "
+        f"unresolved disagreements and {ai_statuses['invalid_response']} invalid responses",
+        f"Of the {agreed} agreed forms, {ai_matches[0]} match the engine output at run time "
+        f"and {ai_matches[1]} differ",
     ):
         assert expected in readme_en
 
@@ -198,10 +191,11 @@ def test_readme_review_statistics_match_tracked_data(tmp_path):
         f"| skontrolované typografické delenia | **{sk_number(hyphenation)} ({sk_percent(hyphenation_rate)} %)** — {sk_number(stats['confirm'])} potvrdení, {sk_number(stats['correct'])} opráv |",
         f"| skontrolované hovorené slabikovania | **{sk_number(syllabification)} ({sk_percent(syllabification_rate)} %)** — pri {sk_number(stats['reviewed_both'])} tvaroch sú skontrolované oba výstupy |",
         f"Surových {sk_number(raw_total)} riadkov tvorí {sk_number(raw_actions['confirm'])}",
-        f"**{sk_number(len(overlap_rows))} tvaroch**",
-        f"PSP uzavrelo {sk_number(len(resolved))}",
-        f"v **{sk_number(len(matching))}** a nezhoduje v **{sk_number(len(resolved) - len(matching))}**, teda zhoda je **{sk_percent(agreement_rate)} %**",
-        f"Ďalších {sk_number(len(comparable) - len(resolved))} porovnateľných prípadov",
+        f"{ai_statuses['agreed_independent']} nezávislých zhôd, "
+        f"{ai_statuses['agreed_after_review']} zhôd po dohadovaní, "
+        f"{ai_statuses['uncertain']} neistých, {ai_statuses['unresolved_disagreement']} "
+        f"nezhody a {ai_statuses['invalid_response']} neplatných odpovedí",
+        f"Z {agreed} dohodnutých tvarov sa {ai_matches[0]} zhoduje",
     ):
         assert expected in readme_sk
 
@@ -247,18 +241,6 @@ def test_human_hyphenation_matches_the_normative_engine_mode():
         == "contextual"
     )
     assert REVIEW._hyphenation_match_mode("ovládlo", "ov·lád·lo") is None
-
-
-def test_unresolved_evidence_classification_is_conservative():
-    assert REVIEW.classify_unresolved_evidence(
-        "foreign-pronunciation", "PSP V.4 / §5.4", "Chýba doložená výslovnosť."
-    ) == "foreign_pronunciation"
-    assert REVIEW.classify_unresolved_evidence(
-        "fragment", "PSP V.1", "Neúplný korpusový fragment."
-    ) == "damaged_form"
-    assert REVIEW.classify_unresolved_evidence(
-        "po-|drob- / pod-|rob-", "PSP V.1", "Tvar je bez kontextu homografický."
-    ) == "other_evidence_limited"
 
 
 def test_server_uses_a_free_port_when_default_is_occupied():
@@ -311,21 +293,22 @@ def test_ui_reviews_only_typographic_word_division():
     for label in ("Meno", "Cudzie", "Skratka", "Opraviť", "Vymazať"):
         assert f">{label}</button>" in html
     assert 'id="tex-diff"' in html
-    assert 'id="blind-human-diff"' in html
     assert "Engine (TeX 2/3) ≠ Chlebíková" in html
-    assert "Slepý AI ≠ človek" in html
+    # Unversioned legacy AI voices (corpus adjudications, blind audits) stay hidden.
+    for legacy in ("blind-human-diff", "slepý AI", "AI PSP", "it.ai_expected", 'value="ai_disagree"'):
+        assert legacy not in html
     assert 'placeholder="hľadať tvar…  (/)"' in html
     assert '["engine (TeX 2/3)", dash(it.engine_tex), null]' in html
     assert '["Chlebíková teraz", it.tex, it.tex_disagrees]' in html
-    assert 'value="psp_comparison"' in html
+    assert 'value="ai_verdict"' in html and 'value="ai_verdict_differs"' in html
+    assert 'value="psp_comparison"' not in html
     for language in ("english", "german", "french"):
         assert f'value="profile_{language}"' in html
     assert 'id="random-unreviewed"' in html
     assert 'api("/api/worklist/random-unreviewed", {})' in html
     assert '<details class="psp-audit">' in html
-    assert "Aktuálny engine (" in html
-    assert "Správne podľa PSP (" in html
-    assert 'correct: "SPRÁVNE"' in html and 'incorrect: "NESPRÁVNE"' in html
+    assert "Engine pri behu:" in html and "Verzie:</b> pravidlá" in html
+    assert 'agreed_after_review: "zhoda po dohadovaní"' in html
     for label in ('class="classification"', 'Automaticky:', 'Ručne:', 'Import/AI:', 'jazyk neurčený'):
         assert label in html
 
@@ -654,295 +637,124 @@ def test_export_endpoint_downloads_portable_json(corpus, monkeypatch):
     assert disposition.endswith('.json"')
 
 
-def test_psp_comparison_is_persistent_filterable_and_separate_from_human_review(corpus):
-    corpus.store.execute(
-        """INSERT INTO psp_comparisons VALUES (
-               'maslo', 'audit-2026-08-25', 'maslo family', 'ma·slo',
-               'ma·slo', 'mas·lo', 'ma·slo', 'mas·lo', 'mas·lo',
-               'mas·lo', '["mas·lo"]', 'correct', 'incorrect', 'engine_only',
-               'engine_corrected', 'PSP V.2.b / §4.2',
-               'Dve spoluhlásky sa delia medzi sebou.',
-               'Chlebíková zostáva odlišná.', 2, 3,
-               'old-ref', 'new-ref', '2026-08-25T16:00:00+00:00'
-           )"""
-    )
-    corpus.store.commit()
+def _ai_run_dir(path, forms, preferred, rules="pravidlá r1", prompt="prompt v4"):
+    from slabika.review.ai_division import SCHEMA, digest
 
-    page = corpus.page("", "prefix", "psp_comparison", 0, 10)
-    assert [item["review_form"] for item in page["items"]] == ["maslo"]
-    comparison = page["items"][0]["psp_comparison"]
-    assert comparison == {
-        "audit_id": "audit-2026-08-25",
-        "family": "maslo family",
-        "chlebikova": "ma·slo",
-        "engine_before": "ma·slo",
-        "engine_after": "mas·lo",
-        "engine_tex_before": "ma·slo",
-        "engine_tex_after": "mas·lo",
-        "psp": "mas·lo",
-        "psp_tex": "mas·lo",
-        "psp_variants": ["mas·lo"],
-        "psp_tex_variants": ["maslo"],
-        "engine_current_verdict": "correct",
-        "chlebikova_verdict": "incorrect",
-        "comparison_outcome": "engine_only",
-        "unresolved_kind": None,
-        "unresolved_note": None,
-        "verdict": "engine_corrected",
-        "psp_reference": "PSP V.2.b / §4.2",
-        "reason": "Dve spoluhlásky sa delia medzi sebou.",
-        "comparison_note": "Chlebíková zostáva odlišná.",
-        "left_min": 2,
-        "right_min": 3,
-        "engine_before_ref": "old-ref",
-        "engine_after_ref": "new-ref",
-        "audited_at": "2026-08-25T16:00:00+00:00",
-    }
-    assert page["items"][0]["my_expected"] is None
-    assert corpus.stats()["psp_comparisons"] == 1
-    assert corpus.store.execute("SELECT COUNT(*) FROM decisions").fetchone()[0] == 1
-
-
-def test_psp_audit_freezes_every_difference_and_keeps_human_review_separate(
-    corpus, monkeypatch
-):
-    engine = {
-        "aaah": "Aa·ah",
-        "iphone": "iph·one",
-        "maslo": "mas·lo",
-        "okno": "ok·no",
-    }
-    chlebikova = {
-        "aaah": "Aaah",
-        "iphone": "ip·hone",
-        "maslo": "ma·slo",
-        "okno": "okno",
-    }
-
-    def engine_voice(form):
-        marked = REVIEW._recase_marked(engine[form.lower()], form)
-        return marked, form, None
-
-    def tex_voice(form):
-        return chlebikova[form.lower()]
-
-    monkeypatch.setattr(REVIEW, "_engine", engine_voice)
-    monkeypatch.setattr(REVIEW, "tex_hyphenate", tex_voice)
-    before_human = corpus.store.execute("SELECT COUNT(*) FROM decisions").fetchone()[0]
-    before_log = corpus.store.execute("SELECT COUNT(*) FROM decision_log").fetchone()[0]
-
-    progress = corpus.freeze_psp_audit("audit-1", "engine-ref", "chlebikova-ref")
-
-    assert progress["batch_size"] == 100
-    assert progress["total"] == 4
-    assert progress["batches"] == 1
-    assert progress["adjudicated"] == 0
-    assert progress["next_batch"] == 1
-    batch = corpus.psp_audit_batch("audit-1", 1)
-    assert [item["position"] for item in batch["items"]] == [1, 2, 3, 4]
-    assert [item["form"] for item in batch["items"]] == [
-        "iPhone", "iphone", "MASLO", "maslo"
+    path.mkdir()
+    models = {"A": {"model": "claude-x[high]"}, "B": {"model": "gpt-y[sub][high]"}}
+    consensus = [
+        {"form": form, "status": "agreed_independent" if value else "uncertain",
+         "preferred": value}
+        for form, value in zip(forms, preferred)
     ]
-    assert all(
-        item["engine_tex_hyphenation"] != item["chlebikova_hyphenation"]
-        for item in batch["items"]
-    )
+    answers = [
+        {"form": form, "preferred": value or form, "vote": "propose" if value else "uncertain",
+         "confidence": "high", "reason": "Dve spoluhlásky sa delia medzi sebou."}
+        for form, value in zip(forms, preferred)
+    ]
+    batch = {"models": models, "rules_sha256": digest(rules), "prompt_sha256": digest(prompt),
+             "schema_sha256": digest(SCHEMA), "consensus": consensus,
+             "calls": [{"model": key, "stage": "independent", "forms": forms,
+                        "response": {"items": answers}} for key in ("A", "B")]}
+    files = {
+        "transcript.json": {"rules_text": rules, "system_contract": prompt, "schema": SCHEMA,
+                            "batches": [batch]},
+        "comparison.json": [{"form": form, "engine_after_run": form} for form in forms],
+        "summary.json": {"finished_at": "2026-10-01T00:00:00+00:00", "manifest": {
+            "selection": "test", "seed": 1, "forms_sha256": digest(forms),
+            "source_sha256": "src", "started_at": "2026-09-30T00:00:00+00:00"}},
+    }
+    for name, value in files.items():
+        (path / name).write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
+    return path
 
-    monkeypatch.setattr(
-        REVIEW, "_engine", lambda form: (form, form, None)
-    )
-    assert corpus.psp_audit_batch("audit-1", 1)["items"] == batch["items"]
-    with pytest.raises(sqlite3.IntegrityError, match="immutable"):
-        corpus.store.execute(
-            "UPDATE psp_audit_items SET form = 'zmena' WHERE audit_id = 'audit-1'"
-        )
-    with pytest.raises(sqlite3.IntegrityError, match="immutable"):
-        corpus.store.execute(
-            "DELETE FROM psp_audit_items WHERE audit_id = 'audit-1'"
-        )
-    with pytest.raises(sqlite3.IntegrityError, match="immutable"):
-        corpus.store.execute(
-            "UPDATE psp_audit_runs SET total_items = 999 WHERE audit_id = 'audit-1'"
-        )
+
+ENGINE = {"package_version": "0.4.0", "git_commit": "9d2e02d856d0", "git_dirty": 1,
+          "tree_sha256": "ebd3768c0f9eecf41e8008b5", "note": "test"}
+
+
+def _import(corpus, run_dir, run_id, rules_version="r1", prompt_version="v4"):
+    from slabika.review.ai_runs import import_run
+
+    return import_run(corpus.decisions_path, run_dir, run_id=run_id, engine=ENGINE,
+                      rules_version=rules_version, rules_source="docs",
+                      prompt_version=prompt_version, prompt_source="prompt",
+                      schema_version="s1")
+
+
+def test_ai_verdict_names_its_versions_and_stays_separate_from_human_review(corpus, tmp_path):
+    run = _ai_run_dir(tmp_path / "run1", ["maslo", "okno"], ["mas·lo", None])
+    assert _import(corpus, run, "run1") == {"run_id": "run1", "verdicts": 2, "answers": 4}
+
+    page = corpus.page("", "prefix", "ai_verdict", 0, 10)
+    assert [item["review_form"] for item in page["items"]] == ["maslo", "okno"]
+    verdict = page["items"][0]["ai_verdict"]
+    assert verdict["status"] == "agreed_independent"
+    assert verdict["preferred"] == "mas·lo"
+    assert (verdict["rules_version"], verdict["prompt_version"], verdict["schema_version"]) == (
+        "r1", "v4", "s1")
+    assert verdict["rules_latest"] and verdict["prompt_latest"]
+    assert verdict["models"] == ["claude-x[high]", "gpt-y[sub][high]"]
+    assert verdict["engine_commit"] == "9d2e02d+zmeny"
+    assert "answers" not in verdict  # heavy detail is fetched on expand, not per page
+    answers = corpus.ai_answers(verdict["run_id"], verdict["answers_form"])
+    assert [a["model"] for a in answers] == ["claude-x[high]", "gpt-y[sub][high]"]
+    assert answers[0]["reason"] == "Dve spoluhlásky sa delia medzi sebou."
+    assert answers[0]["boundaries"] == [] and answers[0]["rejected"] == []
+    assert page["items"][1]["ai_verdict"]["preferred"] is None
+    assert [(p["model"], p["preferred"], p["vote"]) for p in page["items"][1]["ai_verdict"]["proposals"]] == [
+        ("claude-x[high]", "okno", "uncertain"), ("gpt-y[sub][high]", "okno", "uncertain")]
+    assert verdict["proposals"] == []
+    assert page["items"][0]["my_expected"] is None
+    assert corpus.stats()["ai_verdicts"] == 2
+    assert corpus.store.execute("SELECT COUNT(*) FROM decisions").fetchone()[0] == 1
+    with pytest.raises(sqlite3.DatabaseError, match="immutable"):
+        corpus.store.execute("UPDATE ai_verdicts SET preferred = 'ma·slo'")
+    with pytest.raises(sqlite3.DatabaseError, match="immutable"):
+        corpus.store.execute("DELETE FROM ai_rule_sets")
     corpus.store.rollback()
 
-    monkeypatch.setattr(
-        REVIEW, "_engine", lambda form: (form, form, "test engine failure")
-    )
-    with pytest.raises(RuntimeError, match="engine zlyhal"):
-        corpus.adjudicate_psp(
-            {
-                "audit_id": "audit-1",
-                "form": "maslo",
-                "psp_hyphenation": "mas-lo",
-                "psp_reference": "PSP V.2.b / §4.2",
-                "reason": "Dve spoluhlásky medzi jadrami sa delia medzi sebou.",
-            }
-        )
-    assert corpus.store.execute(
-        "SELECT COUNT(*) FROM psp_comparisons WHERE audit_id = 'audit-1'"
-    ).fetchone()[0] == 0
-    monkeypatch.setattr(REVIEW, "_engine", lambda form: (form, form, None))
-
-    result = corpus.adjudicate_psp(
-        {
-            "audit_id": "audit-1",
-            "form": "maslo",
-            "psp_hyphenation": "mas-lo",
-            "psp_reference": "PSP V.2.b / §4.2",
-            "reason": "Dve spoluhlásky medzi jadrami sa delia medzi sebou.",
-        }
-    )
-    assert result["progress"]["adjudicated"] == 1
-    comparison = corpus.store.execute(
-        "SELECT * FROM psp_comparisons WHERE audit_id = 'audit-1' AND form = 'maslo'"
-    ).fetchone()
-    assert comparison["engine_current_verdict"] == "correct"
-    assert comparison["chlebikova_verdict"] == "incorrect"
-    assert comparison["comparison_outcome"] == "engine_only"
-
-    replacement = {
-        "audit_id": "audit-1",
-        "form": "maslo",
-        "psp_hyphenation": "mas-lo",
-        "psp_variants": ["ma-slo"],
-        "psp_reference": "PSP V.3 / §3.5",
-        "reason": "PSP pripúšťajú dva variantné body.",
-        "replace": True,
-    }
-    with pytest.raises(ValueError, match="dôvod nahradenia"):
-        corpus.adjudicate_psp(replacement)
-    replacement["supersession_reason"] = "Nový doklad potvrdil druhý variant."
-    corpus.adjudicate_psp(replacement)
-    comparison = corpus.store.execute(
-        "SELECT * FROM psp_comparisons WHERE audit_id = 'audit-1' AND form = 'maslo'"
-    ).fetchone()
-    assert comparison["comparison_outcome"] == "both_correct"
-    assert json.loads(comparison["psp_variants"]) == ["mas·lo", "ma·slo"]
-    assert "Nahrádza rozsudok z" in comparison["comparison_note"]
-    history = corpus.store.execute(
-        "SELECT * FROM psp_comparison_log WHERE audit_id = 'audit-1' AND form = 'maslo'"
-    ).fetchone()
-    assert history["supersession_reason"] == "Nový doklad potvrdil druhý variant."
-    assert json.loads(history["previous_json"])["psp_variants"] == '["mas·lo"]'
-
-    monkeypatch.setattr(REVIEW, "_engine", engine_voice)
-    corpus.adjudicate_psp(
-        {
-            "audit_id": "audit-1",
-            "form": "iPhone",
-            "psp_hyphenation": "i-Pho-ne",
-            "psp_reference": "PSP V.4 / §5.4",
-            "reason": "Test samostatného výsledku, pri ktorom nesedí ani jeden hlas.",
-        }
-    )
-    assert corpus.store.execute(
-        """SELECT comparison_outcome FROM psp_comparisons
-           WHERE audit_id = 'audit-1' AND form = 'iPhone'"""
-    ).fetchone()[0] == "both_incorrect"
-    assert corpus.store.execute("SELECT COUNT(*) FROM decisions").fetchone()[0] == before_human
-    assert corpus.store.execute("SELECT COUNT(*) FROM decision_log").fetchone()[0] == before_log
+    newer = _ai_run_dir(tmp_path / "run2", ["maslo"], ["ma·slo"], rules="pravidlá r2")
+    _import(corpus, newer, "run2", rules_version="r2")
+    item = corpus.page("maslo", "exact", "ai_verdict", 0, 10)["items"][0]
+    assert (item["ai_verdict"]["run_id"], item["ai_verdict"]["rules_version"]) == ("run2", "r2")
+    okno = corpus.page("okno", "exact", "ai_verdict", 0, 10)["items"][0]["ai_verdict"]
+    assert okno["rules_version"] == "r1" and okno["rules_latest"] is False
 
 
-def test_psp_audit_can_store_unresolved_engine_failure(corpus, monkeypatch):
-    corpus.store.execute(
-        """INSERT INTO psp_audit_runs VALUES
-           ('audit-foreign', 'engine', 'chlebikova', 2, 3, 100, 0,
-            'building', '2026-08-25T19:00:00+00:00')"""
-    )
-    corpus.store.execute(
-        """INSERT INTO psp_audit_items VALUES
-           ('audit-foreign', 1, 'Español', 'Español', 'Español', 'Es·pañol')"""
-    )
-    corpus.store.execute(
-        """UPDATE psp_audit_runs
-           SET total_items = 1, status = 'frozen'
-           WHERE audit_id = 'audit-foreign'"""
-    )
-    corpus.store.commit()
-    monkeypatch.setattr(
-        REVIEW,
-        "_engine",
-        lambda form: (form, form, "ValueError: neznáma cudzia graféma ñ"),
-    )
+def test_ai_answers_endpoint_serves_full_answers_on_demand(corpus, tmp_path, monkeypatch):
+    _import(corpus, _ai_run_dir(tmp_path / "run1", ["maslo"], ["mas·lo"]), "run1")
+    monkeypatch.setattr(REVIEW.Handler, "corpus", corpus, raising=False)
+    server = REVIEW.ReviewHTTPServer(("127.0.0.1", 0), REVIEW.Handler)
+    url = f"http://127.0.0.1:{server.server_address[1]}/api/ai_answers?run_id=run1&form=maslo"
+    with ThreadPoolExecutor(max_workers=1) as executor:
+        serving = executor.submit(server.serve_forever)
+        try:
+            with urlopen(url, timeout=5) as response:
+                answers = json.load(response)["answers"]
+        finally:
+            server.shutdown()
+            serving.result()
+            server.server_close()
 
-    corpus.adjudicate_psp(
-        {
-            "audit_id": "audit-foreign",
-            "form": "Español",
-            "psp_hyphenation": None,
-            "psp_reference": "PSP V.4 / §5.4",
-            "reason": "Bez doloženej výslovnosti nemožno cudzie písanie rozhodnúť.",
-        }
-    )
-
-    row = corpus.store.execute(
-        """SELECT * FROM psp_comparisons
-           WHERE audit_id = 'audit-foreign' AND form = 'Español'"""
-    ).fetchone()
-    assert row["engine_after_hyphenation"] == "Español"
-    assert row["engine_current_verdict"] == "unresolved"
-    assert "neznáma cudzia graféma ñ" in row["comparison_note"]
-
-    corpus.store.execute(
-        """INSERT INTO psp_unresolved_classifications VALUES
-           ('Español', 'audit-foreign', 'foreign_pronunciation',
-            'Čaká na doloženú slovenskú výslovnosť.',
-            '2026-08-31T12:00:00+00:00')"""
-    )
-    corpus.store.commit()
-    assert corpus.psp_audit_progress("audit-foreign")["unresolved_categories"] == {
-        "foreign_pronunciation": 1
-    }
-
-    monkeypatch.setattr(REVIEW, "_engine", lambda form: ("Es·pa·ñol", form, None))
-    corpus.adjudicate_psp(
-        {
-            "audit_id": "audit-foreign",
-            "form": "Español",
-            "psp_hyphenation": "Es-pa-ñol",
-            "psp_reference": "PSP V.4 / §5.4",
-            "reason": "Doložená výslovnosť už umožňuje tvar rozhodnúť.",
-            "replace": True,
-            "supersession_reason": "Nový výslovnostný doklad odstránil neistotu.",
-        }
-    )
-    assert corpus.psp_audit_progress("audit-foreign")["unresolved_categories"] == {}
-    assert corpus.store.execute(
-        "SELECT COUNT(*) FROM psp_comparison_log WHERE form = 'Español'"
-    ).fetchone()[0] == 1
+    assert [(a["stage"], a["preferred"]) for a in answers] == [("independent", "mas·lo")] * 2
+    assert answers[0]["reason"] == "Dve spoluhlásky sa delia medzi sebou."
 
 
-def test_psp_audit_batches_are_fixed_groups_of_one_hundred(corpus):
-    corpus.store.execute(
-        """INSERT INTO psp_audit_runs VALUES
-           ('audit-205', 'engine', 'chlebikova', 2, 3, 100, 0,
-            'building', '2026-08-25T19:00:00+00:00')"""
-    )
-    corpus.store.executemany(
-        """INSERT INTO psp_audit_items VALUES
-           ('audit-205', ?, ?, ?, ?, ?)""",
-        [
-            (position, f"slovo{position}", f"slo·vo{position}",
-             f"slo·vo{position}", f"slov·o{position}")
-            for position in range(1, 206)
-        ],
-    )
-    corpus.store.execute(
-        """UPDATE psp_audit_runs
-           SET total_items = 205, status = 'frozen'
-           WHERE audit_id = 'audit-205'"""
-    )
-    corpus.store.commit()
-
-    progress = corpus.psp_audit_progress("audit-205")
-    assert progress["batches"] == 3
-    assert [
-        len(corpus.psp_audit_batch("audit-205", batch)["items"])
-        for batch in (1, 2, 3)
-    ] == [100, 100, 5]
-    assert corpus.psp_audit_batch("audit-205", 2)["items"][0]["position"] == 101
-    assert corpus.psp_audit_batch("audit-205", 3)["items"][-1]["position"] == 205
+def test_ai_run_import_refuses_mislabelled_or_inconsistent_texts(corpus, tmp_path):
+    run = _ai_run_dir(tmp_path / "run1", ["maslo"], ["mas·lo"])
+    _import(corpus, run, "run1")
+    other = _ai_run_dir(tmp_path / "run2", ["maslo"], ["mas·lo"], rules="iné pravidlá")
+    with pytest.raises(ValueError, match="different text"):
+        _import(corpus, other, "run2", rules_version="r1")
+    with pytest.raises(ValueError, match="already stored as"):
+        _import(corpus, _ai_run_dir(tmp_path / "run3", ["maslo"], ["mas·lo"]), "run3",
+                rules_version="r9")
+    transcript = json.loads((other / "transcript.json").read_text(encoding="utf-8"))
+    transcript["rules_text"] = "podvrhnuté pravidlá"
+    (other / "transcript.json").write_text(json.dumps(transcript), encoding="utf-8")
+    with pytest.raises(ValueError, match="different rules"):
+        _import(corpus, other, "run4", rules_version="r2")
 
 
 def test_migration_and_second_output_preserve_first_output(corpus):

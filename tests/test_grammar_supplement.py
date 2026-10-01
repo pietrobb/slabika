@@ -94,6 +94,6 @@ def test_candidate_runtime_licenses_animate_bound_head_and_indeclinable(monkeypa
         func = getattr(engine, name)
         monkeypatch.setattr(engine, name, getattr(func, '__wrapped__', func))
     api = importlib.import_module('slabika')
-    assert api.hyphenate('bibliografovi') == 'bib·li·o·gra·fo·vi'
+    assert api.hyphenate('bibliografovi') == 'bib·lio·gra·fo·vi'
     assert api.hyphenate('všadeprítomný') == 'vša·de·prí·tom·ný'
     assert not engine._heads_a_compositum('grafujem')

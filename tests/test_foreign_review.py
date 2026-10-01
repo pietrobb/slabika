@@ -102,8 +102,6 @@ def test_bulk_does_not_require_slovak_syllables_or_confirm_pending(corpus):
         corpus.decide({"form": "wasser", "action": "correct", "text": "vasser"})
     with pytest.raises(ValueError):
         corpus.decide({"form": "wasser", "action": "confirm", "field": "syllabification"})
-    with pytest.raises(ValueError):
-        corpus.freeze_psp_audit("x", "y", "z")
 
 
 def test_read_live_generated_evidence_without_stale_cache(corpus):

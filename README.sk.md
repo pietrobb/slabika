@@ -51,14 +51,11 @@ Jana Chlebíková zverejnila slovenské Liangove vzory v roku 1992; slúžia slo
 
 Historický súbor však nestačí ako základ systému, ktorý sa má dať preskúmať a zlepšovať. Jeho úplný vznik nemožno zopakovať; písmenové úseky si neuchovávajú jazykové zdôvodnenie ani morfematickú analýzu hranice; cudzie slová a výnimky boli spracované iba obmedzene. To neznamená, že pôvodná práca bola zlá. Je to hodnotná historická základňa, ktorej praktické hranice dnes vieme zmerať a cielene opravovať.
 
-Rozsah týchto hraníc ukazujú dve rozdielne merania:
+Rozsah týchto hraníc ukazuje toto meranie:
 
 | evidencia | súčasný projekt | Chlebíková 1992 | čo výsledok dokazuje |
 | --- | ---: | ---: | --- |
 | presné celé slová na odložených dátach oproti preferovanému cieľu enginu, minimá TeXu 2/3 | **98,5060 %** | **89,5690 %** | reprodukovateľnosť enginu, nie správnosť podľa PSP |
-| prijaté podľa PSP medzi 21 514 uzavretými historickými nezhodami | **21 508** | **6 196** | posúdenie súboru nezhôd, nie náhodnú celkovú presnosť |
-
-Druhý riadok tvorí 15 313 prípadov, v ktorých bol prijatý iba zmrazený engine, 6 195 prípadov s oboma prijatými výstupmi, 1 prípad iba pre Chlebíkovú a 5 prípadov, v ktorých nebol prijatý ani jeden výstup. Ďalších 1 659 prípadov zostáva nerozhodnutých. Audit vznikal s pomocou AI a zámerne obsahuje iba nezhody, preto je silnou diagnostickou evidenciou, nie nezávislým percentom presnosti; úplnú metodiku uvádza časť [Porovnávací súbor posúdený podľa PSP](#porovnávací-súbor-posúdený-podľa-psp).
 
 Častou príčinou rozdielu je **rozpoznaná morfematická stavba**: predpona a základ, členy zloženiny alebo základ a slovotvorná či gramatická prípona. Písmenové vzory vidia opakujúce sa úseky, ale túto analýzu si neuchovávajú. Nasleduje 21 overených morfologických príkladov, nie prípadov vyhlásených za chybu iba preto, že sa dva systémy nezhodli. `·` označuje dostupné miesto zalomenia. Stĺpec vzorov z roku 1992 používa TeXové okrajové minimá 2/3; stĺpec aktuálneho enginu je doslovný výsledok `hyphenate(word)`, ktorého API tieto minimá neuplatňuje.
 
@@ -287,18 +284,18 @@ Builder vloží všetky tvary a v obnoviteľných transakciách spracúva čakaj
 
 ## Dáta a stav kontroly
 
-Stav verzovaných slovenských dát k **2026-09-26**:
+Stav verzovaných slovenských dát k **2026-10-01**:
 
 | metrika | počet |
 | --- | ---: |
 | riadky inventára | **206 272** |
 | aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **206 200** |
-| uložené riadky Human rozhodnutí (surová tabuľka) | **19 926** |
-| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **19 761 (9,58 %)** |
-| skontrolované typografické delenia | **19 593 (9,50 %)** — 18 367 potvrdení, 1 226 opráv |
-| skontrolované hovorené slabikovania | **346 (0,17 %)** — pri 264 tvaroch sú skontrolované oba výstupy |
+| uložené riadky Human rozhodnutí (surová tabuľka) | **21 455** |
+| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **21 290 (10,32 %)** |
+| skontrolované typografické delenia | **21 115 (10,24 %)** — 19 768 potvrdení, 1 347 opráv |
+| skontrolované hovorené slabikovania | **346 (0,17 %)** — pri 265 tvaroch sú skontrolované oba výstupy |
 
-Surových 19 926 riadkov tvorí 18 579 posledných akcií `confirm`, 1 274 `correct`, 39 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
+Surových 21 455 riadkov tvorí 19 979 posledných akcií `confirm`, 1 395 `correct`, 47 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
 
 | lokálny korpus | tvary | vygenerovaná IPA | návrhy delenia |
 | --- | ---: | ---: | --- |
@@ -308,15 +305,15 @@ Surových 19 926 riadkov tvorí 18 579 posledných akcií `confirm`, 1 274 `corr
 
 Počty cudzích korpusov nie sú presnosť ani počet ľudsky overených slov.
 
-Štyri zmrazené slepé audity obsahujú 8 100 rozhodnutí nad 8 028 tvarmi: 6 601 vyriešených, 1 477 neistých a 22 chybných. Izolovaní LLM recenzenti dostali holé tvary bez enginu a starších názorov, neboli to kontroly autora. Dvojmodelová evidencia obsahuje 17 behov, 1 346 posúdení nad 1 239 tvarmi, s modelovými pozíciami `claude-opus-5[high]` a `gpt-6-astra[sub][high]`: 1 079 nezávislých zhôd, 145 po krížovej kontrole, 23 po zmierení a 99 nerozhodnutých posúdení nad 71 tvarmi.
+Štyri zmrazené slepé audity obsahujú 8 100 rozhodnutí nad 8 028 tvarmi: 6 601 vyriešených, 1 477 neistých a 22 chybných. Izolovaní LLM recenzenti dostali holé tvary bez enginu a starších názorov, neboli to kontroly autora.
 
-### Porovnávací súbor posúdený podľa PSP
+### Verzované verdikty dvoch modelov
 
-Verzovaná databáza `tests/data/review_decisions.sqlite` obsahuje nemenný auditný rad `engine-chlebikova-exhaustive-2026-08-25-v1`: všetkých **23 173 jedinečných tvarov**, pri ktorých sa zmrazený engine a pribalené vzory z roku 1992 nezhodli pri rovnakých okrajových minimách 2/3. Tvary boli deterministicky zoradené a posúdené v 232 dávkach najviac po 100. Pri každom porovnaní sa uchováva pôvodný výstup, navrhnuté delenie a varianty podľa PSP, samostatný verdikt pre engine a Chlebíkovú, odkaz na PSP, zdôvodnenie a klasifikácia nerozhodnutého prípadu. Autorské rozhodnutia, slepé kontroly a dvojmodelová adjudikácia zostávajú oddelenou evidenciou; nehlasujú a navzájom sa neprepisujú.
+`tests/data/review_decisions.sqlite` ukladá každý beh dvoch modelov spolu s presnými vstupmi, z ktorých vznikol. Tabuľky `ai_rule_sets`, `ai_prompts` a `ai_schemas` obsahujú celý text pravidiel, prompt a schému odpovede pod označením verzie; `ai_models` pomenúva modely; `engine_versions` zaznamenáva verziu balíka, Git commit, príznak necommitnutých zmien a obsahový hash enginu, s ktorým sa beh porovnával. `ai_runs` spája beh so všetkými týmito údajmi a uchováva jeho komprimovaný prepis, `ai_verdicts` obsahuje jeden výsledok na tvar a `ai_model_answers` každú odpoveď modelu v každom kole. Do tabuliek sa iba pridáva: zmenený text pravidiel je nová verzia a staršie verdikty zostávajú čitateľné spolu s pravidlami, podľa ktorých vznikli. `tools/review/import_ai_run.py` odmietne beh, ktorého hashe v dávkach nesedia s textami, pod ktoré sa má zapísať.
 
-Výsledky sú **15 313 iba engine**, **6 195 oba správne**, **1 iba Chlebíková**, **5 ani jeden** a **1 659 nerozhodnutých**: 21 514 uzavretých porovnaní, nie 23 173 certifikovaných odpovedí. Počty možno reprodukovať z tabuľky `psp_comparisons` filtrovaním podľa uvedeného `audit_id` a zoskupením podľa `comparison_outcome`; každý zmrazený tvar má zodpovedajúci riadok posúdenia. Ide o **porovnávací súbor posúdený podľa PSP**, nie o nezávislý náhodný gold benchmark: úplná interpretácia PSP vznikala s pomocou AI, výber obsahuje iba historické nezhody a neistá cudzia výslovnosť zostala zámerne nerozhodnutá.
+Prvý zapísaný beh `blind1000-20260930` (pravidlá r1, prompt v4, schéma s1, `claude-opus-5-5[high]` s `gpt-6.1-sol[sub][high]`) pokrýva 1 000 tvarov vybraných rovnomerne náhodne z inventára: 862 nezávislých zhôd, 26 zhôd po dohadovaní, 40 neistých, 2 nezhody a 70 neplatných odpovedí. Z 888 dohodnutých tvarov sa 860 zhoduje s výstupom enginu v čase behu a 28 sa líši. Zhoda modelov je poradná evidencia, nie verdikt podľa PSP, a nikdy neprepisuje Human rozhodnutie.
 
-K 2026-09-26 sa aktívne neodstránené Human riadky prekrývajú s PSP radom na **2 263 tvaroch**; pri 2 251 z nich existuje porovnateľné Human delenie. PSP uzavrelo 2 001 týchto porovnateľných prípadov: Human sa zhoduje aspoň s jedným prípustným PSP variantom v **1 859** a nezhoduje v **142**, teda zhoda je **92,90 %**. Ďalších 250 porovnateľných prípadov zostáva vo vrstve PSP nerozhodnutých. Prienik nerobí z vrstiev totožné ani nezávislé gold benchmarky; ľudský názor ani modelový konsenzus nenahrádza argument z PSP.
+Staršie porovnanie enginu s Chlebíkovou a staršie dvojmodelové adjudikácie boli 2026-10-01 odstránené, lebo sa nedali priradiť k zaznamenanému textu pravidiel a promptu. Zostávajú dostupné v histórii Gitu.
 
 ## Liangove vzory: regenerovanie a hodnotenie
 
@@ -354,10 +351,10 @@ Databázy v archíve, všetky pod `tests/data/`:
 | súbor | veľkosť | čo to je | načo treba |
 | --- | ---: | --- | --- |
 | `translatemaster_hyphenation_working.sqlite` | 13,9 MB | inventár 206 272 tvarov, SHA-256 `480904ef…` | regenerovanie vzorov, celokorpusové testy, review konzola |
-| `review_decisions.sqlite` | 42,6 MB | všetky ľudské rozhodnutia, vyčerpávajúce porovnanie s Chlebíkovou a dvojmodelové adjudikácie | overenie tvrdení o provenancii, testy štatistík v README |
+| `review_decisions.sqlite` | 10,9 MB | všetky ľudské rozhodnutia a verzované behy dvoch modelov | overenie tvrdení o provenancii, testy štatistík v README |
 | `blind_*/manifest.sqlite`, `blind_*/results.sqlite` | 3,9 MB | štyri zmrazené slepé audity s podpísanými manifestmi | kontroly slepých auditov, review konzola |
 
-V archíve sa dobre stlačia, takže `.tar.gz` má asi 16,7 MB; wheel zostáva na 3,5 MB a databázy neobsahuje vôbec. Toto rozdelenie vynucuje `python tools/audit_release_artifacts.py --inventory src/slabika/data/composita.json <archív>`: databáza kdekoľvek mimo `tests/data/` je chyba a databáza vo wheeli je chyba vždy.
+V archíve sa dobre stlačia; wheel zostáva na 3,5 MB a databázy neobsahuje vôbec. Toto rozdelenie vynucuje `python tools/audit_release_artifacts.py --inventory src/slabika/data/composita.json <archív>`: databáza kdekoľvek mimo `tests/data/` je chyba a databáza vo wheeli je chyba vždy.
 
 **Čo archív dodať nemôže.** Dve veci sú externý toolchain a nedajú sa tu redistribuovať:
 
