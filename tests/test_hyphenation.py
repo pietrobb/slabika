@@ -551,7 +551,7 @@ def test_reviewed_derivatives_keep_their_established_stem_boundary():
         "odľudštených": "od·ľud·šte·ných",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("najúzkostlivejšie") == "naj·úz·kos·tli·vej·šie"
+    assert hyphenate("najúzkostlivejšie") == "naj·úz·kost·li·vej·šie"
     assert hyphenate("najjednotlivejších") == "naj·jed·no·tli·vej·ších"
     assert hyphenate("rostlivejšie") == "ros·tli·vej·šie"
 
@@ -6842,5 +6842,23 @@ def test_blind3000_operator_accepts_ai_consensus_2026_10_02():
         "úskočný": "úskoč·ný",
         "ústrojenstve": "ústro·jen·stve",
         "úškľabkom": "úškľab·kom",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_blind3000_operator_overrides_ai_2026_10_02():
+    """blind3000 forms where the operator kept or chose a division against the
+    AI consensus (2026-10-02); -l- of the past tense split off per our §3.3."""
+    expected = {
+        "praskla": "prask·la",
+        "nesplaskli": "ne·splask·li",
+        "vlastnú": "vlast·nú",
+        "prázdnych": "prázd·nych",
+        "štyridsaťročnou": "šty·rid·sať·roč·nou",
+        "úzkostlivo": "úz·kost·li·vo",
+        "úzkostlivosť": "úz·kost·li·vosť",
+        "pseudozázrakmi": "pseu·do·zá·zrak·mi",
+        "zázrakotvorná": "zá·zra·ko·tvor·ná",
+        "podozrievala": "po·do·zrie·va·la",
     }
     assert {word: hyphenate(word) for word in expected} == expected

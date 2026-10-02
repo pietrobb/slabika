@@ -218,7 +218,7 @@ _PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
     ('leskl', (4,)),         # lesk·lý, lesk·lá
     ('zadn', (3,)),          # zad·ný: root zad-, not za- (Johanka, AI run 2026-10-01)
     ('žoldn', (4,)),         # žold·nie·rov: root žold
-    ('úzkostliv', ()),       # úz·kos·tli·vosť, úz·kos·tli·vos·ťou
+    ('úzkostliv', (2, 4)),   # úz·kost·li·vosť: úzkosť|-livý like sta·rost·li·vý (operator 2026-10-02, blind3000)
     ('vrchnostensk', ()),    # vrch·nos·ten·ský, vrch·nos·ten·skú
     ('vlastnost', ()),       # vlast·nos·tiach, vlast·nost·né
     # Families below were found by the same invariant, applied to the whole

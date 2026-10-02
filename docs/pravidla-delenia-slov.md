@@ -129,6 +129,14 @@ písmen s bežnou príponou.
 Od základu sa oddeľuje aj pádová alebo osobná prípona začínajúca spoluhláskou,
 napríklad v tvaroch typu `chlap|mi`, `pracuj|me` či `urob|te`.
 
+PSP v kap. V, bod 1c menujú len pádové a osobné prípony. Príponu `-l-`
+minulého času a prídavné mená od nej utvorené oddeľujeme tiež, lebo podľa bodu
+2c sa skupina spoluhlások nedelí mechanicky, keď je vnútri nej zreteľné
+morfematické rozhranie (`prask-ol`, `prask-la`, `prask-lo`). Delíme preto
+`prask|la`, `ne|splask|li`, `lesk|lý`, nie `pras|kla`. Ide o náš výklad PSP,
+nie o výslovný príklad z nich; mechanické delenie by v tomto prípade bolo
+nejasným prípadom podľa Poznámky 1.
+
 ### 3.4 Zložené slová
 
 Zloženina sa delí na hranici svojich častí, napríklad `troj|uholník`,
