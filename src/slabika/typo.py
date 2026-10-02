@@ -72,7 +72,8 @@ _CHRAN_ROOT_CONTEXTS = (
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 _PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 # Adapted Slovak loans keep their local consonant reading despite foreign spelling matches.
-_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused')
+_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz')
+_GERMAN_ER_NAME_ENDINGS = ('ovi', 'om', 'a', 'e', 'i', 'u')
 
 # Exact pronunciation-backed points for unadapted foreign spellings. Generic
 # Slovak grapheme rules cannot infer these safely.
@@ -87,13 +88,17 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'aliquandiu': (3, 7),
     'aliquid': (3,),
     'ambagesque': (2, 4, 7),
+    'apelles': (4,),  # Apel·les (human + AI 2026-10-02).
     'applausit': (2, 6),
     'bertrand': (3,),  # French Ber·trand (Johanka, AI run 2026-10-01).
     'blackburna': (5, 8),
     'blake': (),
+    'boyle': (),  # English [bɔɪl], one syllable (human + AI 2026-10-02).
     'capehartom': (4, 7),
     'coeli': (3,),
     'cognac': (2,),  # French gn is one consonant [ɲ]: Co·gnac.
+    'consumendi': (3, 5, 8),  # Latin con·su·men·di (human + AI 2026-10-02).
+    'contents': (3,),  # English Con·tents (human + AI 2026-10-02).
     'cypress': (3,),
     'department': (2, 6),
     # French Dom + Rémy; om before a consonant is one nasal vowel [ɔ̃] (§5.4).
@@ -144,6 +149,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'joyce': (),
     'joycea': (3,),
     'lagny': (2,),  # French gn is one consonant [ɲ]: La·gny.
+    'lengua': (3,),  # Spanish gu [gw] is one onset: len·gua (human + AI 2026-10-02).
     'lockridge': (4,),
     'loira': (3,),
     'loire': (),
@@ -177,13 +183,16 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'maioranosa': (2, 4, 6, 8),
     'maiorem': (2, 4),
     'maisie': (3,),
+    'maplewood': (2, 5),  # Ma·ple·wood (human + AI 2026-10-02).
     'marguerieho': (3, 6, 9),  # French gue: Mar·gue·rie·ho.
     'marlene': (3,),
     'montmartre': (4, 7),  # French Mont + martre; nasal on is one vowel [ɔ̃].
     'nadejde': (2, 5),  # Czech nadejít; operator 2026-10-01: na·dej·de, not nad·ej·de.
     'oglethorpe': (4,),
+    'pipeau': (2,),  # French eau is one vowel: Pi·peau (human + AI 2026-10-02).
     'poitiers': (3,),  # French oi is one nucleus: Poi·tiers.
     'quirina': (3, 5),
+    'ribeye': (3,),  # English rib + eye (human + AI 2026-10-02).
     'salvatorque': (3, 5),
     'teufelsbrücke': (3, 7, 11),
     'teufelsgalgen': (3, 7, 10),
@@ -359,7 +368,14 @@ def _typographic_nost_seams(parts: list[str]) -> list[int]:
         if folded.endswith(form):
             seam = len(word) - len(form)
             stem = word[:seam]
-            if seam >= 3 and any(is_vowel(char) for char in stem):
+            # The root inside the last unit must keep a nucleus: be·ze·ctnosť,
+            # not be·zect·nosť (pod·lž·nos·ti keeps its syllabic l).
+            root_start = len(word) - len(parts[-1])
+            _, stem_offsets, stem_nuclei = phoneme_layout(stem)
+            if seam >= 3 and any(is_vowel(char) for char in stem) and (
+                len(parts) < 2 or len(parts[-1]) <= len(form)
+                or any(stem_offsets[index] >= root_start for index in stem_nuclei)
+            ):
                 return [seam]
             break
     return []
@@ -472,6 +488,22 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
                     and all(char.lower() in _DIVISIBLE_LETTERS for char in ending)
                 ):
                     return german_inflected_points(stem, ending, _psp_points), set(), set()
+            # A German -er name before a Slovak case ending the profile does not
+            # strip (Böh·ne·ra, Hüt·ten·bren·ne·ra): the ending takes the r.
+            folded = word.casefold()
+            for ending in _GERMAN_ER_NAME_ENDINGS:
+                stem = word[:-len(ending)]
+                if (
+                    not german.ending
+                    and folded.endswith('er' + ending)
+                    and len(stem) >= 5
+                    and all(char.lower() in _LETTERS[language] for char in stem)
+                    and is_german(stem)
+                ):
+                    return (
+                        german_inflected_points(stem, word[len(stem):], _psp_points),
+                        set(), set(),
+                    )
         if all(char.lower() in _LETTERS[language] for char in word):
             return set(adapt_foreign_word(word, language).points), set(), set()
 

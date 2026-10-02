@@ -788,9 +788,9 @@ def test_tenth_discovered_family_batch_keeps_only_clear_seams():
 def test_reviewed_native_morpheme_seams_replace_false_cluster_points():
     expected = {
         "Brnknite": "Brnk·ni·te",
-        "brnkať": "brnk·ať",
+        "brnkať": "brn·kať",
         "brnklo": "brnk·lo",
-        "brnkol": "brnk·ol",
+        "brnkol": "brn·kol",
         "odobrenú": "odob·re·nú",
         "odobril": "odob·ril",
         "odobrili": "odob·ri·li",
@@ -1051,7 +1051,7 @@ def test_sixteenth_discovered_family_batch_keeps_only_clear_seams():
     assert hyphenate("sláva") == "slá·va"
     assert hyphenate("stlačenie") == "stla·če·nie"
     assert hyphenate("otlačky") == "otlač·ky"
-    assert hyphenate("otriasa") == "ot·ria·sa"
+    assert hyphenate("otriasa") == "otria·sa"
     assert hyphenate("striasa") == "stria·sa"
     assert hyphenate("bezradný") == "bez·rad·ný"
     assert hyphenate("rozradostený") == "roz·ra·dos·te·ný"
@@ -1709,8 +1709,8 @@ def test_forty_second_discovered_family_batch_keeps_only_clear_compound_seams():
         "lektvar": "lek·tvar",
         "neodolal": "ne·odo·lal",
         "stodola": "sto·do·la",
-        "ubrániť": "ub·rá·niť",
-        "neubránil": "ne·ub·rá·nil",
+        "ubrániť": "ubrá·niť",
+        "neubránil": "ne·ubrá·nil",
         "desaťzlatkovú": "de·sať·zlat·ko·vú",
         "bledozlaté": "ble·do·zla·té",
         "dozlata": "do·zla·ta",
@@ -1851,7 +1851,7 @@ def test_forty_eighth_discovered_family_batch_keeps_only_na_pri_znak_seams():
         "uskočiť": "us·ko·čiť",
         "vskočil": "vsko·čil",
         "úskočný": "ús·koč·ný",
-        "obralo": "ob·ra·lo",
+        "obralo": "obra·lo",
         "žobralo": "žob·ra·lo",
         "dalajláma": "da·laj·lá·ma",
         "olámali": "olá·ma·li",
@@ -2459,7 +2459,7 @@ def test_seventy_seventh_discovered_family_batch_keeps_only_pre_dobr_seam():
         "predobrému": "pre·dob·ré·mu",
         "predobrý": "pre·dob·rý",
         "predobrým": "pre·dob·rým",
-        "predobrať": "pred·ob·rať",
+        "predobrať": "pred·obrať",
         "preddobrého": "pred·dob·ré·ho",
         "všedobré": "vše·dob·ré",
         "scivilizovaný": "sci·vi·li·zo·va·ný",
@@ -3054,7 +3054,7 @@ def test_batch_97_keeps_documented_foreign_and_morpheme_seams():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("obava") == "oba·va"
-    assert hyphenate("obrúsil") == "ob·rú·sil"
+    assert hyphenate("obrúsil") == "obrú·sil"
     assert hyphenate("naivný") == "na·iv·ný"
 
 
@@ -3158,9 +3158,9 @@ def test_batch_102_handles_vocalized_obo_and_lexical_ob_lookalikes():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("obplietlo") == "ob·pliet·lo"
-    assert hyphenate("obrať") == "ob·rať"
+    assert hyphenate("obrať") == "obrať"
     assert hyphenate("obruč") == "ob·ruč"
-    assert hyphenate("obrúsila") == "ob·rú·si·la"
+    assert hyphenate("obrúsila") == "obrú·si·la"
     assert hyphenate("oboznámiť") == "ob·ozná·miť"
     assert hyphenate("obozretný") == "obo·zret·ný"
 
@@ -4281,7 +4281,7 @@ def test_batch_65_keeps_documented_nested_ob_and_o_prefix_seams():
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("obíde") == "ob·íde"
     assert hyphenate("obozretne") == "obo·zret·ne"
-    assert hyphenate("obrúsi") == "ob·rú·si"
+    assert hyphenate("obrúsi") == "obrú·si"
     assert hyphenate("neobohatil") == "ne·obo·ha·til"
     assert hyphenate("neobýva") == "ne·obý·va"
 
@@ -5356,7 +5356,8 @@ def test_a_foreign_letter_with_a_known_sound_is_divided_by_slovak_rules():
     # French /kɔ̃.pjɛɲ/: iè belongs to one syllable and gn spells /ɲ/.
     # PSP §5.4 preserves both groups rather than applying Slovak vowel slots.
     assert hyphenate("Compiègne") == "Com·piègne"
-    assert hyphenate("Neufchâteau") == "Ne·uf·châ·te·au"
+    # French neuf and eau: one vowel each (human + AI 2026-10-02).
+    assert hyphenate("Neufchâteau") == "Neuf·châ·teau"
 
     # ř fills the r slot, so a cluster containing it divides where the one
     # written with r does — the tables list what Slovak words are written with.
@@ -5709,7 +5710,8 @@ def test_batch_177_keeps_clear_staro_compounds_and_cina_language_suffixes():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("staroosvedčenými") == "sta·ro·os·ved·če·ný·mi"
-    assert hyphenate("oberlerchenfeldčiny") == "ob·er·ler·chen·fel·dči·ny"
+    # German ober- before a consonant (oberšpekulant, human + AI 2026-10-02).
+    assert hyphenate("oberlerchenfeldčiny") == "ober·ler·chen·fel·dči·ny"
 
 
 def test_batch_178_keeps_the_steto_skop_compound_seam():
@@ -5904,7 +5906,8 @@ def test_batch_203_suppresses_one_letter_u_prefix_seams_in_clear_families():
         "utrusovali": "utru·so·va·li",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("utratil") == "ut·ra·til"
+    # u-|tratiť (human + AI 2026-10-02).
+    assert hyphenate("utratil") == "utra·til"
     assert hyphenate("utvárať") == "utvá·rať"
     assert hyphenate("útrpný") == "útrp·ný"
     assert hyphenate("utkvejú") == "ut·kve·jú"
@@ -6540,7 +6543,7 @@ def test_blind1000_v5_operator_verdicts_2026_10_01():
         "uplatnenie": "uplat·ne·nie",
         "Ukrajina": "Uk·ra·ji·na",
         "ostrojazyčnou": "os·tro·ja·zyč·nou",
-        "obrúsiť": "ob·rú·siť",
+        "obrúsiť": "obrú·siť",
         "pootvoriť": "po·otvo·riť",
         "novoprišlá": "no·vo·pri·šlá",
         "novoprišlého": "no·vo·pri·šlé·ho",
@@ -6620,5 +6623,124 @@ def test_johanka_translation_ai_verdicts_2026_10_01():
         "záujem": "zá·u·jem",
         "nezáujem": "ne·zá·u·jem",
         "záujmy": "zá·uj·my",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_blind3331_human_and_ai_agree_2026_10_02():
+    """Roots and stems where human review and the blind3331 AI consensus agree."""
+    expected = {
+        # o-/u- shared roots: brať, brániť, brúsiť, trepať, triasť, trieť, prieť,
+        # upratať, pražiť, štedriť.
+        "obrana": "obra·na",
+        "obranca": "obran·ca",
+        "obraňovať": "obra·ňo·vať",
+        "obráň": "obráň",
+        # Operator 2026-10-02: obra·tý; the noun obrat keeps ob·ra·ty.
+        "obratý": "obra·tý",
+        "obratá": "obra·tá",
+        "neobratý": "ne·obra·tý",
+        "obraty": "ob·ra·ty",
+        "obratom": "ob·ra·tom",
+        "obratisko": "ob·ra·tis·ko",
+        "obrať": "obrať",
+        "obratím": "obra·tím",
+        "ubrániť": "ubrá·niť",
+        "obrus": "obrus",
+        "obrúsok": "obrú·sok",
+        "obrusovať": "obru·so·vať",
+        "otrepaný": "otre·pa·ný",
+        "otriasla": "otrias·la",
+        "otrú": "otrú",
+        "uprú": "uprú",
+        "upratovačka": "upra·to·vač·ka",
+        "upražiť": "upra·žiť",
+        "neuštedrili": "ne·ušted·ri·li",
+        "úprava": "úpra·va",
+        "vycpanej": "vy·cpa·nej",
+        "pôstny": "pôst·ny",
+        "pôstnymi": "pôst·ny·mi",
+        "postenie": "pos·te·nie",
+        "poste": "pos·te",
+        "neste": "nes·te",
+        "brnkať": "brn·kať",
+        "brnká": "brn·ká",
+        "brnknúť": "brnk·núť",
+        # Lookalikes keep their own analysis.
+        "obrat": "ob·rat",
+        "obratný": "ob·rat·ný",
+        "obraz": "ob·raz",
+        "obrátiť": "ob·rá·tiť",
+        "otrúb": "ot·rúb",
+        "obruč": "ob·ruč",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_blind3331_worklist_human_and_ai_agree_against_engine_2026_10_02():
+    """Operator 2026-10-02: where Human and the blind3331 AI agree, fix the engine.
+
+    Each fix sits on a stem, prefix or spelling, so the family follows.
+    """
+    expected = {
+        # French eau is one vowel unless a prefix stands before it.
+        "Beaulieu": "Beau·lieu",
+        "Beauperovi": "Beau·pe·ro·vi",
+        "Beaupèra": "Beau·pè·ra",
+        "Bureau": "Bu·reau",
+        "Chateau": "Cha·teau",
+        "Rabateau": "Ra·ba·teau",
+        "Neufchâteau": "Neuf·châ·teau",
+        "Pipeau": "Pi·peau",
+        "Beauce": "Beauce",
+        "neautorizované": "ne·au·to·ri·zo·va·né",
+        # Foreign spellings for one sound, and their Slovak case forms.
+        "boogie": "boo·gie",
+        "Boolovi": "Boo·lo·vi",
+        "steaku": "stea·ku",
+        "steaky": "stea·ky",
+        "Rashi": "Ra·shi",
+        "Rashiho": "Ra·shi·ho",
+        "Bischofových": "Bi·scho·fo·vých",
+        "Brighta": "Brigh·ta",
+        "Brightovej": "Brigh·to·vej",
+        "Jacksona": "Jack·so·na",
+        "Jacksonom": "Jack·so·nom",
+        "Jacksonovi": "Jack·so·no·vi",
+        "Jacka": "Jac·ka",
+        "Boyle": "Boyle",
+        "Apelles": "Apel·les",
+        "consumendi": "con·su·men·di",
+        "Contents": "Con·tents",
+        "lengua": "len·gua",
+        "Maplewood": "Ma·ple·wood",
+        "ribeye": "rib·eye",
+        # German -er names before a Slovak ending.
+        "Böhnera": "Böh·ne·ra",
+        "Hüttenbrennera": "Hüt·ten·bren·ne·ra",
+        # Slovak readings of loans.
+        "facke": "fac·ke",
+        "hortenzie": "hor·ten·zie",
+        # Stems and prefixes.
+        "Antiochia": "An·ti·o·chia",
+        "Antiochii": "An·ti·o·chii",
+        "bejzbal": "bejz·bal",
+        "bejzbalový": "bejz·ba·lo·vý",
+        "bejzbalista": "bejz·ba·lis·ta",
+        "bezectný": "be·ze·ctný",
+        "bezectnosť": "be·ze·ctnosť",
+        "bezelstného": "be·ze·lstné·ho",
+        "bezelstní": "be·ze·lstní",
+        "Bezemek": "Be·ze·mek",
+        "Bezemková": "Be·zem·ko·vá",
+        "ihneď": "ihneď",
+        "oberšpekulant": "ober·špe·ku·lant",
+        "oberajú": "obe·ra·jú",
+        "Obišovce": "Obi·šov·ce",
+        "utratil": "utra·til",
+        "neutratil": "ne·utra·til",
+        "útrata": "útra·ta",
+        "Voznica": "Voz·ni·ca",
+        "vozne": "voz·ne",
     }
     assert {word: hyphenate(word) for word in expected} == expected

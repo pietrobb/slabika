@@ -284,18 +284,18 @@ Builder vloží všetky tvary a v obnoviteľných transakciách spracúva čakaj
 
 ## Dáta a stav kontroly
 
-Stav verzovaných slovenských dát k **2026-10-01**:
+Stav verzovaných slovenských dát k **2026-10-02**:
 
 | metrika | počet |
 | --- | ---: |
 | riadky inventára | **206 205** |
 | aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **206 133** |
-| uložené riadky Human rozhodnutí (surová tabuľka) | **22 877** |
-| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **22 592 (10,96 %)** |
-| skontrolované typografické delenia | **22 460 (10,90 %)** — 20 946 potvrdení, 1 514 opráv |
+| uložené riadky Human rozhodnutí (surová tabuľka) | **22 925** |
+| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **22 640 (10,98 %)** |
+| skontrolované typografické delenia | **22 508 (10,92 %)** — 20 982 potvrdení, 1 526 opráv |
 | skontrolované hovorené slabikovania | **349 (0,17 %)** — pri 266 tvaroch sú skontrolované oba výstupy |
 
-Surových 22 877 riadkov tvorí 21 213 posledných akcií `confirm`, 1 565 `correct`, 65 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
+Surových 22 925 riadkov tvorí 21 249 posledných akcií `confirm`, 1 577 `correct`, 65 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
 
 | lokálny korpus | tvary | vygenerovaná IPA | návrhy delenia |
 | --- | ---: | ---: | --- |

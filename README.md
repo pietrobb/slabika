@@ -294,18 +294,18 @@ The first command seeds all forms and processes pending/error rows in resumable 
 
 ## Data and review statistics
 
-As of **2026-10-01**, the tracked Slovak data has this current state:
+As of **2026-10-02**, the tracked Slovak data has this current state:
 
 | metric | count |
 | --- | ---: |
 | inventory rows | **206,205** |
 | active unique forms shown by the review console after folding case-only aliases | **206,133** |
-| stored Human decision rows (raw table) | **22,877** |
-| active canonical forms with any Human evidence | **22,592 (10.96%)** |
-| typographic divisions reviewed | **22,460 (10.90%)** — 20,946 confirms, 1,514 corrections |
+| stored Human decision rows (raw table) | **22,925** |
+| active canonical forms with any Human evidence | **22,640 (10.98%)** |
+| typographic divisions reviewed | **22,508 (10.92%)** — 20,982 confirms, 1,526 corrections |
 | spoken syllabifications reviewed | **349 (0.17%)** — 266 forms have both outputs reviewed |
 
-The raw decision rows comprise 21,213 latest `confirm`, 1,565 `correct`, 65 `classify`, 25 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
+The raw decision rows comprise 21,249 latest `confirm`, 1,577 `correct`, 65 `classify`, 25 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
 
 The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 6,601 resolved, 1,477 uncertain and 22 invalid. Reviewers received bare forms without engine output or earlier decisions. They were isolated LLM reviewers, not the author.
 

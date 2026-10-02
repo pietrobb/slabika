@@ -89,6 +89,9 @@ _NEGER_CONTRACTED_INFLECTIONS = frozenset({'a', 'ami', 'i', 'och', 'om', 'ov', '
 _POSTIT_INFLECTIONS = frozenset({
     'i', 'iac', 'ia', 'il', 'ila', 'ili', 'ilo', 'ime', 'ite', 'iť',
     'í', 'ím', 'íme', 'íš', 'íte',
+    'enia', 'enie', 'ení', 'ením', 'eniu',  # pos·te·nie
+    # the noun post: pos·te
+    'e', 'u', 'y', 'om', 'ov', 'och', 'ami',
 })
 _POSTA_INFLECTIONS = frozenset({
     'a', 'e', 'ou', 'u', 'y', 'ovú', 'ovej', 'ovom', 'ovou', 'ová', 'ové',
@@ -443,6 +446,17 @@ _O_U_ROOTS = tuple(sorted({
     'klam', 'krídl', 'mdliev', 'slav', 'toč', 'táč', 'šklb',
     'chvát', 'drž', 'hlad', 'klad', 'mlč', 'mĺk', 'mŕtv', 'sporad', 'trp', 'tvrd', 'tŕž',
     'vrh', 'zn',
+    # Human review + AI blind3331 agree (2026-10-02): obra·na, obran·ca, obrať,
+    # obru·so·vať, obrú·siť, obrú·sok, otre·pa·ný, otria·sať, otrú, uprú,
+    # upra·tať, upra·žiť, ne·ušted·ri·li. obrat/obratný (ob·rat) and the
+    # reins opraty stay outside, so only the closed brať/upratať stems are listed.
+    # obra·tý (operator 2026-10-02): the long-vowel participle endings keep
+    # o-|brať apart from the noun ob·rat (ob·ra·ty, ob·ra·tu, ob·ra·tom).
+    'bral', 'bran', 'braň', 'brán', 'bráň', 'brať', 'braté', 'bratí', 'bratia', 'bratie',
+    'bratý', 'bratá', 'bratú', 'bratej',
+    'brus', 'brús', 'trep', 'trias', 'trú', 'prú', 'praž',
+    'pratal', 'pratan', 'pratať', 'prato', 'pratu', 'štedr',
+    'trat',  # u-|tratiť (human + AI 2026-10-02): utra·til, utra·tí
 }))
 
 _LEXICAL_PREFIX_ROOTS = (
@@ -558,7 +572,15 @@ _LEXICAL_PREFIX_ROOTS = (
     ('o', _O_U_ROOTS),
     # i-|hrať (operator 2026-10-01: ihrá is undivided). Only the hra-/hrá-/hris-
     # stems, so German Ihrer keeps its own reading.
-    ('i', ('hra', 'hrá', 'hris')),
+    # i-|hneď likewise (human + AI 2026-10-02): ihneď is undivided.
+    ('i', ('hra', 'hrá', 'hris', 'hneď')),
+    # bez- vocalized before the vowelless roots of česť and lesť (human + AI
+    # 2026-10-02): be·ze·ctný, be·ze·lstný, not bez·ect·ný.
+    ('beze', ('ctn', 'lstn')),
+    # bejz|bal like volej|bal (human + AI 2026-10-02): bejz·ba·lo·vý.
+    ('bejz', ('bal',)),
+    # Jack|son keeps the name it is built from (human + AI 2026-10-02): Jack·so·na.
+    ('jack', ('son',)),
     ('in', ('štruk',)),
     ('šéf', ('lekár',)),
     ('pa', ('kľúč', 'svetl')),
@@ -592,10 +614,10 @@ _LEXICAL_PREFIX_ROOTS = (
     ('po', ('cten', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'klad', 'sled', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač')),
     ('u', _O_U_ROOTS),
-    ('vy', ('čk', 'chlad', 'lh', 'rv', 'sťah', 'tn')),
+    ('vy', ('čk', 'chlad', 'cp', 'lh', 'rv', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'tn', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),
     ('zá', ('blesk', 'brad', 'bran', 'chvat', 'hlav', 'hrad', 'hrob', 'klad', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'zrak', 'zrač')),
-    ('ú', ('hrad', 'kryt', 'nav', 'plat', 'rad', 'smev', 'stred', 'stup', 'tlak', 'toč')),
+    ('ú', ('hrad', 'kryt', 'nav', 'plat', 'prav', 'rad', 'smev', 'stred', 'stup', 'tlak', 'toč', 'trat')),
 )
 
 _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
@@ -605,9 +627,6 @@ _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
 _NESTED_PREFIX_ROOTS = (
     ('do', ('tkn',)),
     ('o', _O_U_ROOTS),
-    # Human review keeps ob·rú·siť, ob·rú·sok at the word start; o-|brús
-    # stays limited to the negated forms.
-    ('o', ('brús',)),
     ('ob', ('íd', 'išiel', 'išl', 'ísť', 'omkn', 'oznám')),
     ('obo', ('p', 'zret')),
     ('od', ('íd', 'išiel', 'išl', 'ísť', 'opier', 'tiah', 'umier', 'umr', 'vih', 'zrkadľ', 'ži')),
@@ -686,7 +705,7 @@ _RHYTHMIC_SHORT_NIK = frozenset({'nik', 'nic'})
 _RHYTHMIC_SHORT_NY_SUFFIXES = (
     'neho', 'nemu', 'nych', 'nymi', 'nym', 'ny', 'na', 'ne', 'no', 'nu', 'ni',
 )
-_RHYTHMIC_SHORT_NY_STEMS = frozenset({'hviezd', 'prázd', 'púšt', 'zvlášt'})
+_RHYTHMIC_SHORT_NY_STEMS = frozenset({'hviezd', 'pôst', 'prázd', 'púšt', 'zvlášt'})
 _RHYTHMIC_LONG_NUCLEI = LONG_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 
 _DLO_INFLECTIONS = ('dlami', 'dlách', 'dlom', 'dlám', 'diel', 'dla', 'dle', 'dlu', 'dlá')
@@ -1035,6 +1054,9 @@ def _starts_like_a_word(rem: str) -> bool:
 
 def _licenses_compositum(comp: str, rem: str) -> bool:
     reml = rem.lower()
+    # Antiochia is a city name, not anti- + och- (human + AI 2026-10-02: An·ti·o·chia).
+    if comp == 'anti' and reml.startswith('och'):
+        return False
     cited_root = False
     if comp in _VOWEL_SEAM_COMPOSITA and reml[0] not in _VOWEL_LETTERS:
         consonant_composita = {
@@ -1267,14 +1289,18 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     if wl.startswith('obuš'):
         return None, None
     # Nefrit-, nezbed- and nežn- are lexical stems, not ne- forms.
-    if wl.startswith(('nefrit', 'nektár', 'nezbed', 'nežn')) or wl == 'neger' or (
+    # neste is the imperative of niesť (nes·te); "you are not" is spelled nie ste.
+    if wl.startswith(('nefrit', 'nektár', 'nezbed', 'nežn')) or wl in ('neger', 'neste') or (
         wl.startswith('negr') and wl[4:] in _NEGER_CONTRACTED_INFLECTIONS
     ):
         return None, None
 
     # Lookalikes of o-/u- + a shared root: Ukrajina is not u-|kraj,
-    # ostrojazyčný is ostro-, not o-|stroj.
-    if wl.startswith(('ostrihom', 'prepošt', 'ukrajin', 'ostrojaz')):
+    # ostrojazyčný is ostro-, not o-|stroj; otruby (ot·rúb) is not o-|trú.
+    # Bezemek and Neufchâteau only look like bez- and ne-.
+    if wl.startswith((
+        'ostrihom', 'prepošt', 'ukrajin', 'ostrojaz', 'otrúb', 'bezem', 'neufch',
+    )):
         return None, None
     for pfx, roots in _LEXICAL_PREFIX_ROOTS:
         if any(wl.startswith(pfx + root) for root in roots):
@@ -1401,7 +1427,7 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
             # Vodl-/vodn-/vodň-, vosk-/vošk- and the closed voz/vozeň paradigms
             # are lexical stems, not productive vo- forms.
             if pfx == 'vo' and (
-                wl.startswith(('vodl', 'vodn', 'vodň', 'vosk', 'vošk'))
+                wl.startswith(('vodl', 'vodn', 'vodň', 'vosk', 'vošk', 'vozn'))
                 or (wl.startswith('voz') and wl[3:] in _VOZ_INFLECTIONS)
             ):
                 continue
@@ -1449,10 +1475,14 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
                     'obéz', 'obež', 'obidv', 'obiel', 'obiet', 'obieh', 'obieľ',
                     'obil', 'obit', 'oblúd', 'oboch', 'obol', 'oboč', 'obohac',
                     'obohat', 'obohať', 'oboj', 'obor',
+                    # The place name Obi·šov·ce (human + AI 2026-10-02).
+                    'obišov',
                 ))
                 or wl in ('obom', 'oboma')
                 or (wl.startswith('obal') and wl[4:] in _OBAL_INFLECTIONS)
                 or (wl.startswith('ober') and wl[4:] in _OBER_INFLECTIONS)
+                # German ober- before a consonant: ober·špe·ku·lant, Ober·leut·nant.
+                or (wl.startswith('ober') and len(wl) > 4 and wl[4] not in _VOWEL_LETTERS)
             ):
                 continue
             licensed = _VOCALIZED_ONLY_BEFORE.get(pfx)
@@ -1894,7 +1924,8 @@ def get_morpheme_parts(word: str) -> list[str]:
         return lexical
     if _is_mastnak_form(word):
         return [word[:4], word[4:]]
-    if wl.startswith('brnk') and len(word) > 4:
+    # brnk·núť, brnk·lo, but brn·kať, brn·kol: the k opens a following vowel.
+    if wl.startswith('brnk') and len(word) > 4 and wl[4] not in _VOWEL_LETTERS:
         return [word[:4], word[4:]]
     if wl.startswith(('odobri', 'odobren', 'odobruj')):
         return [word[:1], word[1:]]
@@ -1955,6 +1986,10 @@ def get_morpheme_parts(word: str) -> list[str]:
         return [*get_morpheme_parts(word[:start]), word[start:]]
     if wl.startswith((*_RASTLINA_FAMILY_STEMS, _SRSTNAT_FAMILY_STEM)):
         return [word[:4], *get_morpheme_parts(word[4:])]
+    # be·ze·ctný, be·ze·lstní: the vowelless root keeps its ending; lst- has no
+    # syllabic l to carry a seam of its own.
+    if wl.startswith(('bezectn', 'bezelstn')):
+        return [word[:4], word[4:]]
     if wl.startswith('pokrytec') and wl[8:] in _POKRYTECTVO_ENDINGS:
         return [*get_morpheme_parts(word[:8]), word[8:]]
     if wl.startswith('obvykl') and wl[6:] in _OBVYKL_INFLECTIONS:
@@ -2269,18 +2304,27 @@ _LEXICAL_FALLING_DIPHTHONGS = (
     ('voltai', 'ai'),
     ('proust', 'ou'),
     ('sieur', 'ieu'),  # French [sjœʁ]: i is a glide, not a second nucleus.
+    # English oo [uː] and ea [eɪ] (human + AI 2026-10-02): boo·gie, Boo·lo·vi, stea·ku.
+    ('boogie', 'oo'),
+    ('bool', 'oo'),
+    ('steak', 'ea'),
 )
 _LEXICAL_FALLING_NUCLEI = frozenset(pair for _, pair in _LEXICAL_FALLING_DIPHTHONGS)
 _LEXICAL_FOREIGN_CONSONANT_GRAPHEMES = (
     ('pullman', 'll'),
+    # One consonant each, read before the Slovak ending (human + AI 2026-10-02):
+    # Ra·shi, Bi·scho·fo·vých, and the silent gh of Brigh·ta.
+    ('rashi', 'sh'),
+    ('bischof', 'sch'),
+    ('bright', 'gh'),
 )
-_LEXICAL_FOREIGN_SILENT_FINAL_E = frozenset({'voltaire'})
+_LEXICAL_FOREIGN_SILENT_FINAL_E = frozenset({'voltaire', 'beauce'})
 
 #: Written vowel graphemes, including the ones that are not phonological
 #: diphthongs (ô is written as one grapheme; au, eu, ou are read as one).
 _VOWEL_LIKE = (
     ALL_VOWELS | PRONOUNCED_FOREIGN_VOWELS | DIPHTHONGS | {'ô'}
-    | _FALLING_DIPHTHONGS | _LEXICAL_FALLING_NUCLEI
+    | _FALLING_DIPHTHONGS | _LEXICAL_FALLING_NUCLEI | {'eau'}
 )
 
 #: No Slovak syllable opens with more than three consonants (vzdych, štvrť).
@@ -2468,6 +2512,18 @@ def _merge_falling_diphthongs(word: str, phonemes: list[str]) -> list[str]:
         phoneme = phonemes[index]
         following = phonemes[index + 1] if index + 1 < len(phonemes) else ''
         pair = phoneme + following
+        # French eau is one vowel [o] (Bu·reau, Cha·teau); Slovak has it only
+        # after a prefix (ne|autorizovaný), which keeps it apart.
+        if (
+            phonemes[index:index + 3] == ['e', 'a', 'u']
+            and offset + 1 not in seams
+            and offset + 2 not in seams
+            and wl[:offset + 1] not in _PREFIXES
+        ):
+            out.append('eau')
+            offset += 3
+            index += 3
+            continue
         if (
             pair in falling_diphthongs
             and (
@@ -2520,10 +2576,18 @@ def _phonemes(word: str) -> list[str]:
         phonemes[index:index + 1] = part_hiatus
     for stem, grapheme in _LEXICAL_FOREIGN_CONSONANT_GRAPHEMES:
         if wl.startswith(stem):
-            index = phonemes.index(grapheme[0])
-            while phonemes[index:index + 2] != [grapheme[0], grapheme[1]]:
-                index = phonemes.index(grapheme[0], index + 1)
-            phonemes[index:index + 2] = [grapheme]
+            # The grapheme may span several phonemes (s + ch in sch).
+            offset = 0
+            for index, phoneme in enumerate(phonemes):
+                if offset == stem.index(grapheme):
+                    run, end = '', index
+                    while len(run) < len(grapheme):
+                        run += phonemes[end]
+                        end += 1
+                    if run == grapheme:
+                        phonemes[index:end] = [grapheme]
+                    break
+                offset += len(phoneme)
     if wl in _LEXICAL_FOREIGN_SILENT_FINAL_E and phonemes[-1] == 'e':
         phonemes[-2:] = [''.join(phonemes[-2:])]
     return _merge_falling_diphthongs(word, phonemes)
