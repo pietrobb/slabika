@@ -413,6 +413,7 @@ def _french_gn_point(word: str) -> int | None:
 # part whole at the basic level: bio|lóg, not bi|o|lóg.
 _HIATUS_FIRST_PARTS = frozenset({
     'bio', 'geo', 'teo', 'video', 'choreo', 'biblio', 'rádio', 'judeo', 'zoo',
+    'fyzio', 'epidemio',  # operator 2026-10-02: fyzio·gno·mic·ké, epi·de·mio·ló·ga
 })
 
 

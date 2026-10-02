@@ -342,7 +342,7 @@ def _with_original_spelling(word: str, parts: list[str]) -> list[str]:
 
 def _lexical_syllables(word: str) -> list[str] | None:
     folded = word.casefold()
-    if folded.startswith('sankcionov'):
+    if folded.startswith('sankci'):
         return [word[:4], *_syllabify_simple(word[4:])]
     if folded.startswith('allbright') and folded[9:] in _ALLBRIGHT_ENDINGS:
         return [word[:3], word[3:9], *([word[9:]] if len(word) > 9 else [])]
@@ -483,6 +483,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('non', ('plusultra',)),
     # pažravý: pa- + žrať, operator 2026-10-01, pa·žrav·ca.
     ('pa', ('žr',)),
+    # po-|účať: operator + AI 2026-10-02, ne·po·úča (like ne·od·išiel).
+    ('po', ('úč',)),
     ('north', ('rup',)),
     ('plus', ('ultra',)),
     ('post', ('gradu',)),
@@ -753,7 +755,7 @@ _SK_COMPOSITA = [
     'štrnásť', 'trinásť', 'dvanásť', 'jedenásť',
     'video', 'niekoľko', 'deväť', 'sedem', 'osem', 'šesť', 'šest', 'päť', 'zeme', 'vrti',
     'troj', 'tri', 'dve', 'štyri', 'sto', 'tisíc', 'viac', 'geo', 'teo', 'bio', 'zoo', 'foto', 'auto', 'euro', 'etyl', 'steto',
-    'agro', 'agri', 'astro', 'aero', 'anti', 'archi', 'arch',
+    'agro', 'agri', 'astro', 'aero', 'anti', 'archi', 'arch', 'fyzio', 'epidemio',
     'hydro', 'termo', 'elektro', 'mikro', 'makro', 'mono', 'neuro', 'orto', 'poly',
     'pseudo', 'semi', 'hemi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',
     'super', 'hyper', 'meta', 'multi', 'mini', 'maxi',

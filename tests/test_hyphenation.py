@@ -6491,6 +6491,10 @@ def test_a_one_letter_vowel_prefix_is_not_left_standing_alone():
         # zoo- added by operator 2026-10-01 after the 71-word AI recheck.
         "zoológ": "zoo·lóg",
         "zoologický": "zoo·lo·gic·ký",
+        # fyzio-, epidemio- (operator 2026-10-02, blind3000 AI agreement).
+        "fyziognomické": "fy·zio·gno·mic·ké",
+        "fyziológ": "fy·zio·lóg",
+        "epidemiológa": "epi·de·mio·ló·ga",
         # Operator 2026-10-01: the protection holds only at the word start.
         "predgeologických": "pred·ge·o·lo·gic·kých",
         "antizoologičky": "an·ti·zo·o·lo·gič·ky",
@@ -6505,6 +6509,13 @@ def test_a_one_letter_vowel_prefix_is_not_left_standing_alone():
     assert hyphenate("pionier") == "pi·o·nier"
     assert hyphenate("akcionár") == "ak·ci·o·nár"
     assert hyphenate("situácia") == "si·tu·á·cia"
+    # One sankci- family, one division of the stem (operator 2026-10-02).
+    assert hyphenate("sankcionuje") == "sank·ci·o·nu·je"
+    assert hyphenate("sankcií") == "sank·cií"
+    # po-|účať like po-|učiť (operator + AI 2026-10-02).
+    assert hyphenate("nepoúča") == "ne·po·úča"
+    assert hyphenate("poúčať") == "po·účať"
+    assert hyphenate("nepoúča", all_points=True, contextual=True) == "ne·po·ú·ča"
 
 
 def test_blind1000_v5_operator_verdicts_2026_10_01():
