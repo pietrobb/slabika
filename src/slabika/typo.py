@@ -107,6 +107,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'domrémyjský': (3, 5, 8),
     'elenore': (3,),
     'escamillo': (2, 4, 6),  # Spanish ll is one sound: Es·ca·mi·llo.
+    'exaudi': (2, 4),  # Latin ex·au·di (operator + AI, blind3000 2026-10-02).
     'excellence': (2, 5),
     'fahrenheita': (3, 6, 9),
     'fahrenheitovho': (3, 6, 9, 12),
@@ -150,6 +151,9 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'joycea': (3,),
     'lagny': (2,),  # French gn is one consonant [ɲ]: La·gny.
     'lengua': (3,),  # Spanish gu [gw] is one onset: len·gua (human + AI 2026-10-02).
+    # Ler·chen·feld·čan·ky: -čan- after the whole German name
+    # (operator + AI, blind3000 2026-10-02).
+    'lerchenfeldčanky': (3, 7, 11, 14),
     'lockridge': (4,),
     'loira': (3,),
     'loire': (),
@@ -199,6 +203,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'teufelsritt': (3, 7),
 
     'teufelswand': (7,),
+    'usque': (2,),  # Latin us·que (operator + AI, blind3000 2026-10-02).
     'wadeovou': (4, 5),
 }
 
