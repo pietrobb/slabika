@@ -67,7 +67,7 @@ def _project(word):
     return EnglishMorphology(p for p in evidence if p is not None).refine(pronunciation, points)
 
 
-def english_points(word):
+def english_points(word, *, explicit=False):
     """Abstain for unsupported spelling, local readings or incomplete projection."""
     from .language import detect_language, is_english
     from .syllabify import _LEXICAL_FALLING_HIATUS, _lexical_syllables
@@ -75,10 +75,11 @@ def english_points(word):
 
     normalized = word.lower()
     if (not word.isascii() or not word.isalpha()
-            or detect_language(word) != "english" or not (is_english(word) or normalized in _members())
-            or _lexical_syllables(word) is not None
-            or normalized.startswith(_SLOVAK_READING_STEMS)
-            or any(normalized.startswith(stem) for stem, _ in _LEXICAL_FALLING_HIATUS)):
+            or (not explicit and (
+                detect_language(word) != "english" or not (is_english(word) or normalized in _members())
+                or _lexical_syllables(word) is not None
+                or normalized.startswith(_SLOVAK_READING_STEMS)
+                or any(normalized.startswith(stem) for stem, _ in _LEXICAL_FALLING_HIATUS)))):
         return None
     points = _project(normalized)
     return None if points is None else (set(points), set(), set())

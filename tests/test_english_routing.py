@@ -46,6 +46,23 @@ def test_core_and_review_share_projection_preserve_case_and_modes(adapter, monke
     assert calls == [("people", "english")]
 
 
+def test_explicit_english_uses_model_without_automatic_language_gate(adapter, monkeypatch):
+    language = importlib.import_module("slabika.language")
+    monkeypatch.setattr(language, "detect_language", lambda word: "slovak")
+    monkeypatch.setattr(language, "is_english", lambda word: False)
+    monkeypatch.setattr(adapter, "_runtime", lambda: lambda word, lang: result(
+        word, (("pe", ("pʰ", "iː")), ("op", ("p",)), ("le", ("ə", "ɫ")))
+    ))
+    typo = importlib.import_module("slabika.typo")
+    assert typo.hyphenate("People", language="en") == "Peo·ple"
+    assert typo.hyphenate("People-People", language="english") == "Peo·ple-·Peo·ple"
+
+
+def test_explicit_english_without_runtime_does_not_use_slovak(adapter, monkeypatch):
+    monkeypatch.setitem(sys.modules, "slabika_pronunciation", None)
+    assert importlib.import_module("slabika.typo").hyphenate("people", language="en") == "people"
+
+
 def test_missing_optional_runtime_falls_back(adapter, monkeypatch):
     monkeypatch.setitem(sys.modules, "slabika_pronunciation", None)
     assert adapter.english_points("people") is None

@@ -23,7 +23,7 @@ or call :func:`break_points` for raw character offsets.
 
 from .foreign import foreign_points
 from .foreign_patterns import _LETTERS, adapt_foreign_word, german_inflected_points
-from .language import detect_language, german_evidence, is_french, is_german
+from .language import detect_language, german_evidence, is_french, is_german, normalize_language
 from .phonology import (
     HYPHENATABLE_LETTERS,
     is_consonant,
@@ -439,7 +439,7 @@ def _is_zaujat_family(left: str, right: str) -> bool:
     )
 
 
-def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
+def _collect_points(word: str, language: str | None = None) -> tuple[set[int], set[int], set[int]]:
     """Return (preferred, variant, contextual) break offsets for *word*.
 
     The three sets are the three normative levels section 9 distinguishes.
@@ -457,28 +457,52 @@ def _collect_points(word: str) -> tuple[set[int], set[int], set[int]]:
     compound's second part onto its first (``pou|čiť``). Neither is a codified
     doublet, so neither belongs in *variant*.
     """
+    if "-" in word or "‐" in word:
+        parts = word.replace("‐", "-").split("-")
+        if not all(part.isalpha() for part in parts):
+            return set(), set(), set()
+        preferred, variants, contextual = set(), set(), set()
+        offset = 0
+        for index, part in enumerate(parts):
+            points = _collect_points(part, language)
+            for target, source in zip((preferred, variants, contextual), points):
+                target.update(offset + point for point in source)
+            offset += len(part)
+            if index < len(parts) - 1:
+                offset += 1
+                preferred.add(offset)
+        return preferred, variants, contextual
     if not word.isalpha():
+        return set(), set(), set()
+    if language in ("english", "german", "french"):
+        routed = foreign_points(word, _psp_points, language)
+        if routed is not None:
+            return routed
+        if language in _LETTERS and all(char.lower() in _LETTERS[language] for char in word):
+            return set(adapt_foreign_word(word, language).points), set(), set()
+        # An explicit identity must never fall back to Slovak spelling rules.
         return set(), set(), set()
 
     # Lower-cased, not case-folded: folding turns ß into ss, which collapses
     # Großglockner and Grossglockner onto one key although the review divides
     # them at different offsets (Groß·glock·ner, Gross·glock·ner). No key in
     # the table has ever relied on the folding.
-    reviewed_foreign = _REVIEWED_FOREIGN_BREAK_POINTS.get(word.lower())
+    reviewed_foreign = _REVIEWED_FOREIGN_BREAK_POINTS.get(word.lower()) if language is None else None
     if reviewed_foreign is not None:
         return set(reviewed_foreign), set(), set()
-    reviewed_foreign = _reviewed_foreign_inflected_points(word)
+    reviewed_foreign = _reviewed_foreign_inflected_points(word) if language is None else None
     if reviewed_foreign is not None:
         return reviewed_foreign, set(), set()
 
-    routed = foreign_points(word, _psp_points)
+    routed = foreign_points(word, _psp_points) if language is None else None
     if routed is not None:
         return routed
 
     lexical_parts = _lexical_syllables(word)
-    language = detect_language(word)
+    automatic = language is None
+    language = language or detect_language(word)
     german = german_evidence(word)
-    if german.is_german and german.ending and detect_language(german.stem) == "german":
+    if automatic and german.is_german and german.ending and detect_language(german.stem) == "german":
         # The Slovak ending can obscure the whole-word language vote.
         language = "german"
     if (
@@ -730,6 +754,8 @@ def break_points(
     contextual: bool = False,
     left_min: int = 1,
     right_min: int = 1,
+    *,
+    language: str | None = None,
 ) -> list[int]:
     """
     Return the character offsets at which *word* may be broken across lines.
@@ -773,7 +799,7 @@ def break_points(
     """
     if left_min < 1 or right_min < 1:
         raise ValueError("left_min and right_min must be at least 1")
-    preferred, variants, contextuals = _collect_points(word)
+    preferred, variants, contextuals = _collect_points(word, normalize_language(language))
     offsets = set(preferred)
     if all_points:
         offsets |= variants
@@ -785,7 +811,7 @@ def break_points(
     )
 
 
-def divisions(word: str) -> list[str]:
+def divisions(word: str, *, language: str | None = None) -> list[str]:
     """
     Return every permissible division of *word*, written out with a hyphen.
 
@@ -794,7 +820,7 @@ def divisions(word: str) -> list[str]:
     """
     return [
         f"{word[:point]}-{word[point:]}"
-        for point in break_points(word, all_points=True)
+        for point in break_points(word, all_points=True, language=language)
     ]
 
 
@@ -805,6 +831,8 @@ def hyphenate(
     contextual: bool = False,
     left_min: int = 1,
     right_min: int = 1,
+    *,
+    language: str | None = None,
 ) -> str:
     """
     Return *word* with *separator* inserted at every valid break point.
@@ -813,6 +841,10 @@ def hyphenate(
     adapted to PSP when both the shared router and language evidence agree.
     Existing lexical readings take precedence; unsupported spellings stay unchanged.
     ``left_min`` and ``right_min`` work as in :func:`break_points`.
+    ``language`` explicitly selects EN/DE/FR/SK pronunciation/routing, still
+    adapted to Slovak PSP. None keeps automatic detection. Hyphenated words
+    are processed member by member; a point after an existing hyphen denotes
+    the seam, whose hyphen the typesetter must repeat on the following line.
 
     >>> hyphenate('Prekladateľský')
     'Pre·kla·da·teľ·ský'
@@ -829,7 +861,7 @@ def hyphenate(
     >>> hyphenate('Prekladateľský', left_min=2, right_min=4)
     'Pre·kla·da·teľský'
     """
-    offsets = break_points(word, all_points, contextual, left_min, right_min)
+    offsets = break_points(word, all_points, contextual, left_min, right_min, language=language)
     if not offsets:
         return word
 

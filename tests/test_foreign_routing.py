@@ -210,4 +210,4 @@ def test_pattern_routing_does_not_send_unsupported_letters_to_adapter(monkeypatc
     monkeypatch.setattr(typo, "detect_language", lambda word: "german")
     monkeypatch.setattr(typo, "is_german", lambda word: True)
     assert typo.hyphenate("slovenčina") == "slo·ven·či·na"
-    assert typo.hyphenate("pickel-heringen") == "pickel-heringen"
+    assert typo.hyphenate("pickel-heringen") == "pi·ckel-·he·rin·gen"

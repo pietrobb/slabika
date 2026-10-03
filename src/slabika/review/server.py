@@ -36,6 +36,7 @@ from urllib.parse import parse_qs, urlparse
 from slabika import __version__ as ENGINE_VERSION
 from slabika import hyphenate, is_english, is_french, is_german, syllables
 from slabika.syllabify import UnsupportedSpellingError
+from slabika.language import normalize_language
 from . import ai_runs
 from .tex_patterns import tex_hyphenate
 from .schema import allow_classification_action
@@ -90,6 +91,7 @@ CREATE TABLE IF NOT EXISTS decisions (
     engine_syllabification TEXT NOT NULL,
     hyphenation_engine_version TEXT,
     syllabification_engine_version TEXT,
+    language TEXT,
     is_foreign_word INTEGER CHECK(is_foreign_word IN (0, 1)),
     is_proper_name INTEGER CHECK(is_proper_name IN (0, 1)),
     is_abbreviation INTEGER CHECK(is_abbreviation IN (0, 1)),
@@ -111,6 +113,7 @@ CREATE TABLE IF NOT EXISTS decision_log (
     expected_hyphenation TEXT,
     expected_syllabification TEXT,
     engine_hyphenation TEXT,
+    language TEXT,
     is_foreign_word INTEGER,
     is_proper_name INTEGER,
     is_abbreviation INTEGER,
@@ -211,7 +214,21 @@ def _parse_marked(form: str, text: str) -> str:
     separators collapse and edge separators are dropped, so a stray dash does
     not become a rejected submission; what must hold exactly is the letters.
     """
-    normalised = re.sub(r"[-·\u2010-\u2015\s]+", "·", text.strip()).strip("·")
+    if "-" in form or "‐" in form:
+        out = []
+        position = 0
+        for char in text.strip():
+            if position < len(form) and char == form[position]:
+                out.append(char)
+                position += 1
+            elif char in "-·\u2010\u2011\u2012\u2013\u2014\u2015" or char.isspace():
+                if out and out[-1] != "·":
+                    out.append("·")
+            else:
+                raise ValueError(f"{text!r} nie je {form!r}")
+        normalised = "".join(out).strip("·")
+    else:
+        normalised = re.sub(r"[-·\u2010-\u2015\s]+", "·", text.strip()).strip("·")
     if normalised.replace("·", "") != form:
         raise ValueError(
             f"{text!r} nie je {form!r} — po odstránení pomlčiek musí zostať presne ten tvar"
@@ -251,9 +268,9 @@ def _tex_mode(marked: str, form: str, left_min: int = 2, right_min: int = 3) -> 
     return "·".join(out)
 
 
-def _engine(form: str) -> tuple[str, str, str | None]:
+def _engine(form: str, language: str | None = None) -> tuple[str, str, str | None]:
     try:
-        hyphenation = hyphenate(form)
+        hyphenation = hyphenate(form, language=language)
         try:
             syllabification = _recase(syllables(form), form)
         except UnsupportedSpellingError:
@@ -264,15 +281,15 @@ def _engine(form: str) -> tuple[str, str, str | None]:
 
 
 def _hyphenation_match_mode(
-    form: str, expected: str | None, preferred: str | None = None
+    form: str, expected: str | None, preferred: str | None = None, language: str | None = None
 ) -> str | None:
     if expected is None:
         return None
     candidates = (
-        ("preferred", preferred if preferred is not None else hyphenate(form)),
-        ("permissive", hyphenate(form, all_points=True)),
-        ("contextual", hyphenate(form, contextual=True)),
-        ("permissive_contextual", hyphenate(form, all_points=True, contextual=True)),
+        ("preferred", preferred if preferred is not None else hyphenate(form, language=language)),
+        ("permissive", hyphenate(form, all_points=True, language=language)),
+        ("contextual", hyphenate(form, contextual=True, language=language)),
+        ("permissive_contextual", hyphenate(form, all_points=True, contextual=True, language=language)),
     )
     target = expected.casefold()
     return next((mode for mode, output in candidates if output.casefold() == target), None)
@@ -346,6 +363,7 @@ class Corpus:
         columns = {row[1] for row in self.store.execute("PRAGMA table_info(decisions)")}
         for column in (
             "row_action",
+            "language",
             "hyphenation_action",
             "syllabification_action",
             "hyphenation_engine_version",
@@ -368,6 +386,7 @@ class Corpus:
             row[1] for row in self.store.execute("PRAGMA table_info(decision_log)")
         }
         for column, definition in (
+            ("language", "TEXT"),
             ("is_foreign_word", "INTEGER"),
             ("is_proper_name", "INTEGER"),
             ("is_abbreviation", "INTEGER"),
@@ -406,7 +425,7 @@ class Corpus:
         )
         self.store.commit()
 
-        self._engine_cache: dict[str, str] = {}
+        self._engine_cache: dict[tuple[str, str | None], str] = {}
         self._index_forms()
         self.worklist: list[str] = []
         self.worklist_name = ""
@@ -415,11 +434,16 @@ class Corpus:
 
     require_syllabification = True
 
+    def _selected_language(self, form: str) -> str | None:
+        representative = self.representative_for_form.get(form, form)
+        row = self._decision_rows([representative]).get(representative)
+        return row["language"] if row else None
+
     def _engine(self, form: str) -> tuple[str, str, str | None]:
-        return _engine(form)
+        return _engine(form, self._selected_language(form))
 
     def _match_mode(self, form: str, expected: str | None, preferred: str) -> str | None:
-        return _hyphenation_match_mode(form, expected, preferred)
+        return _hyphenation_match_mode(form, expected, preferred, self._selected_language(form))
 
     def _tex(self, form: str) -> str | None:
         return _recase_marked(tex_hyphenate(form.lower()), form)
@@ -779,6 +803,7 @@ class Corpus:
         return {
             "form": form,
             "review_form": review_form,
+            "language": mine["language"] if mine else None,
             "hyphenation": hyphenation,
             "engine_tex": engine_tex,
             "syllabification": syllabification,
@@ -807,6 +832,7 @@ class Corpus:
             "my_classification": bool(mine) and any(
                 mine[field] is not None
                 for field in (
+                    "language",
                     "is_foreign_word",
                     "is_proper_name",
                     "is_abbreviation",
@@ -860,6 +886,7 @@ class Corpus:
             for field in (
                 "hyphenation_action",
                 "row_action",
+                "language",
                 "is_foreign_word",
                 "is_proper_name",
                 "is_abbreviation",
@@ -964,9 +991,10 @@ class Corpus:
 
     def _engine_hyphenation(self, review_form: str) -> str:
         """Engine output is stable inside one process; human decisions are not."""
-        if review_form not in self._engine_cache:
-            self._engine_cache[review_form] = self._engine(review_form)[0]
-        return self._engine_cache[review_form]
+        key = (review_form, self._selected_language(review_form))
+        if key not in self._engine_cache:
+            self._engine_cache[key] = self._engine(review_form)[0]
+        return self._engine_cache[key]
 
     def precompute_voice_filters(self) -> None:
         if self._tex_disagreements is not None:
@@ -1156,6 +1184,7 @@ class Corpus:
                     "reviewed_at": row["decided_at"],
                     "reason": row["reason"],
                     "corrected_form": row["corrected_form"],
+                    "language": row["language"],
                     "flags": {
                         "foreign": row["is_foreign_word"],
                         "proper": row["is_proper_name"],
@@ -1185,7 +1214,13 @@ class Corpus:
 
         form = self.representative_for_form[form]
         review_form = form
-        display_hyphenation, display_syllabification, engine_error = self._engine(review_form)
+        language_supplied = "language" in payload
+        selected_language = normalize_language(payload.get("language")) if language_supplied else self._selected_language(form)
+        if hasattr(self, "language") and language_supplied:
+            raise ValueError("Jazyk samostatného cudzojazyčného korpusu nemožno meniť")
+        display_hyphenation, display_syllabification, engine_error = (
+            _engine(review_form, selected_language) if language_supplied else self._engine(review_form)
+        )
         if payload.get("bulk") and (engine_error or (self.require_syllabification and not display_syllabification)):
             raise ValueError(f"výstup enginu nemožno hromadne potvrdiť: {engine_error or 'nepodporované slabikovanie'}")
         hyphenation = _recase_marked(display_hyphenation, form)
@@ -1257,6 +1292,7 @@ class Corpus:
                 effective["syllabification_engine_version"] if effective else None
             )
             reason = effective["reason"] if effective else ""
+            language = selected_language if language_supplied else (effective["language"] if effective else None)
             is_foreign_word = flags.get(
                 "foreign", effective["is_foreign_word"] if effective else None
             )
@@ -1313,9 +1349,9 @@ class Corpus:
                         engine_hyphenation, engine_syllabification,
                         hyphenation_engine_version, syllabification_engine_version,
                         is_foreign_word, is_proper_name, is_abbreviation,
-                        corrected_form, is_deleted,
+                        corrected_form, is_deleted, language,
                         reason, engine_version, decided_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(form) DO UPDATE SET
                         action = excluded.action,
                         row_action = excluded.row_action,
@@ -1332,6 +1368,7 @@ class Corpus:
                         is_abbreviation = excluded.is_abbreviation,
                         corrected_form = excluded.corrected_form,
                         is_deleted = excluded.is_deleted,
+                        language = excluded.language,
                         reason = excluded.reason,
                         engine_version = excluded.engine_version,
                         decided_at = excluded.decided_at
@@ -1353,6 +1390,7 @@ class Corpus:
                         is_abbreviation,
                         effective_corrected_form,
                         is_deleted,
+                        language,
                         reason,
                         ENGINE_VERSION,
                         _now(),
@@ -1364,9 +1402,9 @@ class Corpus:
                         form, operation, action, expected_hyphenation,
                         expected_syllabification, engine_hyphenation,
                         is_foreign_word, is_proper_name, is_abbreviation,
-                        corrected_form, is_deleted,
+                        corrected_form, is_deleted, language,
                         previous_json, engine_version, logged_at
-                    ) VALUES (?, 'decide', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, 'decide', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         form,
@@ -1379,6 +1417,7 @@ class Corpus:
                         is_abbreviation,
                         effective_corrected_form,
                         is_deleted,
+                        language,
                         json.dumps(dict(previous), ensure_ascii=False) if previous else None,
                         ENGINE_VERSION,
                         _now(),
@@ -1393,6 +1432,8 @@ class Corpus:
                 self.store.rollback()
                 raise
             self.decided[form] = stored_action
+            if language_supplied:
+                self._tex_disagreements = None
         return {"ok": True, "item": self._fresh(form)}
 
     def decide_many(self, payload: dict) -> dict:
@@ -1437,6 +1478,7 @@ class Corpus:
                                    hyphenation_action = NULL,
                                    expected_hyphenation = NULL,
                                    hyphenation_engine_version = NULL,
+                                   language = NULL,
                                    is_foreign_word = NULL,
                                    is_proper_name = NULL,
                                    is_abbreviation = NULL,
@@ -1476,6 +1518,7 @@ class Corpus:
                     self.decided.pop(source_form, None)
                 else:
                     self.decided[source_form] = previous["syllabification_action"]
+            self._tex_disagreements = None
         return {"ok": True, "item": self._fresh(form)}
 
     def undo_last(self) -> dict:
@@ -1572,6 +1615,7 @@ class Corpus:
                 self.decided[form] = previous["action"]
             else:
                 self.decided.pop(form, None)
+            self._tex_disagreements = None
         visible_form = self.representative_for_form.get(form, form)
         return {"ok": True, "form": visible_form, "item": self._fresh(visible_form)}
 

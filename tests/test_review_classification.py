@@ -102,3 +102,79 @@ def test_reconcile_requires_hyphenation_evidence(tmp_path):
     assert manual['corrected']['action'] == 'correct'
     for form in ('case-only', 'syllables-only', 'classified'):
         assert manual[form]['action'] is None
+
+
+@pytest.mark.parametrize('legacy', [False, True])
+def test_language_selection_persists_recalculates_and_undoes(tmp_path, legacy):
+    inventory = tmp_path / 'inventory.sqlite'
+    decisions = tmp_path / 'decisions.sqlite'
+    _inventory(inventory)
+    with sqlite3.connect(inventory) as connection:
+        connection.executemany('INSERT INTO forms VALUES (?, ?, ?)', [
+            ('Pierre', 'resolved', None), ('Saint-Denis', 'resolved', None),
+        ])
+    if legacy:
+        _old_store(decisions)
+    corpus = server.Corpus(inventory, decisions)
+    try:
+        assert corpus._engine_hyphenation('Pierre') == 'Pier·re'
+        corpus._tex_disagreements = frozenset({'Pierre'})
+        item = corpus.decide({'form': 'Pierre', 'action': 'classify', 'language': 'fr'})['item']
+        assert item['language'] == 'french'
+        assert item['hyphenation'] == 'Pierre'
+        assert item['my_classification']
+        assert item['my_hyphenation_action'] is None
+        assert item['my_syllabification_action'] is None
+        assert corpus._engine_hyphenation('Pierre') == 'Pierre'
+        assert corpus._tex_disagreements is None
+        assert corpus.store.execute('SELECT language FROM decision_log ORDER BY entry_id DESC').fetchone()[0] == 'french'
+        corpus.decide({'form': 'Pierre', 'action': 'confirm', 'field': 'hyphenation'})
+        item = corpus.decide({'form': 'Pierre', 'action': 'classify', 'flags': {'proper': True}})['item']
+        assert item['language'] == 'french'
+        assert item['my_expected'] == 'Pierre'
+        assert item['my_hyphenation_match_mode'] == 'preferred'
+        assert not item['my_disagrees']
+        item = corpus.decide({'form': 'Pierre', 'action': 'classify', 'language': 'sk'})['item']
+        assert item['hyphenation'] == 'Pier·re'
+        assert item['my_disagrees']
+        assert corpus.undo_last()['item']['language'] == 'french'
+        assert corpus.clear({'form': 'Pierre'})['item']['language'] is None
+        assert corpus._engine_hyphenation('Pierre') == 'Pier·re'
+        assert corpus.undo_last()['item']['hyphenation'] == 'Pierre'
+        item = corpus.decide({'form': 'Saint-Denis', 'action': 'classify', 'language': 'fr'})['item']
+        assert item['hyphenation'] == 'Saint-·De·nis'
+        item = corpus.decide({'form': 'Saint-Denis', 'action': 'confirm', 'text': 'Saint--De-nis'})['item']
+        assert item['my_expected'] == 'Saint-·De·nis'
+        assert not item['my_disagrees']
+        corpus.inventory.close()
+        corpus.store.close()
+        corpus = server.Corpus(inventory, decisions)
+        assert corpus._fresh('Pierre')['language'] == 'french'
+        assert corpus._fresh('Saint-Denis')['language'] == 'french'
+        assert corpus.store.execute('PRAGMA quick_check').fetchone()[0] == 'ok'
+    finally:
+        corpus.inventory.close()
+        corpus.store.close()
+
+
+@pytest.mark.parametrize('language', ['spanish', '', 1, False, ['fr']])
+def test_invalid_language_does_not_save(tmp_path, language):
+    inventory = tmp_path / 'inventory.sqlite'
+    _inventory(inventory)
+    corpus = server.Corpus(inventory, tmp_path / 'decisions.sqlite')
+    try:
+        with pytest.raises(ValueError, match='language'):
+            corpus.decide({'form': 'Aaah', 'action': 'classify', 'language': language})
+        assert corpus.store.execute('SELECT COUNT(*) FROM decisions').fetchone()[0] == 0
+        assert corpus.store.execute('SELECT COUNT(*) FROM decision_log').fetchone()[0] == 0
+    finally:
+        corpus.inventory.close()
+        corpus.store.close()
+
+
+def test_ui_has_manual_language_control():
+    html = server.UI_PATH.read_text(encoding='utf-8')
+    assert 'class="word-language"' in html
+    for language in ('english', 'german', 'french', 'slovak'):
+        assert f'<option value="{language}">' in html
+    assert 'action: "classify", language:' in html

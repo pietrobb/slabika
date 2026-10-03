@@ -4,9 +4,14 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from slabika import (
+    break_points,
     detect_language,
+    divisions,
     english_evidence,
+    hyphenate,
     french_evidence,
     german_evidence,
     is_english,
@@ -71,7 +76,7 @@ def test_german_corpus_profile_abstains_on_slovak_and_synthetic_forms():
 
 def test_german_detection_is_normalized_and_rejects_non_words():
     assert german_evidence("GRU\u0308NEN") == german_evidence("grünen")
-    assert not is_german("Teufels-Stein")
+    assert is_german("Teufels-Stein")
     assert not is_german("de")
 
 
@@ -136,7 +141,7 @@ def test_english_corpus_profile_abstains_on_slovak_forms():
 
 def test_english_detection_is_normalized_and_rejects_non_words():
     assert english_evidence("THOUGHT") == english_evidence("thought")
-    assert not is_english("sea-wolf")
+    assert is_english("sea-wolf")
     assert not is_english("of")
 
 
@@ -174,3 +179,43 @@ def test_distributed_english_profile_contains_only_aggregated_weights():
     assert "thought" not in profile["weights"]
     assert profile["test"]["proxy_recall"] > 0.57
     assert profile["test"]["proxy_precision"] > 0.98
+
+
+@pytest.mark.parametrize("word,language", [
+    ("Saint-Denis", "french"), ("procès-verbal", "french"),
+    ("Teufels-Stein", "german"), ("sea-wolf", "english"),
+    ("Côtes-du-Rhône", "french"), ("Saint‐Denis", "french"),
+])
+def test_hyphenated_language_scores(word, language):
+    assert detect_language(word) == language
+    assert language_scores(word)
+
+
+@pytest.mark.parametrize("word", ["-Pierre", "Pierre-", "Saint--Denis", "Saint-123", "Saint Denis"])
+def test_invalid_compounds_are_not_routed(word):
+    assert detect_language(word) is None
+    assert hyphenate(word, language="fr") == word
+
+
+@pytest.mark.parametrize("language", ["fr", "french"])
+def test_explicit_french_bypasses_profile_gate(language):
+    assert not is_french("Pierre")
+    assert hyphenate("Pierre", language=language) == "Pierre"
+    assert break_points("Pierre", language=language) == []
+    assert divisions("Pierre", language=language) == []
+    assert hyphenate("Denis", language=language) == "De·nis"
+    assert hyphenate("Saint-Denis", language=language) == "Saint-·De·nis"
+    assert hyphenate("procès-verbal", language=language) == "pro·cès-·ver·bal"
+    assert break_points("Saint-Denis", language=language, right_min=4) == [6]
+
+
+def test_explicit_language_does_not_fall_back_to_another_language():
+    assert hyphenate("Pierre", language="sk") == "Pier·re"
+    assert hyphenate("slovenčina", language="fr") == "slovenčina"
+    with pytest.raises(ValueError, match="language"):
+        hyphenate("Pierre", language="spanish")
+
+
+def test_hyphenated_automatic_route_keeps_member_evidence():
+    assert hyphenate("Saint-Denis") == hyphenate("Saint") + "-·" + hyphenate("Denis")
+    assert hyphenate("modro-biely").replace("·", "") == "modro-biely"

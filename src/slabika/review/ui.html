@@ -234,7 +234,15 @@ const engineText = it => dash(it.hyphenation);
 const mineText = it => dash(it.my_expected);
 const myAction = it => it.my_hyphenation_action;
 const unmarked = text => (text || "").replace(/[-·\u2010-\u2015\s]/g, "");
-const isValid = (it, input) => unmarked(input.value) === it.review_form;
+const isValid = (it, input) => {
+  if (!/[-‐]/.test(it.review_form)) return unmarked(input.value) === it.review_form;
+  let position = 0;
+  for (const char of input.value.trim()) {
+    if (char === it.review_form[position]) position++;
+    else if (!/[-·\u2010-\u2015\s]/.test(char)) return false;
+  }
+  return position === it.review_form.length;
+};
 const firstInvalid = (row, it) => [...row.querySelectorAll(".edit")]
   .find(input => !isValid(it, input));
 const hasDirty = () => [...document.querySelectorAll(".edit")]
@@ -355,6 +363,7 @@ function paint(row, it) {
   const automatic = languages.filter(([key]) => it.language_profiles[key]).map(([, label]) => label);
   const flagLabels = Object.entries({foreign: "cudzie slovo", proper: "meno", abbreviation: "skratka"});
   const manual = flagLabels.filter(([key]) => it.my_flags[key] != null).map(([key, label]) => it.my_flags[key] ? label : `nie je ${label}`);
+  if (it.language) manual.unshift({english: "angličtina", german: "nemčina", french: "francúzština", slovak: "slovenčina"}[it.language]);
   const imported = flagLabels.filter(([key]) => it.my_flags[key] == null && it.flags[key] != null).map(([key, label]) => it.flags[key] ? label : `nie je ${label}`);
   row.querySelector(".classification").innerHTML = `<div><b>${it.corpus_language ? "Jazyk korpusu:" : "Automaticky:"}</b> ${esc(automatic.join(" / ") || "jazyk neurčený")}</div>` +
     `<div><b>Ručne:</b> ${esc(manual.join(", ") || "neoznačené")}</div>` +
@@ -441,6 +450,10 @@ function makeRow(it, i) {
       `<button data-a="invalid" title="nie je to slovo">Nie slovo</button>` +
       `<button data-a="proper" title="označiť alebo odznačiť vlastné meno">Meno</button>` +
       `<button data-a="foreign" title="označiť alebo odznačiť cudzie slovo">Cudzie</button>` +
+      (it.corpus_language ? "" : `<select class="word-language" aria-label="Jazyk slova ${esc(it.review_form)}" title="Jazyk má prednosť pred automatickou detekciou">` +
+        `<option value="">Jazyk: automaticky</option><option value="slovak">Slovenčina</option>` +
+        `<option value="english">Angličtina</option><option value="german">Nemčina</option>` +
+        `<option value="french">Francúzština</option></select>`) +
       `<button data-a="abbreviation" title="označiť alebo odznačiť skratku">Skratka</button>` +
       `<button data-a="correct-form" title="opraviť samotný slovný tvar">Opraviť</button>` +
       `<button data-a="deleted" title="označiť alebo odznačiť na vymazanie">Vymazať</button>` +
@@ -476,6 +489,11 @@ function makeRow(it, i) {
       }
     });
   });
+  const languageSelect = row.querySelector(".word-language");
+  if (languageSelect) {
+    languageSelect.value = it.language || "";
+    languageSelect.addEventListener("change", () => act(i, "language"));
+  }
   const activeActions = {
     proper: it.flags.proper,
     foreign: it.flags.foreign,
@@ -507,9 +525,12 @@ function focusRow(i, field = "h") {
     return;
   }
   S.focus = i;
-  const row = $("rows").children[i];
-  row.scrollIntoView({block: "nearest"});
-  row.querySelector(`.edit[data-field="${field}"]`).focus();
+  const box = $("rows");
+  const row = box.children[i];
+  const bounds = row.getBoundingClientRect();
+  const viewport = box.getBoundingClientRect();
+  row.scrollIntoView({block: bounds.bottom > viewport.top + box.clientHeight ? "start" : "nearest"});
+  row.querySelector(`.edit[data-field="${field}"]`).focus({preventScroll: true});
   markFocus();
 }
 
@@ -639,7 +660,9 @@ async function act(i, action) {
   const item = S.items[i];
   if (rejectInvalid(row, item)) return;
   let request = {form, action, reason: REASON[action]};
-  if (FLAG_FOR_ACTION[action]) {
+  if (action === "language") {
+    request = {form, action: "classify", language: row.querySelector(".word-language").value || null};
+  } else if (FLAG_FOR_ACTION[action]) {
     const flag = FLAG_FOR_ACTION[action];
     request = {form, action: "classify", flags: {[flag]: !item.flags[flag]}};
   } else if (action === "correct-form") {
@@ -674,7 +697,7 @@ async function act(i, action) {
   replaceRow(i, r.item);
   stats();
   if (clearing) { toast("rozhodnutie zrušené: " + form); focusRow(i); }
-  else focusRow(i + 1);
+  else focusRow(action === "language" ? i : i + 1);
 }
 
 async function bulkConfirm() {

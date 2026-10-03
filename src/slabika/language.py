@@ -18,6 +18,17 @@ _PROFILE_PATHS = {
     "english": Path(__file__).parent / "data" / "english_profile.json",
 }
 _ROUTER_PROFILE_PATH = Path(__file__).parent / "data" / "language_router_profile.json"
+_LANGUAGES = {"en": "english", "english": "english", "de": "german", "german": "german",
+              "fr": "french", "french": "french", "sk": "slovak", "slovak": "slovak"}
+
+
+def normalize_language(language: str | None) -> str | None:
+    """Validate an explicit language label; None selects automatic routing."""
+    if language is None:
+        return None
+    if not isinstance(language, str) or language not in _LANGUAGES:
+        raise ValueError("language must be en/english, de/german, fr/french or sk/slovak")
+    return _LANGUAGES[language]
 
 
 @dataclass(frozen=True)
@@ -95,6 +106,21 @@ def _features(
 def language_scores(word: str) -> tuple[LanguageScore, ...]:
     """Rank EN/DE/FR/SK using one comparable model of the isolated word."""
     normalized = unicodedata.normalize("NFC", word).lower()
+    if "-" in normalized or "‐" in normalized:
+        parts = normalized.replace("‐", "-").split("-")
+        if not all(part.isalpha() for part in parts):
+            return ()
+        rankings = [language_scores(part) for part in parts if len(part) >= 3]
+        if not rankings or not all(rankings):
+            return ()
+        totals = {}
+        for ranking in rankings:
+            for result in ranking:
+                totals[result.language] = totals.get(result.language, 0.0) + result.score
+        return tuple(sorted(
+            (LanguageScore(language, score) for language, score in totals.items()),
+            key=lambda result: result.score, reverse=True,
+        ))
     if len(normalized) < 3 or not normalized.isalpha():
         return ()
     profile = _router_profile()
@@ -148,6 +174,21 @@ def _word_evidence(word: str, language: str) -> dict:
     normalized = unicodedata.normalize("NFC", word).lower()
     result = dict(score=-100.0, support=0, coverage=0.0, stem=normalized,
                   ending="", scored_unit=normalized, **{"is_" + language: False})
+    if "-" in normalized or "‐" in normalized:
+        parts = normalized.replace("‐", "-").split("-")
+        if not all(part.isalpha() for part in parts):
+            return result
+        evidence = [_word_evidence(part, language) for part in parts if len(part) >= 3]
+        support = sum(item["support"] for item in evidence)
+        if support and all(item["support"] for item in evidence):
+            profile = _profile(language)
+            score = sum(item["score"] * item["support"] for item in evidence) / support
+            coverage = min(item["coverage"] for item in evidence)
+            result.update(score=score, support=support, coverage=coverage,
+                          **{"is_" + language: score >= profile["threshold"]
+                             and support >= profile["minimum_support"]
+                             and coverage >= profile["minimum_coverage"]})
+        return result
     if len(normalized) < 3 or not normalized.isalpha():
         return result
     profile = _profile(language)

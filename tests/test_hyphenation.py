@@ -5493,7 +5493,7 @@ def test_terminal_dz_is_one_phoneme():
 
 
 def test_uncertain_non_slovak_tokens_are_not_hyphenated():
-    for token in ("d’Arc", "L'Arbre", "Saint-Denis"):
+    for token in ("d’Arc", "L'Arbre"):
         assert hyphenate(token) == token
 
 
@@ -5527,7 +5527,7 @@ def test_separator_is_configurable():
 
 
 def test_unbreakable_words_have_no_break_points():
-    for word in ("vlk", "prst", "Saint-Denis", "d’Arc"):
+    for word in ("vlk", "prst", "d’Arc"):
         assert break_points(word) == []
         assert hyphenate(word) == word
 

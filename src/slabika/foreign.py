@@ -66,7 +66,7 @@ def reading_candidates(word: str) -> tuple[ForeignReading, ...]:
 
 
 @lru_cache(maxsize=100_000)
-def foreign_reading(word: str) -> ForeignReading | None:
+def foreign_reading(word: str, language: str | None = None) -> ForeignReading | None:
     """Route only an unambiguous profile with a matching, fully described reading."""
     # Language scoring consumes reading_candidates, not this routing function.
     from .language import english_evidence, french_evidence, german_evidence
@@ -74,6 +74,9 @@ def foreign_reading(word: str) -> ForeignReading | None:
     candidates = reading_candidates(word.lower())
     if not candidates:
         return None
+    if language is not None:
+        matching = [reading for reading in candidates if reading.language == language]
+        return matching[0] if len(matching) == 1 else None
     evidence = {"english": english_evidence(word), "german": german_evidence(word),
                 "french": french_evidence(word)}
     flagged = {lang for lang, result in evidence.items() if getattr(result, "is_" + lang)}
@@ -87,12 +90,12 @@ def foreign_reading(word: str) -> ForeignReading | None:
 
 
 def foreign_points(
-    word: str, psp_points: Callable[[str], list[int]]
+    word: str, psp_points: Callable[[str], list[int]], language: str | None = None
 ) -> tuple[set[int], set[int], set[int]] | None:
     """Map PSP offsets back to the original spelling; never import foreign breaks."""
-    reading = foreign_reading(word)
+    reading = foreign_reading(word, language)
     if reading is None:
-        return english_points(word)
+        return english_points(word, explicit=language == "english") if language in (None, "english") else None
     # Lowercasing may expand a Unicode letter. Never map those offsets to input.
     if len(word.lower()) != len(word):
         return None

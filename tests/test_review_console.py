@@ -206,14 +206,14 @@ def test_unsupported_syllabification_is_not_an_engine_crash(word):
 
 
 def test_unsupported_syllabification_preserves_hyphenation(monkeypatch):
-    monkeypatch.setattr(REVIEW, "hyphenate", lambda form: "rā·qîaʿ")
+    monkeypatch.setattr(REVIEW, "hyphenate", lambda form, language=None: "rā·qîaʿ")
     assert REVIEW._engine("rāqîaʿ") == ("rā·qîaʿ", "", None)
 
 
 @pytest.mark.parametrize("function", ["hyphenate", "syllables"])
 @pytest.mark.parametrize("error_type", [ValueError, RuntimeError])
 def test_real_engine_errors_are_still_reported(monkeypatch, function, error_type):
-    def fail(form):
+    def fail(form, language=None):
         raise error_type("test failure")
 
     monkeypatch.setattr(REVIEW, function, fail)
@@ -494,7 +494,7 @@ def test_voice_disagreement_filters_compose_with_query_and_status(corpus, monkey
     engine = {"maslo": "mas·lo", "okno": "ok·no"}
     tex = {"maslo": "ma·slo", "okno": "okno"}
     monkeypatch.setattr(
-        REVIEW, "_engine", lambda form: (engine.get(form, form), form, None)
+        REVIEW, "_engine", lambda form, language=None: (engine.get(form, form), form, None)
     )
     tex_calls = 0
 
@@ -548,7 +548,7 @@ def test_engine_versus_human_filter_keeps_only_live_disagreements(corpus, monkey
     """The engine moves on; a stored decision it no longer reproduces must stay findable."""
     engine = {"maslo": "mas·lo", "okno": "ok·no"}
     monkeypatch.setattr(
-        REVIEW, "_engine", lambda form: (engine.get(form, form), form, None)
+        REVIEW, "_engine", lambda form, language=None: (engine.get(form, form), form, None)
     )
     corpus.decide(
         {"form": "maslo", "action": "correct", "field": "hyphenation", "text": "ma-slo"}
@@ -573,7 +573,7 @@ def test_export_contains_only_suggestions_that_differ_from_current_engine(
 ):
     engine = {"maslo": "mas·lo", "okno": "ok·no"}
     monkeypatch.setattr(
-        REVIEW, "_engine", lambda form: (engine.get(form, form), form, None)
+        REVIEW, "_engine", lambda form, language=None: (engine.get(form, form), form, None)
     )
     corpus.decide(
         {"form": "maslo", "action": "correct", "field": "hyphenation", "text": "ma-slo"}
@@ -600,6 +600,7 @@ def test_export_contains_only_suggestions_that_differ_from_current_engine(
             "reviewed_at": exported["corrections"][0]["reviewed_at"],
             "reason": "",
             "corrected_form": None,
+            "language": None,
             "flags": {
                 "foreign": None,
                 "proper": None,
@@ -614,7 +615,7 @@ def test_export_contains_only_suggestions_that_differ_from_current_engine(
 
 
 def test_export_endpoint_downloads_portable_json(corpus, monkeypatch):
-    monkeypatch.setattr(REVIEW, "_engine", lambda form: ("mas·lo", form, None))
+    monkeypatch.setattr(REVIEW, "_engine", lambda form, language=None: ("mas·lo", form, None))
     corpus.decide(
         {"form": "maslo", "action": "correct", "field": "hyphenation", "text": "ma-slo"}
     )
@@ -923,7 +924,7 @@ def test_classification_preserves_existing_reviews_and_supports_filters(corpus):
 
 @pytest.mark.parametrize("result", [("okno", "okno", "engine failed"), ("okno", "", None)])
 def test_bulk_confirmation_rejects_an_engine_error(corpus, monkeypatch, result):
-    monkeypatch.setattr(REVIEW, "_engine", lambda form: result)
+    monkeypatch.setattr(REVIEW, "_engine", lambda form, language=None: result)
     with pytest.raises(ValueError, match="nemožno hromadne potvrdiť"):
         corpus.decide(
             {
