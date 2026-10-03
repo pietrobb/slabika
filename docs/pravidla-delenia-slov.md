@@ -172,12 +172,15 @@ odôvodnením, že paragraf rieši iba samotný šev zloženiny. Operátor potvr
 
 Ak sa prvá časť zloženiny končí samohláskou, ktorá s predchádzajúcou
 samohláskou tvorí hiát (`bio-`, `geo-`, `teo-`, `video-`, `choreo-`,
-`biblio-`, `rádio-`, `zoo-`, `fyzio-`, `epidemio-`), prvá časť zostáva v preferovanom delení celá. Hiátový bod
+`biblio-`, `rádio-`, `zoo-`, `fyzio-`, `epidemio-`, `homeo-`, `speleo-`, `stereo-`,
+`kardio-`, `socio-`, `embryo-` pred `-lóg`, `genea-`), prvá časť zostáva v preferovanom delení celá. Hiátový bod
 vnútri nej je prípustný, ale menej vhodný, rovnako ako bod za jednopísmenovou
 začiatočnou slabikou (§6.2): `bio|lóg|mi`, `teo|ló|gia`, `geo|met|ria`,
 `zoo|lóg`, `vi|deo|po|ži|čov|ňa`; `bi|o|lóg|mi` iba v mimoriadne úzkej sadzbe.
 `zoo-` doplnil operátor 2026-10-01 po AI kontrole (`zoo·lóg`, nie `zo·o·lóg`), `fyzio-` a
-`epidemio-` 2026-10-02 po AI behu blind3000 (`fy|zio|gno|mic|ké`, `epi|de|mio|ló|ga`). Pravidlo sa
+`epidemio-` 2026-10-02 po AI behu blind3000 (`fy|zio|gno|mic|ké`, `epi|de|mio|ló|ga`),
+`kardio-`, `socio-`, `embryo-` a `genea-` 2026-10-03 po AI behu blind3000b
+(`kar|dio|ló|go|via`, `so|cio|ló|ga`, `em|bryo|lóg`, `ge|nea|ló|gov`). Pravidlo sa
 týka iba časti zloženiny, ktorá stojí na začiatku slova. Za predponou alebo inou
 časťou zloženiny platia oba body (operátor 2026-10-01): `an|ti|bi|o|ti|ka|mi`,
 `an|ti|zo|o|lo|gič|ky`, `pred|ge|o|lo|gic|kých`, `mik|ro|bi|o|lóg`. Hiát pred príponou (`ak|ci|o|nár`, `si|tu|á|cia`) ani

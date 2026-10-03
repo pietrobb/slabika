@@ -3,10 +3,10 @@
   "split": {
     "method": "SHA-256 salted word hash; first byte < 51 is test",
     "salt": "slabika-liang-v1",
-    "train_words": 163156,
-    "train_rows": 163156,
+    "train_words": 163124,
+    "train_rows": 163124,
     "own_training_weight": 1,
-    "test_words": 40763
+    "test_words": 40757
   },
   "generated_numerals": {
     "training_words": 1035,
@@ -15,8 +15,8 @@
     "largest_covered_scale": "miliarda"
   },
   "corpus": {
-    "resolved_or_inferred_source_rows": 204572,
-    "accepted_unique_words": 203919,
+    "resolved_or_inferred_source_rows": 204534,
+    "accepted_unique_words": 203881,
     "duplicates_after_casefold": 70,
     "rejected_non_alpha": 12,
     "rejected_outside_engine_alphabet": 571,
@@ -65,30 +65,30 @@
       "threshold": 1
     }
   ],
-  "patgen_seconds": 68.74267029995099,
-  "generated_pattern_count": 5233,
+  "patgen_seconds": 65.76956019998761,
+  "generated_pattern_count": 5336,
   "files": {
     "database": "C:\\Sources8\\slabika\\tests\\data\\translatemaster_hyphenation_working.sqlite",
-    "database_sha256": "480904efc4f84652bd3d0103f965eaac6b877241c662fcab1525d0a500fd41be",
+    "database_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
     "training_word_source": "C:\\Sources8\\slabika\\tests\\data\\translatemaster_hyphenation_working.sqlite",
-    "training_word_source_sha256": "480904efc4f84652bd3d0103f965eaac6b877241c662fcab1525d0a500fd41be",
+    "training_word_source_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
     "original_patterns": "C:\\Sources8\\slabika\\tex\\hyph-sk.tex",
     "original_patterns_sha256": "7a2e3f81c80b7b7cc35ec9ea4699df9018ef352756cf3a32e9199d7cece7aba9",
-    "training_dictionary_sha256": "00b603fd29d8ba3519261522a1788a77936a36764bda6a042b8a5a4bcfa758a9",
+    "training_dictionary_sha256": "dc26a9a0ad4b00432a12718962c040d2141a53e36e53cbf3fff94b3b08a6b898",
     "generated_patterns": "C:\\Sources8\\slabika\\patterns\\hyph-sk-slabika-permissive.tex",
-    "generated_patterns_sha256": "7e504a890bb49267a8134cde3deb19d864ad44f08a34bcd574e80a52fe0cf521"
+    "generated_patterns_sha256": "bb94051fe5e415007739f120eb6d6f449ad7a12186f092aba40e1347e83e954a"
   },
   "evaluation": {
     "generated_from_current_engine": {
-      "words": 40763,
-      "exact_words": 40209,
-      "exact_word_rate": 0.9864092436768638,
-      "good_points": 78394,
-      "bad_points": 327,
-      "missed_points": 377,
-      "precision": 0.9958460893535397,
-      "recall": 0.9952139746861155,
-      "f_beta_1_over_7": 0.9958334391910774,
+      "words": 40757,
+      "exact_words": 40161,
+      "exact_word_rate": 0.9853767450990014,
+      "good_points": 78033,
+      "bad_points": 338,
+      "missed_points": 406,
+      "precision": 0.9956871802069643,
+      "recall": 0.9948240033656727,
+      "f_beta_1_over_7": 0.9956699019909571,
       "first_30_non_exact": [
         {
           "word": "abeundi",
@@ -99,6 +99,17 @@
           "extra": [],
           "missing": [
             3
+          ]
+        },
+        {
+          "word": "advienne",
+          "engine": [
+            2
+          ],
+          "predicted": [],
+          "extra": [],
+          "missing": [
+            2
           ]
         },
         {
@@ -225,20 +236,6 @@
           ]
         },
         {
-          "word": "anglicku",
-          "engine": [
-            2,
-            5
-          ],
-          "predicted": [
-            2
-          ],
-          "extra": [],
-          "missing": [
-            5
-          ]
-        },
-        {
           "word": "arbre",
           "engine": [
             2
@@ -273,13 +270,10 @@
           ],
           "predicted": [
             2,
-            5,
             7,
             8
           ],
-          "extra": [
-            5
-          ],
+          "extra": [],
           "missing": [
             4
           ]
@@ -317,6 +311,40 @@
             5
           ],
           "missing": []
+        },
+        {
+          "word": "armagnac",
+          "engine": [
+            2,
+            4
+          ],
+          "predicted": [
+            2,
+            5
+          ],
+          "extra": [
+            5
+          ],
+          "missing": [
+            4
+          ]
+        },
+        {
+          "word": "armagnacu",
+          "engine": [
+            2,
+            4
+          ],
+          "predicted": [
+            2,
+            5
+          ],
+          "extra": [
+            5
+          ],
+          "missing": [
+            4
+          ]
         },
         {
           "word": "aspoňže",
@@ -430,14 +458,23 @@
           "missing": []
         },
         {
+          "word": "beauce",
+          "engine": [],
+          "predicted": [
+            2
+          ],
+          "extra": [
+            2
+          ],
+          "missing": []
+        },
+        {
           "word": "beauperovi",
           "engine": [
-            2,
             4,
             6
           ],
           "predicted": [
-            2,
             4,
             7
           ],
@@ -447,20 +484,6 @@
           "missing": [
             6
           ]
-        },
-        {
-          "word": "beaupère",
-          "engine": [
-            4
-          ],
-          "predicted": [
-            2,
-            4
-          ],
-          "extra": [
-            2
-          ],
-          "missing": []
         },
         {
           "word": "beethovenom",
@@ -495,50 +518,19 @@
           "missing": [
             2
           ]
-        },
-        {
-          "word": "bernhardsberg",
-          "engine": [
-            4,
-            9
-          ],
-          "predicted": [
-            4,
-            7
-          ],
-          "extra": [
-            7
-          ],
-          "missing": [
-            9
-          ]
-        },
-        {
-          "word": "bezbrehého",
-          "engine": [
-            3,
-            6
-          ],
-          "predicted": [
-            3
-          ],
-          "extra": [],
-          "missing": [
-            6
-          ]
         }
       ]
     },
     "jana_chlebikova_1992": {
-      "words": 40763,
-      "exact_words": 36267,
-      "exact_word_rate": 0.8897038981429237,
-      "good_points": 74745,
-      "bad_points": 2846,
-      "missed_points": 4026,
-      "precision": 0.9633204882009512,
-      "recall": 0.9488898198575618,
-      "f_beta_1_over_7": 0.9630275747088822,
+      "words": 40757,
+      "exact_words": 36361,
+      "exact_word_rate": 0.8921412272738425,
+      "good_points": 74622,
+      "bad_points": 2962,
+      "missed_points": 3817,
+      "precision": 0.9618220251598267,
+      "recall": 0.9513379823812135,
+      "f_beta_1_over_7": 0.9616100802694807,
       "first_30_non_exact": [
         {
           "word": "abdrushin",
@@ -1056,9 +1048,9 @@
         }
       ]
     },
-    "test_engine_points_before_tex_mins": 103609,
-    "test_target_points_after_tex_mins": 78771,
-    "engine_points_removed_by_tex_mins": 24838,
+    "test_engine_points_before_tex_mins": 103632,
+    "test_target_points_after_tex_mins": 78439,
+    "engine_points_removed_by_tex_mins": 25193,
     "original_pattern_count": 2467,
     "original_exception_count": 5
   }

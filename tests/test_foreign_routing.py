@@ -146,8 +146,8 @@ def test_native_patterns_are_routed_through_core_and_slovak_review(word, expecte
     ("magnete", "mag·ne·te"), ("prosme", "pros·me"),
     ("miliarda", "mi·li·ar·da"), ("Belehrad", "Be·le·hrad"),
     ("gangster", "gan·gster"), ("gangstra", "gan·gstra"),
-    ("abeundi", "abe·un·di"), ("reume", "re·u·me"),
-    ("Agnes", "Ag·nes"), ("Archelaus", "Ar·che·la·us"),
+    ("abeundi", "abe·un·di"), ("reume", "reu·me"),
+    ("Agnes", "Ag·nes"), ("Archelaus", "Ar·che·la·us"), ("Laxart", "La·xart"),
 ])
 def test_automatic_pattern_routing_preserves_local_readings(word, expected):
     assert hyphenate(word) == expected
@@ -234,6 +234,7 @@ def test_pattern_routing_does_not_send_unsupported_letters_to_adapter(monkeypatc
     ("Winchester", "en", "Win·ches·ter"),
     ("Winchesterom", "en", "Win·ches·te·rom"),
     ("Winchesteru", "en", "Win·ches·te·ru"),
+    ("Aubrey", "en", "Aub·rey"),  # PSP V.2b divides b|r, not the English onset br.
     ("Aubreyová", "en", "Aub·rey·o·vá"),
     ("Bedfordovým", "en", "Bed·for·do·vým"),
     ("Talbotove", "en", "Tal·bo·to·ve"),
@@ -259,6 +260,7 @@ def test_pattern_routing_does_not_send_unsupported_letters_to_adapter(monkeypatc
     ("Metzove", "fr", "Me·tzo·ve"),
     ("Romorantine", "fr", "Ro·mo·ran·ti·ne"),
     ("Dampmartine", "fr", "Damp·mar·ti·ne"),
+    ("Laxart", "fr", "La·xart"),
     ("Jacques", "fr", "Jacques"),
     ("Jacquesa", "fr", "Ja·cquesa"),
     ("Mengette", "fr", "Men·gette"),
@@ -295,7 +297,7 @@ def test_explicit_name_families_use_stem_readings_and_slovak_endings(
     ("Letellier", "french"), ("Dupont", "french"), ("Armagnac", "french"),
     ("Domrémy", "french"), ("Chinon", "french"), ("Bourlemont", "french"),
     ("Metz", "french"), ("Romorantin", "french"), ("Dampmartin", "french"),
-    ("Jacques", "french"),
+    ("Jacques", "french"), ("Laxart", "french"),
 ])
 def test_name_readings_require_matching_language_and_known_ending(word, language):
     assert foreign_reading(word, language) is not None

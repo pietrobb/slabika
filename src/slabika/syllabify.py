@@ -212,7 +212,6 @@ _PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
     ('mrštnos', (4,)),      # mršt·nosť, mršt·nos·ťou
     ('nazlos', (2,)),       # na·zlos·te·ná, not na·zlo·ste·ná
     ('nevyhnut', (2, 2)),    # ne·vy·hnut·ný, ne·vy·hnut·nosť
-    ('zatrpknu', (2,)),      # za·trp·knu·tý, za·trp·knu·tos·ťou
     ('nenaklon', (2, 2)),    # ne·na·klo·ne·ný, ne·na·klo·ni·la
     ('umiestne', (6,)),      # umiest·ne·nej, umiest·ne·nie
     ('leskl', (4,)),         # lesk·lý, lesk·lá
@@ -227,9 +226,24 @@ _PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
     ('predovu', ()),
     ('podlž', (2,)),
     ('priln', (3,)),
+    # Operator chose the blind3000b AI division for the -ov- derivatives only
+    # (2026-10-03); von·kaj·šku, von·kaj·škom stay as approved in blind2000.
+    ('vonkajškov', (3, 4)),  # von·kajš·ko·vo, von·kajš·ko·vosť
     ('vonkajšk', (3, 3)),
+    ('úctyhodn', (2, 2, 3)), # úc·ty·hod·ný (operator 2026-10-03); úcta, úcti·vý unchanged
     ('zavd', (3,)),
     ('zneutral', ()),
+    # Operator-approved blind3000b families (2026-10-03): z-|ostriť and
+    # z-|elektrizovať keep the root's opening vowel with the prefix consonant.
+    ('zelektr', (5,)),       # zelek·tri·zo·va·ných
+    ('neohne', (2, 1)),      # ne·ohne: o-|hnúť, not the oh·ni·vý of oheň
+    ('zostren', (3,)),       # zos·tre·ní, not zo·stre·lil (zo-|strieľať)
+    ('zostriť', (3,)),       # zos·triť, not zo·stri·hať
+    ('zostril', (3,)),       # zos·tri·la
+    ('zostrí', (3,)),        # zos·trí
+    ('zostruj', (3,)),       # zos·tru·je
+    ('skostnat', (5,)),      # skost·na·te·nej: kosť + -natý
+    ('zatrpkn', (2, 4)),     # za·trpk·nu·tý: trpký + -núť
     ('zadn', (3,)),          # zad·ný: root zad-, not za- (Johanka, AI run 2026-10-01)
     ('žoldn', (4,)),         # žold·nie·rov: root žold
     ('úzkostliv', (2, 4)),   # úz·kost·li·vosť: úzkosť|-livý like sta·rost·li·vý (operator 2026-10-02, blind3000)
@@ -491,6 +505,13 @@ _O_U_ROOTS = tuple(sorted({
     'skutoč', 'spej', 'spel', 'spie', 'staros', 'straš', 'križ',
     'beral', 'beran', 'samostat',  # za·obe·ra·la, osa·mo·stat·ne·nie
     'púšť', 'beraj', 'klies', 'plác', 'vrešť',
+    # blind3000b, operator accepted the AI division (2026-10-03): obu·jú,
+    # ne·ohá·ňa·jú, ne·ohne, ne·opý·tam, ne·opie·raj, za·ode·lo, osme·ľu·jem,
+    # ušti·pač·né, upcha·tá, omla·dzu·jú·cim, uspí, okruž·ných, okrúh·li·ca,
+    # uschop·ňo·va·ní, ohlu·po·va·li.
+    'buj', 'háň', 'pýt', 'pier', 'deli', 'delo', 'dela', 'smeľ', 'štip',
+    'pch', 'mladz', 'spí', 'kruž', 'krúh', 'schop', 'hlup',
+    'búv', 'mlad', 'spať', 'spáv', 'span', 'kruh',
 }))
 
 _LEXICAL_PREFIX_ROOTS = (
@@ -525,7 +546,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('north', ('rup',)),
     ('plus', ('ultra',)),
     ('post', ('gradu',)),
-    ('proti', ('alkohol',)),
+    ('proti', ('alkohol', 'argument')),
     ('kladko', ('stroj',)),
     ('nanebo', ('vstúp',)),
     ('naozaj', ('stn',)),
@@ -548,6 +569,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('treti', ('dň',)),
     ('tri', ('štvrt',)),
     ('topo', ('graf',)),
+    ('lito', ('graf',)),
+    ('embryo', ('lóg', 'log')),  # em·bryo·lóg, but em·bry·o·nál·ny
     ('typo', ('graf',)),
     ('práce', ('schop',)),
     ('sväto', ('pravdiv',)),
@@ -599,7 +622,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('tisíco', ('hlas',)),
     ('veľko', ('kráľ',)),
     ('vice', ('kráľ',)),
-    ('uza', ('tvár', 'tvor', 'vrel')),
+    ('uza', ('tvár', 'tvor', 'vrel', 'vret', 'vrie')),
     ('zu', ('šľach',)),
     ('vele', ('cten', 'zrad')),
     ('víťazo', ('sláv',)),
@@ -627,11 +650,11 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pa', ('kľúč', 'svetl')),
     ('para', ('fráz', 'graf')),
     ('pra', ('arch', 'skutoč')),
-    ('pri', ('sťah',)),
+    ('pri', ('sťah', 'ľn')),
     ('prie', ('hlav', 'hľad', 'hrad', 'klep', 'skum', 'stran', 'strel', 'stup', 'svit', 'zrač')),
     ('prí', ('štip', 'klad', 'krat', 'krov', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'streš', 'stroj', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zrak', 'zrač', 'zvuk')),
     ('naj', ('všestran',)),
-    ('ne', ('exist', 'mst', 'obyčaj', 'ocen', 'ochot', 'oficiál', 'opís', 'otes', 'očak', 'scudzolož', 'sčet', 'sčerv', 'sčísel', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
+    ('ne', ('exist', 'identif', 'mst', 'obyčaj', 'ocen', 'ochot', 'oficiál', 'opís', 'otes', 'očak', 'scudzolož', 'sčet', 'sčerv', 'sčísel', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
     ('novo', ('povst', 'prij', 'stan', 'stvor', 'vzbud', 'vznik', 'vysvät', 'zdol', 'zhotov', 'zjav', 'zrod', 'zvol')),
     ('ono', ('svet',)),
     ('na', (
@@ -642,7 +665,7 @@ _LEXICAL_PREFIX_ROOTS = (
         'zhromažd', 'žgrl',
     )),
     ('nade', ('všet',)),
-    ('ná', ('brež', 'cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'klaď', 'kres', 'prav', 'protiv', 'skok', 'sten', 'strah', 'stroj', 'stup', 'tlak', 'vnad', 'vrat', 'znak')),
+    ('ná', ('brež', 'cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'klaď', 'kres', 'prav', 'protiv', 'skok', 'sled', 'sten', 'strah', 'stroj', 'stup', 'tlak', 'vnad', 'vrat', 'znak')),
     ('sprí', ('stup',)),
     ('spo', ('plat', 'zna', 'zná')),
     ('s', ('prostred',)),
@@ -652,13 +675,13 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pod', ('oblas',)),
     # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
     ('do', ('opek', 'čk')),
-    ('po', ('cten', 'ctiev', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'klad', 'sled', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'msti', 'mstí', 'msten', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
+    ('po', ('plach', 'dopr', 'dopier', 'cten', 'ctiev', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'klad', 'sled', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'msti', 'mstí', 'msten', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
     ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač')),
     ('u', _O_U_ROOTS),
     ('vy', ('čk', 'chlad', 'cp', 'jd', 'lh', 'rv', 'sťah', 'tn')),
     ('za', ('obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'mdl', 'tn', 'účink', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),
-    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'chvev', 'hlav', 'hrad', 'hrob', 'klad', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'zrak', 'zrač')),
-    ('ú', ('ct', 'hrad', 'kryt', 'nav', 'nos', 'plat', 'prav', 'pros', 'rad', 'rod', 'skoč', 'služ', 'smev', 'spor', 'stred', 'stroj', 'stup', 'škľab', 'tlak', 'toč', 'trat', 'tvar')),
+    ('zá', ('blesk', 'brad', 'bran', 'chvat', 'chvev', 'hlav', 'hrad', 'hrob', 'klad', 'krut', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'zrak', 'zrač')),
+    ('ú', ('ct', 'hrad', 'kryt', 'nav', 'nos', 'plat', 'prav', 'pros', 'rad', 'rod', 'skoč', 'skok', 'služ', 'smev', 'spor', 'stav', 'stran', 'stred', 'stroj', 'stup', 'škľab', 'tlak', 'toč', 'trat', 'tvar')),
 )
 
 _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
@@ -750,7 +773,7 @@ _RHYTHMIC_SHORT_NY_STEMS = frozenset({'hviezd', 'pôst', 'prázd', 'púšt', 'zv
 _RHYTHMIC_LONG_NUCLEI = LONG_VOWELS | DIPHTHONGS | {'ŕ', 'ĺ'}
 
 _DLO_INFLECTIONS = ('dlami', 'dlách', 'dlom', 'dlám', 'diel', 'dla', 'dle', 'dlu', 'dlá')
-_DLO_PARADIGM_STEMS = frozenset({'páči', 'napája', 'pája'})
+_DLO_PARADIGM_STEMS = frozenset({'páči', 'napája', 'pája', 'stúpa'})
 _DLO_PAST_PREFIXES = frozenset({'', 'do', 'na', 'nado', 'od', 'o', 'po', 'pre', 'pri', 'roz', 's', 'u', 'v', 'vy', 'vz', 'z', 'za'})
 _D_FINAL_PAST_ROOTS = ('bud', 'hlad', 'hliad', 'krad', 'pad', 'vlád')
 _D_FINAL_PAST_STEMS = frozenset({'zjed'})
@@ -795,6 +818,7 @@ _SK_COMPOSITA = [
     'video', 'niekoľko', 'deväť', 'sedem', 'osem', 'šesť', 'šest', 'päť', 'zeme', 'vrti',
     'troj', 'tri', 'dve', 'štyri', 'sto', 'tisíc', 'viac', 'geo', 'teo', 'bio', 'zoo', 'foto', 'auto', 'euro', 'etyl', 'steto',
     'agro', 'agri', 'astro', 'aero', 'anti', 'archi', 'arch', 'fyzio', 'epidemio',
+    'kardio', 'socio', 'genea',  # blind3000b, operator 2026-10-03
     'hydro', 'termo', 'elektro', 'mikro', 'makro', 'mono', 'neuro', 'orto', 'poly',
     'pseudo', 'semi', 'hemi', 'kvazi', 'inter', 'intra', 'extra', 'ultra',
     'super', 'hyper', 'meta', 'multi', 'mini', 'maxi', 'omni',
@@ -1226,7 +1250,13 @@ def _licenses_compositum(comp: str, rem: str) -> bool:
         return False
     if comp == 'arch' and not reml.startswith(('anjel', 'ae')):
         return False
-    if comp == 'neuro' and not reml.startswith(('chirurg', 'lóg', 'log', 'tic', 'tič')):
+    if comp == 'jedno' and reml.startswith('tliv'):
+        return False  # jednot|livý like starost|livý: jed·not·li·vec (blind3000b)
+    if comp == 'seba' and reml.startswith(('stiá', 'stia')):
+        return False  # Se·bas·ti·án is a name, not seba|stián (blind3000b)
+    if comp == 'viac' and reml.startswith('er'):
+        return False  # via·ce·ro is one word, not viac|ero (blind3000b)
+    if comp == 'neuro' and not reml.startswith(('chirurg', 'kybern', 'lóg', 'log', 'tic', 'tič')):
         return False
     if comp == 'ostro' and not reml.startswith(('chvost', 'hran', 'streľ', 'vtip', 'zrak')):
         return False
@@ -1300,7 +1330,10 @@ def _strip_prefix(w: str) -> tuple[str, str] | tuple[None, None]:
     ):
         return None, None
     # Nadácia is a borrowed lexical stem, not na-/nad- plus dácia/ácia.
-    if wl.startswith(('nadáci', 'transcendent')):
+    # predošlý is read syllabically, pre·doš·lý (blind3000b, operator 2026-10-03).
+    if wl.startswith(('nadáci', 'transcendent')) or (
+        wl.startswith('predošl') and wl[7:] in _DOBR_INFLECTIONS
+    ):
         return None, None
     if wl.startswith('veľkokráľ'):
         return w[:5], w[5:]
@@ -1738,6 +1771,9 @@ def _strip_suffix(w: str) -> tuple[str, str] | tuple[None, None]:
             tail = wl[start + length:]
             matched = wl[start:start + length]
             if matched == 'sk' and wl.startswith('termosk'):
+                continue
+            # -ialist- is one learned stem, not -cia + an ending: špe·ci·a·list·ka.
+            if matched == 'cia' and tail.startswith('lis'):
                 continue
             if not _is_inflection(tail) and not (
                 matched == 'liv' and tail.startswith('c') and _is_inflection(tail[1:])
@@ -2341,7 +2377,7 @@ _LATIN_HIATUS_TAILS = ('eum', 'eus')
 
 # These lexical families pronounce e-u as two syllables, unlike the otherwise
 # reliable eu nucleus in learned loans.
-_LEXICAL_FALLING_HIATUS = (('abeund', 2), ('aleut', 2), ('reum', 1))
+_LEXICAL_FALLING_HIATUS = (('abeund', 2), ('aleut', 2))
 # fiala/fialka/fialový: operator 2026-10-01, read fi-ja-, hence fi·a·lo·vá.
 _LEXICAL_RISING_HIATUS = (
     ('triumf', 'iu'), ('ctiutŕh', 'iu'), ('fial', 'ia'),
@@ -2349,10 +2385,14 @@ _LEXICAL_RISING_HIATUS = (
     # di·ag·nó·za, hi·e·rar·chie, mi·ni·a·túr·ny·mi, ti·a·rou, Mi·ri·am.
     ('diagn', 'ia'), ('hierarch', 'ie'), ('miniat', 'ia'), ('miriam', 'ia'),
     ('diakrit', 'ia'), ('patriarch', 'ia'), ('viadukt', 'ia'),
+    # blind3000b (operator 2026-10-03): ma·te·ri·a·liz·mu, di·a·met·rál·nom, si·am·ský.
+    ('materializ', 'ia'), ('materialist', 'ia'), ('diametr', 'ia'),
+    # read špe-ci-ja-lis-ta (operator 2026-10-03), unlike the diphthong of bú·ria·ce.
+    ('špecialist', 'ia'),
 )
 # Only at the start of the word: ti·a·ra, but plach·tia·rov, čis·tiar·ne.
 _LEXICAL_INITIAL_RISING_HIATUS = tuple(
-    (stem, 'ia') for stem in ('tiara', 'tiare', 'tiaru', 'tiary', 'tiaro', 'tiará')
+    (stem, 'ia') for stem in ('tiara', 'tiare', 'tiaru', 'tiary', 'tiaro', 'tiará', 'siam')
 )
 # Whole morphological parts read with a hiatus: the dia- of dia|kritika
 # (operator 2026-10-01, di·a·kri·tic·kom).
@@ -2370,6 +2410,9 @@ _LEXICAL_FALLING_DIPHTHONGS = (
     ('boogie', 'oo'),
     ('bool', 'oo'),
     ('steak', 'ea'),
+    # blind3000b (operator 2026-10-03): seiz·mic·ká, Hae·re·ti·ce.
+    ('seizm', 'ei'),
+    ('haeret', 'ae'),
 )
 _LEXICAL_FALLING_NUCLEI = frozenset(pair for _, pair in _LEXICAL_FALLING_DIPHTHONGS)
 _LEXICAL_FOREIGN_CONSONANT_GRAPHEMES = (
@@ -2479,9 +2522,11 @@ def _resolve_hiatus(word: str, phonemes: list[str]) -> list[str]:
                 ph == 'ie' and i > 0 and phonemes[i - 1] == 'k'
                 and phonemes[i + 1:i + 2] == ['n']
             )
+            # The native -iac- participle of -iť verbs keeps its diphthong
+            # after a long root too: žia·riac, bú·ria·ce, ví·ria·ce, mie·riac
+            # (blind3000b, operator 2026-10-03).
             active_ziar_participle = (
                 ph == 'ia'
-                and ''.join(phonemes[:i]).endswith('žiar')
                 and ''.join(phonemes[i + 1:])
                 in {f'c{ending}' for ending in _ACTIVE_PARTICIPLE_INFLECTIONS}
             )

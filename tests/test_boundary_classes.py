@@ -208,6 +208,8 @@ def test_suffix_context_preserves_a_stem_final_syllabic_sonorant():
 DIPHTHONGS_STAY_WHOLE = {
     "piatok": ["pia", "tok"],
     "viera": ["vie", "ra"],
+    # eu of the reuma family (operator 2026-10-03, blind3000b)
+    "reumatizmus": ["reu", "ma", "ti", "zmus"],
     "miesto": ["mies", "to"],
     "diabol": ["dia", "bol"],
     "spoločenstiev": ["spo", "lo", "čen", "stiev"],
@@ -222,8 +224,6 @@ HIATUS_IS_TWO_NUCLEI = {
     "hystéria": ["hys", "té", "ri", "a"],
     "biológia": ["bi", "o", "ló", "gi", "a"],
     "poézia": ["po", "é", "zi", "a"],
-    # lexical e-u hiatus in the reuma family
-    "reumatizmus": ["re", "u", "ma", "ti", "zmus"],
     # -ium: no native Slovak ending has this shape
     "akvárium": ["a", "kvá", "ri", "um"],
     "gymnázium": ["gym", "ná", "zi", "um"],

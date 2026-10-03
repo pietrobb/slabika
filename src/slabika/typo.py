@@ -92,6 +92,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'aliquid': (3,),
     'ambagesque': (2, 4, 7),
     'apelles': (4,),  # Apel·les (human + AI 2026-10-02).
+    'armagnac': (2, 4),  # French gn is one consonant: ar·ma·gnac (blind3000b).
     'applausit': (2, 6),
     'bertrand': (3,),  # French Ber·trand (Johanka, AI run 2026-10-01).
     'blackburna': (5, 8),
@@ -122,6 +123,11 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'fallbrooku': (4, 8),
     'falls': (),
     'gleisdorf': (5,),
+    # blind3000b, operator accepted the AI division (2026-10-03):
+    # Mi·tchel·lo·vom (tch is one č), Strau·ßa, Wil·so·no·vi.
+    'mitchell': (2,),
+    'strauß': (),
+    'wilson': (3,),
     'gleisdorfu': (5, 8),
     'glendower': (4,),
     'glenview': (4,),
@@ -216,6 +222,9 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
 _FOREIGN_NAME_ENDINGS = frozenset({
     'a', 'e', 'i', 'u', 'y', 'á', 'ou', 'om', 'ov', 'ovi', 'ovia', 'och', 'ami',
     'ách', 'ám', 'ho', 'mu', 'm', 'mi',
+    # Possessive adjectives and -ová surnames (Mi·tchel·lo·vom, Wil·so·no·vej).
+    'ova', 'ove', 'ovo', 'ovu', 'ovom', 'ovej', 'ovho', 'ovmu', 'ovci', 'ovcov',
+    'ová', 'ovú', 'ovou', 'ových', 'ovým', 'ovými',
 })
 
 
@@ -294,6 +303,8 @@ def _points_inside_preferred_roots(word: str) -> set[int]:
         return {2}  # u- + plyn-: keep the root's pl together.
     if folded.startswith('neuplyn'):
         return {4}
+    if folded.startswith('zelektr'):
+        return {2}  # z- + elektr-: the root's opening e stays (blind3000b).
     for leader in ('ne', 'seba'):
         if folded.startswith(leader + 'ovlád'):
             return {len(leader) + 2}
@@ -426,6 +437,7 @@ _HIATUS_FIRST_PARTS = frozenset({
     'bio', 'geo', 'teo', 'video', 'choreo', 'biblio', 'rádio', 'judeo', 'zoo',
     'fyzio', 'epidemio',  # operator 2026-10-02: fyzio·gno·mic·ké, epi·de·mio·ló·ga
     'homeo', 'speleo', 'stereo',  # operator 2026-10-03, blind2000
+    'kardio', 'socio', 'embryo', 'genea',  # operator 2026-10-03, blind3000b
 })
 
 
@@ -636,6 +648,8 @@ def _collect_points(word: str, language: str | None = None) -> tuple[set[int], s
 
         if left.casefold().endswith('ec') and right.casefold().startswith('tv'):
             variants.add(seam - 1)
+        elif left.casefold().endswith('jednot') and right.casefold().startswith('liv'):
+            variants.add(seam - 1)  # jednot|livý preferred, jedno|tlivý kept
         elif _variant_crosses_seam(left, right):
             alternatives = [
                 point for point in raw_points
@@ -737,6 +751,8 @@ def _collect_points(word: str, language: str | None = None) -> tuple[set[int], s
             and point == len(left_part_at[point])
             and point - 1 not in preferred_internal_vowels
             and is_vowel(word[point - 2])
+            # embryo|lóg is a compound; embryon|álny is not (em·bry·o·nál·ny).
+            and not (left_part_at[point] == 'embryo' and word[point:point + 1].casefold() == 'n')
         ):
             points.discard(point - 1)
             contextual.add(point - 1)
