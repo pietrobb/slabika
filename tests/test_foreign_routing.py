@@ -211,3 +211,45 @@ def test_pattern_routing_does_not_send_unsupported_letters_to_adapter(monkeypatc
     monkeypatch.setattr(typo, "is_german", lambda word: True)
     assert typo.hyphenate("slovenčina") == "slo·ven·či·na"
     assert typo.hyphenate("pickel-heringen") == "pi·ckel-·he·rin·gen"
+
+
+@pytest.mark.parametrize(("word", "language", "expected"), [
+    ("Boucher", "fr", "Bou·cher"),
+    ("Bouchera", "fr", "Bou·che·ra"),
+    ("Boucherová", "fr", "Bou·che·ro·vá"),
+    ("Boucherovcov", "fr", "Bou·che·rov·cov"),
+    ("Boucherovej", "fr", "Bou·che·ro·vej"),
+    ("Boucherovou", "fr", "Bou·che·ro·vou"),
+    ("Warwick", "en", "War·wick"),
+    ("Warwicka", "en", "War·wi·cka"),
+    ("Warwickom", "en", "War·wi·ckom"),
+    ("Warwicku", "en", "War·wi·cku"),
+])
+@pytest.mark.parametrize("casing", [str.lower, str.capitalize, str.upper])
+def test_explicit_name_families_use_stem_readings_and_slovak_endings(
+    word, language, expected, casing, monkeypatch
+):
+    from slabika.review.server import _engine
+
+    foreign = import_module("slabika.foreign")
+    monkeypatch.setattr(foreign, "english_points", lambda *a, **kw: pytest.fail("whole-word G2P"))
+    word, expected = casing(word), casing(expected)
+    for all_points, contextual in ((False, False), (True, False), (False, True), (True, True)):
+        assert hyphenate(
+            word, language=language, all_points=all_points, contextual=contextual
+        ) == expected
+    assert _engine(word, language)[0] == expected
+    assert _engine(word, language)[2] is None
+    points = break_points(word, language=language)
+    lower = word.lower()
+    for group in ("ou", "ch", "ck"):
+        if group in lower:
+            assert lower.index(group) + 1 not in points
+
+
+@pytest.mark.parametrize("word,language", [("Boucher", "french"), ("Warwick", "english")])
+def test_name_readings_require_matching_language_and_known_ending(word, language):
+    assert foreign_reading(word, language) is not None
+    assert foreign_reading(word, "german") is None
+    assert foreign_reading(word + "xyz", language) is None
+    assert foreign_reading(word + "čnosť", language) is None

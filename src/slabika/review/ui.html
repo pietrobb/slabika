@@ -529,7 +529,7 @@ function focusRow(i, field = "h") {
   const row = box.children[i];
   const bounds = row.getBoundingClientRect();
   const viewport = box.getBoundingClientRect();
-  row.scrollIntoView({block: bounds.bottom > viewport.top + box.clientHeight ? "start" : "nearest"});
+  row.scrollIntoView({behavior: "smooth", block: bounds.bottom > viewport.top + box.clientHeight ? "start" : "nearest"});
   row.querySelector(`.edit[data-field="${field}"]`).focus({preventScroll: true});
   markFocus();
 }

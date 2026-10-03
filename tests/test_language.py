@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 
 import json
+import runpy
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -219,3 +221,129 @@ def test_explicit_language_does_not_fall_back_to_another_language():
 def test_hyphenated_automatic_route_keeps_member_evidence():
     assert hyphenate("Saint-Denis") == hyphenate("Saint") + "-·" + hyphenate("Denis")
     assert hyphenate("modro-biely").replace("·", "") == "modro-biely"
+
+
+def test_packaged_languages_route_without_review_database():
+    assert hyphenate("Dauphin") == "Dau·phin"
+    assert hyphenate("DAUPHIN") == "DAU·PHIN"
+    assert break_points("Dauphin") == [3]
+    assert divisions("Dauphin") == ["Dau-phin"]
+    assert hyphenate("Pierre") == "Pierre"
+    assert hyphenate("Dauphin", language="sk") == "Daup·hin"
+    assert hyphenate("Pierre", language="sk") == "Pier·re"
+
+
+def test_reviewed_languages_are_exact_normalized_forms(monkeypatch):
+    import slabika.language as language
+    from slabika import hyphenate
+
+    monkeypatch.setattr(language, "_word_languages", lambda: {"trémouille": "french"})
+    assert language.reviewed_language("TRE\u0301MOUILLE") == "french"
+    assert language.reviewed_language("Trémouilleovi") is None
+    assert language.reviewed_language("unreviewed") is None
+    monkeypatch.setattr(language, "_word_languages", lambda: {})
+    assert hyphenate("Pierre") == "Pier·re"
+
+
+def test_compound_label_takes_priority_over_member_labels(monkeypatch):
+    import slabika.language as language
+    from slabika import hyphenate
+
+    monkeypatch.setattr(language, "_word_languages", lambda: {
+        "pierre": "slovak", "pierre-denis": "french",
+    })
+    assert hyphenate("Pierre") == "Pier·re"
+    assert language.reviewed_language("Pierre‐Denis") == "french"
+    assert hyphenate("Pierre-Denis") == "Pierre-·De·nis"
+    assert hyphenate("Pierre-Denis", language="sk") == "Pier·re-·De·nis"
+    monkeypatch.setattr(language, "_word_languages", lambda: {"pierre": "french"})
+    assert hyphenate("Pierre-Denis") == "Pierre-·De·nis"
+
+
+def test_language_export_rebuilds_only_explicit_live_labels(tmp_path):
+    export = runpy.run_path(str(ROOT / "tools/review/export_word_languages.py"))["export_word_languages"]
+    database = tmp_path / "review.sqlite"
+    output = tmp_path / "word_languages.json"
+    with sqlite3.connect(database) as con:
+        con.execute("CREATE TABLE decisions (form TEXT, language TEXT, is_deleted INTEGER)")
+        con.executemany("INSERT INTO decisions VALUES (?, ?, ?)", [
+            ("Pierre", "fr", None), ("PIERRE", "french", 0),
+            ("Slovo", "sk", 0), ("deleted", "english", 1),
+            ("automatic", None, 0), ("Saint‐Denis", "fr", 0),
+        ])
+    labels = export(database, output)
+    assert labels == {"pierre": "french", "saint-denis": "french", "slovo": "slovak"}
+    assert json.loads(output.read_text(encoding="utf-8")) == labels
+    first = output.read_bytes()
+    assert export(database, output) == labels
+    assert output.read_bytes() == first
+    with sqlite3.connect(database) as con:
+        assert con.execute("SELECT COUNT(*) FROM decisions").fetchone()[0] == 6
+        con.execute("UPDATE decisions SET language = NULL WHERE form IN ('Pierre', 'PIERRE')")
+    assert "pierre" not in export(database, output)
+
+
+@pytest.mark.parametrize("rows", [
+    [("Pierre", "french", 0), ("PIERRE", "english", 0)],
+    [("Pierre", "spanish", 0)],
+])
+def test_language_export_rejects_conflicts_and_unknown_languages(tmp_path, rows):
+    export = runpy.run_path(str(ROOT / "tools/review/export_word_languages.py"))["export_word_languages"]
+    database = tmp_path / "review.sqlite"
+    output = tmp_path / "word_languages.json"
+    output.write_text("{}\n", encoding="utf-8")
+    with sqlite3.connect(database) as con:
+        con.execute("CREATE TABLE decisions (form TEXT, language TEXT, is_deleted INTEGER)")
+        con.executemany("INSERT INTO decisions VALUES (?, ?, ?)", rows)
+    with pytest.raises(ValueError):
+        export(database, output)
+    assert output.read_text(encoding="utf-8") == "{}\n"
+
+
+@pytest.mark.parametrize("bonus,margin,expected", [
+    (0, 0, "slovak"), (2, 0, None), (5, 0, "french"),
+    (5, 3, "french"), (5, 5, None),
+])
+def test_name_prior_experiment_abstains_on_ties_and_small_margins(bonus, margin, expected):
+    from types import SimpleNamespace
+
+    candidate = runpy.run_path(str(ROOT / "tools/review/experiment_name_routing.py"))[
+        "candidate_language"
+    ]
+    ranking = tuple(SimpleNamespace(language=language, score=score) for language, score in [
+        ("slovak", 10), ("french", 8), ("english", 4), ("german", 0),
+    ])
+    assert candidate(ranking, bonus, margin) == expected
+    assert candidate((), bonus, margin) is None
+
+
+def test_name_experiment_is_read_only_and_does_not_claim_calibration(tmp_path):
+    experiment = runpy.run_path(str(ROOT / "tools/review/experiment_name_routing.py"))["experiment"]
+    inventory = tmp_path / "inventory.sqlite"
+    decisions = tmp_path / "decisions.sqlite"
+    with sqlite3.connect(inventory) as con:
+        con.execute("CREATE TABLE forms (form TEXT)")
+        con.executemany("INSERT INTO forms VALUES (?)", [("Pierre",), ("Sused",), ("slovo",)])
+    with sqlite3.connect(decisions) as con:
+        con.execute("CREATE TABLE decisions (form TEXT, is_proper_name INTEGER, "
+                    "language TEXT, is_deleted INTEGER)")
+        con.executemany("INSERT INTO decisions VALUES (?, ?, ?, ?)", [
+            ("Pierre", 1, "fr", 0), ("Jeanne", 1, None, 0),
+            ("Deleted", 1, "en", 1), ("foreign", None, "en", 0), ("Sused", None, "fr", 0),
+        ])
+    before = (inventory.read_bytes(), decisions.read_bytes())
+    result = experiment(inventory, decisions)
+    assert (inventory.read_bytes(), decisions.read_bytes()) == before
+    assert result["confirmed_labelled_names"] == {"Pierre": "french"}
+    assert result["independent_calibration_available"] is False
+    assert all(row["form"] not in {"Pierre", "Sused"}
+               for row in result["forced_top_language_division_changes"])
+    assert len(result["candidates"]) == 16
+    for candidate in result["candidates"]:
+        groups = candidate["groups"]
+        assert groups["confirmed_names"]["size"] == 2
+        assert groups["all_capitalized_inventory"]["size"] == 2
+        assert groups["lowercase_inventory_titlecased_proxy"]["size"] == 1
+        assert sum(candidate["review_label_diagnostic"].values()) == 1
+        for group in groups.values():
+            assert sum(group["predictions"].values()) == group["size"]

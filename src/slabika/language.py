@@ -18,6 +18,7 @@ _PROFILE_PATHS = {
     "english": Path(__file__).parent / "data" / "english_profile.json",
 }
 _ROUTER_PROFILE_PATH = Path(__file__).parent / "data" / "language_router_profile.json"
+_WORD_LANGUAGES_PATH = Path(__file__).parent / "data" / "word_languages.json"
 _LANGUAGES = {"en": "english", "english": "english", "de": "german", "german": "german",
               "fr": "french", "french": "french", "sk": "slovak", "slovak": "slovak"}
 
@@ -29,6 +30,20 @@ def normalize_language(language: str | None) -> str | None:
     if not isinstance(language, str) or language not in _LANGUAGES:
         raise ValueError("language must be en/english, de/german, fr/french or sk/slovak")
     return _LANGUAGES[language]
+
+
+def _language_key(word: str) -> str:
+    return unicodedata.normalize("NFC", word).lower().replace("‐", "-")
+
+
+@lru_cache(maxsize=1)
+def _word_languages() -> dict[str, str]:
+    return json.loads(_WORD_LANGUAGES_PATH.read_text(encoding="utf-8"))
+
+
+def reviewed_language(word: str) -> str | None:
+    """Return the exported identity of this exact form, without inflection guessing."""
+    return _word_languages().get(_language_key(word))
 
 
 @dataclass(frozen=True)

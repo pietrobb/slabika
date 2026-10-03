@@ -117,7 +117,7 @@ def test_language_selection_persists_recalculates_and_undoes(tmp_path, legacy):
         _old_store(decisions)
     corpus = server.Corpus(inventory, decisions)
     try:
-        assert corpus._engine_hyphenation('Pierre') == 'Pier·re'
+        assert corpus._engine_hyphenation('Pierre') == 'Pierre'
         corpus._tex_disagreements = frozenset({'Pierre'})
         item = corpus.decide({'form': 'Pierre', 'action': 'classify', 'language': 'fr'})['item']
         assert item['language'] == 'french'
@@ -139,7 +139,7 @@ def test_language_selection_persists_recalculates_and_undoes(tmp_path, legacy):
         assert item['my_disagrees']
         assert corpus.undo_last()['item']['language'] == 'french'
         assert corpus.clear({'form': 'Pierre'})['item']['language'] is None
-        assert corpus._engine_hyphenation('Pierre') == 'Pier·re'
+        assert corpus._engine_hyphenation('Pierre') == 'Pierre'
         assert corpus.undo_last()['item']['hyphenation'] == 'Pierre'
         item = corpus.decide({'form': 'Saint-Denis', 'action': 'classify', 'language': 'fr'})['item']
         assert item['hyphenation'] == 'Saint-·De·nis'

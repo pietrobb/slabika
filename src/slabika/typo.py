@@ -23,7 +23,9 @@ or call :func:`break_points` for raw character offsets.
 
 from .foreign import foreign_points
 from .foreign_patterns import _LETTERS, adapt_foreign_word, german_inflected_points
-from .language import detect_language, german_evidence, is_french, is_german, normalize_language
+from .language import (
+    detect_language, german_evidence, is_french, is_german, normalize_language, reviewed_language,
+)
 from .phonology import (
     HYPHENATABLE_LETTERS,
     is_consonant,
@@ -457,6 +459,7 @@ def _collect_points(word: str, language: str | None = None) -> tuple[set[int], s
     compound's second part onto its first (``pou|čiť``). Neither is a codified
     doublet, so neither belongs in *variant*.
     """
+    language = language or reviewed_language(word)
     if "-" in word or "‐" in word:
         parts = word.replace("‐", "-").split("-")
         if not all(part.isalpha() for part in parts):
@@ -571,6 +574,10 @@ def _collect_points(word: str, language: str | None = None) -> tuple[set[int], s
 
     folded = word.casefold()
     preferred_internal_vowels = _preferred_internal_vowel_points(word)
+    # The oblique jazdec stem keeps jazd- before the reduced agent suffix -c-.
+    if folded.startswith('jazdc') and folded[5:] in ('a', 'ami', 'i', 'och', 'om', 'ov', 'ovi', 'u'):
+        points.discard(3)
+        points.add(4)
     if folded.startswith('vyrvan') and folded[6:] in _VYRVAN_VARIANT_ENDINGS:
         variants.add(3)
 
@@ -842,8 +849,9 @@ def hyphenate(
     Existing lexical readings take precedence; unsupported spellings stay unchanged.
     ``left_min`` and ``right_min`` work as in :func:`break_points`.
     ``language`` explicitly selects EN/DE/FR/SK pronunciation/routing, still
-    adapted to Slovak PSP. None keeps automatic detection. Hyphenated words
-    are processed member by member; a point after an existing hyphen denotes
+    adapted to Slovak PSP. None uses exported review language labels before
+    automatic detection. Hyphenated words are processed member by member;
+    a point after an existing hyphen denotes
     the seam, whose hyphen the typesetter must repeat on the following line.
 
     >>> hyphenate('Prekladateľský')

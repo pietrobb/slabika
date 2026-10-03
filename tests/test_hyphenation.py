@@ -5532,6 +5532,25 @@ def test_unbreakable_words_have_no_break_points():
         assert hyphenate(word) == word
 
 
+@pytest.mark.parametrize('word, expected', [
+    ('jazdca', 'jazd·ca'),
+    ('jazdcami', 'jazd·ca·mi'),
+    ('jazdci', 'jazd·ci'),
+    ('jazdcoch', 'jazd·coch'),
+    ('jazdcom', 'jazd·com'),
+    ('jazdcov', 'jazd·cov'),
+    ('jazdcovi', 'jazd·co·vi'),
+    ('jazdcu', 'jazd·cu'),
+    ('Jazdcovi', 'Jazd·co·vi'),
+    ('jazdec', 'jaz·dec'),
+    ('jazda', 'jaz·da'),
+    ('jazdami', 'jaz·da·mi'),
+])
+def test_jazdec_oblique_forms_keep_the_agent_suffix_seam(word, expected):
+    assert hyphenate(word) == expected
+    assert hyphenate(word, all_points=True, contextual=True) == expected
+
+
 def test_rozarium_is_a_lexical_stem_and_not_the_roz_prefix():
     assert hyphenate("rozárium") == "ro·zá·ri·um"
     assert hyphenate("rozáriu") == "ro·zá·riu"
