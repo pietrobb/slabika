@@ -256,9 +256,9 @@ def test_rmss_root_conflicts_are_independently_decided_by_psp():
         "prázdninový": "práz·dni·no·vý",
         "zostra": "zos·tra",
         "povrázok": "pov·rá·zok",
-        "transcendentný": "trans·cen·dent·ný",
-        "transcendentálne": "trans·cen·den·tál·ne",
-        "transcendentálny": "trans·cen·den·tál·ny",
+        "transcendentný": "tran·scen·dent·ný",
+        "transcendentálne": "tran·scen·den·tál·ne",
+        "transcendentálny": "tran·scen·den·tál·ny",
         "súkromie": "súk·ro·mie",
         "súkromne": "súk·rom·ne",
         "súkromník": "súk·rom·ník",
@@ -431,9 +431,9 @@ def test_linguistic_compound_seams_beat_the_consonant_count():
     assert hyphenate("slovník") == "slov·ník"
     assert hyphenate("mnohý") == "mno·hý"
     assert hyphenate("ortuť") == "or·tuť"
-    # dia|kritika is a lexical seam by operator decision (2026-10-01), not a
-    # productive first member: dialóg and diaľnica keep their syllabic division.
-    assert hyphenate("diakritika") == "di·a·kri·ti·ka"
+    # Operator 2026-10-03: di·ak·ri·ti·ka replaces the earlier dia-|krit- seam.
+    # This is a lexical family, not a productive first member.
+    assert hyphenate("diakritika") == "di·ak·ri·ti·ka"
     assert hyphenate("dialekt") == "dia·lekt"
 
 
@@ -651,7 +651,7 @@ def test_fourth_discovered_family_batch_keeps_only_clear_seams():
     assert hyphenate("zriadenie") == "zria·de·nie"
     assert hyphenate("skrátenie") == "skrá·te·nie"
     assert hyphenate("opatrenie") == "opat·re·nie"
-    assert hyphenate("patriarcha") == "pat·riar·cha"
+    assert hyphenate("patriarcha") == "pat·ri·ar·cha"
 
 
 def test_fifth_discovered_family_batch_keeps_only_clear_seams():
@@ -1495,7 +1495,7 @@ def test_thirty_fourth_discovered_family_batch_keeps_only_clear_graf_and_slub_se
         "prísľubmi": "prí·sľub·mi",
         "veľasľubné": "ve·ľa·sľub·né",
         "neopatrnosť": "ne·opa·tr·nosť",
-        "veľkopatriarcha": "veľ·ko·pat·riar·cha",
+        "veľkopatriarcha": "veľ·ko·pat·ri·ar·cha",
         "nedopatrenie": "ne·do·pat·re·nie",
         "ozbrojený": "ozbro·je·ný",
         "neozbrojený": "ne·ozbro·je·ný",
@@ -1704,7 +1704,7 @@ def test_forty_second_discovered_family_batch_keeps_only_clear_compound_seams():
         "zlozvykov": "zlo·zvy·kov",
         "zlozvyku": "zlo·zvy·ku",
         "zlozvyky": "zlo·zvy·ky",
-        "útvar": "út·var",
+        "útvar": "útvar",
         "paútvarov": "pa·út·va·rov",
         "lektvar": "lek·tvar",
         "neodolal": "ne·odo·lal",
@@ -2005,7 +2005,7 @@ def test_fifty_fifth_discovered_family_batch_keeps_only_prie_zrac_seams():
     expected = {
         "priezračný": "prie·zrač·ný",
         "najpriezračnejší": "naj·prie·zrač·nej·ší",
-        "prízračný": "príz·rač·ný",
+        "prízračný": "prí·zrač·ný",
         "zázračný": "zá·zrač·ný",
         "spriateľovať": "spria·te·ľo·vať",
         "neopadne": "ne·opad·ne",
@@ -2053,7 +2053,7 @@ def test_fifty_seventh_discovered_family_batch_keeps_only_polo_krot_seam():
         "vpichu": "vpi·chu",
         "bankrot": "ban·krot",
         "skrotiť": "skro·tiť",
-        "oplácať": "op·lá·cať",
+        "oplácať": "oplá·cať",
         "splácať": "splá·cať",
     }
     assert {word: hyphenate(word) for word in expected} == expected
@@ -3765,7 +3765,7 @@ def test_batch_37_na_and_na_prefix_roots_keep_their_morpheme_seams():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("nadučenec") == "nad·uče·nec"
-    assert hyphenate("nadvihnúť") == "nad·vih·núť"
+    assert hyphenate("nadvihnúť") == "na·dvih·núť"
     assert hyphenate("nadzmyslový") == "nad·zmys·lo·vý"
 
 
@@ -4608,7 +4608,7 @@ def test_one_letter_o_prefix_is_recognised_only_in_known_families():
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("neoplakal") == "ne·opla·kal"
-    assert hyphenate("oplácať") == "op·lá·cať"
+    assert hyphenate("oplácať") == "oplá·cať"
     assert hyphenate("oplátku") == "op·lát·ku"
     assert hyphenate("oplývať") == "oplý·vať"
     assert hyphenate("oslobodiť") == "oslo·bo·diť"
@@ -5711,7 +5711,7 @@ def test_batch_177_keeps_clear_staro_compounds_and_cina_language_suffixes():
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("staroosvedčenými") == "sta·ro·os·ved·če·ný·mi"
     # German ober- before a consonant (oberšpekulant, human + AI 2026-10-02).
-    assert hyphenate("oberlerchenfeldčiny") == "ober·ler·chen·fel·dči·ny"
+    assert hyphenate("oberlerchenfeldčiny") == "ober·ler·chen·feld·či·ny"
 
 
 def test_batch_178_keeps_the_steto_skop_compound_seam():
@@ -5847,7 +5847,7 @@ def test_batch_199_suppresses_one_letter_u_prefix_seams_only_in_clear_families()
         "ustaľuje": "usta·ľu·je",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("úsporná") == "ús·por·ná"
+    assert hyphenate("úsporná") == "úspor·ná"
     assert hyphenate("ústach") == "ús·tach"
     assert hyphenate("ustarostený") == "usta·ros·te·ný"
 
@@ -5921,7 +5921,7 @@ def test_batch_204_suppresses_one_letter_u_prefix_seams_in_clear_families():
         "Utvorme": "Utvor·me",
         "utvrdenie": "utvr·de·nie",
         "uvravené": "uv·ra·ve·né",
-        "uvrešťanou": "uv·reš·ťa·nou",
+        "uvrešťanou": "uvreš·ťa·nou",
         "uzamkla": "uza·mkla",
         "uzamknúť": "uza·mknúť",
         "uzdravené": "uzdra·ve·né",
@@ -5978,10 +5978,10 @@ def test_batch_209_preserves_lexical_stems_suffixes_and_foreign_nuclei():
     expected = {
         "Voltaira": "Vol·tai·ra",
         "Voltaire": "Vol·taire",
-        "vonkajškovo": "von·kajš·ko·vo",
-        "vonkajškovosť": "von·kajš·ko·vosť",
-        "vonkajškovosti": "von·kajš·ko·vos·ti",
-        "vonkajškovostí": "von·kajš·ko·vos·tí",
+        "vonkajškovo": "von·kaj·ško·vo",
+        "vonkajškovosť": "von·kaj·ško·vosť",
+        "vonkajškovosti": "von·kaj·ško·vos·ti",
+        "vonkajškovostí": "von·kaj·ško·vos·tí",
         "neviestkovosti": "ne·viest·ko·vos·ti",
         "voška": "voš·ka",
         "voskovaným": "vos·ko·va·ným",
@@ -6316,14 +6316,14 @@ def test_batch_224_preserves_the_clear_za_tn_prefix_seam():
 def test_batch_226_preserves_the_zazrak_alternant_prefix_seam():
     expected = {
         "zavďak": "za·vďak",
-        "zavdať": "za·vdať",
-        "zavdávajú": "za·vdá·va·jú",
+        "zavdať": "zav·dať",
+        "zavdávajú": "zav·dá·va·jú",
         "zázračik": "zá·zra·čik",
         "zázračnejších": "zá·zrač·nej·ších",
         "zázračnosti": "zá·zrač·nos·ti",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("prízračný") == "príz·rač·ný"
+    assert hyphenate("prízračný") == "prí·zrač·ný"
 
 
 def test_batch_227_preserves_the_zazraku_chtiv_compound_seam():
@@ -6563,10 +6563,10 @@ def test_blind1000_v5_operator_verdicts_2026_10_01():
         "fialka": "fi·al·ka",
         "svetlofialovo": "svet·lo·fi·a·lo·vo",
         "tmavofialovomodrej": "tma·vo·fi·a·lo·vo·mod·rej",
-        # diakritika: dia- is read di-ja- and divides from kritika.
-        "diakritickom": "di·a·kri·tic·kom",
-        "diakritika": "di·a·kri·ti·ka",
-        "diakritickými": "di·a·kri·tic·ký·mi",
+        # blind2000 supersedes the earlier dia-|krit- reading.
+        "diakritickom": "di·ak·ri·tic·kom",
+        "diakritika": "di·ak·ri·ti·ka",
+        "diakritickými": "di·ak·ri·tic·ký·mi",
         # pažravý: pa- + žrať (operator 2026-10-01).
         "pažravca": "pa·žrav·ca",
         "pažravý": "pa·žra·vý",
@@ -6862,3 +6862,110 @@ def test_blind3000_operator_overrides_ai_2026_10_02():
         "podozrievala": "po·do·zrie·va·la",
     }
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+@pytest.mark.parametrize("word, expected", [
+    ("cédre", "céd·re"),
+    ("diakritickou", "di·ak·ri·tic·kou"),
+    ("homeopatia", "ho·meo·pa·tia"),
+    ("hračky", "hra·čky"),
+    ("kovadliny", "ko·va·dli·ny"),
+    ("lesknúcich", "lesk·nú·cich"),
+    ("monoklov", "mo·nok·lov"),
+    ("nadvihovať", "na·dvi·ho·vať"),
+    ("najúspornejšie", "naj·úspor·nej·šie"),
+    ("napredovali", "na·pre·do·va·li"),
+    ("napájadlách", "na·pá·ja·dlách"),
+    ("neopúšťajte", "ne·opúš·ťaj·te"),
+    ("nespoznajú", "ne·spo·zna·jú"),
+    ("nezaoberajte", "ne·za·obe·raj·te"),
+    ("náprotiv", "ná·pro·tiv"),
+    ("oberlerchenfeldčiny", "ober·ler·chen·feld·či·ny"),
+    ("okliesnených", "oklies·ne·ných"),
+    ("oplácaš", "oplá·caš"),
+    ("patriarchov", "pat·ri·ar·chov"),
+    ("patriarchátu", "pat·ri·ar·chá·tu"),
+    ("podlžnosti", "po·dlž·nos·ti"),
+    ("pomstí", "po·mstí"),
+    ("praskutočnosť", "pra·sku·toč·nosť"),
+    ("prilne", "pri·lne"),
+    ("prízračné", "prí·zrač·né"),
+    ("speleológoch", "spe·leo·ló·goch"),
+    ("stereotypnej", "ste·reo·typ·nej"),
+    ("teoretickou", "te·o·re·tic·kou"),
+    ("teoretický", "te·o·re·tic·ký"),
+    ("transcendentálno", "tran·scen·den·tál·no"),
+    ("transcendentálnom", "tran·scen·den·tál·nom"),
+    ("uvrešťanou", "uvreš·ťa·nou"),
+    ("viaduktu", "vi·a·duk·tu"),
+    ("vodidlami", "vo·di·dla·mi"),
+    ("vonkajškom", "von·kaj·škom"),
+    ("Weldová", "Wel·do·vá"),
+    ("zavdalo", "zav·da·lo"),
+    ("zaúčinkovala", "za·účin·ko·va·la"),
+    ("zneutralizovať", "zneut·ra·li·zo·vať"),
+    ("úcty", "úcty"),
+    ("úslužne", "úsluž·ne"),
+    ("útvarov", "útva·rov"),
+])
+def test_blind2000_operator_accepts_ai_2026_10_03(word, expected):
+    assert hyphenate(word) == expected
+    assert hyphenate(word.upper()) == expected.upper()
+
+
+@pytest.mark.parametrize("word, expected", [
+    ("cédrov", "céd·rov"),
+    ("diakritika", "di·ak·ri·ti·ka"),
+    ("homeopatický", "ho·meo·pa·tic·ký"),
+    ("hračkami", "hra·čka·mi"),
+    ("kovadlín", "ko·va·dlín"),
+    ("vodidlom", "vo·di·dlom"),
+    ("leskneme", "lesk·ne·me"),
+    ("monokle", "mo·nok·le"),
+    ("nadvihnúť", "na·dvih·núť"),
+    ("úsporná", "úspor·ná"),
+    ("napredovanie", "na·pre·do·va·nie"),
+    ("napájadlo", "na·pá·ja·dlo"),
+    ("neopúšťať", "ne·opúš·ťať"),
+    ("spoznali", "spo·zna·li"),
+    ("nezaoberaj", "ne·za·obe·raj"),
+    ("oberlerchenfeldčinou", "ober·ler·chen·feld·či·nou"),
+    ("okliesniť", "oklies·niť"),
+    ("oplácať", "oplá·cať"),
+    ("veľkopatriarcha", "veľ·ko·pat·ri·ar·cha"),
+    ("podlžnosť", "po·dlž·nosť"),
+    ("pomstiť", "po·mstiť"),
+    ("praskutočnosti", "pra·sku·toč·nos·ti"),
+    ("prilnúť", "pri·lnúť"),
+    ("prízračný", "prí·zrač·ný"),
+    ("speleológia", "spe·leo·ló·gia"),
+    ("stereotypný", "ste·reo·typ·ný"),
+    ("teoretika", "te·o·re·ti·ka"),
+    ("transcendentný", "tran·scen·dent·ný"),
+    ("uvrešťať", "uvreš·ťať"),
+    ("viadukt", "vi·a·dukt"),
+    ("vonkajškovo", "von·kaj·ško·vo"),
+    ("Weldovej", "Wel·do·vej"),
+    ("Weldovú", "Wel·do·vú"),
+    ("Weldovho", "Wel·dov·ho"),
+    ("zavdávajú", "zav·dá·va·jú"),
+    ("zaúčinkuje", "za·účin·ku·je"),
+    ("zneutralizoval", "zneut·ra·li·zo·val"),
+    ("úslužný", "úsluž·ný"),
+    ("útvar", "útvar"),
+    # Different roots and previously rejected AI proposals stay unchanged.
+    ("pomsta", "pom·sta"),
+    ("pomstychtivý", "pom·sty·chti·vý"),
+    ("prasknúť", "prask·núť"),
+    ("praskla", "prask·la"),
+    ("špecializovali", "špe·cia·li·zo·va·li"),
+    ("Danielova", "Da·nie·lo·va"),
+    ("teológia", "teo·ló·gia"),
+    ("monografia", "mo·no·gra·fia"),
+    ("monoklonálny", "mo·no·klo·nál·ny"),
+    ("diaľnica", "diaľ·ni·ca"),
+    ("predovšetkým", "pre·do·všet·kým"),
+    ("predovšet", "pre·do·všet"),
+])
+def test_blind2000_families_and_neighboring_roots_2026_10_03(word, expected):
+    assert hyphenate(word) == expected

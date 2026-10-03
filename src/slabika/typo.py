@@ -30,6 +30,7 @@ from .phonology import (
     is_vowel,
 )
 from .syllabify import (
+    _DOBR_INFLECTIONS,
     _DLO_INFLECTIONS,
     _LEXICAL_FALLING_HIATUS,
     _PREFIXES,
@@ -72,7 +73,7 @@ _CHRAN_ROOT_CONTEXTS = (
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 _PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 # Adapted Slovak loans keep their local consonant reading despite foreign spelling matches.
-_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz')
+_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz', 'céd')
 _GERMAN_ER_NAME_ENDINGS = ('ovi', 'om', 'a', 'e', 'i', 'u')
 
 # Exact pronunciation-backed points for unadapted foreign spellings. Generic
@@ -154,6 +155,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     # Ler·chen·feld·čan·ky: -čan- after the whole German name
     # (operator + AI, blind3000 2026-10-02).
     'lerchenfeldčanky': (3, 7, 11, 14),
+    'oberlerchenfeldčina': (4, 7, 11, 15, 17),
     'lockridge': (4,),
     'loira': (3,),
     'loire': (),
@@ -224,6 +226,8 @@ def _reviewed_foreign_inflected_points(word: str) -> set[int] | None:
     the stem-final consonant by PSP 2a–2c (Co·gnac → Co·gna·cu).
     """
     lower = word.lower()
+    if lower.startswith('weldov') and lower[6:] in _DOBR_INFLECTIONS | {'', 'ho', 'mu'}:
+        return {3, *_psp_points(word[3:], 3)}
     for key in sorted(_REVIEWED_FOREIGN_BREAK_POINTS, key=len, reverse=True):
         if len(key) < 5:
             continue
@@ -419,6 +423,7 @@ def _french_gn_point(word: str) -> int | None:
 _HIATUS_FIRST_PARTS = frozenset({
     'bio', 'geo', 'teo', 'video', 'choreo', 'biblio', 'rádio', 'judeo', 'zoo',
     'fyzio', 'epidemio',  # operator 2026-10-02: fyzio·gno·mic·ké, epi·de·mio·ló·ga
+    'homeo', 'speleo', 'stereo',  # operator 2026-10-03, blind2000
 })
 
 
