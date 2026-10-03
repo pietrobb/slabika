@@ -54,7 +54,7 @@ def test_inflection_evidence_explains_the_scored_base_or_member():
 
 @pytest.mark.parametrize("word", [
     "slovenčina", "schopný", "sused", "tajomný", "dôverovali", "xxsteinovi",
-    "Unknownwoodovi", "Špicbergoch", "people", "français", "Bourlemontu",
+    "Unknownwoodovi", "Špicbergoch", "people", "français", "Bourlemontxyz",
     "Sternwood-ovi", "Molie\u0300rovi", "İsteinovi", "", "42", "Young", "Youngovi", "Youngom",
 ])
 def test_unknown_or_unsupported_readings_do_not_acquire_guessed_points(word):
@@ -224,6 +224,46 @@ def test_pattern_routing_does_not_send_unsupported_letters_to_adapter(monkeypatc
     ("Warwicka", "en", "War·wi·cka"),
     ("Warwickom", "en", "War·wi·ckom"),
     ("Warwicku", "en", "War·wi·cku"),
+    ("Montgomery", "en", "Mont·go·me·ry"),
+    ("Montgomeryho", "en", "Mont·go·me·ry·ho"),
+    ("Monterey", "fr", "Mon·te·rey"),
+    ("montereyský", "fr", "mon·te·rey·ský"),
+    ("montereyských", "fr", "mon·te·rey·ských"),
+    ("montereyského", "fr", "mon·te·rey·ské·ho"),
+    ("montereyskými", "fr", "mon·te·rey·ský·mi"),
+    ("Winchester", "en", "Win·ches·ter"),
+    ("Winchesterom", "en", "Win·ches·te·rom"),
+    ("Winchesteru", "en", "Win·ches·te·ru"),
+    ("Aubreyová", "en", "Aub·rey·o·vá"),
+    ("Bedfordovým", "en", "Bed·for·do·vým"),
+    ("Talbotove", "en", "Tal·bo·to·ve"),
+    ("Rouen", "fr", "Rouen"),
+    ("Rouene", "fr", "Roue·ne"),
+    ("Rouenu", "fr", "Roue·nu"),
+    ("Cauchon", "fr", "Cau·chon"),
+    ("Cauchonových", "fr", "Cau·cho·no·vých"),
+    ("Cauchonovým", "fr", "Cau·cho·no·vým"),
+    ("Cauchonove", "fr", "Cau·cho·no·ve"),
+    ("Letellierová", "fr", "Le·tel·lie·ro·vá"),
+    ("Dupontová", "fr", "Du·pon·to·vá"),
+    ("Rouenská", "fr", "Rouen·ská"),
+    ("rouenský", "fr", "rouen·ský"),
+    ("rouenským", "fr", "rouen·ským"),
+    ("armagnackí", "fr", "ar·ma·gnac·kí"),
+    ("armagnackých", "fr", "ar·ma·gnac·kých"),
+    ("domrémyjský", "fr", "dom·ré·myj·ský"),
+    ("Chinone", "fr", "Chi·no·ne"),
+    ("Chinonu", "fr", "Chi·no·nu"),
+    ("Bourlemonte", "fr", "Bour·le·mon·te"),
+    ("Bourlemontu", "fr", "Bour·le·mon·tu"),
+    ("Metzove", "fr", "Me·tzo·ve"),
+    ("Romorantine", "fr", "Ro·mo·ran·ti·ne"),
+    ("Dampmartine", "fr", "Damp·mar·ti·ne"),
+    ("Jacques", "fr", "Jacques"),
+    ("Jacquesa", "fr", "Ja·cquesa"),
+    ("Mengette", "fr", "Men·gette"),
+    ("Venette", "fr", "Ve·nette"),
+    ("Janville", "fr", "Jan·ville"),
 ])
 @pytest.mark.parametrize("casing", [str.lower, str.capitalize, str.upper])
 def test_explicit_name_families_use_stem_readings_and_slovak_endings(
@@ -242,12 +282,21 @@ def test_explicit_name_families_use_stem_readings_and_slovak_endings(
     assert _engine(word, language)[2] is None
     points = break_points(word, language=language)
     lower = word.lower()
-    for group in ("ou", "ch", "ck"):
-        if group in lower:
+    for group in ("ou", "ch", "ck", "ey", "au", "oue", "ie", "gn", "tz", "cques"):
+        if group in lower and (group != "ck" or language == "en"):
             assert lower.index(group) + 1 not in points
 
 
-@pytest.mark.parametrize("word,language", [("Boucher", "french"), ("Warwick", "english")])
+@pytest.mark.parametrize("word,language", [
+    ("Boucher", "french"), ("Warwick", "english"), ("Monterey", "french"),
+    ("Montgomery", "english"), ("Montgomeryho", "english"),
+    ("Winchester", "english"), ("Aubrey", "english"), ("Bedford", "english"),
+    ("Talbot", "english"), ("Rouen", "french"), ("Cauchon", "french"),
+    ("Letellier", "french"), ("Dupont", "french"), ("Armagnac", "french"),
+    ("Domrémy", "french"), ("Chinon", "french"), ("Bourlemont", "french"),
+    ("Metz", "french"), ("Romorantin", "french"), ("Dampmartin", "french"),
+    ("Jacques", "french"),
+])
 def test_name_readings_require_matching_language_and_known_ending(word, language):
     assert foreign_reading(word, language) is not None
     assert foreign_reading(word, "german") is None

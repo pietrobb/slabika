@@ -1,16 +1,18 @@
 {
   "provenance": "Independently described spelling-to-syllabic-role facts for the multilingual pilot families. No Pyphen patterns, Hunspell entries or Human breakpoints are imported. PSP V governs every derived point. This is a limited pronunciation inventory, not a general G2P model.",
   "notation": "Each space-separated spelling unit maps to one Slovak nucleus/consonant proxy; unlisted single letters map to themselves. Parts denote transparent compound members. Double consonant letters before vowels remain separate for the PSP spelling convention. Proxies encode syllabic roles, not IPA.",
-  "endings": ["a", "e", "u", "i", "om", "och", "ovi", "ov", "ova", "ovu", "ove", "ovej", "ovou", "ová", "ové", "ovú", "ovým", "ovho", "ovmu", "ovci", "ovcom", "ovcov", "ovská", "ovskej", "ovské", "ovských", "ovskými", "ska", "ske", "skeho", "skej", "ski", "skom", "skou", "sky", "skych", "skym", "skymi", "ský", "ská", "ské", "skí", "skú", "ského", "skému", "ských", "ským", "skými"],
+  "endings": ["a", "e", "u", "i", "om", "och", "ovi", "ov", "ova", "ovu", "ove", "ovej", "ovou", "ová", "ové", "ovú", "ovým", "ových", "ovho", "ovmu", "ovci", "ovcom", "ovcov", "ovská", "ovskej", "ovské", "ovských", "ovskými", "ska", "ske", "skeho", "skej", "ski", "skom", "skou", "sky", "skych", "skym", "skymi", "ský", "ská", "ské", "skí", "skú", "ského", "skému", "ských", "ským", "skými", "kí", "kých"],
   "english": {
-    "units": {"w": "v", "oo": "u", "ee": "í", "sh": "š", "ck": "k", "dg": "č", "le": "l", "owe": "o", "aw": "ó"},
+    "units": {"w": "v", "oo": "u", "ee": "í", "sh": "š", "ck": "k", "dg": "č", "le": "l", "owe": "o", "aw": "ó", "ch": "č", "au": "o", "ey": "i"},
     "compounds": {
       "terminal": "w oo d",
       "heads": ["s t e r n", "h o l l y", "b r e n t", "f l ee t", "m a p le", "sh e r", "s t i l l", "w e s t", "w i n", "w e dg"]
     },
     "bases": [
       {"parts": ["w oo d"]}, {"parts": ["b r a d sh aw"]},
-      {"parts": ["m a r l owe"]}, {"parts": ["w a r", "w i ck"]}
+      {"parts": ["m a r l owe"]}, {"parts": ["w a r", "w i ck"]},
+      {"parts": ["m o n t", "g o m e r y"]},
+      {"parts": ["m o n t", "g o m e r y h o"], "inflect": false}, {"parts": ["w i n ch e s t e r"]}, {"parts": ["au b r ey"]}, {"parts": ["b e d", "f o r d"]}, {"parts": ["t a l b o t"]}
     ]
   },
   "german": {
@@ -26,7 +28,7 @@
     ]
   },
   "french": {
-    "units": {"eau": "o", "ch": "š", "ce": "s", "g": "ž", "c": "s", "ai": "é", "ais": "é", "ieu": "u", "re": "r", "oi": "o", "ou": "u", "ont": "o", "iè": "e", "è": "e"},
+    "units": {"eau": "o", "ch": "š", "ce": "s", "g": "ž", "c": "s", "ai": "é", "ais": "é", "ieu": "u", "re": "r", "oi": "o", "ou": "u", "ont": "o", "iè": "e", "è": "e", "ey": "e", "au": "o", "oue": "a", "ie": "e", "gn": "ň", "tz": "s", "om": "o", "cques": "k"},
     "bases": [
       {"parts": ["b eau ce"], "inflect": false},
       {"parts": ["b eau g e n c y"]},
@@ -38,9 +40,9 @@
       {"parts": ["b eau p è r"]},
       {"parts": ["b eau r e v oi r"]},
       {"parts": ["b eau v ais"], "inflect": false},
-      {"parts": ["b ou r l e m ont"], "inflect": false},
+      {"parts": ["b ou r l e m o n t"]},
       {"parts": ["m o l iè re"]},
-      {"parts": ["m o l iè r"]}, {"parts": ["b ou ch e r"]}
+      {"parts": ["m o l iè r"]}, {"parts": ["b ou ch e r"]}, {"parts": ["m o n t e r ey"]}, {"parts": ["r oue n"]}, {"parts": ["c au ch o n"]}, {"parts": ["l e t e l l ie r"]}, {"parts": ["d u p o n t"]}, {"parts": ["a r m a gn a c"]}, {"parts": ["d om", "r é m y"]}, {"parts": ["d om", "r é m y j s k ý"], "inflect": false}, {"parts": ["ch i n o n"]}, {"parts": ["m e tz"]}, {"parts": ["r o m o r a n t i n"]}, {"parts": ["d a m p", "m a r t i n"]}, {"parts": ["j a cques"]}
     ]
   }
 }

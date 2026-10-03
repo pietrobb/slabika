@@ -21,7 +21,7 @@ tests; pass ``separator="-"`` or ``separator="\\u00ad"`` for line-breaking use,
 or call :func:`break_points` for raw character offsets.
 """
 
-from .foreign import foreign_points
+from .foreign import foreign_points, foreign_reading
 from .foreign_patterns import _LETTERS, adapt_foreign_word, german_inflected_points
 from .language import (
     detect_language, german_evidence, is_french, is_german, normalize_language, reviewed_language,
@@ -493,7 +493,10 @@ def _collect_points(word: str, language: str | None = None) -> tuple[set[int], s
     reviewed_foreign = _REVIEWED_FOREIGN_BREAK_POINTS.get(word.lower()) if language is None else None
     if reviewed_foreign is not None:
         return set(reviewed_foreign), set(), set()
-    reviewed_foreign = _reviewed_foreign_inflected_points(word) if language is None else None
+    reviewed_foreign = (
+        _reviewed_foreign_inflected_points(word)
+        if language is None and foreign_reading(word) is None else None
+    )
     if reviewed_foreign is not None:
         return reviewed_foreign, set(), set()
 
