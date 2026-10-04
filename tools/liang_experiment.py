@@ -355,6 +355,12 @@ def main() -> int:
         default=1,
         help="PATGEN multiplicity of in-domain training forms (default: 1).",
     )
+    parser.add_argument(
+        "--train-on-all",
+        action="store_true",
+        help="Train the written patterns on every word; the split model is trained "
+        "separately under <output-dir>/holdout and only measures generalization.",
+    )
     parser.add_argument("--patgen", default="patgen")
     args = parser.parse_args()
 
@@ -379,16 +385,47 @@ def main() -> int:
     if args.own_training_weight > 1:
         train.extend(base_train * (args.own_training_weight - 1))
 
-    dictionary, initial, translate = write_training_files(train, output_dir, args.mode)
-    raw_patterns, seconds = run_patgen(args.patgen, dictionary, initial, translate, output_dir)
     generated_tex = (
         args.patterns_output.resolve()
         if args.patterns_output
         else output_dir / f"hyph-sk-slabika-{args.mode}.tex"
     )
     generated_tex.parent.mkdir(parents=True, exist_ok=True)
-    generated_pattern_count = write_tex_patterns(raw_patterns, generated_tex, args.mode)
-    evaluation = evaluate(test, generated_tex, args.original, args.mode)
+    # With --train-on-all the split model is still trained, in its own
+    # directory, only to measure generalization; the written file then comes
+    # from a second run that also sees the held-out words.
+    holdout_dir = output_dir / "holdout" if args.train_on_all else output_dir
+    holdout_dir.mkdir(exist_ok=True)
+    holdout_tex = (
+        holdout_dir / f"hyph-sk-slabika-{args.mode}.tex" if args.train_on_all else generated_tex
+    )
+    dictionary, initial, translate = write_training_files(train, holdout_dir, args.mode)
+    raw_patterns, seconds = run_patgen(args.patgen, dictionary, initial, translate, holdout_dir)
+    generated_pattern_count = write_tex_patterns(raw_patterns, holdout_tex, args.mode)
+    evaluation = evaluate(test, holdout_tex, args.original, args.mode)
+    published = None
+    if args.train_on_all:
+        holdout_pattern_count = generated_pattern_count
+        full_train = sorted(set(train) | test_words)
+        if args.own_training_weight > 1:
+            full_train.extend(words * (args.own_training_weight - 1))
+        dictionary, initial, translate = write_training_files(full_train, output_dir, args.mode)
+        raw_patterns, full_seconds = run_patgen(
+            args.patgen, dictionary, initial, translate, output_dir
+        )
+        generated_pattern_count = write_tex_patterns(raw_patterns, generated_tex, args.mode)
+        published = {
+            "trained_on": "every corpus word plus generated numerals (no held-out split)",
+            "train_words": len(set(full_train)),
+            "train_rows": len(full_train),
+            "patgen_seconds": full_seconds,
+            "pattern_count": generated_pattern_count,
+            "holdout_model_pattern_count": holdout_pattern_count,
+            "holdout_model_patterns_sha256": _sha256(holdout_tex),
+            "corpus_fit_on_seen_words": evaluate(
+                words, generated_tex, args.original, args.mode
+            )["generated_from_current_engine"],
+        }
 
     report = {
         "warning": "Engine output is the replication target, not an independent PSP gold set.",
@@ -450,6 +487,7 @@ def main() -> int:
             "generated_patterns_sha256": _sha256(generated_tex),
         },
         "evaluation": evaluation,
+        "published_patterns": published,
     }
     report_path = output_dir / "report.json"
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -458,9 +496,16 @@ def main() -> int:
         if not isinstance(metrics, dict) or "precision" not in metrics:
             continue
         print(
-            f"{name}: patterns={evaluation.get('original_pattern_count') if name == 'jana_chlebikova_1992' else generated_pattern_count} "
+            f"{name}: patterns={evaluation.get('original_pattern_count') if name == 'jana_chlebikova_1992' else (published or {}).get('holdout_model_pattern_count', generated_pattern_count)} "
             f"exact={metrics['exact_word_rate']:.4%} precision={metrics['precision']:.4%} "
             f"recall={metrics['recall']:.4%} F1/7={metrics['f_beta_1_over_7']:.6f}"
+        )
+    if published:
+        fit = published["corpus_fit_on_seen_words"]
+        print(
+            f"published (all words): patterns={generated_pattern_count} "
+            f"exact={fit['exact_word_rate']:.4%} precision={fit['precision']:.4%} "
+            f"recall={fit['recall']:.4%}"
         )
     print(f"report: {report_path}")
     return 0

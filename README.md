@@ -339,25 +339,30 @@ The earlier engine–Chlebíková comparison set and the older dual-model adjudi
 Install development tools with `python -m pip install -e ".[dev]"` and put `patgen` from TeX Live or MiKTeX on `PATH`. From the repository root:
 
 ```console
-python tools/liang_experiment.py --mode preferred --output-dir scratch/liang-preferred --patterns-output patterns/hyph-sk-slabika.tex
-python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-permissive --patterns-output patterns/hyph-sk-slabika-permissive.tex
+python tools/liang_experiment.py --mode preferred --train-on-all --output-dir scratch/liang-preferred --patterns-output patterns/hyph-sk-slabika.tex
+python tools/liang_experiment.py --mode permissive --train-on-all --output-dir scratch/liang-permissive --patterns-output patterns/hyph-sk-slabika-permissive.tex
 ```
 
-These commands **replace the tracked pattern files**. Omit `--patterns-output` to leave the release artefacts untouched and write everything into the output directory instead. The generator reads the working SQLite inventory, accepts `resolved`/`inferred` casing, casefolds and deduplicates, filters unsupported spellings, and splits with salt `slabika-liang-v1`. Outputs include `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and `report.json` with corpus counts, input/output hashes, evaluation metrics and sample mismatches.
+These commands **replace the tracked pattern files**. Omit `--patterns-output` to leave the release artefacts untouched and write everything into the output directory instead. The generator reads the working SQLite inventory, accepts `resolved`/`inferred` casing, casefolds and deduplicates, filters unsupported spellings, and splits with salt `slabika-liang-v1`. With `--train-on-all` the split model is trained only to measure generalization (under `<output-dir>/holdout`); the written file comes from a second run over every word, so the release files contain no deliberately unseen part of the inventory. Outputs include `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and `report.json` with corpus counts, input/output hashes, evaluation metrics and sample mismatches.
 
-Both files were **regenerated on 2026-10-04 from the engine that includes the operator-accepted AI review families** (runs up to `blind3000c-20261004`). The inventory contains 206,205 rows, SHA-256 `6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f`. Of 204,534 eligible source rows, filtering yields 203,881 supported unique words: **163,124 training and 40,757 held out**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
+Both files were **regenerated on 2026-10-04 from the engine that includes the operator-accepted AI review families** (runs up to `blind3000c-20261004`). The inventory contains 206,205 rows, SHA-256 `6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f`. Of 204,534 eligible source rows, filtering yields 203,881 supported unique words. The generalization model trains on **163,124 words and holds out 40,757**; the published files train on all **203,881**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
 
-| current pattern evaluation (2026-10-04) | exact whole words | point precision | point recall |
+| generalization: split model on held-out words (2026-10-04) | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
 | slabika preferred, 5,617 patterns | 98.3929% (40,102/40,757) | 99.5418% | 99.4096% |
 | Chlebíková 1992 against preferred target | 89.9502% | 95.7878% | 95.7977% |
 | slabika permissive, 5,313 patterns | 98.5671% (40,173/40,757) | 99.5763% | 99.4938% |
 | Chlebíková 1992 against permissive target | 89.2583% | 96.1886% | 95.1584% |
 
-Both sides used TeX 2/3 minima. This measures **fidelity to the engine at generation time**, not independent PSP correctness or current adapter accuracy. Published SHA-256 values are:
+| published files: trained on every word, measured on every word | exact whole words | wrong points | missed points |
+| --- | ---: | ---: | ---: |
+| `hyph-sk-slabika.tex`, 6,108 patterns | 99.7376% (203,346/203,881) | 17 | 526 |
+| `hyph-sk-slabika-permissive.tex`, 5,789 patterns | 99.8126% (203,499/203,881) | 28 | 363 |
 
-- `patterns/hyph-sk-slabika.tex`: `e00f9d770baf8bde689386566a508f7993ab1ae4be9b7e33e0fcc96f0cfa8142`;
-- `patterns/hyph-sk-slabika-permissive.tex`: `f06d53c1654ec6372d262c4178197acfe0e3b1df12a11a78a739026e47dfaf74`.
+The first table estimates behaviour on words outside the inventory; the second only shows how closely the released files reproduce the words they were trained on. Training on everything cut wrong points on inventory words from 366 to 17 in the preferred file. Both sides used TeX 2/3 minima. This measures **fidelity to the engine at generation time**, not independent PSP correctness or current adapter accuracy. Published SHA-256 values are:
+
+- `patterns/hyph-sk-slabika.tex`: `829b97154fec77ceed5b09d2dc7910972832c8df43c94c050471257af09031cc`;
+- `patterns/hyph-sk-slabika-permissive.tex`: `a31e6f7679c82f07f819693ec13bfb077866db8d35433e0ccacfe3298e3f403a`.
 
 Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record the release run's full evaluation. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
 
@@ -373,8 +378,8 @@ tar -xf slabika-0.4.0.tar.gz
 cd slabika-0.4.0
 python -m pip install -e ".[dev]"
 python -m pytest
-python tools/liang_experiment.py --mode preferred --output-dir liang-preferred
-python tools/liang_experiment.py --mode permissive --output-dir liang-permissive
+python tools/liang_experiment.py --mode preferred --train-on-all --output-dir liang-preferred
+python tools/liang_experiment.py --mode permissive --train-on-all --output-dir liang-permissive
 ```
 
 On Windows without an editable install, use `set PYTHONPATH=src&& python -m pytest`; the generator resolves its own paths and needs no `PYTHONPATH`.
