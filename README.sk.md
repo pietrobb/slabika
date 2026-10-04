@@ -55,7 +55,7 @@ Rozsah týchto hraníc ukazuje toto meranie:
 
 | evidencia | súčasný projekt | Chlebíková 1992 | čo výsledok dokazuje |
 | --- | ---: | ---: | --- |
-| presné celé slová na odložených dátach oproti preferovanému cieľu enginu, minimá TeXu 2/3 | **98,3905 %** | **89,8741 %** | reprodukovateľnosť enginu, nie správnosť podľa PSP |
+| presné celé slová na odložených dátach oproti preferovanému cieľu enginu, minimá TeXu 2/3 | **98,3929 %** | **89,9502 %** | reprodukovateľnosť enginu, nie správnosť podľa PSP |
 
 Častou príčinou rozdielu je **rozpoznaná morfematická stavba**: predpona a základ, členy zloženiny alebo základ a slovotvorná či gramatická prípona. Písmenové vzory vidia opakujúce sa úseky, ale túto analýzu si neuchovávajú. Nasleduje 21 overených morfologických príkladov, nie prípadov vyhlásených za chybu iba preto, že sa dva systémy nezhodli. `·` označuje dostupné miesto zalomenia. Stĺpec vzorov z roku 1992 používa TeXové okrajové minimá 2/3; stĺpec aktuálneho enginu je doslovný výsledok `hyphenate(word)`, ktorého API tieto minimá neuplatňuje.
 
@@ -72,7 +72,7 @@ Rozsah týchto hraníc ukazuje toto meranie:
 | zloženina | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uh·lý` |
 | zloženina | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·de·ný` |
 | zloženina | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žrav·ce` |
-| zloženina | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chti·vý` |
+| zloženina | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `po·msty·chti·vý` |
 | odvodzovanie | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
 | odvodzovanie | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
 | odvodzovanie | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
@@ -286,7 +286,7 @@ Builder vloží všetky tvary a v obnoviteľných transakciách spracúva čakaj
 
 ## Dáta a stav kontroly
 
-Stav verzovaných slovenských dát k **2026-10-03**:
+Stav verzovaných slovenských dát k **2026-10-04**:
 
 | metrika | počet |
 | --- | ---: |
@@ -294,10 +294,10 @@ Stav verzovaných slovenských dát k **2026-10-03**:
 | aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **206 133** |
 | uložené riadky Human rozhodnutí (surová tabuľka) | **24 497** |
 | aktívne kanonické tvary s ľubovoľnou Human evidenciou | **24 212 (11,75 %)** |
-| skontrolované typografické delenia | **24 048 (11,67 %)** — 22 408 potvrdení, 1 640 opráv |
+| skontrolované typografické delenia | **24 048 (11,67 %)** — 22 411 potvrdení, 1 637 opráv |
 | skontrolované hovorené slabikovania | **349 (0,17 %)** — pri 266 tvaroch sú skontrolované oba výstupy |
 
-Surových 24 497 riadkov tvorí 22 675 posledných akcií `confirm`, 1 691 `correct`, 97 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
+Surových 24 497 riadkov tvorí 22 678 posledných akcií `confirm`, 1 688 `correct`, 97 `classify`, 25 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
 
 | lokálny korpus | tvary | vygenerovaná IPA | návrhy delenia |
 | --- | ---: | ---: | --- |
@@ -315,7 +315,7 @@ Počty cudzích korpusov nie sú presnosť ani počet ľudsky overených slov.
 
 Prvý zapísaný beh `blind1000-20260930` (pravidlá r1, prompt v4, schéma s1, `claude-opus-5-5[high]` s `gpt-6.1-sol[sub][high]`) pokrýva 1 000 tvarov vybraných rovnomerne náhodne z inventára: 862 nezávislých zhôd, 26 zhôd po dohadovaní, 40 neistých, 2 nezhody a 70 neplatných odpovedí. Z 888 dohodnutých tvarov sa 860 zhoduje s výstupom enginu v čase behu a 28 sa líši. Zhoda modelov je poradná evidencia, nie verdikt podľa PSP, a nikdy neprepisuje Human rozhodnutie.
 
-Doteraz je zapísaných päť behov, spolu **12 331 verdiktov nad 12 323 rôznymi tvarmi** a 24 925 uložených odpovedí modelov:
+Doteraz je zapísaných šesť behov, spolu **15 331 verdiktov nad 15 323 rôznymi tvarmi** a 30 975 uložených odpovedí modelov:
 
 | beh | pravidlá / prompt / schéma | tvary | zhoda (nezávislá + po dohadovaní) | neisté | nezhoda | neplatné | zhoda, ale iná ako engine v čase behu |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -324,8 +324,11 @@ Doteraz je zapísaných päť behov, spolu **12 331 verdiktov nad 12 323 rôznym
 | `blind3000-20261002` | r5 / v8 / s2 | 3 000 | 2 849 (2 818 + 31) | 128 | 3 | 20 | 89 |
 | `blind2000-20261003` | r6 / v8 / s2 | 2 000 | 1 845 (1 831 + 14) | 92 | 3 | 60 | 44 |
 | `blind3000b-20261003` | r6 / v8 / s2 | 3 000 | 2 768 (2 735 + 33) | 130 | 2 | 100 | 63 |
+| `blind3000c-20261004` | r7 / v8 / s2 | 3 000 | 2 861 (2 834 + 27) | 136 | 3 | 0 | 61 |
 
 Dohodnuté tvary, ktoré sa líšili od enginu, posúdil operátor. Prijaté delenia sa do enginu premietli pre **celú slovnú rodinu**, nie iba pre jeden tvar, a sú zafixované regresnými testami; zamietnuté ponechávajú delenie enginu a sú zafixované tiež. Po behu `blind3000b` operátor prijal 60 z jeho 63 rozdielov a rozšíril ich na rodiny (napríklad `kar·dio·ló·go·via`, `bú·ria·ce` s vyslovovanou dvojhláskou, ale `špe·ci·a·lis·ta` s vyslovovaným hiátom, `ne·opý·tam`, `úsko·koch`, `úc·ty·hod·ný`, `von·kajš·ko·vo`); ponechal `prázd·nej·ších`, `sto·trid·sať·šty·ri` a `šty·rid·sia·ti·de·via·ti`. Dvanásť starších Human potvrdení, ktoré prijatým rodinám odporovali, bolo prepísaných auditovanou cestou; predchádzajúca hodnota zostáva v `decision_log.previous_json`.
+
+Po behu `blind3000c` operátor prijal 57 z jeho 61 rozdielov: samohláska alebo krátky nábeh na začiatku koreňa za predponou či na začiatku slova zostáva s koreňom (`ohľa·de`, `ozveš`, `usta·vič·ný`, `po·obe·do·val`, `za·opat·ru·je`, `ideo·ló·gi·ou`), viaceré spoluhláskové skupiny prechádzajú do nasledujúcej slabiky (`di·va·dla·mi`, `ka·di·dlu`, `ha·cko·va·nia`, `ne·jde·te`, `šnu·ro·va·čky`) alebo zostávajú pri predchádzajúcej (`jem·nos·ti`, `vi·ce·pre·zi·den·tom`, `pries·tran·ný` ako `pries·tor`, `zú·čast·ňo·va·li`) a niekoľko cudzích slov sa delí podľa výslovnosti (`In·di·a·mi`, `koz·mo·nau·ta`, `grape·frui·te`). Deväť prijatých rodín zmenilo staršie zafixované rozhodnutia (`ot·vo·rí`, `po·msta`, `odo·pie·rať`, `záz·rak`, `naš·la`, `očist·ca`, `za·mest·nan·ci`, `tan·co·va·čky`, `upra·to·va·čka`). Operátor ponechal `bejz·ba·lis·ta`, `pa·žra·vo`, `pot·ký·na·jú` a `na·vrst·ve·né`. Dvadsaťtri Human potvrdení v zmenených rodinách bolo prepísaných tou istou auditovanou cestou. Beh bol spustený s označením r6, hoci jeho text pravidiel už obsahoval doplnky prvých častí zloženín z `blind3000b`; je zapísaný ako r7 a importér takéto preznačenie prijme iba s písomným zdôvodnením.
 
 Staršie porovnanie enginu s Chlebíkovou a staršie dvojmodelové adjudikácie boli 2026-10-01 odstránené, lebo sa nedali priradiť k zaznamenanému textu pravidiel a promptu. Zostávajú dostupné v histórii Gitu.
 
@@ -340,7 +343,7 @@ python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-pe
 
 Príkazy prepíšu dva verzované súbory vzorov; bez `--patterns-output` sa release artefakty nedotknú a všetko sa zapíše do výstupného priečinka. Generátor prijíma `resolved`/`inferred` tvary, vynechá vyradené `invalid`, prevedie na malé písmená, odstráni duplikáty a nepodporované zápisy. Deterministické rozdelenie používa soľ `slabika-liang-v1`. Pridáva generované číslovky; príslušné korpusové číslovky presunie do tréningu, aby neboli aj v teste. Výstup zahŕňa `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` a `report.json` s počtami, hashmi, metrikami a ukážkami nezhôd.
 
-Generovanie **2026-10-03** z enginu s rodinami prijatými z AI review (behy po `blind3000b-20261003`) prijalo 203 881 podporovaných unikátnych slov: **163 124 tréningových a 40 757 odložených**. Preferovaný súbor má **5 628 vzorov**, presné celé slová **98,3905 %** (40 101/40 757), precision bodov 99,5432 % a recall 99,4034 %. Permisívny má **5 336 vzorov**, presné celé slová **98,5377 %** (40 161/40 757), precision 99,5687 % a recall 99,4824 %. Pri rovnakých minimách TeXu 2/3 zopakuje základňa Chlebíkovej príslušné ciele na 89,8741 % a 89,2141 % celých slov. Ide o **vernosť enginu**, nie nezávislú správnosť podľa PSP. Použitý bol Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5) a `slabika-pronunciation==0.1.0` s anglickým MFA G2P v3.0.0. Súbory sa zapisujú s LF aj na Windows; presné SHA-256 sú v časti **Reproduce and evaluate Liang patterns** v [anglickom README](README.md), úplné reporty release behu sú v `patterns/`. Zmena enginu, inventára alebo prítomnosti anglického runtime môže zmeniť výsledné hashe.
+Generovanie **2026-10-04** z enginu s rodinami prijatými z AI review (behy po `blind3000c-20261004`) prijalo 203 881 podporovaných unikátnych slov: **163 124 tréningových a 40 757 odložených**. Preferovaný súbor má **5 617 vzorov**, presné celé slová **98,3929 %** (40 102/40 757), precision bodov 99,5418 % a recall 99,4096 %. Permisívny má **5 313 vzorov**, presné celé slová **98,5671 %** (40 173/40 757), precision 99,5763 % a recall 99,4938 %. Pri rovnakých minimách TeXu 2/3 zopakuje základňa Chlebíkovej príslušné ciele na 89,9502 % a 89,2583 % celých slov. Ide o **vernosť enginu**, nie nezávislú správnosť podľa PSP. Použitý bol Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5) a `slabika-pronunciation==0.1.0` s anglickým MFA G2P v3.0.0. Súbory sa zapisujú s LF aj na Windows; presné SHA-256 sú v časti **Reproduce and evaluate Liang patterns** v [anglickom README](README.md), úplné reporty release behu sú v `patterns/`. Zmena enginu, inventára alebo prítomnosti anglického runtime môže zmeniť výsledné hashe.
 
 Preferovaný súbor sa učí z `break_points(word)`, permisívny z `break_points(word, all_points=True, contextual=True)`. Jeden Liangov súbor nevie niesť prioritu bodov, preto sa tieto politiky publikujú samostatne a **nesmú sa načítať naraz**. Nemajú výnimky celých slov a neobsahujú jazykový detektor ani model výslovnosti. Sú verzovanými release artefaktmi popri Python balíku, ale knižnica ich automaticky nenačítava; používa iba prevzaté DE/FR vzory.
 

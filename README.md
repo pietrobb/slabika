@@ -57,7 +57,7 @@ One measurement shows the size of those limits:
 
 | evidence | current project | Chlebíková 1992 | what it establishes |
 | --- | ---: | ---: | --- |
-| exact held-out words against the preferred engine target, TeX minima 2/3 | **98.3905%** | **89.8741%** | reproducibility of the engine, not PSP correctness |
+| exact held-out words against the preferred engine target, TeX minima 2/3 | **98.3929%** | **89.9502%** | reproducibility of the engine, not PSP correctness |
 
 A common source of difference is **recognized morphological structure**: a prefix plus base, the members of a compound, or a base plus a derivational or grammatical suffix. A letter-pattern table sees recurring character fragments but does not retain that analysis. The following are 21 verified morphological examples, not cases declared wrong merely because the outputs differ. `·` marks an available line break. The 1992 column applies the TeX left/right minima 2/3; the current-engine column is the literal result of `hyphenate(word)`, whose API does not apply those TeX edge minima.
 
@@ -74,7 +74,7 @@ A common source of difference is **recognized morphological structure**: a prefi
 | compound | `pravouhlý` | `pravo- + uhl-` | `pra·vouhlý` | `pra·vo·uh·lý` |
 | compound | `novovzbudený` | `novo- + vzbud- + en-` | `no·vovz·bu·dený` | `no·vo·vzbu·de·ný` |
 | compound | `mäsožravce` | `mäso- + žrav- + ec` | `mä·sož·ravce` | `mä·so·žrav·ce` |
-| compound | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `pom·sty·chti·vý` |
+| compound | `pomstychtivý` | `pomsty- + chtiv-` | `po·mstych·tivý` | `po·msty·chti·vý` |
 | derivation | `kováčsky` | `kováč- + sk-` | `ko·váčsky` | `ko·váč·sky` |
 | derivation | `dedičstiev` | `dedič- + stv-` | `de·dičs·tiev` | `de·dič·stiev` |
 | derivation | `hráčske` | `hráč- + sk-` | `hráčske` | `hráč·ske` |
@@ -296,7 +296,7 @@ The first command seeds all forms and processes pending/error rows in resumable 
 
 ## Data and review statistics
 
-As of **2026-10-03**, the tracked Slovak data has this current state:
+As of **2026-10-04**, the tracked Slovak data has this current state:
 
 | metric | count |
 | --- | ---: |
@@ -304,10 +304,10 @@ As of **2026-10-03**, the tracked Slovak data has this current state:
 | active unique forms shown by the review console after folding case-only aliases | **206,133** |
 | stored Human decision rows (raw table) | **24,497** |
 | active canonical forms with any Human evidence | **24,212 (11.75%)** |
-| typographic divisions reviewed | **24,048 (11.67%)** — 22,408 confirms, 1,640 corrections |
+| typographic divisions reviewed | **24,048 (11.67%)** — 22,411 confirms, 1,637 corrections |
 | spoken syllabifications reviewed | **349 (0.17%)** — 266 forms have both outputs reviewed |
 
-The raw decision rows comprise 22,675 latest `confirm`, 1,691 `correct`, 97 `classify`, 25 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
+The raw decision rows comprise 22,678 latest `confirm`, 1,688 `correct`, 97 `classify`, 25 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
 
 The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 6,601 resolved, 1,477 uncertain and 22 invalid. Reviewers received bare forms without engine output or earlier decisions. They were isolated LLM reviewers, not the author.
 
@@ -317,7 +317,7 @@ The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 
 
 The first filed run, `blind1000-20260930` (rules r1, prompt v4, schema s1, `claude-opus-5-5[high]` with `gpt-6.1-sol[sub][high]`), covers 1,000 forms sampled uniformly from the inventory: 862 independent agreements, 26 agreements after review, 40 uncertain, 2 unresolved disagreements and 70 invalid responses. Of the 888 agreed forms, 860 match the engine output at run time and 28 differ. Model agreement is advisory evidence, not a PSP verdict, and never overwrites a Human decision.
 
-Five runs are filed so far, **12,331 verdicts over 12,323 distinct forms** with 24,925 stored model answers:
+Six runs are filed so far, **15,331 verdicts over 15,323 distinct forms** with 30,975 stored model answers:
 
 | run | rules / prompt / schema | forms | agreed (independent + after review) | uncertain | unresolved | invalid | agreed, differs from engine at run time |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -326,8 +326,11 @@ Five runs are filed so far, **12,331 verdicts over 12,323 distinct forms** with 
 | `blind3000-20261002` | r5 / v8 / s2 | 3,000 | 2,849 (2,818 + 31) | 128 | 3 | 20 | 89 |
 | `blind2000-20261003` | r6 / v8 / s2 | 2,000 | 1,845 (1,831 + 14) | 92 | 3 | 60 | 44 |
 | `blind3000b-20261003` | r6 / v8 / s2 | 3,000 | 2,768 (2,735 + 33) | 130 | 2 | 100 | 63 |
+| `blind3000c-20261004` | r7 / v8 / s2 | 3,000 | 2,861 (2,834 + 27) | 136 | 3 | 0 | 61 |
 
 Agreed forms that differed from the engine were judged by the operator. Accepted divisions were applied to the engine for the **whole word family**, not to the single form, and are pinned by regression tests; rejected ones keep the engine division and are pinned as well. After `blind3000b`, 60 of its 63 differences were accepted and propagated to their families (for example `kar·dio·ló·go·via`, `bú·ria·ce` with a spoken diphthong but `špe·ci·a·lis·ta` with a spoken hiatus, `ne·opý·tam`, `úsko·koch`, `úc·ty·hod·ný`, `von·kajš·ko·vo`); the operator kept `prázd·nej·ších`, `sto·trid·sať·šty·ri` and `šty·rid·sia·ti·de·via·ti`. Twelve earlier Human confirmations that contradicted the accepted families were rewritten through the audited decision path, which keeps the previous value in `decision_log.previous_json`.
+
+After `blind3000c`, the operator accepted 57 of its 61 differences: a root-initial vowel or short onset after a prefix or at the word start stays with the root (`ohľa·de`, `ozveš`, `usta·vič·ný`, `po·obe·do·val`, `za·opat·ru·je`, `ideo·ló·gi·ou`), a number of consonant clusters move to the following syllable (`di·va·dla·mi`, `ka·di·dlu`, `ha·cko·va·nia`, `ne·jde·te`, `šnu·ro·va·čky`) or stay with the preceding one (`jem·nos·ti`, `vi·ce·pre·zi·den·tom`, `pries·tran·ný` like `pries·tor`, `zú·čast·ňo·va·li`), and a few foreign words follow their spoken form (`In·di·a·mi`, `koz·mo·nau·ta`, `grape·frui·te`). Nine of the accepted families overturned earlier pinned decisions (`ot·vo·rí`, `po·msta`, `odo·pie·rať`, `záz·rak`, `naš·la`, `očist·ca`, `za·mest·nan·ci`, `tan·co·va·čky`, `upra·to·va·čka`). The operator kept `bejz·ba·lis·ta`, `pa·žra·vo`, `pot·ký·na·jú` and `na·vrst·ve·né`. Twenty-three Human confirmations in the changed families were rewritten through the same audited path. The run was launched with the label r6 although its rules text already carried the `blind3000b` additions to the compound first parts; it is filed as r7, and the importer records such a relabelling only together with a written reason.
 
 The earlier engine–Chlebíková comparison set and the older dual-model adjudications were removed on 2026-10-01: they could not be tied to a recorded rules text and prompt. They remain available in Git history.
 
@@ -342,19 +345,19 @@ python tools/liang_experiment.py --mode permissive --output-dir scratch/liang-pe
 
 These commands **replace the tracked pattern files**. Omit `--patterns-output` to leave the release artefacts untouched and write everything into the output directory instead. The generator reads the working SQLite inventory, accepts `resolved`/`inferred` casing, casefolds and deduplicates, filters unsupported spellings, and splits with salt `slabika-liang-v1`. Outputs include `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and `report.json` with corpus counts, input/output hashes, evaluation metrics and sample mismatches.
 
-Both files were **regenerated on 2026-10-03 from the engine that includes the operator-accepted AI review families** (runs up to `blind3000b-20261003`). The inventory contains 206,205 rows, SHA-256 `6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f`. Of 204,534 eligible source rows, filtering yields 203,881 supported unique words: **163,124 training and 40,757 held out**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
+Both files were **regenerated on 2026-10-04 from the engine that includes the operator-accepted AI review families** (runs up to `blind3000c-20261004`). The inventory contains 206,205 rows, SHA-256 `6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f`. Of 204,534 eligible source rows, filtering yields 203,881 supported unique words: **163,124 training and 40,757 held out**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
 
-| current pattern evaluation (2026-10-03) | exact whole words | point precision | point recall |
+| current pattern evaluation (2026-10-04) | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| slabika preferred, 5,628 patterns | 98.3905% (40,101/40,757) | 99.5432% | 99.4034% |
-| Chlebíková 1992 against preferred target | 89.8741% | 95.7852% | 95.7618% |
-| slabika permissive, 5,336 patterns | 98.5377% (40,161/40,757) | 99.5687% | 99.4824% |
-| Chlebíková 1992 against permissive target | 89.2141% | 96.1822% | 95.1338% |
+| slabika preferred, 5,617 patterns | 98.3929% (40,102/40,757) | 99.5418% | 99.4096% |
+| Chlebíková 1992 against preferred target | 89.9502% | 95.7878% | 95.7977% |
+| slabika permissive, 5,313 patterns | 98.5671% (40,173/40,757) | 99.5763% | 99.4938% |
+| Chlebíková 1992 against permissive target | 89.2583% | 96.1886% | 95.1584% |
 
 Both sides used TeX 2/3 minima. This measures **fidelity to the engine at generation time**, not independent PSP correctness or current adapter accuracy. Published SHA-256 values are:
 
-- `patterns/hyph-sk-slabika.tex`: `486dd64e1e76dcca0f7e4878ab64f2b4e9555cb9045535f0e5e369a3a63f46dd`;
-- `patterns/hyph-sk-slabika-permissive.tex`: `bb94051fe5e415007739f120eb6d6f449ad7a12186f092aba40e1347e83e954a`.
+- `patterns/hyph-sk-slabika.tex`: `e00f9d770baf8bde689386566a508f7993ab1ae4be9b7e33e0fcc96f0cfa8142`;
+- `patterns/hyph-sk-slabika-permissive.tex`: `f06d53c1654ec6372d262c4178197acfe0e3b1df12a11a78a739026e47dfaf74`.
 
 Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record the release run's full evaluation. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
 

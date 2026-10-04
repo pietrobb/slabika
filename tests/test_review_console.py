@@ -758,6 +758,23 @@ def test_ai_run_import_refuses_mislabelled_or_inconsistent_texts(corpus, tmp_pat
         _import(corpus, other, "run4", rules_version="r2")
 
 
+def test_ai_run_relabel_needs_a_reason_and_keeps_it(corpus, tmp_path):
+    from slabika.review.ai_runs import import_run
+
+    run = _ai_run_dir(tmp_path / "run1", ["maslo"], ["mas·lo"], rules="pravidlá r2")
+    summary = json.loads((run / "summary.json").read_text(encoding="utf-8"))
+    summary["manifest"]["versions"] = {"rules": "r1", "prompt": "v4", "schema": "s1"}
+    (run / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
+    kwargs = dict(run_id="run1", engine=ENGINE, rules_version="r2", rules_source="docs",
+                  prompt_version="v4", prompt_source="prompt", schema_version="s1")
+    with pytest.raises(ValueError, match="run declared rules 'r1'"):
+        import_run(corpus.decisions_path, run, **kwargs)
+    import_run(corpus.decisions_path, run, note="n.", relabel_note="text is newer than r1.",
+               **kwargs)
+    assert corpus.store.execute("SELECT note FROM ai_runs WHERE run_id = 'run1'").fetchone()[0] == (
+        "n. Relabelled: text is newer than r1.")
+
+
 def test_migration_and_second_output_preserve_first_output(corpus):
     migrated = corpus.store.execute(
         "SELECT * FROM decisions WHERE form = 'maslo'"

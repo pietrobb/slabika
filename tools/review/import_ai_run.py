@@ -34,6 +34,8 @@ def main():
     parser.add_argument("--schema-note", default="")
     parser.add_argument("--engine-note", default="")
     parser.add_argument("--note", default="")
+    parser.add_argument("--relabel-note", default="",
+                        help="why a version label differs from the one the run declared")
     parser.add_argument("--db", type=Path, default=ROOT / "tests/data/review_decisions.sqlite")
     args = parser.parse_args()
     summary = json.loads((args.run_dir / "summary.json").read_text(encoding="utf-8"))
@@ -49,7 +51,8 @@ def main():
         rules_version=args.rules_version, rules_source=args.rules_source,
         rules_note=args.rules_note, prompt_version=args.prompt_version,
         prompt_source=args.prompt_source, prompt_note=args.prompt_note,
-        schema_version=args.schema_version, schema_note=args.schema_note, note=args.note)
+        schema_version=args.schema_version, schema_note=args.schema_note, note=args.note,
+        relabel_note=args.relabel_note)
     print(json.dumps(result | {"engine": engine}, ensure_ascii=False, indent=2))
     if packed.packed_path(args.db).exists() and packed.pack(args.db):
         print(f"packed {packed.packed_path(args.db)}")

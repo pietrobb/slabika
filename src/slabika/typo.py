@@ -128,6 +128,11 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'mitchell': (2,),
     'strauß': (),
     'wilson': (3,),
+    # blind3000c, operator accepted the AI division (2026-10-04):
+    # grape·frui·te, qui·li·bet, re·qui·es·ca·mus.
+    'grapefruit': (5,),
+    'quilibet': (3, 5),
+    'requiescamus': (2, 5, 7, 9),
     'gleisdorfu': (5, 8),
     'glendower': (4,),
     'glenview': (4,),
@@ -438,6 +443,7 @@ _HIATUS_FIRST_PARTS = frozenset({
     'fyzio', 'epidemio',  # operator 2026-10-02: fyzio·gno·mic·ké, epi·de·mio·ló·ga
     'homeo', 'speleo', 'stereo',  # operator 2026-10-03, blind2000
     'kardio', 'socio', 'embryo', 'genea',  # operator 2026-10-03, blind3000b
+    'ideo', 'muzeo',  # operator 2026-10-04, blind3000c
 })
 
 

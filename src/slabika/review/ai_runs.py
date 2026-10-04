@@ -216,11 +216,13 @@ def _read(path):
 
 def import_run(db_path, run_dir, *, run_id, rules_version, prompt_version, schema_version,
                engine, rules_source, prompt_source, rules_note="", prompt_note="",
-               schema_note="", note=""):
+               schema_note="", note="", relabel_note=""):
     """Validate a finished private run directory and append it atomically.
 
     The transcript's per-batch hashes must match the stored rules, prompt and
     schema texts, so a run can never be filed under a text it did not use.
+    A version label differing from the one the run declared is accepted only
+    with ``relabel_note`` explaining why; the note is kept in the run note.
     """
     run_dir = Path(run_dir)
     transcript = _read(run_dir / "transcript.json")
@@ -251,8 +253,10 @@ def import_run(db_path, run_dir, *, run_id, rules_version, prompt_version, schem
     declared = manifest.get("versions") or {}
     for key, version in (("rules", rules_version), ("prompt", prompt_version),
                          ("schema", schema_version)):
-        if declared.get(key) not in (None, version):
+        if declared.get(key) not in (None, version) and not relabel_note:
             raise ValueError(f"run declared {key} {declared[key]!r}, not {version!r}")
+    if relabel_note:
+        note = f"{note} Relabelled: {relabel_note}".strip()
     with closing(sqlite3.connect(db_path)) as connection, connection:
         connection.execute("PRAGMA foreign_keys = ON")
         ensure_schema(connection)

@@ -147,11 +147,11 @@ def test_pilot_groups_families_and_keeps_all_sources_read_only(tmp_path):
         "occurrences": 5,
         "families": 3,
         "status_counts": {
-            "engine_seam": 1,
-            "inside_engine_morpheme": 3,
+            "engine_seam": 2,
+            "inside_engine_morpheme": 2,
             "word_initial": 1,
         },
-        "families_with_uncovered_occurrences": 2,
+        "families_with_uncovered_occurrences": 1,
         "sapfo_runtime_analyzed_forms": 0,
         "sapfo_roundtrip_lemmas": 0,
     }
@@ -159,7 +159,8 @@ def test_pilot_groups_families_and_keeps_all_sources_read_only(tmp_path):
         (family["member"], family["family"]): family for family in report["families"]
     }
     assert families[("hrad", "chrad")]["distinct_forms"] == 2
-    assert families[("hľad", "ohľad")]["counts"] == {"inside_engine_morpheme": 1}
+    # bez·ohľad·ný: the o-|hľad root is whole (blind3000c, operator 2026-10-04).
+    assert families[("hľad", "hľad")]["counts"] == {"engine_seam": 1}
     assert families[("hrad", "hrad")]["counts"] == {
         "engine_seam": 1,
         "word_initial": 1,
