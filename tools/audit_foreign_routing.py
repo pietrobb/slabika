@@ -9,6 +9,7 @@ import sqlite3
 from pathlib import Path
 
 from slabika import break_points
+from slabika.review import packed
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUTS = [ROOT / "tests/data" / name for name in (
@@ -37,6 +38,7 @@ def main():
     parser.add_argument("output", type=Path)
     parser.add_argument("--baseline", type=Path)
     args = parser.parse_args()
+    packed.ensure_unpacked(INPUTS[1])
     before = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in INPUTS}
     inventory, human = read_inputs()
     modes = ((False, False), (True, False), (False, True), (True, True))

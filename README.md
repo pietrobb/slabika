@@ -245,6 +245,8 @@ From 0.4.0, working inventories and review databases are excluded from the wheel
 
 On Windows, `run_review_local.bat` is for independent reviewers: it requires no package installation and stores decisions under `%LOCALAPPDATA%\slabika-review`. `run_review.bat` is the maintainer launcher and deliberately opens tracked project decisions.
 
+The project decisions are tracked compressed, as `tests/data/review_decisions.sqlite.xz` (13.0 MB instead of 56.4 MB). The console unpacks the working copy `tests/data/review_decisions.sqlite` next to it on demand: when it is missing, or when a newer `.xz` arrived with `git pull` and the copy has no changes of its own. On a clean stop (Ctrl+C) it packs new decisions back into the `.xz`, which is then the file to commit. If both the `.xz` and the unpacked copy changed, it refuses to start rather than overwrite either one. The same steps are available by hand: `python -m slabika.review.packed status|unpack|pack [--force]`. A decision store passed with `--decisions` that has no `.xz` next to it is opened as before.
+
 The language/classification column separates automatic profile flags, human labels and inherited import/AI flags. An undetected language is not assumed to be Slovak. Text uploads can build a worklist; **Random 200** selects an alphabetical block of unreviewed forms. Typographic division and spoken syllabification are reviewed separately.
 
 ### Independent DE/FR/EN review
@@ -311,7 +313,7 @@ The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 
 
 ### Versioned dual-model verdicts
 
-`tests/data/review_decisions.sqlite` files every dual-model run together with the exact inputs that produced it. `ai_rule_sets`, `ai_prompts` and `ai_schemas` keep the full rules text, prompt and response schema under version labels; `ai_models` names the models; `engine_versions` records the package version, Git commit, uncommitted-change flag and content hash of the engine that the run was compared with. `ai_runs` links a run to all of these and keeps its compressed transcript, `ai_verdicts` holds one outcome per form, and `ai_model_answers` keeps every model answer in every round. The tables are append-only: a changed rules text becomes a new version, and older verdicts remain readable together with the rules they were produced under. `tools/review/import_ai_run.py` refuses a run whose per-batch hashes do not match the texts it is filed under.
+`tests/data/review_decisions.sqlite` (tracked as `review_decisions.sqlite.xz`) files every dual-model run together with the exact inputs that produced it. `ai_rule_sets`, `ai_prompts` and `ai_schemas` keep the full rules text, prompt and response schema under version labels; `ai_models` names the models; `engine_versions` records the package version, Git commit, uncommitted-change flag and content hash of the engine that the run was compared with. `ai_runs` links a run to all of these and keeps its compressed transcript, `ai_verdicts` holds one outcome per form, and `ai_model_answers` keeps every model answer in every round. The tables are append-only: a changed rules text becomes a new version, and older verdicts remain readable together with the rules they were produced under. `tools/review/import_ai_run.py` refuses a run whose per-batch hashes do not match the texts it is filed under.
 
 The first filed run, `blind1000-20260930` (rules r1, prompt v4, schema s1, `claude-opus-5-5[high]` with `gpt-6.1-sol[sub][high]`), covers 1,000 forms sampled uniformly from the inventory: 862 independent agreements, 26 agreements after review, 40 uncertain, 2 unresolved disagreements and 70 invalid responses. Of the 888 agreed forms, 860 match the engine output at run time and 28 differ. Model agreement is advisory evidence, not a PSP verdict, and never overwrites a Human decision.
 
@@ -379,7 +381,7 @@ The databases the archive ships, all under `tests/data/`:
 | file | size | what it is | needed for |
 | --- | ---: | --- | --- |
 | `translatemaster_hyphenation_working.sqlite` | 13.9 MB | the 206,205-row form inventory, SHA-256 `6625bda4…` | pattern regeneration, full-corpus tests, review console |
-| `review_decisions.sqlite` | 56.4 MB | every Human decision and the versioned dual-model runs | auditing the provenance claims, README statistics tests |
+| `review_decisions.sqlite.xz` | 13.0 MB (56.4 MB unpacked) | every Human decision and the versioned dual-model runs | auditing the provenance claims, README statistics tests |
 | `blind_*/manifest.sqlite`, `blind_*/results.sqlite` | 3.9 MB | the four frozen blind audits with their signed manifests | blind-audit checks, review console |
 
 They compress well; the wheel stays at 3.5 MB and contains no databases at all. `python tools/audit_release_artifacts.py --inventory src/slabika/data/composita.json <archive>` enforces that split: a database anywhere outside `tests/data/` is a defect, and any database in a wheel is a defect.

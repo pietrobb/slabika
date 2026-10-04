@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from slabika import hyphenate  # noqa: E402
 from slabika.morphology import get_morphology  # noqa: E402
+from slabika.review import packed  # noqa: E402
 from slabika.syllabify import get_morpheme_parts  # noqa: E402
 
 DEFAULT_INVENTORY = ROOT / "tests/data/translatemaster_hyphenation_working.sqlite"
@@ -717,6 +718,7 @@ def main() -> int:
             limit=args.limit,
         )
     else:
+        packed.ensure_unpacked(args.review_db)
         report = generate_report(
             args.inventory,
             args.review_db,

@@ -37,7 +37,7 @@ from slabika import __version__ as ENGINE_VERSION
 from slabika import hyphenate, is_english, is_french, is_german, syllables
 from slabika.syllabify import UnsupportedSpellingError
 from slabika.language import normalize_language
-from . import ai_runs
+from . import ai_runs, packed
 from .tex_patterns import tex_hyphenate
 from .schema import allow_classification_action
 _PACKAGE_DIR = Path(__file__).resolve().parent
@@ -1798,6 +1798,14 @@ def main() -> int:
         parser.error(f"inventory not found: {arguments.db}; supply a local inventory with --db (working databases are not bundled)")
     decisions = arguments.decisions or (arguments.db.with_name(f"{arguments.db.stem}_decisions.sqlite") if arguments.language else Path.cwd() / "review_decisions.sqlite")
     blind = [] if arguments.language else arguments.blind or DEFAULT_BLIND
+    try:
+        packed_state = packed.ensure_unpacked(decisions)
+    except packed.PackConflict as error:
+        parser.error(str(error))
+    if packed_state in ("missing", "outdated"):
+        print(f"unpacked   {packed.packed_path(decisions)}")
+    elif packed_state == "changed":
+        print(f"note       {decisions} has changes not yet packed into {packed.packed_path(decisions).name}")
 
     if arguments.language:
         from .foreign import ForeignCorpus
@@ -1817,6 +1825,13 @@ def main() -> int:
         server.serve_forever()
     except KeyboardInterrupt:
         print("\nstopped")
+    finally:
+        server.server_close()
+        Handler.corpus.store.close()
+        if packed.status(decisions) == "changed":
+            print(f"packing    {packed.packed_path(decisions)} ...")
+            packed.pack(decisions)
+            print("packed")
     return 0
 
 

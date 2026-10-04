@@ -661,6 +661,11 @@ def main() -> None:
                 f"s. {row['printed_page']}"
             )
     else:
+        if not args.without_review:
+            sys.path.insert(0, str(ROOT / "src"))
+            from slabika.review import packed
+
+            packed.ensure_unpacked(args.review_db)
         report = audit_root_conflicts(
             args.db,
             None if args.all_rmss else args.inventory,

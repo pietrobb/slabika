@@ -16,6 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
+from slabika.review import packed  # noqa: E402
 from slabika.review.ai_runs import engine_version, import_run  # noqa: E402
 
 
@@ -42,6 +43,7 @@ def main():
             parser.error("run did not record its engine build; --engine-note is required")
         engine = engine_version(ROOT)
     engine = dict(engine, note=args.engine_note or engine.get("note", ""))
+    packed.ensure_unpacked(args.db)
     result = import_run(
         args.db, args.run_dir, run_id=args.run_id, engine=engine,
         rules_version=args.rules_version, rules_source=args.rules_source,
@@ -49,6 +51,8 @@ def main():
         prompt_source=args.prompt_source, prompt_note=args.prompt_note,
         schema_version=args.schema_version, schema_note=args.schema_note, note=args.note)
     print(json.dumps(result | {"engine": engine}, ensure_ascii=False, indent=2))
+    if packed.packed_path(args.db).exists() and packed.pack(args.db):
+        print(f"packed {packed.packed_path(args.db)}")
 
 
 if __name__ == "__main__":

@@ -106,8 +106,9 @@ def test_the_source_archive_still_carries_its_inputs():
     exclude = config["tool"]["hatch"]["build"]["targets"]["sdist"]["exclude"]
     assert "**/*.sqlite" not in exclude and "**/*.db" not in exclude
     ignored = (ROOT / ".gitignore").read_text(encoding="utf8").splitlines()
-    for name in ("translatemaster_hyphenation_working.sqlite", "review_decisions.sqlite"):
-        assert f"!tests/data/{name}" in ignored
+    assert "!tests/data/translatemaster_hyphenation_working.sqlite" in ignored
+    assert "!tests/data/review_decisions.sqlite" not in ignored
+    assert (ROOT / "tests/data/review_decisions.sqlite.xz").exists()
 
 
 def test_a_database_outside_tests_data_is_rejected_even_in_a_source_archive(tmp_path):

@@ -30,9 +30,14 @@ tests/data/blind_word_division_*/reconciliation.json
 
 # Source of truth for the published patterns: the form inventory and the full
 # adjudication trail. Tracked, and shipped in the sdist so the pipeline can be
-# rerun from an unpacked archive.
+# rerun from an unpacked archive. The adjudication trail is tracked compressed as
+# tests/data/review_decisions.sqlite.xz; slabika.review.packed unpacks the
+# working copy next to it on demand and packs changes back.
 !tests/data/translatemaster_hyphenation_working.sqlite
-!tests/data/review_decisions.sqlite
+*.sqlite-sync
+*.sqlite.packing
+*.sqlite.unpacking
+*.sqlite.xz.tmp
 
 # Signed blind-audit state is project data, not a disposable SQLite cache.
 !tests/data/blind_word_division_5000_v1/manifest.sqlite

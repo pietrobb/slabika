@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from slabika import hyphenate, language_scores  # noqa: E402
 from slabika.language import normalize_language, reviewed_language  # noqa: E402
+from slabika.review import packed  # noqa: E402
 
 # Native-word controls, also tested with sentence-initial capitalization.
 SLOVAK_CONTROLS = """
@@ -159,6 +160,7 @@ def main() -> int:
                         default=ROOT / "tests/data/review_decisions.sqlite")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    packed.ensure_unpacked(args.decisions)
     result = experiment(args.inventory, args.decisions)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"Saved read-only experiment to {args.output}")

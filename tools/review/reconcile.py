@@ -19,6 +19,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from slabika import hyphenate  # noqa: E402
+from slabika.review import packed  # noqa: E402
 
 MARK = "\u00b7"
 
@@ -217,6 +218,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
 
+    packed.ensure_unpacked(args.review_db)
     manual = load_manual(args.review_db)
     blind = load_blind(args.run_dir / "results.sqlite")
     result = reconcile(manual, blind)

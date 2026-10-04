@@ -3,7 +3,6 @@
 """Regression tests for independent review of both engine outputs."""
 
 import json
-import shutil
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -12,6 +11,7 @@ from urllib.request import urlopen
 import pytest
 
 from slabika.review import server as REVIEW
+from slabika.review.packed import decompress
 
 OLD_DECISION_SCHEMA = """
 CREATE TABLE decisions (
@@ -120,7 +120,7 @@ def test_default_review_assets_are_available():
 def test_readme_review_statistics_match_tracked_data(tmp_path):
     root = Path(__file__).resolve().parents[1]
     decisions_path = tmp_path / "review_decisions.sqlite"
-    shutil.copy2(root / "tests/data/review_decisions.sqlite", decisions_path)
+    decompress(root / "tests/data/review_decisions.sqlite.xz", decisions_path)
     corpus = REVIEW.Corpus(
         root / "tests/data/translatemaster_hyphenation_working.sqlite",
         decisions_path,

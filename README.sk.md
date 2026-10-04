@@ -235,6 +235,8 @@ DE/FR vzory a explicitné čítania sú pribalené. Širšia angličtina potrebu
 
 Od verzie 0.4.0 sú pracovné inventáre a review databázy vylúčené z wheelu, ale sú v zdrojovom archíve a zostávajú verzované v repozitári. Checkout aj rozbalený archív si korpus nájdu samy a nepotrebujú ďalšie argumenty; `--db` otvorí inventár mimo nich. Slovenské review počíta **aktuálny výstup enginu**, vrátane prípustných cudzích ciest. Rozhodnutia ukladá oddelene do `review_decisions.sqlite` v spúšťacom priečinku; `--decisions` vyberá iný súbor. `run_review_local.bat` je pre externého recenzenta, bez inštalácie a s rozhodnutiami v `%LOCALAPPDATA%\slabika-review`. Správcovský `run_review.bat` zámerne otvára verzované rozhodnutia projektu.
 
+Rozhodnutia projektu sú v repozitári skomprimované ako `tests/data/review_decisions.sqlite.xz` (13,0 MB namiesto 56,4 MB). Konzola si pracovnú kópiu `tests/data/review_decisions.sqlite` vedľa neho rozbalí podľa potreby: keď chýba, alebo keď `git pull` priniesol novší `.xz` a kópia nemá vlastné zmeny. Pri riadnom ukončení (Ctrl+C) nové rozhodnutia zabalí späť do `.xz`, ktorý sa potom commituje. Ak sa zmenil `.xz` aj rozbalená kópia, konzola sa nespustí, aby neprepísala ani jedno. Ručne to isté robí `python -m slabika.review.packed status|unpack|pack [--force]`. Súbor rozhodnutí zadaný cez `--decisions`, vedľa ktorého nie je `.xz`, sa otvára ako doteraz.
+
 Klasifikácia oddeľuje automatické profily, ľudské príznaky a import/AI. Neurčený jazyk nie je automaticky slovenčina. Textový upload vytvára pracovný zoznam; **Náhodných 200** vyberá abecedný blok nerevidovaných tvarov. Typografické delenie a hovorené slabiky sa posudzujú samostatne.
 
 ### Samostatné DE/FR/EN review
@@ -309,7 +311,7 @@ Počty cudzích korpusov nie sú presnosť ani počet ľudsky overených slov.
 
 ### Verzované verdikty dvoch modelov
 
-`tests/data/review_decisions.sqlite` ukladá každý beh dvoch modelov spolu s presnými vstupmi, z ktorých vznikol. Tabuľky `ai_rule_sets`, `ai_prompts` a `ai_schemas` obsahujú celý text pravidiel, prompt a schému odpovede pod označením verzie; `ai_models` pomenúva modely; `engine_versions` zaznamenáva verziu balíka, Git commit, príznak necommitnutých zmien a obsahový hash enginu, s ktorým sa beh porovnával. `ai_runs` spája beh so všetkými týmito údajmi a uchováva jeho komprimovaný prepis, `ai_verdicts` obsahuje jeden výsledok na tvar a `ai_model_answers` každú odpoveď modelu v každom kole. Do tabuliek sa iba pridáva: zmenený text pravidiel je nová verzia a staršie verdikty zostávajú čitateľné spolu s pravidlami, podľa ktorých vznikli. `tools/review/import_ai_run.py` odmietne beh, ktorého hashe v dávkach nesedia s textami, pod ktoré sa má zapísať.
+`tests/data/review_decisions.sqlite` (v repozitári ako `review_decisions.sqlite.xz`) ukladá každý beh dvoch modelov spolu s presnými vstupmi, z ktorých vznikol. Tabuľky `ai_rule_sets`, `ai_prompts` a `ai_schemas` obsahujú celý text pravidiel, prompt a schému odpovede pod označením verzie; `ai_models` pomenúva modely; `engine_versions` zaznamenáva verziu balíka, Git commit, príznak necommitnutých zmien a obsahový hash enginu, s ktorým sa beh porovnával. `ai_runs` spája beh so všetkými týmito údajmi a uchováva jeho komprimovaný prepis, `ai_verdicts` obsahuje jeden výsledok na tvar a `ai_model_answers` každú odpoveď modelu v každom kole. Do tabuliek sa iba pridáva: zmenený text pravidiel je nová verzia a staršie verdikty zostávajú čitateľné spolu s pravidlami, podľa ktorých vznikli. `tools/review/import_ai_run.py` odmietne beh, ktorého hashe v dávkach nesedia s textami, pod ktoré sa má zapísať.
 
 Prvý zapísaný beh `blind1000-20260930` (pravidlá r1, prompt v4, schéma s1, `claude-opus-5-5[high]` s `gpt-6.1-sol[sub][high]`) pokrýva 1 000 tvarov vybraných rovnomerne náhodne z inventára: 862 nezávislých zhôd, 26 zhôd po dohadovaní, 40 neistých, 2 nezhody a 70 neplatných odpovedí. Z 888 dohodnutých tvarov sa 860 zhoduje s výstupom enginu v čase behu a 28 sa líši. Zhoda modelov je poradná evidencia, nie verdikt podľa PSP, a nikdy neprepisuje Human rozhodnutie.
 
@@ -363,7 +365,7 @@ Databázy v archíve, všetky pod `tests/data/`:
 | súbor | veľkosť | čo to je | načo treba |
 | --- | ---: | --- | --- |
 | `translatemaster_hyphenation_working.sqlite` | 13,9 MB | inventár 206 205 tvarov, SHA-256 `6625bda4…` | regenerovanie vzorov, celokorpusové testy, review konzola |
-| `review_decisions.sqlite` | 56,4 MB | všetky ľudské rozhodnutia a verzované behy dvoch modelov | overenie tvrdení o provenancii, testy štatistík v README |
+| `review_decisions.sqlite.xz` | 13,0 MB (rozbalený 56,4 MB) | všetky ľudské rozhodnutia a verzované behy dvoch modelov | overenie tvrdení o provenancii, testy štatistík v README |
 | `blind_*/manifest.sqlite`, `blind_*/results.sqlite` | 3,9 MB | štyri zmrazené slepé audity s podpísanými manifestmi | kontroly slepých auditov, review konzola |
 
 V archíve sa dobre stlačia; wheel zostáva na 3,5 MB a databázy neobsahuje vôbec. Toto rozdelenie vynucuje `python tools/audit_release_artifacts.py --inventory src/slabika/data/composita.json <archív>`: databáza kdekoľvek mimo `tests/data/` je chyba a databáza vo wheeli je chyba vždy.

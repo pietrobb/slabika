@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
 from slabika.language import _language_key, normalize_language  # noqa: E402
+from slabika.review import packed  # noqa: E402
 
 
 def export_word_languages(database: Path, output: Path) -> dict[str, str]:
@@ -40,6 +41,7 @@ def main() -> int:
     parser.add_argument("--database", type=Path, default=ROOT / "tests/data/review_decisions.sqlite")
     parser.add_argument("--output", type=Path, default=ROOT / "src/slabika/data/word_languages.json")
     args = parser.parse_args()
+    packed.ensure_unpacked(args.database)
     labels = export_word_languages(args.database, args.output)
     print(f"Exported {len(labels)} language labels to {args.output}")
     return 0
