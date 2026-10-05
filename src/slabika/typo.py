@@ -75,7 +75,7 @@ _CHRAN_ROOT_CONTEXTS = (
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 _PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 # Adapted Slovak loans keep their local consonant reading despite foreign spelling matches.
-_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz', 'céd')
+_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz', 'céd', 'neusch', 'prisch')
 _GERMAN_ER_NAME_ENDINGS = ('ovi', 'om', 'a', 'e', 'i', 'u')
 
 # Exact pronunciation-backed points for unadapted foreign spellings. Generic
@@ -220,6 +220,89 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'teufelswand': (7,),
     'usque': (2,),  # Latin us·que (operator + AI, blind3000 2026-10-02).
     'wadeovou': (4, 5),
+    # blind3000d, operator accepted the AI division (2026-10-05).
+    'auxerre': (2,),  # Au·xerre
+    'barmčania': (4, 6),  # Barm·ča·nia
+    'bezoár': (2, 4),  # be·zo·ár
+    'bloodgoodovou': (5, 8, 10),  # Blood·goo·do·vou
+    'buckminster': (4, 7),  # Buck·min·ster
+    'concernit': (3, 6),  # con·cer·nit
+    'coolidgeovho': (3, 5, 10),  # Coo·li·dgeov·ho
+    'crestline': (5,),  # Crest·line
+    'deviate': (2, 5),  # de·via·te
+    'dirigent': (2, 4),  # di·ri·gent
+    'efrem': (2,),  # Ef·rem
+    'ennsu': (3,),  # Enn·su
+    'entièrement': (2, 7),  # en·tière·ment
+    'exstinguitur': (2, 6, 9),  # ex·stin·gui·tur
+    'extraktov': (2, 6),  # ex·trak·tov
+    'fifty': (3,),  # Fif·ty
+    'fillmore': (4,),  # Fill·more
+    'fleret': (3,),  # fle·ret
+    'floydom': (4,),  # Floy·dom
+    'galbraithom': (3, 7),  # Gal·brai·thom
+    'geigerovho': (3, 5, 8),  # Gei·ge·rov·ho
+    'geigerovmu': (3, 5, 8),  # Gei·ge·rov·mu
+    'geigerovo': (3, 5, 7),  # Gei·ge·ro·vo
+    'geigerovom': (3, 5, 7),  # Gei·ge·ro·vom
+    'geigerových': (3, 5, 7),  # Gei·ge·ro·vých
+    'geigerovými': (3, 5, 7, 9),  # Gei·ge·ro·vý·mi
+    'goldeck': (3,),  # Gol·deck
+    'guineí': (3,),  # gui·neí
+    'hardtop': (4,),  # hard·top
+    'hicksa': (4,),  # Hick·sa
+    'hooverovom': (3, 5, 7),  # Hoo·ve·ro·vom
+    'identity': (4, 6),  # iden·ti·ty
+    'influencer': (2, 5, 7),  # in·flu·en·cer
+    'kamptal': (4,),  # Kamp·tal
+    'kokteilový': (3, 6, 8),  # kok·tei·lo·vý
+    'kokteilových': (3, 6, 8),  # kok·tei·lo·vých
+    'lairda': (4,),  # Lair·da
+    'lairdovi': (4, 6),  # lair·do·vi
+    'legiend': (2,),  # le·giend
+    'leicou': (3,),  # Lei·cou
+    'leitnera': (4, 6),  # Leit·ne·ra
+    'lerchenfelderke': (3, 7, 10, 13),  # Ler·chen·fel·der·ke
+    'lerchenfeldčania': (3, 7, 11, 13),  # Ler·chen·feld·ča·nia
+    'lisztovej': (4, 6),  # Lisz·to·vej
+    'morningstarovi': (3, 7, 10, 12),  # Mor·ning·sta·ro·vi
+    'morrison': (3, 5),  # Mor·ri·son
+    'mueve': (3,),  # mue·ve
+    'nellie': (3,),  # Nel·lie
+    'nordhausenská': (4, 7, 10),  # nord·hau·sen·ská
+    'peacocku': (3, 5),  # Pea·co·cku
+    'petersburgu': (2, 6, 9),  # Pe·ters·bur·gu
+    'pischelsdorfu': (2, 8, 11),  # Pi·schels·dor·fu
+    'pittsburghu': (5, 8),  # Pitts·bur·ghu
+    'porkpie': (4,),  # pork·pie
+    'possidentes': (3, 5, 8),  # pos·si·den·tes
+    'reverend': (2, 4),  # re·ve·rend
+    'rhadamanthys': (3, 5, 8),  # Rha·da·man·thys
+    'rothschilda': (4, 9),  # Roth·schil·da
+    'salzburska': (4, 7),  # Salz·bur·ska
+    'saturnčania': (2, 6, 8),  # Sa·turn·ča·nia
+    'schöckli': (6,),  # Schöck·li
+    'senzáciachtivosti': (3, 5, 7, 8, 12, 15),  # sen·zá·ci·a·chti·vos·ti
+    'shakespearov': (5, 9),  # Shake·spea·rov
+    'stickney': (5,),  # Stick·ney
+    'suramericano': (3, 6, 8, 10),  # Sur·ame·ri·ca·no
+    'tacuisses': (2, 4, 6),  # ta·cu·is·ses
+    'teaku': (3,),  # tea·ku
+    'telegram': (2, 4),  # te·le·gram
+    'temperament': (3, 5, 7),  # tem·pe·ra·ment
+    'teurgiu': (2, 4),  # te·ur·giu
+    'teurgia': (2, 4),
+    'teurgie': (2, 4),
+    'guinea': (3,),  # Gui·nea, unchanged
+    'leitnerovi': (4, 6, 8),  # Leit·ne·ro·vi
+    'situáciach': (2, 4, 5, 7),  # si·tu·á·ci·ach
+    'thorndyke': (5,),  # Thorn·dyke
+    'transcendencií': (4, 8, 11),  # tran·scen·den·cií
+    'transcendentno': (4, 8, 12),  # tran·scen·dent·no
+    'transfer': (5,),  # trans·fer
+    'umneymu': (2, 5),  # Um·ney·mu
+    'upgrade': (2,),  # up·grade
+    'übelbachu': (4, 6),  # Übel·ba·chu
 }
 
 # Slovak case endings a reviewed foreign name takes (Domrémy·ho, Co·gna·cu,
@@ -312,6 +395,10 @@ def _points_inside_preferred_roots(word: str) -> set[int]:
         return {2}  # z- + elektr-: the root's opening e stays (blind3000b).
     for leader in ('ne', 'seba'):
         if folded.startswith(leader + 'ovlád'):
+            return {len(leader) + 2}
+    # úcty·hod·ný: the stem is úcta, as in úcta, úctou (operator 2026-10-05).
+    for leader in ('najne', 'naj', 'ne', ''):
+        if folded.startswith(leader + 'úctyhod'):
             return {len(leader) + 2}
     return set()
 
@@ -444,6 +531,7 @@ _HIATUS_FIRST_PARTS = frozenset({
     'homeo', 'speleo', 'stereo',  # operator 2026-10-03, blind2000
     'kardio', 'socio', 'embryo', 'genea',  # operator 2026-10-03, blind3000b
     'ideo', 'muzeo',  # operator 2026-10-04, blind3000c
+    'neo', 'osteo',  # operator 2026-10-05, blind3000d
 })
 
 

@@ -65,8 +65,8 @@
       "threshold": 1
     }
   ],
-  "patgen_seconds": 69.71133970003575,
-  "generated_pattern_count": 6108,
+  "patgen_seconds": 69.61057379998965,
+  "generated_pattern_count": 5893,
   "files": {
     "database": "C:\\Sources8\\slabika\\tests\\data\\translatemaster_hyphenation_working.sqlite",
     "database_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
@@ -74,21 +74,21 @@
     "training_word_source_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
     "original_patterns": "C:\\Sources8\\slabika\\tex\\hyph-sk.tex",
     "original_patterns_sha256": "7a2e3f81c80b7b7cc35ec9ea4699df9018ef352756cf3a32e9199d7cece7aba9",
-    "training_dictionary_sha256": "8cf3b3615cc26367e575b1d5c62d9a3db8e8d39c4baca6c65713044686317abb",
+    "training_dictionary_sha256": "8dfaf17d65fb19fae3cf326701e76992cf25a24e2cfe5ab8a7fec7ced5e81caf",
     "generated_patterns": "C:\\Sources8\\slabika\\patterns\\hyph-sk-slabika.tex",
-    "generated_patterns_sha256": "829b97154fec77ceed5b09d2dc7910972832c8df43c94c050471257af09031cc"
+    "generated_patterns_sha256": "99ce075a07e441fbaa837f0671f4dc2c3d1ca50195722e14e2e65528bfb096b1"
   },
   "evaluation": {
     "generated_from_current_engine": {
       "words": 40757,
-      "exact_words": 40102,
-      "exact_word_rate": 0.9839291410064529,
-      "good_points": 77118,
-      "bad_points": 355,
-      "missed_points": 458,
-      "precision": 0.9954177584448776,
-      "recall": 0.9940961121996493,
-      "f_beta_1_over_7": 0.9953912910812849,
+      "exact_words": 40179,
+      "exact_word_rate": 0.9858183870255416,
+      "good_points": 77094,
+      "bad_points": 316,
+      "missed_points": 388,
+      "precision": 0.9959178400723421,
+      "recall": 0.9949923853282052,
+      "f_beta_1_over_7": 0.9958993141065455,
       "first_30_non_exact": [
         {
           "word": "abeundi",
@@ -270,10 +270,13 @@
           ],
           "predicted": [
             2,
+            5,
             7,
             8
           ],
-          "extra": [],
+          "extra": [
+            5
+          ],
           "missing": [
             4
           ]
@@ -347,6 +350,22 @@
           ]
         },
         {
+          "word": "asledujúci",
+          "engine": [
+            2,
+            4,
+            6
+          ],
+          "predicted": [
+            4,
+            6
+          ],
+          "extra": [],
+          "missing": [
+            2
+          ]
+        },
+        {
           "word": "aspoňže",
           "engine": [
             2
@@ -373,6 +392,17 @@
             2
           ],
           "missing": []
+        },
+        {
+          "word": "atlimu",
+          "engine": [
+            2
+          ],
+          "predicted": [],
+          "extra": [],
+          "missing": [
+            2
+          ]
         },
         {
           "word": "atómček",
@@ -428,17 +458,6 @@
           ]
         },
         {
-          "word": "auxerre",
-          "engine": [],
-          "predicted": [
-            2
-          ],
-          "extra": [
-            2
-          ],
-          "missing": []
-        },
-        {
           "word": "axiomaticky",
           "engine": [
             3,
@@ -485,39 +504,28 @@
           "missing": []
         },
         {
-          "word": "beach",
-          "engine": [],
-          "predicted": [
-            2
+          "word": "bastličmi",
+          "engine": [
+            3
           ],
-          "extra": [
-            2
-          ],
-          "missing": []
-        },
-        {
-          "word": "beauce",
-          "engine": [],
-          "predicted": [
-            2
-          ],
-          "extra": [
-            2
-          ],
-          "missing": []
+          "predicted": [],
+          "extra": [],
+          "missing": [
+            3
+          ]
         }
       ]
     },
     "jana_chlebikova_1992": {
       "words": 40757,
-      "exact_words": 36661,
-      "exact_word_rate": 0.899501926049513,
-      "good_points": 74316,
-      "bad_points": 3268,
-      "missed_points": 3260,
-      "precision": 0.9578779129717467,
-      "recall": 0.9579766938228318,
-      "f_beta_1_over_7": 0.9578798883891284,
+      "exact_words": 36768,
+      "exact_word_rate": 0.9021272419461688,
+      "good_points": 74344,
+      "bad_points": 3240,
+      "missed_points": 3138,
+      "precision": 0.9582388121262115,
+      "recall": 0.959500271030691,
+      "f_beta_1_over_7": 0.9582640087979216,
       "first_30_non_exact": [
         {
           "word": "abdrushin",
@@ -1035,9 +1043,9 @@
         }
       ]
     },
-    "test_engine_points_before_tex_mins": 99574,
-    "test_target_points_after_tex_mins": 77576,
-    "engine_points_removed_by_tex_mins": 21998,
+    "test_engine_points_before_tex_mins": 99471,
+    "test_target_points_after_tex_mins": 77482,
+    "engine_points_removed_by_tex_mins": 21989,
     "original_pattern_count": 2467,
     "original_exception_count": 5
   },
@@ -1045,20 +1053,20 @@
     "trained_on": "every corpus word plus generated numerals (no held-out split)",
     "train_words": 203881,
     "train_rows": 203881,
-    "patgen_seconds": 84.8593067000038,
-    "pattern_count": 6108,
-    "holdout_model_pattern_count": 5617,
-    "holdout_model_patterns_sha256": "e00f9d770baf8bde689386566a508f7993ab1ae4be9b7e33e0fcc96f0cfa8142",
+    "patgen_seconds": 85.96883239998715,
+    "pattern_count": 5893,
+    "holdout_model_pattern_count": 5438,
+    "holdout_model_patterns_sha256": "1f3434bb4ce1a33b8b016b79b2035f4f02c6cd1701d1dcf1df212ec069acbefb",
     "corpus_fit_on_seen_words": {
       "words": 203881,
-      "exact_words": 203346,
-      "exact_word_rate": 0.9973759202672147,
-      "good_points": 390069,
-      "bad_points": 17,
-      "missed_points": 526,
-      "precision": 0.9999564198663884,
-      "recall": 0.9986533365762491,
-      "f_beta_1_over_7": 0.9999303248752653,
+      "exact_words": 203447,
+      "exact_word_rate": 0.9978713072821891,
+      "good_points": 389734,
+      "bad_points": 11,
+      "missed_points": 428,
+      "precision": 0.9999717764179142,
+      "recall": 0.9989030197712745,
+      "f_beta_1_over_7": 0.9999503788729561,
       "first_30_non_exact": [
         {
           "word": "amnestie",
@@ -1136,14 +1144,62 @@
           ]
         },
         {
-          "word": "barmčina",
+          "word": "asledujúce",
           "engine": [
-            4
+            2,
+            4,
+            6
+          ],
+          "predicted": [
+            4,
+            6
+          ],
+          "extra": [],
+          "missing": [
+            2
+          ]
+        },
+        {
+          "word": "asledujúci",
+          "engine": [
+            2,
+            4,
+            6
+          ],
+          "predicted": [
+            4,
+            6
+          ],
+          "extra": [],
+          "missing": [
+            2
+          ]
+        },
+        {
+          "word": "autoportrét",
+          "engine": [
+            2,
+            4,
+            7
+          ],
+          "predicted": [
+            4,
+            7
+          ],
+          "extra": [],
+          "missing": [
+            2
+          ]
+        },
+        {
+          "word": "baldur",
+          "engine": [
+            3
           ],
           "predicted": [],
           "extra": [],
           "missing": [
-            4
+            3
           ]
         },
         {
@@ -1247,35 +1303,63 @@
           ]
         },
         {
-          "word": "bezodnejšie",
+          "word": "bezodkladne",
           "engine": [
-            2,
-            5,
-            8
+            3,
+            5
           ],
           "predicted": [
-            5,
-            8
+            5
           ],
           "extra": [],
           "missing": [
-            2
+            3
           ]
         },
         {
-          "word": "bezodnejšími",
+          "word": "bezodkladný",
           "engine": [
-            2,
-            5,
-            8
+            3,
+            5
           ],
           "predicted": [
-            5,
-            8
+            5
           ],
           "extra": [],
           "missing": [
-            2
+            3
+          ]
+        },
+        {
+          "word": "bezodplatným",
+          "engine": [
+            3,
+            5,
+            9
+          ],
+          "predicted": [
+            5,
+            9
+          ],
+          "extra": [],
+          "missing": [
+            3
+          ]
+        },
+        {
+          "word": "bezodporový",
+          "engine": [
+            3,
+            5,
+            7
+          ],
+          "predicted": [
+            5,
+            7
+          ],
+          "extra": [],
+          "missing": [
+            3
           ]
         },
         {
@@ -1305,6 +1389,44 @@
           "missing": [
             6
           ]
+        },
+        {
+          "word": "bloodgoodovcov",
+          "engine": [
+            3,
+            5,
+            7,
+            8,
+            11
+          ],
+          "predicted": [
+            3,
+            5,
+            8,
+            11
+          ],
+          "extra": [],
+          "missing": [
+            7
+          ]
+        },
+        {
+          "word": "bloodgoodovou",
+          "engine": [
+            5,
+            8,
+            10
+          ],
+          "predicted": [
+            3,
+            5,
+            8,
+            10
+          ],
+          "extra": [
+            3
+          ],
+          "missing": []
         },
         {
           "word": "bojachtivosť",
@@ -1367,6 +1489,22 @@
           ]
         },
         {
+          "word": "borobodur",
+          "engine": [
+            2,
+            4,
+            6
+          ],
+          "predicted": [
+            2,
+            4
+          ],
+          "extra": [],
+          "missing": [
+            6
+          ]
+        },
+        {
           "word": "buckingham",
           "engine": [
             2,
@@ -1381,125 +1519,6 @@
           ],
           "missing": [
             2
-          ]
-        },
-        {
-          "word": "cenzora",
-          "engine": [
-            3
-          ],
-          "predicted": [],
-          "extra": [],
-          "missing": [
-            3
-          ]
-        },
-        {
-          "word": "cestovaniachtiví",
-          "engine": [
-            3,
-            5,
-            7,
-            10
-          ],
-          "predicted": [
-            3,
-            5,
-            7
-          ],
-          "extra": [],
-          "missing": [
-            10
-          ]
-        },
-        {
-          "word": "cestovaniachtivých",
-          "engine": [
-            3,
-            5,
-            7,
-            10,
-            14
-          ],
-          "predicted": [
-            3,
-            5,
-            7,
-            14
-          ],
-          "extra": [],
-          "missing": [
-            10
-          ]
-        },
-        {
-          "word": "chorobnosti",
-          "engine": [
-            3,
-            6
-          ],
-          "predicted": [
-            6
-          ],
-          "extra": [],
-          "missing": [
-            3
-          ]
-        },
-        {
-          "word": "cojones",
-          "engine": [
-            2,
-            4
-          ],
-          "predicted": [
-            2
-          ],
-          "extra": [],
-          "missing": [
-            4
-          ]
-        },
-        {
-          "word": "congrejos",
-          "engine": [
-            3,
-            6
-          ],
-          "predicted": [
-            3
-          ],
-          "extra": [],
-          "missing": [
-            6
-          ]
-        },
-        {
-          "word": "conjuctione",
-          "engine": [
-            3,
-            6
-          ],
-          "predicted": [
-            3
-          ],
-          "extra": [],
-          "missing": [
-            6
-          ]
-        },
-        {
-          "word": "courcellesa",
-          "engine": [
-            4,
-            7
-          ],
-          "predicted": [
-            4
-          ],
-          "extra": [],
-          "missing": [
-            7
           ]
         }
       ]
