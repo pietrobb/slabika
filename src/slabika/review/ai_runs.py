@@ -359,6 +359,21 @@ def latest_verdicts(connection, forms):
     return result
 
 
+def ai_review_queue(connection):
+    """Forms the reviewer marked "?" (uncertain) that no AI run has judged yet.
+
+    Selection scripts put these first in the next AI run; the verdict then shows
+    in the console and the Human decision stays as it was.
+    """
+    pending = [form for form, in connection.execute(
+        """SELECT form FROM decisions
+           WHERE row_action = 'uncertain' AND COALESCE(is_deleted, 0) = 0 ORDER BY form""")]
+    judged = set()
+    if _has_tables(connection):
+        judged = {form.casefold() for form, in connection.execute("SELECT form FROM ai_verdicts")}
+    return [form for form in pending if form.casefold() not in judged]
+
+
 def _final_proposals(connection, verdict):
     """Each model's last valid division when the two did not settle on one."""
     rows = connection.execute(

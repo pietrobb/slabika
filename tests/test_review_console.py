@@ -775,6 +775,20 @@ def test_ai_run_relabel_needs_a_reason_and_keeps_it(corpus, tmp_path):
         "n. Relabelled: text is newer than r1.")
 
 
+def test_uncertain_mark_queues_the_form_for_the_next_ai_run(corpus, tmp_path):
+    from slabika.review.ai_runs import ai_review_queue
+
+    corpus.decide({"form": "maslo", "action": "uncertain", "reason": "neviem"})
+    corpus.decide({"form": "okno", "action": "uncertain", "reason": "neviem"})
+    corpus.decide({"form": "Aaah", "action": "flag", "reason": "wrong"})
+    assert ai_review_queue(corpus.store) == ["maslo", "okno"]
+
+    _import(corpus, _ai_run_dir(tmp_path / "run1", ["okno"], ["ok·no"]), "run1")
+    assert ai_review_queue(corpus.store) == ["maslo"]
+    assert corpus.store.execute(
+        "SELECT row_action FROM decisions WHERE form = 'okno'").fetchone()[0] == "uncertain"
+
+
 def test_migration_and_second_output_preserve_first_output(corpus):
     migrated = corpus.store.execute(
         "SELECT * FROM decisions WHERE form = 'maslo'"

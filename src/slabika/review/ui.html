@@ -181,6 +181,7 @@ SPDX-License-Identifier: Apache-2.0 OR MIT
   <span><kbd>Esc</kbd> vráť návrh enginu</span>
   <span><kbd>↑</kbd><kbd>↓</kbd> riadok</span>
   <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd> ⚑ je to zle</span>
+  <span>? neviem → najbližšie AI review</span>
   <span><kbd>Ctrl</kbd>+<kbd>Del</kbd> zruš rozhodnutie</span>
   <span><kbd>Alt</kbd>+<kbd>Z</kbd> späť</span>
   <span><kbd>/</kbd> filter</span>
@@ -446,7 +447,7 @@ function makeRow(it, i) {
     `<div class="state"></div>` +
     `<span class="acts">` +
       `<button data-a="flag" title="je to zle (Ctrl+Enter)">⚑</button>` +
-      `<button data-a="uncertain" title="neviem">?</button>` +
+      `<button data-a="uncertain" title="neviem — pošli do najbližšieho AI review">?</button>` +
       `<button data-a="invalid" title="nie je to slovo">Nie slovo</button>` +
       `<button data-a="proper" title="označiť alebo odznačiť vlastné meno">Meno</button>` +
       `<button data-a="foreign" title="označiť alebo odznačiť cudzie slovo">Cudzie</button>` +
