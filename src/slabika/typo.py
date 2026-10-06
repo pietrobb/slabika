@@ -75,7 +75,7 @@ _CHRAN_ROOT_CONTEXTS = (
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 _PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 # Adapted Slovak loans keep their local consonant reading despite foreign spelling matches.
-_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz', 'céd', 'neusch', 'prisch')
+_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz', 'céd', 'neusch', 'prisch', 'energ')
 _GERMAN_ER_NAME_ENDINGS = ('ovi', 'om', 'a', 'e', 'i', 'u')
 
 # Exact pronunciation-backed points for unadapted foreign spellings. Generic
@@ -303,6 +303,56 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'umneymu': (2, 5),  # Um·ney·mu
     'upgrade': (2,),  # up·grade
     'übelbachu': (4, 6),  # Übel·ba·chu
+    # blind3000e, operator accepted the AI division (2026-10-06).
+    'algebra': (2, 5),  # al·geb·ra
+    'metre': (3,),  # met·re
+    'kilometre': (2, 4, 7),  # ki·lo·met·re
+    'rifle': (3,),  # rif·le
+    'prizmatické': (4, 6, 9),  # priz·ma·tic·ké
+    'prizmatickú': (4, 6, 9),  # priz·ma·tic·kú
+    'seanse': (2, 4),  # se·an·se
+    'ambroise': (3,),  # Amb·roise
+    'ampoule': (2,),  # Am·poule
+    'barmčanom': (4, 6),  # Barm·ča·nom
+    'cochrane': (4,),  # Coch·rane
+    'cookoch': (3,),  # Coo·koch
+    'cooneyho': (3, 6),  # Coo·ney·ho
+    'edrei': (2,),  # Ed·rei
+    'fitzgeralda': (4, 6, 9),  # Fitz·ge·ral·da
+    'frankfurtu': (5, 8),  # Frank·fur·tu
+    'galbraitha': (3, 7),  # Gal·brai·tha
+    'galbraithovi': (3, 7, 10),  # Gal·brai·tho·vi
+    'glocknera': (5, 7),  # Glock·ne·ra
+    'hastingsovú': (3, 7, 9),  # Has·ting·so·vú
+    'highland': (4,),  # High·land
+    'hoovera': (3, 5),  # Hoo·ve·ra
+    'innsbrucku': (4, 7),  # Inns·bru·cku
+    'kingsleyho': (4, 8),  # King·sley·ho
+    'lexingtonom': (2, 6, 8),  # Le·xing·to·nom
+    'liszta': (4,),  # Lisz·ta
+    'livingstone': (2, 6),  # Li·ving·stone
+    'lymingtonovej': (2, 6, 8, 10),  # Ly·ming·to·no·vej
+    'morningstarom': (3, 7, 10),  # Mor·ning·sta·rom
+    'nathalie': (2, 5),  # Na·tha·lie
+    'oceanside': (5,),  # Ocean·side
+    'salzburgu': (4, 7),  # Salz·bur·gu
+    'saturnčanmi': (2, 6, 9),  # Sa·turn·čan·mi
+    'saturnčanov': (2, 6, 8),  # Sa·turn·ča·nov
+    'seinu': (3,),  # Sei·nu
+    'shakespeara': (5, 9),  # Shake·spea·ra
+    'telegraph': (2, 4),  # Te·le·graph
+    'terstčanmi': (5, 8),  # Terst·čan·mi
+    'yorkshiru': (4, 7),  # York·shi·ru
+    'autre': (),  # autre
+    'cavalièrement': (2, 4, 9),  # ca·va·lière·ment
+    'jüngste': (4,),  # jüng·ste
+    'réunion': (2,),  # ré·union
+    'translation': (5, 7),  # trans·la·tion
+    'transoch': (4,),  # tran·soch
+    'veľaty': (2, 4),  # Ve·ľa·ty
+    'shakespeare': (5,),  # Shake·speare, unchanged
+    'glocknerovo': (5, 7, 9),  # Glock·ne·ro·vo
+    'veľopolie': (2, 4, 6),  # Ve·ľo·po·lie
 }
 
 # Slovak case endings a reviewed foreign name takes (Domrémy·ho, Co·gna·cu,
@@ -371,8 +421,6 @@ def _preferred_internal_vowel_points(word: str) -> set[int]:
         return {1}
     if folded.startswith('neupotrebiteľn'):
         return {3}
-    if folded.startswith('zneucten'):
-        return {4}
     if folded.startswith('dvojokamih'):
         return {5}
     if folded.startswith('kvartsextakord'):

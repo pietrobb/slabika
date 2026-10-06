@@ -65,8 +65,8 @@
       "threshold": 1
     }
   ],
-  "patgen_seconds": 69.6106794999796,
-  "generated_pattern_count": 5520,
+  "patgen_seconds": 68.81270710000535,
+  "generated_pattern_count": 5481,
   "files": {
     "database": "C:\\Sources8\\slabika\\tests\\data\\translatemaster_hyphenation_working.sqlite",
     "database_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
@@ -74,21 +74,21 @@
     "training_word_source_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
     "original_patterns": "C:\\Sources8\\slabika\\tex\\hyph-sk.tex",
     "original_patterns_sha256": "7a2e3f81c80b7b7cc35ec9ea4699df9018ef352756cf3a32e9199d7cece7aba9",
-    "training_dictionary_sha256": "07b3b9f9eedee884ddcb30ee623fcd249376561a538bcae2a57f3c15bcfac906",
+    "training_dictionary_sha256": "da634c2195ac4f1f13b0d46d541f9c755f5913ff3fa0bc757f3cee8c9a8b56e8",
     "generated_patterns": "C:\\Sources8\\slabika\\patterns\\hyph-sk-slabika-permissive.tex",
-    "generated_patterns_sha256": "1b6689e14b52192e2ad79124f6ce8d31351dcb5ba665b10893157e86c2d016b2"
+    "generated_patterns_sha256": "14ee01e014c3619912854791389a4aed138479d219a882233ec0cdaa30b49c82"
   },
   "evaluation": {
     "generated_from_current_engine": {
       "words": 40757,
-      "exact_words": 40240,
-      "exact_word_rate": 0.9873150624432613,
-      "good_points": 78037,
-      "bad_points": 298,
-      "missed_points": 335,
-      "precision": 0.9961958256207315,
-      "recall": 0.9957255142142601,
-      "f_beta_1_over_7": 0.996186415038653,
+      "exact_words": 40241,
+      "exact_word_rate": 0.9873395981058468,
+      "good_points": 78028,
+      "bad_points": 295,
+      "missed_points": 334,
+      "precision": 0.9962335457017735,
+      "recall": 0.9957377300222047,
+      "f_beta_1_over_7": 0.9962236245492749,
       "first_30_non_exact": [
         {
           "word": "abeundi",
@@ -205,6 +205,21 @@
           "extra": [],
           "missing": [
             4
+          ]
+        },
+        {
+          "word": "ambroise",
+          "engine": [
+            3
+          ],
+          "predicted": [
+            2
+          ],
+          "extra": [
+            2
+          ],
+          "missing": [
+            3
           ]
         },
         {
@@ -389,20 +404,6 @@
           ]
         },
         {
-          "word": "atómček",
-          "engine": [
-            4
-          ],
-          "predicted": [
-            3,
-            4
-          ],
-          "extra": [
-            3
-          ],
-          "missing": []
-        },
-        {
           "word": "aucklandskom",
           "engine": [
             4,
@@ -526,14 +527,14 @@
     },
     "jana_chlebikova_1992": {
       "words": 40757,
-      "exact_words": 36466,
-      "exact_word_rate": 0.8947174718453271,
-      "good_points": 74663,
-      "bad_points": 2921,
-      "missed_points": 3709,
-      "precision": 0.9623504846360075,
-      "recall": 0.9526744245393763,
-      "f_beta_1_over_7": 0.9621550375928998,
+      "exact_words": 36502,
+      "exact_word_rate": 0.8956007556984076,
+      "good_points": 74689,
+      "bad_points": 2895,
+      "missed_points": 3673,
+      "precision": 0.962685605279439,
+      "recall": 0.9531277915316098,
+      "f_beta_1_over_7": 0.9624925708341646,
       "first_30_non_exact": [
         {
           "word": "abdrushin",
@@ -1051,9 +1052,9 @@
         }
       ]
     },
-    "test_engine_points_before_tex_mins": 103610,
-    "test_target_points_after_tex_mins": 78372,
-    "engine_points_removed_by_tex_mins": 25238,
+    "test_engine_points_before_tex_mins": 103611,
+    "test_target_points_after_tex_mins": 78362,
+    "engine_points_removed_by_tex_mins": 25249,
     "original_pattern_count": 2467,
     "original_exception_count": 5
   },
@@ -1061,21 +1062,37 @@
     "trained_on": "every corpus word plus generated numerals (no held-out split)",
     "train_words": 203881,
     "train_rows": 203881,
-    "patgen_seconds": 85.97393119998742,
-    "pattern_count": 5520,
-    "holdout_model_pattern_count": 5130,
-    "holdout_model_patterns_sha256": "cc5ab3d5d26bd3c96b1d4e0d4d4fe0c528b6f6b1817d00685f7414bdabb8be92",
+    "patgen_seconds": 89.39818080002442,
+    "pattern_count": 5481,
+    "holdout_model_pattern_count": 5096,
+    "holdout_model_patterns_sha256": "f9bd7196f7e3511cc9b6af1575ab25e0d30477a6fe0dde22518b73e7ba513e3b",
     "corpus_fit_on_seen_words": {
       "words": 203881,
-      "exact_words": 203523,
-      "exact_word_rate": 0.9982440737489026,
-      "good_points": 394480,
+      "exact_words": 203541,
+      "exact_word_rate": 0.9983323605436505,
+      "good_points": 394400,
       "bad_points": 21,
-      "missed_points": 342,
-      "precision": 0.9999467681957713,
-      "recall": 0.9991337868710457,
-      "f_beta_1_over_7": 0.9999304956038597,
+      "missed_points": 324,
+      "precision": 0.99994675739882,
+      "recall": 0.9991791732957712,
+      "f_beta_1_over_7": 0.9999313941594169,
       "first_30_non_exact": [
+        {
+          "word": "aleidisová",
+          "engine": [
+            3,
+            4,
+            6
+          ],
+          "predicted": [
+            3,
+            4
+          ],
+          "extra": [],
+          "missing": [
+            6
+          ]
+        },
         {
           "word": "amnestie",
           "engine": [
@@ -1107,6 +1124,20 @@
             3
           ],
           "predicted": [],
+          "extra": [],
+          "missing": [
+            3
+          ]
+        },
+        {
+          "word": "barmčanov",
+          "engine": [
+            3,
+            6
+          ],
+          "predicted": [
+            6
+          ],
           "extra": [],
           "missing": [
             3
@@ -1487,20 +1518,6 @@
           ]
         },
         {
-          "word": "conjuctione",
-          "engine": [
-            3,
-            6
-          ],
-          "predicted": [
-            3
-          ],
-          "extra": [],
-          "missing": [
-            6
-          ]
-        },
-        {
           "word": "courcellesa",
           "engine": [
             4,
@@ -1512,20 +1529,6 @@
           "extra": [],
           "missing": [
             7
-          ]
-        },
-        {
-          "word": "cyperské",
-          "engine": [
-            2,
-            5
-          ],
-          "predicted": [
-            5
-          ],
-          "extra": [],
-          "missing": [
-            2
           ]
         }
       ]

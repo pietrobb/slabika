@@ -65,8 +65,8 @@
       "threshold": 1
     }
   ],
-  "patgen_seconds": 69.61057379998965,
-  "generated_pattern_count": 5893,
+  "patgen_seconds": 68.82147279998753,
+  "generated_pattern_count": 5850,
   "files": {
     "database": "C:\\Sources8\\slabika\\tests\\data\\translatemaster_hyphenation_working.sqlite",
     "database_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
@@ -74,21 +74,21 @@
     "training_word_source_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
     "original_patterns": "C:\\Sources8\\slabika\\tex\\hyph-sk.tex",
     "original_patterns_sha256": "7a2e3f81c80b7b7cc35ec9ea4699df9018ef352756cf3a32e9199d7cece7aba9",
-    "training_dictionary_sha256": "8dfaf17d65fb19fae3cf326701e76992cf25a24e2cfe5ab8a7fec7ced5e81caf",
+    "training_dictionary_sha256": "c9cafcee82f600264ece1f77eccb96d6d77810e6acbdbfbff45f66a687ccacf5",
     "generated_patterns": "C:\\Sources8\\slabika\\patterns\\hyph-sk-slabika.tex",
-    "generated_patterns_sha256": "99ce075a07e441fbaa837f0671f4dc2c3d1ca50195722e14e2e65528bfb096b1"
+    "generated_patterns_sha256": "82e76992369d054ab70fe35a04f3aca5b37a449c947308c08afb1f3a55170576"
   },
   "evaluation": {
     "generated_from_current_engine": {
       "words": 40757,
-      "exact_words": 40179,
-      "exact_word_rate": 0.9858183870255416,
-      "good_points": 77094,
-      "bad_points": 316,
-      "missed_points": 388,
-      "precision": 0.9959178400723421,
-      "recall": 0.9949923853282052,
-      "f_beta_1_over_7": 0.9958993141065455,
+      "exact_words": 40189,
+      "exact_word_rate": 0.9860637436513973,
+      "good_points": 77061,
+      "bad_points": 312,
+      "missed_points": 380,
+      "precision": 0.9959675855918732,
+      "recall": 0.9950930385712995,
+      "f_beta_1_over_7": 0.9959500795870881,
       "first_30_non_exact": [
         {
           "word": "abeundi",
@@ -208,6 +208,21 @@
           ]
         },
         {
+          "word": "ambroise",
+          "engine": [
+            3
+          ],
+          "predicted": [
+            2
+          ],
+          "extra": [
+            2
+          ],
+          "missing": [
+            3
+          ]
+        },
+        {
           "word": "amnestie",
           "engine": [
             2,
@@ -265,8 +280,7 @@
           "engine": [
             2,
             4,
-            7,
-            8
+            7
           ],
           "predicted": [
             2,
@@ -275,7 +289,8 @@
             8
           ],
           "extra": [
-            5
+            5,
+            8
           ],
           "missing": [
             4
@@ -405,20 +420,6 @@
           ]
         },
         {
-          "word": "atómček",
-          "engine": [
-            4
-          ],
-          "predicted": [
-            3,
-            4
-          ],
-          "extra": [
-            3
-          ],
-          "missing": []
-        },
-        {
           "word": "aucklandskom",
           "engine": [
             4,
@@ -518,14 +519,14 @@
     },
     "jana_chlebikova_1992": {
       "words": 40757,
-      "exact_words": 36768,
-      "exact_word_rate": 0.9021272419461688,
-      "good_points": 74344,
-      "bad_points": 3240,
-      "missed_points": 3138,
-      "precision": 0.9582388121262115,
-      "recall": 0.959500271030691,
-      "f_beta_1_over_7": 0.9582640087979216,
+      "exact_words": 36830,
+      "exact_word_rate": 0.903648453026474,
+      "good_points": 74369,
+      "bad_points": 3215,
+      "missed_points": 3072,
+      "precision": 0.9585610435141266,
+      "recall": 0.9603310907658734,
+      "f_beta_1_over_7": 0.9585963805120677,
       "first_30_non_exact": [
         {
           "word": "abdrushin",
@@ -1043,9 +1044,9 @@
         }
       ]
     },
-    "test_engine_points_before_tex_mins": 99471,
-    "test_target_points_after_tex_mins": 77482,
-    "engine_points_removed_by_tex_mins": 21989,
+    "test_engine_points_before_tex_mins": 99427,
+    "test_target_points_after_tex_mins": 77441,
+    "engine_points_removed_by_tex_mins": 21986,
     "original_pattern_count": 2467,
     "original_exception_count": 5
   },
@@ -1053,20 +1054,20 @@
     "trained_on": "every corpus word plus generated numerals (no held-out split)",
     "train_words": 203881,
     "train_rows": 203881,
-    "patgen_seconds": 85.96883239998715,
-    "pattern_count": 5893,
-    "holdout_model_pattern_count": 5438,
-    "holdout_model_patterns_sha256": "1f3434bb4ce1a33b8b016b79b2035f4f02c6cd1701d1dcf1df212ec069acbefb",
+    "patgen_seconds": 89.4892692999565,
+    "pattern_count": 5850,
+    "holdout_model_pattern_count": 5384,
+    "holdout_model_patterns_sha256": "c0f02bc104c9aee22dd8d0a18642f86e691d7c1e2aa961bdbfa92d60dfb03573",
     "corpus_fit_on_seen_words": {
       "words": 203881,
-      "exact_words": 203447,
-      "exact_word_rate": 0.9978713072821891,
-      "good_points": 389734,
+      "exact_words": 203428,
+      "exact_word_rate": 0.9977781156655108,
+      "good_points": 389494,
       "bad_points": 11,
-      "missed_points": 428,
-      "precision": 0.9999717764179142,
-      "recall": 0.9989030197712745,
-      "f_beta_1_over_7": 0.9999503788729561,
+      "missed_points": 449,
+      "precision": 0.9999717590274836,
+      "recall": 0.9988485496598221,
+      "f_beta_1_over_7": 0.9999492700848361,
       "first_30_non_exact": [
         {
           "word": "amnestie",
@@ -1176,27 +1177,25 @@
           ]
         },
         {
-          "word": "autoportrét",
-          "engine": [
-            2,
-            4,
-            7
-          ],
-          "predicted": [
-            4,
-            7
-          ],
-          "extra": [],
-          "missing": [
-            2
-          ]
-        },
-        {
           "word": "baldur",
           "engine": [
             3
           ],
           "predicted": [],
+          "extra": [],
+          "missing": [
+            3
+          ]
+        },
+        {
+          "word": "barmčanov",
+          "engine": [
+            3,
+            6
+          ],
+          "predicted": [
+            6
+          ],
           "extra": [],
           "missing": [
             3

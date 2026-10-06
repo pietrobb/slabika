@@ -156,8 +156,10 @@ def test_a_lexicalized_prefix_forms_no_boundary(word, expected):
     assert get_syllables(word) == expected
 
 
-def test_dostoj_family_preserves_the_prefix_boundary():
-    expected = {
+def test_dostoj_family_divides_after_s_and_keeps_the_syllables():
+    # The operator chose ne·dôs·toj·nom (blind3000e, 2026-10-06), so the whole
+    # family divides dôs·toj; the syllable layer still reads dô·stoj.
+    syllables = {
         "dôstoj": "dô·stoj",
         "dôstojný": "dô·stoj·ný",
         "dôstojnosť": "dô·stoj·nosť",
@@ -167,10 +169,11 @@ def test_dostoj_family_preserves_the_prefix_boundary():
         "najdôstojnejší": "naj·dô·stoj·nej·ší",
         "poddôstojník": "pod·dô·stoj·ník",
     }
+    expected = {word: s.replace("dô·stoj", "dôs·toj") for word, s in syllables.items()}
     assert {word: hyphenate(word) for word in expected} == expected
     assert {
-        word: "·".join(get_syllables(word)) for word in expected
-    } == expected
+        word: "·".join(get_syllables(word)) for word in syllables
+    } == syllables
 
 
 def test_obozretny_family_prefers_obo_boundary_and_keeps_o_bo_alternative():
