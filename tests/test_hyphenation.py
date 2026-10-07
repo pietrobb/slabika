@@ -7853,3 +7853,27 @@ def test_blind3000e_engine_divisions_the_operator_kept_2026_10_06():
         "štyridsiatyštvrtý": "šty·rid·sia·tyš·tvr·tý",
     }
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+# blind3000e open words, operator 2026-10-06. antikvára, teorému and propria
+# were left to the assistant and stay consistent with the blind3000d decisions.
+def test_blind3000e_open_words_2026_10_06():
+    expected = {
+        "antikvára": "an·ti·kvá·ra",
+        "antikvároch": "an·ti·kvá·roch",
+        "teorému": "teo·ré·mu",
+        "teorémy": "teo·ré·my",
+        "propria": "pro·pria",
+        "proprium": "pro·pri·um",
+        "zanešvári": "za·ne·švá·ri",
+        "znežnieť": "znež·nieť",
+        "napospas": "na·po·spas",
+        "kreuje": "kre·u·je",
+        "kreujú": "kre·u·jú",
+        "lamely": "la·me·ly",
+        "lamela": "la·me·la",
+        "niktošoch": "nik·to·šoch",
+        "niktoš": "nik·toš",
+        "nezanedbávate": "ne·za·ne·dbá·va·te",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected

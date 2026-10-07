@@ -302,6 +302,8 @@ _PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
     ('násťroč', (4,)),       # násť·roč·né·ho
     ('patnásťsekund', (3, 4)),  # pat·násť·se·kun·do·vej
     ('čochvíľ', (2,)),       # čo·chví·ľa
+    ('znežn', (4,)),         # znež·nieť (operator 2026-10-06)
+    ('niktoš', (3,)),        # nik·to·šoch (operator 2026-10-06)
     # The operator chose upo·doz·rie·vať and the AI naj·po·doz·ri·vej·ším:
     # the whole podozr- family divides doz·r.
     ('podozr', (2, 3)),
@@ -2590,7 +2592,7 @@ _LATIN_HIATUS_TAILS = ('eum', 'eus')
 
 # These lexical families pronounce e-u as two syllables, unlike the otherwise
 # reliable eu nucleus in learned loans.
-_LEXICAL_FALLING_HIATUS = (('abeund', 2), ('aleut', 2))
+_LEXICAL_FALLING_HIATUS = (('abeund', 2), ('aleut', 2), ('kreuj', 2))  # kre·u·je: operator 2026-10-06
 # fiala/fialka/fialový: operator 2026-10-01, read fi-ja-, hence fi·a·lo·vá.
 _LEXICAL_RISING_HIATUS = (
     ('triumf', 'iu'), ('ctiutŕh', 'iu'), ('fial', 'ia'),
