@@ -81,7 +81,7 @@
       "threshold": 1
     }
   ],
-  "patgen_seconds": 149.56811170000583,
+  "patgen_seconds": 147.52343249996193,
   "generated_pattern_count": 5502,
   "files": {
     "database": "C:\\Sources8\\slabika\\tests\\data\\translatemaster_hyphenation_working.sqlite",
@@ -90,21 +90,21 @@
     "training_word_source_sha256": "1b9d02b48234e1bda3183b3b7ad14884af4c4e2c4cc894bb95d459b13d236077",
     "original_patterns": "C:\\Sources8\\slabika\\tex\\hyph-sk.tex",
     "original_patterns_sha256": "7a2e3f81c80b7b7cc35ec9ea4699df9018ef352756cf3a32e9199d7cece7aba9",
-    "training_dictionary_sha256": "c093f7371998a95615e8b98e527bcbb99531a2cd78bedcb4270d7933a6d21e8c",
+    "training_dictionary_sha256": "2057f8baa8e9f23527a550089d317b4d47f81b5e37f03ca40c880c69306bae96",
     "generated_patterns": "C:\\Sources8\\slabika\\patterns\\hyph-sk-slabika-permissive.tex",
-    "generated_patterns_sha256": "387dd7e32303df8a55abf81dd7ba809024ea4d65f8bf4b95473bf663b5b03af3"
+    "generated_patterns_sha256": "32c223a4e3d222e7190a5814cc4fdcdd59bab2b8e2a9dbfe6dd2d21c37199e10"
   },
   "evaluation": {
     "generated_from_current_engine": {
       "words": 40758,
       "exact_words": 40283,
       "exact_word_rate": 0.9883458462142402,
-      "good_points": 78067,
+      "good_points": 78068,
       "bad_points": 296,
       "missed_points": 288,
-      "precision": 0.9962227071449536,
-      "recall": 0.9963244209048561,
-      "f_beta_1_over_7": 0.9962247412166277,
+      "precision": 0.9962227553468429,
+      "recall": 0.9963244678135689,
+      "f_beta_1_over_7": 0.9962247893926586,
       "first_30_non_exact": [
         {
           "word": "abeundi",
@@ -548,14 +548,14 @@
     },
     "jana_chlebikova_1992": {
       "words": 40758,
-      "exact_words": 36523,
-      "exact_word_rate": 0.8960940183522254,
+      "exact_words": 36522,
+      "exact_word_rate": 0.8960694832916237,
       "good_points": 74700,
       "bad_points": 2887,
-      "missed_points": 3655,
+      "missed_points": 3656,
       "precision": 0.9627901581450501,
-      "recall": 0.9533533278029481,
-      "f_beta_1_over_7": 0.9625995910433651,
+      "recall": 0.9533411608555822,
+      "f_beta_1_over_7": 0.9625993429582961,
       "first_30_non_exact": [
         {
           "word": "abdrushin",
@@ -1073,8 +1073,8 @@
         }
       ]
     },
-    "test_engine_points_before_tex_mins": 103614,
-    "test_target_points_after_tex_mins": 78355,
+    "test_engine_points_before_tex_mins": 103615,
+    "test_target_points_after_tex_mins": 78356,
     "engine_points_removed_by_tex_mins": 25259,
     "original_pattern_count": 2467,
     "original_exception_count": 5
@@ -1083,21 +1083,21 @@
     "trained_on": "every corpus word plus generated numerals (no held-out split)",
     "train_words": 203879,
     "train_rows": 203879,
-    "patgen_seconds": 193.4766690999968,
+    "patgen_seconds": 180.8983854999533,
     "pattern_count": 5502,
     "holdout_model_pattern_count": 5077,
-    "holdout_model_patterns_sha256": "b61c4e92c636f29346875d998b0b7f25d04d4934429e2d2d6dd82334731fea42",
+    "holdout_model_patterns_sha256": "b4d147851feb5135b3471676adff288ec7b21b8c98cc288629505996fe7bc073",
     "exception_count": 6,
     "corpus_fit_patterns_only": {
       "words": 203879,
       "exact_words": 203873,
       "exact_word_rate": 0.9999705707797272,
-      "good_points": 394690,
+      "good_points": 394695,
       "bad_points": 4,
       "missed_points": 2,
-      "precision": 0.9999898655667429,
-      "recall": 0.9999949327576946,
-      "f_beta_1_over_7": 0.9999899669100587,
+      "precision": 0.9999898656951246,
+      "recall": 0.9999949328218861,
+      "f_beta_1_over_7": 0.9999899670371567,
       "first_30_non_exact": [
         {
           "word": "bloodgoodovou",
@@ -1217,7 +1217,7 @@
       "words": 203879,
       "exact_words": 203879,
       "exact_word_rate": 1.0,
-      "good_points": 394692,
+      "good_points": 394697,
       "bad_points": 0,
       "missed_points": 0,
       "precision": 1.0,

@@ -980,12 +980,12 @@ _DLO_PARADIGM_STEMS = frozenset({
     'páči', 'napája', 'pája', 'stúpa',
     'diva', 'kadi', 'prá',  # di·va·dla·mi, ka·di·dlu, prá·dlu (blind3000c, operator 2026-10-04)
     'tlači', 'dúcha',  # tla·či·dla (Human corrections), dú·cha·dlo (Human)
+    'leža',  # le·ža·dla like le·ža·dlo (operator 2026-10-08)
 })
 # -dlo nouns prefer the syllabic d·l in the whole paradigm (lie·tad·lo,
 # zr·kad·lo like zr·kad·la; operator 2026-10-08) except these families, which
-# the operator or Human review divided ·dl. ležadlo keeps its Human-confirmed
-# le·ža·dlo beside le·žad·la.
-_MORPHEMIC_DLO_STEMS = (_DLO_PARADIGM_STEMS - {'páči'}) | {'seda', 'vodi', 'leža'}
+# the operator or Human review divided ·dl.
+_MORPHEMIC_DLO_STEMS = (_DLO_PARADIGM_STEMS - {'páči'}) | {'seda', 'vodi'}
 _DLO_PAST_PREFIXES = frozenset({'', 'do', 'na', 'nado', 'od', 'o', 'po', 'pre', 'pri', 'roz', 's', 'u', 'v', 'vy', 'vz', 'z', 'za'})
 _D_FINAL_PAST_ROOTS = ('bud', 'hlad', 'hliad', 'hod', 'krad', 'klád', 'pad', 'priad', 'tvrd', 'vlád')  # opriad·lo (blind3000e), na·klád·lo (blind4000f), ne·roz·hod·lo (operator 2026-10-08)
 _D_FINAL_PAST_STEMS = frozenset({'zjed'})

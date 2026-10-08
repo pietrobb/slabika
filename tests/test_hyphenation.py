@@ -5147,6 +5147,7 @@ def test_dlo_nouns_split_alike_through_the_whole_paradigm():
         "divadlo": "di·va·dlo", "divadlami": "di·va·dla·mi",
         "sedadlo": "se·da·dlo", "sedadlá": "se·da·dlá",
         "vodidlo": "vo·di·dlo", "vodidlom": "vo·di·dlom",
+        "ležadlo": "le·ža·dlo", "ležadla": "le·ža·dla", "ležadlami": "le·ža·dla·mi",
         "stvrdlo": "stvrd·lo", "zatvrdlo": "za·tvrd·lo",
     }
     assert {word: hyphenate(word) for word in syllabic} == syllabic

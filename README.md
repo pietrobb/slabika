@@ -57,7 +57,7 @@ One measurement shows the size of those limits:
 
 | evidence | current project | Chlebíková 1992 | what it establishes |
 | --- | ---: | ---: | --- |
-| exact held-out words against the preferred engine target, TeX minima 2/3 | **98.7610%** | **90.4657%** | reproducibility of the engine, not PSP correctness |
+| exact held-out words against the preferred engine target, TeX minima 2/3 | **98.7610%** | **90.4632%** | reproducibility of the engine, not PSP correctness |
 
 A common source of difference is **recognized morphological structure**: a prefix plus base, the members of a compound, or a base plus a derivational or grammatical suffix. A letter-pattern table sees recurring character fragments but does not retain that analysis. The following are 21 verified morphological examples, not cases declared wrong merely because the outputs differ. `·` marks an available line break. The 1992 column applies the TeX left/right minima 2/3; the current-engine column is the literal result of `hyphenate(word)`, whose API does not apply those TeX edge minima.
 
@@ -359,9 +359,9 @@ Both files were **regenerated on 2026-10-08 from the engine that includes the op
 | generalization: split model on held-out words (2026-10-08) | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
 | slabika preferred, 5,398 patterns | 98.7610% (40,253/40,758) | 99.5931% | 99.5983% |
-| Chlebíková 1992 against preferred target | 90.4657% | 95.8679% | 96.0846% |
+| Chlebíková 1992 against preferred target | 90.4632% | 95.8679% | 96.0833% |
 | slabika permissive, 5,077 patterns | 98.8346% (40,283/40,758) | 99.6223% | 99.6324% |
-| Chlebíková 1992 against permissive target | 89.6094% | 96.2790% | 95.3353% |
+| Chlebíková 1992 against permissive target | 89.6069% | 96.2790% | 95.3341% |
 
 | published files: trained on every word, measured on every word | exact whole words, patterns alone | wrong points | missed points | with the `\hyphenation` list |
 | --- | ---: | ---: | ---: | ---: |
@@ -370,8 +370,8 @@ Both files were **regenerated on 2026-10-08 from the engine that includes the op
 
 The first table estimates behaviour on words outside the inventory; the second only shows how closely the released files reproduce the words they were trained on. Both sides used TeX 2/3 minima. This measures **fidelity to the engine at generation time**, not independent PSP correctness or current adapter accuracy. Published SHA-256 values are:
 
-- `patterns/hyph-sk-slabika.tex`: `cbf1d2c9482daff8810faf45e974f366f5f839f011cf997fc7a315345e735d93`;
-- `patterns/hyph-sk-slabika-permissive.tex`: `387dd7e32303df8a55abf81dd7ba809024ea4d65f8bf4b95473bf663b5b03af3`.
+- `patterns/hyph-sk-slabika.tex`: `b5d808dd9c9876d573389ccf5fde0eb37805adb530577192a405110743ada7f6`;
+- `patterns/hyph-sk-slabika-permissive.tex`: `32c223a4e3d222e7190a5814cc4fdcdd59bab2b8e2a9dbfe6dd2d21c37199e10`.
 
 Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record the release run's full evaluation. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
 
