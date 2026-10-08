@@ -75,7 +75,7 @@ _CHRAN_ROOT_CONTEXTS = (
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 _PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 # Adapted Slovak loans keep their local consonant reading despite foreign spelling matches.
-_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz', 'céd', 'neusch', 'prisch', 'energ', 'lamel')
+_SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz', 'céd', 'neusch', 'prisch', 'energ', 'lamel', 'legend')
 _GERMAN_ER_NAME_ENDINGS = ('ovi', 'om', 'a', 'e', 'i', 'u')
 
 # Exact pronunciation-backed points for unadapted foreign spellings. Generic
@@ -353,6 +353,16 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'shakespeare': (5,),  # Shake·speare, unchanged
     'glocknerovo': (5, 7, 9),  # Glock·ne·ro·vo
     'veľopolie': (2, 4, 6),  # Ve·ľo·po·lie
+    # blind4000f, operator accepted the AI division (2026-10-08).
+    'barmčan': (4,),  # Barm·čan
+    'barmčanov': (4, 6),  # Barm·ča·nov
+    'saturnčan': (2, 6),  # Sa·turn·čan
+    'frankfurt': (5,),  # Frank·furt
+    'pittsburgh': (5,),  # Pitts·burgh
+    'pravno': (4,),  # Prav·no
+    'dobroč': (3,),  # Dob·roč like dob·ro·či·ne·nie
+    'highball': (4,),  # high·ball
+    'jerseyských': (3, 6),  # jer·sey·ských
 }
 
 # Slovak case endings a reviewed foreign name takes (Domrémy·ho, Co·gna·cu,
@@ -792,6 +802,17 @@ def _collect_points(word: str, language: str | None = None) -> tuple[set[int], s
             variants.add(seam - 1)
         elif left.casefold().endswith('jednot') and right.casefold().startswith('liv'):
             variants.add(seam - 1)  # jednot|livý preferred, jedno|tlivý kept
+        elif (
+            is_vowel(left[-1])
+            and left.casefold() not in _PREFIXES
+            and right.casefold().startswith('čk')
+        ):
+            # A vowel-final base before -čka is a section 3.5 doublet. The
+            # operator prefers the syllabic point (hrač|ka, tancovač|ky) and
+            # keeps the suffix point (hra|čka) as the variant (blind4000f, 2026-10-08).
+            points.discard(seam)
+            points.add(seam + 1)
+            variants.add(seam)
         elif _variant_crosses_seam(left, right):
             alternatives = [
                 point for point in raw_points

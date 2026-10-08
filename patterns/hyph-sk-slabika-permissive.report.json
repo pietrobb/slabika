@@ -65,8 +65,8 @@
       "threshold": 1
     }
   ],
-  "patgen_seconds": 68.81270710000535,
-  "generated_pattern_count": 5481,
+  "patgen_seconds": 68.63361779996194,
+  "generated_pattern_count": 5388,
   "files": {
     "database": "C:\\Sources8\\slabika\\tests\\data\\translatemaster_hyphenation_working.sqlite",
     "database_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
@@ -74,21 +74,21 @@
     "training_word_source_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
     "original_patterns": "C:\\Sources8\\slabika\\tex\\hyph-sk.tex",
     "original_patterns_sha256": "7a2e3f81c80b7b7cc35ec9ea4699df9018ef352756cf3a32e9199d7cece7aba9",
-    "training_dictionary_sha256": "da634c2195ac4f1f13b0d46d541f9c755f5913ff3fa0bc757f3cee8c9a8b56e8",
+    "training_dictionary_sha256": "abae849290e196c815febadc599a9c7d9beef1f728f1a87fc018b7e4a68b86b8",
     "generated_patterns": "C:\\Sources8\\slabika\\patterns\\hyph-sk-slabika-permissive.tex",
-    "generated_patterns_sha256": "14ee01e014c3619912854791389a4aed138479d219a882233ec0cdaa30b49c82"
+    "generated_patterns_sha256": "fe2c863e2eb50adad06eaa32ee4e485839ac6208799569ef39c3417028630555"
   },
   "evaluation": {
     "generated_from_current_engine": {
       "words": 40757,
-      "exact_words": 40241,
-      "exact_word_rate": 0.9873395981058468,
-      "good_points": 78028,
-      "bad_points": 295,
-      "missed_points": 334,
-      "precision": 0.9962335457017735,
-      "recall": 0.9957377300222047,
-      "f_beta_1_over_7": 0.9962236245492749,
+      "exact_words": 40244,
+      "exact_word_rate": 0.9874132050936035,
+      "good_points": 78022,
+      "bad_points": 294,
+      "missed_points": 333,
+      "precision": 0.996245977833393,
+      "recall": 0.9957501116712398,
+      "f_beta_1_over_7": 0.9962360556703173,
       "first_30_non_exact": [
         {
           "word": "abeundi",
@@ -527,14 +527,14 @@
     },
     "jana_chlebikova_1992": {
       "words": 40757,
-      "exact_words": 36502,
-      "exact_word_rate": 0.8956007556984076,
-      "good_points": 74689,
-      "bad_points": 2895,
-      "missed_points": 3673,
-      "precision": 0.962685605279439,
-      "recall": 0.9531277915316098,
-      "f_beta_1_over_7": 0.9624925708341646,
+      "exact_words": 36522,
+      "exact_word_rate": 0.896091468950119,
+      "good_points": 74700,
+      "bad_points": 2884,
+      "missed_points": 3655,
+      "precision": 0.9628273870901217,
+      "recall": 0.9533533278029481,
+      "f_beta_1_over_7": 0.9626360609396307,
       "first_30_non_exact": [
         {
           "word": "abdrushin",
@@ -1052,9 +1052,9 @@
         }
       ]
     },
-    "test_engine_points_before_tex_mins": 103611,
-    "test_target_points_after_tex_mins": 78362,
-    "engine_points_removed_by_tex_mins": 25249,
+    "test_engine_points_before_tex_mins": 103613,
+    "test_target_points_after_tex_mins": 78355,
+    "engine_points_removed_by_tex_mins": 25258,
     "original_pattern_count": 2467,
     "original_exception_count": 5
   },
@@ -1062,20 +1062,20 @@
     "trained_on": "every corpus word plus generated numerals (no held-out split)",
     "train_words": 203881,
     "train_rows": 203881,
-    "patgen_seconds": 89.39818080002442,
-    "pattern_count": 5481,
-    "holdout_model_pattern_count": 5096,
-    "holdout_model_patterns_sha256": "f9bd7196f7e3511cc9b6af1575ab25e0d30477a6fe0dde22518b73e7ba513e3b",
+    "patgen_seconds": 84.94283399998676,
+    "pattern_count": 5388,
+    "holdout_model_pattern_count": 5003,
+    "holdout_model_patterns_sha256": "cb27a746a064fb4784ae0861a7b5c4d5a239fe6963f66b3f8aac62e16a2657a5",
     "corpus_fit_on_seen_words": {
       "words": 203881,
-      "exact_words": 203541,
-      "exact_word_rate": 0.9983323605436505,
-      "good_points": 394400,
-      "bad_points": 21,
-      "missed_points": 324,
-      "precision": 0.99994675739882,
-      "recall": 0.9991791732957712,
-      "f_beta_1_over_7": 0.9999313941594169,
+      "exact_words": 203548,
+      "exact_word_rate": 0.9983666942971635,
+      "good_points": 394367,
+      "bad_points": 20,
+      "missed_points": 317,
+      "precision": 0.9999492883893232,
+      "recall": 0.9991968258150824,
+      "f_beta_1_over_7": 0.999934228031567,
       "first_30_non_exact": [
         {
           "word": "aleidisová",
@@ -1130,20 +1130,6 @@
           ]
         },
         {
-          "word": "barmčanov",
-          "engine": [
-            3,
-            6
-          ],
-          "predicted": [
-            6
-          ],
-          "extra": [],
-          "missing": [
-            3
-          ]
-        },
-        {
           "word": "beauperovi",
           "engine": [
             4,
@@ -1155,56 +1141,6 @@
           "extra": [],
           "missing": [
             6
-          ]
-        },
-        {
-          "word": "bezláskavosťou",
-          "engine": [
-            3,
-            6,
-            8,
-            11
-          ],
-          "predicted": [
-            6,
-            8,
-            11
-          ],
-          "extra": [],
-          "missing": [
-            3
-          ]
-        },
-        {
-          "word": "bezláskavého",
-          "engine": [
-            3,
-            6,
-            8
-          ],
-          "predicted": [
-            6,
-            8
-          ],
-          "extra": [],
-          "missing": [
-            3
-          ]
-        },
-        {
-          "word": "bezláskovosť",
-          "engine": [
-            3,
-            6,
-            8
-          ],
-          "predicted": [
-            6,
-            8
-          ],
-          "extra": [],
-          "missing": [
-            3
           ]
         },
         {
@@ -1529,6 +1465,64 @@
           "extra": [],
           "missing": [
             7
+          ]
+        },
+        {
+          "word": "cyperské",
+          "engine": [
+            2,
+            5
+          ],
+          "predicted": [
+            5
+          ],
+          "extra": [],
+          "missing": [
+            2
+          ]
+        },
+        {
+          "word": "cyperským",
+          "engine": [
+            2,
+            5
+          ],
+          "predicted": [
+            5
+          ],
+          "extra": [],
+          "missing": [
+            2
+          ]
+        },
+        {
+          "word": "cyperčan",
+          "engine": [
+            2,
+            5
+          ],
+          "predicted": [
+            5
+          ],
+          "extra": [],
+          "missing": [
+            2
+          ]
+        },
+        {
+          "word": "cyperčania",
+          "engine": [
+            2,
+            5,
+            7
+          ],
+          "predicted": [
+            5,
+            7
+          ],
+          "extra": [],
+          "missing": [
+            2
           ]
         }
       ]

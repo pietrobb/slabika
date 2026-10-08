@@ -65,8 +65,8 @@
       "threshold": 1
     }
   ],
-  "patgen_seconds": 68.82147279998753,
-  "generated_pattern_count": 5850,
+  "patgen_seconds": 69.02751280006487,
+  "generated_pattern_count": 5790,
   "files": {
     "database": "C:\\Sources8\\slabika\\tests\\data\\translatemaster_hyphenation_working.sqlite",
     "database_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
@@ -74,21 +74,21 @@
     "training_word_source_sha256": "6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f",
     "original_patterns": "C:\\Sources8\\slabika\\tex\\hyph-sk.tex",
     "original_patterns_sha256": "7a2e3f81c80b7b7cc35ec9ea4699df9018ef352756cf3a32e9199d7cece7aba9",
-    "training_dictionary_sha256": "c9cafcee82f600264ece1f77eccb96d6d77810e6acbdbfbff45f66a687ccacf5",
+    "training_dictionary_sha256": "ff74a9262e557233f463918320090afa4c5bef7186455b701ca7ad20e41fc5f0",
     "generated_patterns": "C:\\Sources8\\slabika\\patterns\\hyph-sk-slabika.tex",
-    "generated_patterns_sha256": "82e76992369d054ab70fe35a04f3aca5b37a449c947308c08afb1f3a55170576"
+    "generated_patterns_sha256": "05607892c962899a616ce9710440168551d6ceaf6d8db61c4338a977f7ecd7df"
   },
   "evaluation": {
     "generated_from_current_engine": {
       "words": 40757,
-      "exact_words": 40189,
-      "exact_word_rate": 0.9860637436513973,
-      "good_points": 77061,
-      "bad_points": 312,
-      "missed_points": 380,
-      "precision": 0.9959675855918732,
-      "recall": 0.9950930385712995,
-      "f_beta_1_over_7": 0.9959500795870881,
+      "exact_words": 40183,
+      "exact_word_rate": 0.985916529675884,
+      "good_points": 77036,
+      "bad_points": 313,
+      "missed_points": 387,
+      "precision": 0.9959534059910277,
+      "recall": 0.9950014853467316,
+      "f_beta_1_over_7": 0.9959343497286636,
       "first_30_non_exact": [
         {
           "word": "abeundi",
@@ -519,14 +519,14 @@
     },
     "jana_chlebikova_1992": {
       "words": 40757,
-      "exact_words": 36830,
-      "exact_word_rate": 0.903648453026474,
-      "good_points": 74369,
-      "bad_points": 3215,
-      "missed_points": 3072,
-      "precision": 0.9585610435141266,
-      "recall": 0.9603310907658734,
-      "f_beta_1_over_7": 0.9585963805120677,
+      "exact_words": 36861,
+      "exact_word_rate": 0.9044090585666266,
+      "good_points": 74381,
+      "bad_points": 3203,
+      "missed_points": 3042,
+      "precision": 0.9587157145803259,
+      "recall": 0.9607093499347739,
+      "f_beta_1_over_7": 0.9587555061962514,
       "first_30_non_exact": [
         {
           "word": "abdrushin",
@@ -1044,9 +1044,9 @@
         }
       ]
     },
-    "test_engine_points_before_tex_mins": 99427,
-    "test_target_points_after_tex_mins": 77441,
-    "engine_points_removed_by_tex_mins": 21986,
+    "test_engine_points_before_tex_mins": 99413,
+    "test_target_points_after_tex_mins": 77423,
+    "engine_points_removed_by_tex_mins": 21990,
     "original_pattern_count": 2467,
     "original_exception_count": 5
   },
@@ -1054,20 +1054,20 @@
     "trained_on": "every corpus word plus generated numerals (no held-out split)",
     "train_words": 203881,
     "train_rows": 203881,
-    "patgen_seconds": 89.4892692999565,
-    "pattern_count": 5850,
-    "holdout_model_pattern_count": 5384,
-    "holdout_model_patterns_sha256": "c0f02bc104c9aee22dd8d0a18642f86e691d7c1e2aa961bdbfa92d60dfb03573",
+    "patgen_seconds": 85.36015570000745,
+    "pattern_count": 5790,
+    "holdout_model_pattern_count": 5320,
+    "holdout_model_patterns_sha256": "966a4d9523d4cb6a367af2c02a4600e8c0a2ba3c88f991c95ae6d04d69a07369",
     "corpus_fit_on_seen_words": {
       "words": 203881,
-      "exact_words": 203428,
-      "exact_word_rate": 0.9977781156655108,
-      "good_points": 389494,
-      "bad_points": 11,
-      "missed_points": 449,
-      "precision": 0.9999717590274836,
-      "recall": 0.9988485496598221,
-      "f_beta_1_over_7": 0.9999492700848361,
+      "exact_words": 203393,
+      "exact_word_rate": 0.9976064468979454,
+      "good_points": 389348,
+      "bad_points": 10,
+      "missed_points": 485,
+      "precision": 0.9999743166956888,
+      "recall": 0.9987558775167829,
+      "f_beta_1_over_7": 0.999949918778532,
       "first_30_non_exact": [
         {
           "word": "amnestie",
@@ -1182,20 +1182,6 @@
             3
           ],
           "predicted": [],
-          "extra": [],
-          "missing": [
-            3
-          ]
-        },
-        {
-          "word": "barmčanov",
-          "engine": [
-            3,
-            6
-          ],
-          "predicted": [
-            6
-          ],
           "extra": [],
           "missing": [
             3
@@ -1518,6 +1504,17 @@
           ],
           "missing": [
             2
+          ]
+        },
+        {
+          "word": "cenzora",
+          "engine": [
+            3
+          ],
+          "predicted": [],
+          "extra": [],
+          "missing": [
+            3
           ]
         }
       ]
