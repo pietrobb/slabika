@@ -2919,7 +2919,7 @@ def test_batch_87_keeps_guarded_negative_and_nested_vy_seams():
         "nevštepíte": "ne·všte·pí·te",
         "nevťahuj": "ne·vťa·huj",
         "nevyhne": "ne·vy·hne",
-        "nevykla": "ne·vy·kla",
+        "nevykla": "ne·vyk·la",  # from vyknúť (blind4000g, operator 2026-10-08)
     }
     assert {word: hyphenate(word) for word in expected} == expected
     assert hyphenate("nevyhnutný") == "ne·vy·hnut·ný"
@@ -6338,7 +6338,7 @@ def test_batch_211_preserves_d_final_past_tense_stems():
 
 def test_batch_212_preserves_native_prefixes_and_the_mrstit_paradigm():
     expected = {
-        "vylhané": "vy·l·ha·né",
+        "vylhané": "vy·lha·né",  # no vowelless syllable (blind4000g, operator 2026-10-08)
         "vymrštená": "vy·mrš·te·ná",
         "vymrští": "vy·mrš·tí",
         "odmrštenie": "od·mrš·te·nie",
@@ -8175,3 +8175,53 @@ def test_cka_suffix_prefers_syllabic_point_and_keeps_suffix_variant():
     assert hyphenate("hračka", all_points=True) == "hra·č·ka"
     assert hyphenate("tancovačky", all_points=True) == "tan·co·va·č·ky"
     assert hyphenate("počkať", all_points=True) == "po·čkať"
+
+
+# blind4000g, operator 2026-10-08: AI consensus accepted, including the three
+# words the operator decided (zá·snu·ba·mi, Ni·a·gar·ský, ná·klon·nos·ťa·mi).
+def test_blind4000g_ai_divisions_the_operator_accepted_2026_10_08():
+    expected = {
+        "vylhané": "vy·lha·né", "vylhaný": "vy·lha·ný", "vylhať": "vy·lhať",
+        "vylhala": "vy·lha·la", "Lhasa": "Lha·sa",
+        "nevykla": "ne·vyk·la", "nevykli": "ne·vyk·li", "vykla": "vyk·la",
+        "uzrú": "uzrú", "neuzrú": "ne·uzrú",
+        "oslovského": "os·lov·ské·ho", "oslovskej": "os·lov·skej", "oslovským": "os·lov·ským",
+        "Interpret": "In·ter·pret", "interpret": "in·ter·pret",
+        "Dunois": "Du·nois", "Dunoisa": "Du·noi·sa",
+        "stereometria": "ste·reo·met·ria", "stereometrické": "ste·reo·met·ric·ké",
+        "stereometrických": "ste·reo·met·ric·kých",
+        "fotografiami": "fo·to·gra·fi·a·mi",
+        "spoluvyslanec": "spo·lu·vy·sla·nec", "spoluvyslanca": "spo·lu·vy·slan·ca",
+        "zásnubami": "zá·snu·ba·mi", "zásnuby": "zá·snu·by", "zásnub": "zá·snub",
+        "zásnubná": "zá·snub·ná",
+        "Niagarský": "Ni·a·gar·ský", "niagarských": "ni·a·gar·ských",
+        "Niagara": "Ni·a·ga·ra", "Niagaru": "Ni·a·ga·ru",
+        "náklonnosťami": "ná·klon·nos·ťa·mi", "náklonnosť": "ná·klon·nosť",
+        "náklon": "ná·klon",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # Neighbours that must not move.
+    kept = {
+        "nevykladaj": "ne·vy·kla·daj", "vyklonil": "vy·klo·nil", "zvykla": "zvyk·la",
+        "uzrel": "uzrel", "oslovila": "oslo·vi·la", "vyslanec": "vy·sla·nec",
+        "zasnubujú": "za·snu·bu·jú", "vyšplhal": "vy·špl·hal", "dlhá": "dl·há",
+    }
+    assert {word: hyphenate(word) for word in kept} == kept
+
+
+# blind4000g, operator 2026-10-08: engine kept.
+def test_blind4000g_engine_divisions_the_operator_kept_2026_10_08():
+    expected = {
+        "pomstychtivá": "po·msty·chti·vá", "poslanie": "pos·la·nie",
+        "zatknutie": "zat·knu·tie", "nadvihnutý": "na·dvih·nu·tý",
+        "predošlá": "pre·do·šlá", "prospechárstvo": "pro·spe·chár·stvo",
+        "zorientujú": "zo·ri·en·tu·jú", "priestranstvá": "pries·tran·stvá",
+        "popruhmi": "pop·ruh·mi", "neutrálna": "ne·ut·rál·na",
+        "úctyhodné": "úcty·hod·né", "úctivo": "úcti·vo", "ostatnú": "ostat·nú",
+        "najprázdnejší": "naj·prázd·nej·ší", "dvadsaťosem": "dvad·sať·osem",
+        "najbezectnejší": "naj·be·ze·ctnej·ší", "gangsterského": "gan·gster·ské·ho",
+        "ftizeológ": "fti·ze·o·lóg", "teorém": "teo·rém", "antikvár": "an·ti·kvár",
+        "praarchanjel": "pra·arch·an·jel", "pažravým": "pa·žra·vým",
+        "transportérov": "trans·por·té·rov", "deštrukciu": "deš·truk·ciu",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected

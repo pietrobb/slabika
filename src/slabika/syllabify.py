@@ -182,6 +182,13 @@ _LEXICAL_SYLLABLE_LENGTHS = {
     'jones': (5,),
     'mahalaleel': (2, 2, 2, 4),
     'usporia': (4, 3),  # uspo·ria like uspo·ria·dať (operator 2026-10-08)
+    # blind4000g, operator accepted the AI division (2026-10-08).
+    # vyklo is left out: it is also the stem of vyklo·nil.
+    'vykla': (3, 2), 'vykli': (3, 2),  # vyk·la from vyknúť like zvyk·la
+    'nevykla': (2, 3, 2), 'nevykli': (2, 3, 2),
+    'uzrú': (4,), 'neuzrú': (2, 4),  # like uzrie, uzrel
+    'interpret': (2, 3, 4),  # in·ter·pret like in·ter·pre·tá·cia
+    'fotografiami': (2, 2, 3, 2, 1, 2),  # fo·to·gra·fi·a·mi like mi·si·a·mi
 }
 _ALLBRIGHT_ENDINGS = frozenset({'', 'a'})
 _ALZBETA_TAIL_LENGTHS = {
@@ -322,6 +329,8 @@ _PARADIGM_STABLE_STEMS: tuple[tuple[str, tuple[int, ...]], ...] = (
     ('najozajstn', (3, 4)),
     ('zreproduk', (3, 3)),   # zre·pro·du·ko·val like re·pro·du·ko·val
     ('kaleidosk', (7,)),     # ka·lei·do·skop
+    # blind4000g families, operator 2026-10-08.
+    ('oslovsk', (2, 3)),     # os·lov·ské·ho from Os·lo, not o-|slov
     ('niktoš', (3,)),        # nik·to·šoch (operator 2026-10-06)
     # The operator chose upo·doz·rie·vať and the AI naj·po·doz·ri·vej·ším:
     # the whole podozr- family divides doz·r.
@@ -681,7 +690,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('di', ('akrit',)),
     ('homeo', ('pat', 'pát')),
     ('speleo', ('log', 'lóg')),
-    ('stereo', ('typ', 'skop')),
+    ('stereo', ('typ', 'skop', 'metr')),  # ste·reo·met·ria (blind4000g)
     ('daktylo', ('skop',)),  # dak·ty·lo·sko·pie  # blind3000e, operator 2026-10-06
     ('nano', ('sklad',)),  # na·no·skla·da·ča
     ('infra', ('štruk',)),  # in·fra·štruk·tú·ra
@@ -810,7 +819,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('pol', ('libr', 'liter', 'litr', 'ostrov', 'roč', 'rok', 'rúr')),
     ('plno', ('zvuč',)),
     ('rovno', ('zvuč',)),
-    ('spolu', ('uteč', 'uč', 'násled', 'apoštol', 'obet', 'otáč', 'usp', 'uží', 'blaž', 'blíž', 'brat', 'chven', 'človek', 'hlás', 'hráč', 'kmit', 'kráľ', 'kresťan', 'krúž', 'kňaz', 'oživ', 'plod', 'posvät', 'prác', 'prac', 'prečist', 'precít', 'preciť', 'prež', 'príčin', 'sláv', 'sluh', 'služob', 'slúž', 'smrť', 'sprav', 'sprisah', 'správ', 'stolov', 'stvor', 'tvor', 'vlast', 'vlád', 'všemoh', 'úrad', 'vzbud', 'vzruš', 'zachrán', 'zachvát', 'zľutov', 'znič', 'zvuč')),
+    ('spolu', ('vysl', 'uteč', 'uč', 'násled', 'apoštol', 'obet', 'otáč', 'usp', 'uží', 'blaž', 'blíž', 'brat', 'chven', 'človek', 'hlás', 'hráč', 'kmit', 'kráľ', 'kresťan', 'krúž', 'kňaz', 'oživ', 'plod', 'posvät', 'prác', 'prac', 'prečist', 'precít', 'preciť', 'prež', 'príčin', 'sláv', 'sluh', 'služob', 'slúž', 'smrť', 'sprav', 'sprisah', 'správ', 'stolov', 'stvor', 'tvor', 'vlast', 'vlád', 'všemoh', 'úrad', 'vzbud', 'vzruš', 'zachrán', 'zachvát', 'zľutov', 'znič', 'zvuč')),
     ('staro', ('amer', 'arab', 'aristo', 'egypt', 'gréč', 'sláv', 'svet', 'zná')),
     ('sveta', ('skúsen',)),
     ('svetlo', ('prázd',)),
@@ -868,7 +877,7 @@ _LEXICAL_PREFIX_ROOTS = (
         'aranž', 'džez',  # na·aran·žo·va·la, na·dže·zo·va·ní (blind3000e)
     )),
     ('nade', ('všet',)),
-    ('ná', ('strč', 'prah', 'stoj', 'šľap', 'brež', 'cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'klaď', 'kres', 'prav', 'protiv', 'skok', 'sled', 'sten', 'strah', 'stroj', 'stup', 'tlak', 'vnad', 'vrat', 'znak')),
+    ('ná', ('strč', 'prah', 'stoj', 'šľap', 'brež', 'cvik', 'dvor', 'hľad', 'hrad', 'hrob', 'klad', 'klaď', 'klon', 'kres', 'prav', 'protiv', 'skok', 'sled', 'sten', 'strah', 'stroj', 'stup', 'tlak', 'vnad', 'vrat', 'znak')),
     ('sprí', ('stup',)),
     ('spo', ('plat', 'zna', 'zná')),
     ('s', ('prostred',)),
@@ -883,7 +892,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('u', _U_ROOTS),
     ('vy', ('čk', 'chlad', 'cp', 'lh', 'pn', 'rv', 'sťah', 'tn')),
     ('za', ('ksicht', 'iskr', 'olej', 'oceán', 'obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'mdl', 'tn', 'účink', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),
-    ('zá', ('krok', 'pch', 'plav', 'sluh', 'strč', 'vrat', 'znam', 'blesk', 'brad', 'bran', 'chvat', 'chvev', 'clon', 'hlav', 'hrad', 'hrob', 'klad', 'krut', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'šklb')),
+    ('zá', ('snub', 'krok', 'pch', 'plav', 'sluh', 'strč', 'vrat', 'znam', 'blesk', 'brad', 'bran', 'chvat', 'chvev', 'clon', 'hlav', 'hrad', 'hrob', 'klad', 'krut', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'šklb')),
     ('ú', ('mer', 'mysel', 'mysl', 'čel', 'hľad', 'čin', 'rek', 'žer', 'teš', 'spech', 'speš', 'striž', 'chvat', 'klad', 'schov', 'skal', 'slov', 'sluh', 'svit', 'ct', 'hrad', 'kryt', 'nav', 'nos', 'plat', 'prav', 'pros', 'rad', 'rod', 'skoč', 'skok', 'služ', 'smev', 'spor', 'stav', 'stran', 'stred', 'stret', 'stroj', 'stup', 'škľab', 'škrn', 'tlak', 'toč', 'trat', 'tvar')),
 )
 
@@ -2775,6 +2784,8 @@ def _resolve_hiatus(word: str, phonemes: list[str]) -> list[str]:
                 and phonemes[i + 1:] == ['m', 'i']
                 and 'srdci' not in word.casefold()  # srd·cia·mi (blind3000d)
             )
+            # Ni·a·ga·ra is read ni-a- (blind4000g, operator 2026-10-08).
+            learned_niagar = ph == 'ia' and i == 1 and word.casefold().startswith('niagar')
             learned_ient = (
                 ph == 'ie'
                 and phonemes[i + 1:i + 3] == ['n', 't']
@@ -2800,6 +2811,7 @@ def _resolve_hiatus(word: str, phonemes: list[str]) -> list[str]:
                 and (
                     latin_neuter or after_long or learned_iakum
                     or learned_milliard or cia_instrumental or learned_ient
+                    or learned_niagar
                 )
             ):
                 out.extend([ph[0], ph[1]])
@@ -2990,7 +3002,7 @@ def _nuclei(phonemes: list[str]) -> list[int]:
 
 def _word_nuclei(word: str, phonemes: list[str]) -> list[int]:
     nuclei = _nuclei(phonemes)
-    if word.casefold().startswith((*_NONSYLLABIC_INITIAL_R_ROOTS, 'lst', 'lž', 'ln')) and nuclei[:1] == [0]:
+    if word.casefold().startswith((*_NONSYLLABIC_INITIAL_R_ROOTS, 'lst', 'lž', 'ln', 'lh')) and nuclei[:1] == [0]:
         return nuclei[1:]
     return nuclei
 

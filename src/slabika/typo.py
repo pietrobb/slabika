@@ -367,6 +367,7 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'dobroč': (3,),  # Dob·roč like dob·ro·či·ne·nie
     'highball': (4,),  # high·ball
     'jerseyských': (3, 6),  # jer·sey·ských
+    'dunois': (2,),  # Du·nois [dü-nwa] (blind4000g, operator 2026-10-08)
 }
 
 # Slovak case endings a reviewed foreign name takes (Domrémy·ho, Co·gna·cu,
