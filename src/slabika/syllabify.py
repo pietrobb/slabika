@@ -181,6 +181,7 @@ _LEXICAL_SYLLABLE_LENGTHS = {
     'drugstore': (4, 5),
     'jones': (5,),
     'mahalaleel': (2, 2, 2, 4),
+    'usporia': (4, 3),  # uspo·ria like uspo·ria·dať (operator 2026-10-08)
 }
 _ALLBRIGHT_ENDINGS = frozenset({'', 'a'})
 _ALZBETA_TAIL_LENGTHS = {
@@ -978,9 +979,15 @@ _DLO_INFLECTIONS = ('dlami', 'dlách', 'dlom', 'dlám', 'diel', 'dla', 'dle', 'd
 _DLO_PARADIGM_STEMS = frozenset({
     'páči', 'napája', 'pája', 'stúpa',
     'diva', 'kadi', 'prá',  # di·va·dla·mi, ka·di·dlu, prá·dlu (blind3000c, operator 2026-10-04)
+    'tlači', 'dúcha',  # tla·či·dla (Human corrections), dú·cha·dlo (Human)
 })
+# -dlo nouns prefer the syllabic d·l in the whole paradigm (lie·tad·lo,
+# zr·kad·lo like zr·kad·la; operator 2026-10-08) except these families, which
+# the operator or Human review divided ·dl. ležadlo keeps its Human-confirmed
+# le·ža·dlo beside le·žad·la.
+_MORPHEMIC_DLO_STEMS = (_DLO_PARADIGM_STEMS - {'páči'}) | {'seda', 'vodi', 'leža'}
 _DLO_PAST_PREFIXES = frozenset({'', 'do', 'na', 'nado', 'od', 'o', 'po', 'pre', 'pri', 'roz', 's', 'u', 'v', 'vy', 'vz', 'z', 'za'})
-_D_FINAL_PAST_ROOTS = ('bud', 'hlad', 'hliad', 'krad', 'klád', 'pad', 'priad', 'vlád')  # opriad·lo (blind3000e), na·klád·lo (blind4000f)
+_D_FINAL_PAST_ROOTS = ('bud', 'hlad', 'hliad', 'hod', 'krad', 'klád', 'pad', 'priad', 'tvrd', 'vlád')  # opriad·lo (blind3000e), na·klád·lo (blind4000f), ne·roz·hod·lo (operator 2026-10-08)
 _D_FINAL_PAST_STEMS = frozenset({'zjed'})
 _LEXICAL_PAST_STEMS = frozenset({'žmurk', 'bled', 'cink', 'zhod', 'zhork'})  # bled·lo, zhork·la (blind3000d)
 _TINA_INFLECTIONS = ('tinami', 'tinách', 'tinám', 'tinou', 'tine', 'tinu', 'tiny')

@@ -28,6 +28,11 @@ PROFILE = (
     (2, 1, 3, 1, 5, 1),
     (3, 2, 6, 1, 3, 1),
     (4, 2, 7, 1, 3, 1),
+    # Two more levels restore points the level-4 inhibitors killed
+    # (dych·ti·vý, šľa·chet·ný): corpus fit 99.76 % -> 99.997 %, unseen
+    # words 98.59 % -> 98.73 % (scratch/liang_profiles.py, 2026-10-08).
+    (5, 2, 8, 1, 2, 1),
+    (6, 2, 8, 1, 2, 1),
 )
 _DIGIT = re.compile(r"\d")
 ENGINE_MODES = {
@@ -211,7 +216,7 @@ def run_patgen(
     executable: str, dictionary: Path, initial: Path, translate: Path, directory: Path
 ) -> tuple[Path, float]:
     raw_patterns = directory / "patterns.raw"
-    answers = ["1 4"]
+    answers = [f"1 {len(PROFILE)}"]
     for _level, pat_start, pat_finish, good, bad, threshold in PROFILE:
         answers.extend((f"{pat_start} {pat_finish}", f"{good} {bad} {threshold}"))
     answers.append("n")
@@ -234,8 +239,20 @@ def run_patgen(
     return raw_patterns, elapsed
 
 
-def write_tex_patterns(raw_patterns: Path, output: Path, mode: str) -> int:
+def write_tex_patterns(
+    raw_patterns: Path, output: Path, mode: str, exceptions: list[str] = ()
+) -> int:
     tokens = raw_patterns.read_text(encoding="utf-8").split()
+    exception_lines = (
+        [
+            "% Corpus words the patterns alone divide differently from the engine.",
+            "\\hyphenation{",
+            *exceptions,
+            "}",
+        ]
+        if exceptions
+        else []
+    )
     lines = [
         "% SPDX-FileCopyrightText: 2026 Peter Bezemek",
         "% SPDX-License-" "Identifier: CC0-1.0 OR MIT",
@@ -248,11 +265,25 @@ def write_tex_patterns(raw_patterns: Path, output: Path, mode: str) -> int:
         "\\patterns{",
         *tokens,
         "}",
+        *exception_lines,
         "% REUSE-IgnoreEnd",
         "",
     ]
     output.write_text("\n".join(lines), encoding="utf-8", newline="\n")
     return len(tokens)
+
+
+def _exception_words(words: list[str], tex: Path, mode: str) -> list[str]:
+    """Return \\hyphenation entries for every word the patterns divide unlike the engine."""
+    patterns, _ = load_tex(tex)
+    entries = []
+    for word in words:
+        target = {point for point in _engine_points(word, mode) if 2 <= point <= len(word) - 3}
+        if set(break_points(word, patterns, None, 2, 3)) != target:
+            entries.append(
+                "".join(("-" if index in target else "") + char for index, char in enumerate(word))
+            )
+    return entries
 
 
 def _metrics(targets: dict[str, set[int]], predictions: dict[str, set[int]]) -> dict[str, object]:
@@ -414,6 +445,11 @@ def main() -> int:
             args.patgen, dictionary, initial, translate, output_dir
         )
         generated_pattern_count = write_tex_patterns(raw_patterns, generated_tex, args.mode)
+        patterns_only_fit = evaluate(words, generated_tex, args.original, args.mode)[
+            "generated_from_current_engine"
+        ]
+        exceptions = _exception_words(words, generated_tex, args.mode)
+        write_tex_patterns(raw_patterns, generated_tex, args.mode, exceptions)
         published = {
             "trained_on": "every corpus word plus generated numerals (no held-out split)",
             "train_words": len(set(full_train)),
@@ -422,6 +458,8 @@ def main() -> int:
             "pattern_count": generated_pattern_count,
             "holdout_model_pattern_count": holdout_pattern_count,
             "holdout_model_patterns_sha256": _sha256(holdout_tex),
+            "exception_count": len(exceptions),
+            "corpus_fit_patterns_only": patterns_only_fit,
             "corpus_fit_on_seen_words": evaluate(
                 words, generated_tex, args.original, args.mode
             )["generated_from_current_engine"],
@@ -453,7 +491,7 @@ def main() -> int:
             ),
         },
         "common_tex_hyphen_mins_applied_to_targets_and_both_matchers": {"left": 2, "right": 3},
-        "profile_name": "cshyphen (Metelka and Sojka, Hyph-bench 2025, Table 4)",
+        "profile_name": "cshyphen (Metelka and Sojka, Hyph-bench 2025, Table 4) plus two levels",
         "profile": [
             {
                 "level": level,

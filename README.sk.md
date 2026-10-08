@@ -55,7 +55,7 @@ Rozsah týchto hraníc ukazuje toto meranie:
 
 | evidencia | súčasný projekt | Chlebíková 1992 | čo výsledok dokazuje |
 | --- | ---: | ---: | --- |
-| presné celé slová na odložených dátach oproti preferovanému cieľu enginu, minimá TeXu 2/3 | **98,5917 %** | **90,4409 %** | reprodukovateľnosť enginu, nie správnosť podľa PSP |
+| presné celé slová na odložených dátach oproti preferovanému cieľu enginu, minimá TeXu 2/3 | **98,7610 %** | **90,4657 %** | reprodukovateľnosť enginu, nie správnosť podľa PSP |
 
 Častou príčinou rozdielu je **rozpoznaná morfematická stavba**: predpona a základ, členy zloženiny alebo základ a slovotvorná či gramatická prípona. Písmenové vzory vidia opakujúce sa úseky, ale túto analýzu si neuchovávajú. Nasleduje 21 overených morfologických príkladov, nie prípadov vyhlásených za chybu iba preto, že sa dva systémy nezhodli. `·` označuje dostupné miesto zalomenia. Stĺpec vzorov z roku 1992 používa TeXové okrajové minimá 2/3; stĺpec aktuálneho enginu je doslovný výsledok `hyphenate(word)`, ktorého API tieto minimá neuplatňuje.
 
@@ -290,14 +290,14 @@ Stav verzovaných slovenských dát k **2026-10-08**:
 
 | metrika | počet |
 | --- | ---: |
-| riadky inventára | **206 205** |
-| aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **206 133** |
-| uložené riadky Human rozhodnutí (surová tabuľka) | **25 942** |
-| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **25 657 (12,45 %)** |
-| skontrolované typografické delenia | **25 468 (12,36 %)** — 23 825 potvrdení, 1 643 opráv |
+| riadky inventára | **206 184** |
+| aktívne jedinečné tvary v review po zlúčení iba veľko-/malopísmenkových aliasov | **206 112** |
+| uložené riadky Human rozhodnutí (surová tabuľka) | **25 968** |
+| aktívne kanonické tvary s ľubovoľnou Human evidenciou | **25 637 (12,44 %)** |
+| skontrolované typografické delenia | **25 466 (12,36 %)** — 23 823 potvrdení, 1 643 opráv |
 | skontrolované hovorené slabikovania | **349 (0,17 %)** — pri 266 tvaroch sú skontrolované oba výstupy |
 
-Surových 25 942 riadkov tvorí 24 092 posledných akcií `confirm`, 1 694 `correct`, 114 `classify`, 33 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
+Surových 25 968 riadkov tvorí 24 114 posledných akcií `confirm`, 1 696 `correct`, 116 `classify`, 33 `uncertain`, 8 `invalid` a 1 `flag`. Surová tabuľka zahŕňa aj odstránené tvary a veľko-/malopísmenkové aliasy, preto nie je čitateľom pokrytia; pokrytie používa aktuálny kanonický pohľad konzoly. Klasifikácia a slabikovanie sa evidujú oddelene od typografického delenia. Ľudské rozhodnutia sú evidencia, nie normatívna autorita.
 
 | lokálny korpus | tvary | vygenerovaná IPA | návrhy delenia |
 | --- | ---: | ---: | --- |
@@ -352,9 +352,9 @@ python tools/liang_experiment.py --mode permissive --train-on-all --output-dir s
 
 Príkazy prepíšu dva verzované súbory vzorov; bez `--patterns-output` sa release artefakty nedotknú a všetko sa zapíše do výstupného priečinka. Generátor prijíma `resolved`/`inferred` tvary, vynechá vyradené `invalid`, prevedie na malé písmená, odstráni duplikáty a nepodporované zápisy. Deterministické rozdelenie používa soľ `slabika-liang-v1`. S `--train-on-all` sa model s rozdelením trénuje len na meranie zovšeobecnenia (v `<output-dir>/holdout`); zapísaný súbor vznikne z druhého behu na všetkých slovách, takže release súbory nevynechávajú žiadnu časť inventára. Pridáva generované číslovky; príslušné korpusové číslovky presunie do tréningu, aby neboli aj v teste. Výstup zahŕňa `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` a `report.json` s počtami, hashmi, metrikami a ukážkami nezhôd.
 
-Generovanie **2026-10-08** z enginu s rodinami prijatými z AI review (behy po `blind4000f-20261007`) prijalo 203 881 podporovaných unikátnych slov. **Odhad zovšeobecnenia:** model trénovaný na 163 124 slovách a meraný na 40 757 odložených. Preferovaný model má 5 320 vzorov, presné celé slová **98,5917 %** (40 183/40 757), precision bodov 99,5953 % a recall 99,5001 %. Permisívny má 5 003 vzorov, presné celé slová **98,7413 %** (40 244/40 757), precision 99,6246 % a recall 99,5750 %. Pri rovnakých minimách TeXu 2/3 zopakuje základňa Chlebíkovej príslušné ciele na 90,4409 % a 89,6091 % celých slov. **Publikované súbory** sú trénované na všetkých 203 881 slovách: preferovaný má **5 790 vzorov** a na slovách inventára dáva presne 99,7606 % (203 393) s 10 chybnými a 485 vynechanými bodmi; permisívny má **5 388 vzorov**, 99,8367 % (203 548), 20 chybných a 317 vynechaných bodov. Toto druhé číslo ukazuje len vernosť na videných slovách; pre nové slová platí odhad zovšeobecnenia. Ide o **vernosť enginu**, nie nezávislú správnosť podľa PSP. Použitý bol Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5) a `slabika-pronunciation==0.1.0` s anglickým MFA G2P v3.0.0. Súbory sa zapisujú s LF aj na Windows; presné SHA-256 sú v časti **Reproduce and evaluate Liang patterns** v [anglickom README](README.md), úplné reporty release behu sú v `patterns/`. Zmena enginu, inventára alebo prítomnosti anglického runtime môže zmeniť výsledné hashe.
+Generovanie **2026-10-08** z enginu s rodinami prijatými z AI review (behy po `blind4000f-20261007`) prijalo 203 879 podporovaných unikátnych slov. **Odhad zovšeobecnenia:** model trénovaný na 163 121 slovách a meraný na 40 758 odložených. Preferovaný model má 5 398 vzorov, presné celé slová **98,7610 %** (40 253/40 758), precision bodov 99,5931 % a recall 99,5983 %. Permisívny má 5 077 vzorov, presné celé slová **98,8346 %** (40 283/40 758), precision 99,6223 % a recall 99,6324 %. Pri rovnakých minimách TeXu 2/3 zopakuje základňa Chlebíkovej príslušné ciele na 90,4657 % a 89,6094 % celých slov. `patgen` beží v šiestich úrovniach: štyri sú z profilu cshyphen (Metelka a Sojka, Hyph-bench 2025, tabuľka 4), dve ďalšie majú vzory dĺžky 2–8 a váhy 1/2/1. Pri štyroch úrovniach posledná, blokujúca úroveň zrušila asi 460 správnych bodov, ktoré už žiadna ďalšia úroveň nevedela obnoviť. **Publikované súbory** sú trénované na všetkých 203 879 slovách: preferovaný má **5 915 vzorov** a samotné vzory delia presne 99,9990 % slov inventára (203 877) s 2 chybnými a 0 vynechanými bodmi; permisívny má **5 502 vzorov**, 99,9971 % (203 873), 4 chybné a 2 vynechané body. Tieto slová (2 a 6) sú na konci súborov v zozname výnimiek `\hyphenation`, takže súbory delia všetky slová inventára presne ako engine. Toto druhé číslo ukazuje len vernosť na videných slovách; pre nové slová platí odhad zovšeobecnenia. Ide o **vernosť enginu**, nie nezávislú správnosť podľa PSP. Použitý bol Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5) a `slabika-pronunciation==0.1.0` s anglickým MFA G2P v3.0.0. Súbory sa zapisujú s LF aj na Windows; presné SHA-256 sú v časti **Reproduce and evaluate Liang patterns** v [anglickom README](README.md), úplné reporty release behu sú v `patterns/`. Zmena enginu, inventára alebo prítomnosti anglického runtime môže zmeniť výsledné hashe.
 
-Preferovaný súbor sa učí z `break_points(word)`, permisívny z `break_points(word, all_points=True, contextual=True)`. Jeden Liangov súbor nevie niesť prioritu bodov, preto sa tieto politiky publikujú samostatne a **nesmú sa načítať naraz**. Nemajú výnimky celých slov a neobsahujú jazykový detektor ani model výslovnosti. Sú verzovanými release artefaktmi popri Python balíku, ale knižnica ich automaticky nenačítava; používa iba prevzaté DE/FR vzory.
+Preferovaný súbor sa učí z `break_points(word)`, permisívny z `break_points(word, all_points=True, contextual=True)`. Jeden Liangov súbor nevie niesť prioritu bodov, preto sa tieto politiky publikujú samostatne a **nesmú sa načítať naraz**. Výnimky celých slov sú v nich len v spomenutom krátkom zozname; neobsahujú jazykový detektor ani model výslovnosti. Sú verzovanými release artefaktmi popri Python balíku, ale knižnica ich automaticky nenačítava; používa iba prevzaté DE/FR vzory.
 
 ### Regenerovanie zo zverejneného zdrojového archívu
 

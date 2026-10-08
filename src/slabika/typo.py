@@ -35,6 +35,7 @@ from .syllabify import (
     _DOBR_INFLECTIONS,
     _DLO_INFLECTIONS,
     _LEXICAL_FALLING_HIATUS,
+    _MORPHEMIC_DLO_STEMS,
     _PREFIXES,
     _SK_SUFFIXES_CONS,
     _final_sonorant_needs_following_context,
@@ -73,7 +74,6 @@ _CHRAN_ROOT_CONTEXTS = (
     ('uchraň', ('', 'ne')),
 )
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
-_PREFERRED_SYLLABIC_DLO_FORMS = frozenset({'páčidlá', 'páčidlom'})
 # Adapted Slovak loans keep their local consonant reading despite foreign spelling matches.
 _SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz', 'céd', 'neusch', 'prisch', 'energ', 'lamel', 'legend')
 _GERMAN_ER_NAME_ENDINGS = ('ovi', 'om', 'a', 'e', 'i', 'u')
@@ -98,6 +98,8 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'blackburna': (5, 8),
     'blake': (),
     'boyle': (),  # English [bɔɪl], one syllable (human + AI 2026-10-02).
+    'buckingham': (4, 7),  # English Buck·ing·ham (operator 2026-10-08).
+    'buckinghamský': (4, 7, 10),
     'capehartom': (4, 7),
     'coeli': (3,),
     'cognac': (2,),  # French gn is one consonant [ɲ]: Co·gnac.
@@ -133,6 +135,8 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'grapefruit': (5,),
     'quilibet': (3, 5),
     'requiescamus': (2, 5, 7, 9),
+    'rockefeller': (3, 5, 8),  # Roc·ke·fel·ler like Roc·ke·fel·le·ra (operator 2026-10-08).
+    'superintendent': (2, 5, 7, 10),  # su·per·in·ten·dent like su·per·in·ten·den·ta (operator 2026-10-08).
     'gleisdorfu': (5, 8),
     'glendower': (4,),
     'glenview': (4,),
@@ -827,7 +831,11 @@ def _collect_points(word: str, language: str | None = None) -> tuple[set[int], s
                     points.discard(seam)
                     points.add(alternative)
                     variants.add(seam)
-                elif folded in _PREFERRED_SYLLABIC_DLO_FORMS:
+                elif (
+                    right.casefold().startswith('dl')
+                    and folded[:seam] not in _MORPHEMIC_DLO_STEMS
+                    and left.casefold() not in _MORPHEMIC_DLO_STEMS
+                ):
                     points.discard(seam)
                     points.add(alternative)
                     variants.add(seam)
@@ -972,7 +980,7 @@ def break_points(
     >>> break_points("Prekladateľský")
     [3, 6, 8, 11]
     >>> break_points("lietadlo")
-    [3, 5]
+    [3, 6]
     >>> break_points("lietadlo", all_points=True)
     [3, 5, 6]
     >>> break_points("poučiť")
@@ -1041,7 +1049,7 @@ def hyphenate(
     >>> hyphenate('Prekladateľský', separator='-')
     'Pre-kla-da-teľ-ský'
     >>> hyphenate('lietadlo')
-    'lie·ta·dlo'
+    'lie·tad·lo'
     >>> hyphenate('lietadlo', all_points=True)
     'lie·ta·d·lo'
     >>> hyphenate('poučiť')

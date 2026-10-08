@@ -57,7 +57,7 @@ One measurement shows the size of those limits:
 
 | evidence | current project | Chlebíková 1992 | what it establishes |
 | --- | ---: | ---: | --- |
-| exact held-out words against the preferred engine target, TeX minima 2/3 | **98.5917%** | **90.4409%** | reproducibility of the engine, not PSP correctness |
+| exact held-out words against the preferred engine target, TeX minima 2/3 | **98.7610%** | **90.4657%** | reproducibility of the engine, not PSP correctness |
 
 A common source of difference is **recognized morphological structure**: a prefix plus base, the members of a compound, or a base plus a derivational or grammatical suffix. A letter-pattern table sees recurring character fragments but does not retain that analysis. The following are 21 verified morphological examples, not cases declared wrong merely because the outputs differ. `·` marks an available line break. The 1992 column applies the TeX left/right minima 2/3; the current-engine column is the literal result of `hyphenate(word)`, whose API does not apply those TeX edge minima.
 
@@ -300,14 +300,14 @@ As of **2026-10-08**, the tracked Slovak data has this current state:
 
 | metric | count |
 | --- | ---: |
-| inventory rows | **206,205** |
-| active unique forms shown by the review console after folding case-only aliases | **206,133** |
-| stored Human decision rows (raw table) | **25,942** |
-| active canonical forms with any Human evidence | **25,657 (12.45%)** |
-| typographic divisions reviewed | **25,468 (12.36%)** — 23,825 confirms, 1,643 corrections |
+| inventory rows | **206,184** |
+| active unique forms shown by the review console after folding case-only aliases | **206,112** |
+| stored Human decision rows (raw table) | **25,968** |
+| active canonical forms with any Human evidence | **25,637 (12.44%)** |
+| typographic divisions reviewed | **25,466 (12.36%)** — 23,823 confirms, 1,643 corrections |
 | spoken syllabifications reviewed | **349 (0.17%)** — 266 forms have both outputs reviewed |
 
-The raw decision rows comprise 24,092 latest `confirm`, 1,694 `correct`, 114 `classify`, 33 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
+The raw decision rows comprise 24,114 latest `confirm`, 1,696 `correct`, 116 `classify`, 33 `uncertain`, 8 `invalid` and 1 `flag` actions. Raw rows include deleted forms and casing aliases, so they are not a coverage numerator; coverage uses the console's current canonical view. Classification and syllabification are tracked separately from typographic division. Review decisions are evidence, not normative authority.
 
 The four frozen blind audits contain 8,100 decisions over 8,028 distinct forms: 6,601 resolved, 1,477 uncertain and 22 invalid. Reviewers received bare forms without engine output or earlier decisions. They were isolated LLM reviewers, not the author.
 
@@ -354,28 +354,28 @@ python tools/liang_experiment.py --mode permissive --train-on-all --output-dir s
 
 These commands **replace the tracked pattern files**. Omit `--patterns-output` to leave the release artefacts untouched and write everything into the output directory instead. The generator reads the working SQLite inventory, accepts `resolved`/`inferred` casing, casefolds and deduplicates, filters unsupported spellings, and splits with salt `slabika-liang-v1`. With `--train-on-all` the split model is trained only to measure generalization (under `<output-dir>/holdout`); the written file comes from a second run over every word, so the release files contain no deliberately unseen part of the inventory. Outputs include `train.dic`, `patterns.0`, `patterns.raw`, `slovak.tra`, `patgen.log` and `report.json` with corpus counts, input/output hashes, evaluation metrics and sample mismatches.
 
-Both files were **regenerated on 2026-10-08 from the engine that includes the operator-accepted AI review families** (runs up to `blind4000f-20261007`). The inventory contains 206,205 rows, SHA-256 `6625bda4cf3caa4eb84438c5e4b9973f79e3efb50540f64dc575379f358fcb7f`. Of 204,534 eligible source rows, filtering yields 203,881 supported unique words. The generalization model trains on **163,124 words and holds out 40,757**; the published files train on all **203,881**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap.
+Both files were **regenerated on 2026-10-08 from the engine that includes the operator-accepted AI review families** (runs up to `blind4000f-20261007`). The inventory contains 206,184 rows, SHA-256 `1b9d02b48234e1bda3183b3b7ad14884af4c4e2c4cc894bb95d459b13d236077`. Of 204,532 eligible source rows, filtering yields 203,879 supported unique words. The generalization model trains on **163,121 words and holds out 40,758**; the published files train on all **203,879**. The generator excludes retired `invalid` forms and includes 1,035 generated numeral forms in training; 186 corpus numerals are deliberately moved out of the test split to prevent overlap. `patgen` runs six levels: the four of the cshyphen profile (Metelka and Sojka, Hyph-bench 2025, Table 4) and two more with patterns of length 2–8 and good/bad/threshold weights 1/2/1. With only the four levels, the last, inhibiting level suppressed about 460 correct points that no later level could restore.
 
 | generalization: split model on held-out words (2026-10-08) | exact whole words | point precision | point recall |
 | --- | ---: | ---: | ---: |
-| slabika preferred, 5,320 patterns | 98.5917% (40,183/40,757) | 99.5953% | 99.5001% |
-| Chlebíková 1992 against preferred target | 90.4409% | 95.8716% | 96.0709% |
-| slabika permissive, 5,003 patterns | 98.7413% (40,244/40,757) | 99.6246% | 99.5750% |
-| Chlebíková 1992 against permissive target | 89.6091% | 96.2827% | 95.3353% |
+| slabika preferred, 5,398 patterns | 98.7610% (40,253/40,758) | 99.5931% | 99.5983% |
+| Chlebíková 1992 against preferred target | 90.4657% | 95.8679% | 96.0846% |
+| slabika permissive, 5,077 patterns | 98.8346% (40,283/40,758) | 99.6223% | 99.6324% |
+| Chlebíková 1992 against permissive target | 89.6094% | 96.2790% | 95.3353% |
 
-| published files: trained on every word, measured on every word | exact whole words | wrong points | missed points |
-| --- | ---: | ---: | ---: |
-| `hyph-sk-slabika.tex`, 5,790 patterns | 99.7606% (203,393/203,881) | 10 | 485 |
-| `hyph-sk-slabika-permissive.tex`, 5,388 patterns | 99.8367% (203,548/203,881) | 20 | 317 |
+| published files: trained on every word, measured on every word | exact whole words, patterns alone | wrong points | missed points | with the `\hyphenation` list |
+| --- | ---: | ---: | ---: | ---: |
+| `hyph-sk-slabika.tex`, 5,915 patterns | 99.9990% (203,877/203,879) | 2 | 0 | 100% (2 exceptions) |
+| `hyph-sk-slabika-permissive.tex`, 5,502 patterns | 99.9971% (203,873/203,879) | 4 | 2 | 100% (6 exceptions) |
 
 The first table estimates behaviour on words outside the inventory; the second only shows how closely the released files reproduce the words they were trained on. Both sides used TeX 2/3 minima. This measures **fidelity to the engine at generation time**, not independent PSP correctness or current adapter accuracy. Published SHA-256 values are:
 
-- `patterns/hyph-sk-slabika.tex`: `05607892c962899a616ce9710440168551d6ceaf6d8db61c4338a977f7ecd7df`;
-- `patterns/hyph-sk-slabika-permissive.tex`: `fe2c863e2eb50adad06eaa32ee4e485839ac6208799569ef39c3417028630555`.
+- `patterns/hyph-sk-slabika.tex`: `cbf1d2c9482daff8810faf45e974f366f5f839f011cf997fc7a315345e735d93`;
+- `patterns/hyph-sk-slabika-permissive.tex`: `387dd7e32303df8a55abf81dd7ba809024ea4d65f8bf4b95473bf663b5b03af3`.
 
 Generation used Python 3.11.9, MiKTeX-PATGEN 1.0 (MiKTeX 26.5), and installed `slabika-pronunciation==0.1.0` with English (US) MFA G2P v3.0.0 (model archive SHA-256 `9923b38d59a8b3e3e322f225c52523c2a6248e5ffc9fd89be151ade2dc97cb02`). Pattern output explicitly uses LF, matching Git on Windows too. Pin the input revision and runtime/model for hash comparisons; missing G2P can change the labels. The preferred/permissive reports in `patterns/` record the release run's full evaluation. The library uses DE/FR upstream inputs, **not** its own generated Slovak patterns.
 
-A single Liang file cannot encode “prefer this boundary, use another only if necessary”. The preferred and permissive files carry those alternatives separately and should not be loaded together. They contain no whole-word exceptions and do not include the language detector or G2P model. They are versioned release artefacts alongside the Python package, but the library does not load them automatically.
+A single Liang file cannot encode “prefer this boundary, use another only if necessary”. The preferred and permissive files carry those alternatives separately and should not be loaded together. Their only whole-word exceptions are the `\hyphenation` list at the end of each file: the few inventory words that its patterns alone divide differently from the engine. They do not include the language detector or G2P model. They are versioned release artefacts alongside the Python package, but the library does not load them automatically.
 
 ### Reproduce from the published source archive
 

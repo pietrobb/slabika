@@ -16,7 +16,11 @@ from slabika import (
     syllables as get_syllables,
 )
 from slabika.syllabify import UnsupportedSpellingError
+from slabika.review.tex_patterns import break_points as tex_break_points
+from slabika.review.tex_patterns import load_tex
 from tools.liang_experiment import (
+    _exception_words,
+    write_tex_patterns,
     cardinal_parts,
     cardinal_word,
     generate_numeral_training_words,
@@ -2825,8 +2829,9 @@ def test_batch_82_keeps_negative_nested_seams_and_padlo_past_forms():
         "neuchránia": "ne·uchrá·nia",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("klopadlo") == "klo·pa·dlo"
-    assert hyphenate("kúpadlo") == "kú·pa·dlo"
+    # -dlo nouns keep the suffix point as a variant; past forms have none.
+    assert hyphenate("klopadlo", all_points=True) == "klo·pa·d·lo"
+    assert hyphenate("kúpadlo", all_points=True) == "kú·pa·d·lo"
     assert hyphenate("stúpadlo") == "stú·pa·dlo"
 
 
@@ -2847,9 +2852,9 @@ def test_batch_83_keeps_nested_u_prefixes_and_d_final_past_forms():
     assert {word: hyphenate(word) for word in expected} == expected
     protected = {
         "neutrál": "ne·ut·rál",
-        "zrkadlo": "zr·ka·dlo",
-        "čerpadlo": "čer·pa·dlo",
-        "lietadlo": "lie·ta·dlo",
+        "zrkadlo": "zr·kad·lo",
+        "čerpadlo": "čer·pad·lo",
+        "lietadlo": "lie·tad·lo",  # operator 2026-10-08
         "poslucháč": "po·slu·cháč",
         "neuposlúchnuté": "ne·upo·slúch·nu·té",
     }
@@ -4881,21 +4886,22 @@ def test_psp_doublets_offer_both_break_points():
 
 def test_dlo_suffix_keeps_both_psp_seams_through_inflection():
     expected = {
-        "páčidlo": "pá·či·dlo",
-        "páčidla": "pá·či·dla",
-        "páčidlu": "pá·či·dlu",
-        "páčidle": "pá·či·dle",
+        "páčidlo": "pá·čid·lo",
+        "páčidla": "pá·čid·la",
+        "páčidlu": "pá·čid·lu",
+        "páčidle": "pá·čid·le",
         "páčidlom": "pá·čid·lom",
         "páčidlá": "pá·čid·lá",
         "páčidiel": "pá·či·diel",
-        "páčidlám": "pá·či·dlám",
-        "páčidlách": "pá·či·dlách",
-        "páčidlami": "pá·či·dla·mi",
+        "páčidlám": "pá·čid·lám",
+        "páčidlách": "pá·čid·lách",
+        "páčidlami": "pá·čid·la·mi",
     }
 
     assert {word: hyphenate(word) for word in expected} == expected
     assert ["pá", "či", "dlá"] == get_syllables("páčidlá")
-    assert {4, 5} <= set(break_points("páčidlá", all_points=True))
+    for word in ("páčidlo", "páčidla", "páčidlá"):
+        assert {4, 5} <= set(break_points(word, all_points=True))
     assert 5 in break_points("páčidlá")
     assert 4 not in break_points("páčidlá")
 
@@ -5110,6 +5116,69 @@ def test_liang_vocabulary_includes_inferred_forms_but_not_open_reviews(tmp_path)
     assert words == ["meno", "slovo"]
     assert stats["resolved_or_inferred_source_rows"] == 3
     assert stats["duplicates_after_casefold"] == 1
+
+
+def test_operator_decisions_from_the_liang_conflict_review():
+    """Pairs the Liang analysis found divided two ways (operator 2026-10-08)."""
+    expected = {
+        "nerozhodlo": "ne·roz·hod·lo",
+        "rozhodlo": "roz·hod·lo",
+        "dohodlo": "do·hod·lo",
+        "lietadlo": "lie·tad·lo",
+        "lietadla": "lie·tad·la",
+        "usporia": "uspo·ria",
+        "usporiadať": "uspo·ria·dať",
+        "neusporiadanej": "ne·uspo·ria·da·nej",
+        "rozostrené": "roz·os·tre·né",
+        "rozostavanej": "ro·zo·sta·va·nej",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # lietad|lo is the preferred doublet; lieta|dlo stays a permitted variant.
+    assert {3, 5, 6} <= set(break_points("lietadlo", all_points=True))
+
+
+def test_dlo_nouns_split_alike_through_the_whole_paradigm():
+    """-dlo nouns prefer d·l; families the operator divided ·dl keep it (2026-10-08)."""
+    syllabic = {
+        "zrkadlo": "zr·kad·lo", "zrkadla": "zr·kad·la",
+        "tlačidlo": "tla·či·dlo", "tlačidla": "tla·či·dla",
+        "razidlo": "ra·zid·lo", "razidlá": "ra·zid·lá",
+        "dúchadlo": "dú·cha·dlo", "dúchadlom": "dú·cha·dlom",
+        "divadlo": "di·va·dlo", "divadlami": "di·va·dla·mi",
+        "sedadlo": "se·da·dlo", "sedadlá": "se·da·dlá",
+        "vodidlo": "vo·di·dlo", "vodidlom": "vo·di·dlom",
+        "stvrdlo": "stvrd·lo", "zatvrdlo": "za·tvrd·lo",
+    }
+    assert {word: hyphenate(word) for word in syllabic} == syllabic
+    assert {4, 5} <= set(break_points("zrkadlo", all_points=True))
+
+
+def test_operator_foreign_corrections_from_the_liang_exceptions():
+    expected = {
+        "Buckingham": "Buck·ing·ham",
+        "buckinghamský": "buck·ing·ham·ský",
+        "Rockefeller": "Roc·ke·fel·ler",
+        "Rockefellerovi": "Roc·ke·fel·le·ro·vi",
+        "superintendent": "su·per·in·ten·dent",
+        "superintendenta": "su·per·in·ten·den·ta",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+def test_published_liang_file_lists_the_words_its_patterns_miss(tmp_path):
+    raw = tmp_path / "patterns.raw"
+    raw.write_text("e1t\n", encoding="utf-8")
+    tex = tmp_path / "hyph.tex"
+    write_tex_patterns(raw, tex, "preferred")
+
+    # e1t alone gives lie·tadlami; meno has no point inside the 2/3 window.
+    exceptions = _exception_words(["lietadlami", "meno"], tex, "preferred")
+    write_tex_patterns(raw, tex, "preferred", exceptions)
+    patterns, loaded = load_tex(tex)
+
+    assert exceptions == ["lie-tad-lami"]
+    assert tex_break_points("lietadlami", patterns, loaded) == [3, 6]
+    assert tex_break_points("meno", patterns, loaded) == []
 
 
 def test_every_cardinal_through_one_thousand_keeps_its_component_seams():
@@ -5839,8 +5908,8 @@ def test_batch_188_keeps_u_bud_prefix_and_past_tense_seams():
     assert hyphenate("zabudlo") == "za·bud·lo"
     assert hyphenate("nezabudlo") == "ne·za·bud·lo"
     assert hyphenate("nenadobudlo") == "ne·na·do·bud·lo"
-    assert hyphenate("páčidlo") == "pá·či·dlo"
-    assert hyphenate("zrkadlo") == "zr·ka·dlo"
+    assert hyphenate("páčidlo") == "pá·čid·lo"
+    assert hyphenate("zrkadlo") == "zr·kad·lo"
 
 
 def test_batch_183_keeps_clear_tele_telo_teplo_seams_and_lexical_termosk_stems():
@@ -6006,7 +6075,7 @@ def test_batch_208_preserves_clear_native_morpheme_and_diphthong_boundaries():
         "vodlivý": "vod·li·vý",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    assert hyphenate("meradlo") == "me·ra·dlo"
+    assert hyphenate("meradlo") == "me·rad·lo"
     assert hyphenate("pradienko") == "pra·dien·ko"
     assert hyphenate("vlasový") == "vla·so·vý"
     assert hyphenate("zvodlivý") == "zvod·li·vý"
