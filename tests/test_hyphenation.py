@@ -8225,3 +8225,50 @@ def test_blind4000g_engine_divisions_the_operator_kept_2026_10_08():
         "transportérov": "trans·por·té·rov", "deštrukciu": "deš·truk·ciu",
     }
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+# blind4000h, operator 2026-10-09: AI consensus accepted for whole families,
+# including en·tu·zi·az·mus and Mur·ray·ho, which the operator decided.
+def test_blind4000h_ai_divisions_the_operator_accepted_2026_10_09():
+    expected = {
+        "zástena": "zá·ste·na", "zástene": "zá·ste·ne", "zástenou": "zá·ste·nou",
+        "záštita": "zá·šti·ta", "záštitu": "zá·šti·tu", "záštitnú": "zá·štit·nú",
+        "nectia": "ne·ctia", "nectil": "ne·ctil", "nectili": "ne·cti·li",
+        "nectí": "ne·ctí", "nectím": "ne·ctím", "nectností": "ne·ctnos·tí",
+        "ušľapané": "ušľa·pa·né", "ušľapaný": "ušľa·pa·ný",
+        "úžľabina": "úžľa·bi·na", "úžľabine": "úžľa·bi·ne", "úžľabín": "úžľa·bín",
+        "Brooklyn": "Brook·lyn", "Brooklyne": "Brook·ly·ne",
+        "Brooklynskej": "Brook·lyn·skej", "brooklynských": "brook·lyn·ských",
+        "karierizmom": "ka·ri·e·riz·mom", "karieristický": "ka·ri·e·ris·tic·ký",
+        "kariéra": "ka·ri·é·ra",
+        "entuziazmus": "en·tu·zi·az·mus", "entuziazmom": "en·tu·zi·az·mom",
+        "entuziasti": "en·tu·zi·as·ti", "entuziastický": "en·tu·zi·as·tic·ký",
+        "Murray": "Mur·ray", "Murrayho": "Mur·ray·ho",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # Neighbours that must not move.
+    kept = {
+        "zásterka": "zás·ter·ka", "zástanca": "zás·tan·ca", "zaštítiť": "za·ští·tiť",
+        "poctivý": "poc·ti·vý", "diamant": "dia·mant", "materiál": "ma·te·ri·ál",
+        "neuctieval": "ne·uctie·val",
+    }
+    assert {word: hyphenate(word) for word in kept} == kept
+
+
+# blind4000h, operator 2026-10-09: engine kept.
+def test_blind4000h_engine_divisions_the_operator_kept_2026_10_09():
+    expected = {
+        "úctyhodnejšie": "úcty·hod·nej·šie", "úctyplnom": "úcty·pl·nom",
+        "ftizeológovia": "fti·ze·o·ló·go·via", "vlastnoručné": "vlast·no·ruč·né",
+        "vyprázdnenej": "vy·prázd·ne·nej", "najprázdnejšia": "naj·prázd·nej·šia",
+        "štyridsiata": "šty·rid·sia·ta", "osemstodvadsaťštyri": "osem·sto·dvad·sať·šty·ri",
+        "nezobrazujú": "ne·zo·bra·zu·jú", "ostatného": "ostat·né·ho",
+        "pažravosťou": "pa·žra·vos·ťou", "pomstychtiví": "po·msty·chti·ví",
+        "poslaniami": "pos·la·nia·mi", "zorientovala": "zo·ri·en·to·va·la",
+        "bejzbalisti": "bejz·ba·lis·ti", "uschla": "uschla", "dotknutých": "dot·knu·tých",
+        "neprospešné": "ne·pro·speš·né", "chodidla": "cho·did·la", "odreniny": "od·re·ni·ny",
+        "sračka": "srač·ka", "prospejú": "pro·spe·jú", "niekdajšieho": "niek·daj·šie·ho",
+        "nezanedbateľnú": "ne·za·ne·dba·teľ·nú", "oktaéder": "ok·ta·é·der",
+        "gangsterský": "gan·gster·ský", "predošlý": "pre·do·šlý",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected

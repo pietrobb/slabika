@@ -368,6 +368,11 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'highball': (4,),  # high·ball
     'jerseyských': (3, 6),  # jer·sey·ských
     'dunois': (2,),  # Du·nois [dü-nwa] (blind4000g, operator 2026-10-08)
+    # blind4000h, operator 2026-10-09.
+    'brooklyn': (5,),  # Brook·lyn, Brook·ly·ne
+    'brooklynskej': (5, 8),  # Brook·lyn·skej
+    'brooklynských': (5, 8),  # Brook·lyn·ských
+    'murray': (3,),  # Mur·ray, Mur·ray·ho
 }
 
 # Slovak case endings a reviewed foreign name takes (Domrémy·ho, Co·gna·cu,

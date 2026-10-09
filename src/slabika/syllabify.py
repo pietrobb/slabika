@@ -673,6 +673,7 @@ _O_U_ROOTS = tuple(sorted({
     # ostaň, uklo·nil, uklá·ňa, uchva·ti·teľ, ušlia·pa·li.
     'kús', 'kúš', 'bieh', 'považ', 'pováž', 'pál', 'tlč', 'del', 'mlát',
     'staň', 'klon', 'kláň', 'chvat', 'šliap',
+    'šľap',  # ušľa·pa·ný like ušlia·pa·li (blind4000h, operator 2026-10-09)
 }))
 # u-|tvoriť keeps its root whole (utvo·riť), but o-|tvoriť divides inside the
 # t+v group: ot·vo·rí, ot·vá·rať (blind3000c, operator 2026-10-04, replacing
@@ -864,6 +865,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('prí', ('kras', 'svit', 'tma', 'tmi', 'tmí', 'zvuč', 'štip', 'klad', 'krat', 'krov', 'plat', 'prav', 'slov', 'sluš', 'sľub', 'spev', 'stav', 'streš', 'stroj', 'stup', 'tlač', 'tvrd', 'vlast', 'znak', 'zrak', 'zrač', 'zvuk')),
     ('naj', ('všestran',)),
     ('ne', ('analyz', 'etic', 'etick', 'exim', 'efekt', 'oceň', 'úder', 'útul', 'ctn',
+            'cti', 'ctí',  # ne·ctia, ne·ctil like ne·ctnos·tí (blind4000h)
             'vcít', 'vciť', 'vdel', 'vmest', 'exist', 'identif', 'mst', 'obyčaj', 'ocen', 'ochot', 'oficiál', 'opís', 'otes', 'očak', 'scudzolož', 'sčet', 'sčerv', 'sčísel', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
     ('novo', ('povst', 'prij', 'stan', 'stvor', 'vzbud', 'vznik', 'vysvät', 'zdol', 'zhotov', 'zjav', 'zrod', 'zvol')),
     ('ono', ('svet', 'stran')),  # ono·stran·stve  # blind3000e, operator 2026-10-06
@@ -892,8 +894,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('u', _U_ROOTS),
     ('vy', ('čk', 'chlad', 'cp', 'lh', 'pn', 'rv', 'sťah', 'tn')),
     ('za', ('ksicht', 'iskr', 'olej', 'oceán', 'obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'mdl', 'tn', 'účink', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),
-    ('zá', ('snub', 'krok', 'pch', 'plav', 'sluh', 'strč', 'vrat', 'znam', 'blesk', 'brad', 'bran', 'chvat', 'chvev', 'clon', 'hlav', 'hrad', 'hrob', 'klad', 'krut', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'šklb')),
-    ('ú', ('mer', 'mysel', 'mysl', 'čel', 'hľad', 'čin', 'rek', 'žer', 'teš', 'spech', 'speš', 'striž', 'chvat', 'klad', 'schov', 'skal', 'slov', 'sluh', 'svit', 'ct', 'hrad', 'kryt', 'nav', 'nos', 'plat', 'prav', 'pros', 'rad', 'rod', 'skoč', 'skok', 'služ', 'smev', 'spor', 'stav', 'stran', 'stred', 'stret', 'stroj', 'stup', 'škľab', 'škrn', 'tlak', 'toč', 'trat', 'tvar')),
+    ('zá', ('sten', 'štit', 'snub', 'krok', 'pch', 'plav', 'sluh', 'strč', 'vrat', 'znam', 'blesk', 'brad', 'bran', 'chvat', 'chvev', 'clon', 'hlav', 'hrad', 'hrob', 'klad', 'krut', 'kryt', 'plat', 'prah', 'skok', 'stav', 'stup', 'svet', 'šklb')),
+    ('ú', ('žľab', 'mer', 'mysel', 'mysl', 'čel', 'hľad', 'čin', 'rek', 'žer', 'teš', 'spech', 'speš', 'striž', 'chvat', 'klad', 'schov', 'skal', 'slov', 'sluh', 'svit', 'ct', 'hrad', 'kryt', 'nav', 'nos', 'plat', 'prav', 'pros', 'rad', 'rod', 'skoč', 'skok', 'služ', 'smev', 'spor', 'stav', 'stran', 'stred', 'stret', 'stroj', 'stup', 'škľab', 'škrn', 'tlak', 'toč', 'trat', 'tvar')),
 )
 
 _NEGATED_NONSYLLABIC_PREFIX_ROOTS = (
@@ -2786,6 +2788,12 @@ def _resolve_hiatus(word: str, phonemes: list[str]) -> list[str]:
             )
             # Ni·a·ga·ra is read ni-a- (blind4000g, operator 2026-10-08).
             learned_niagar = ph == 'ia' and i == 1 and word.casefold().startswith('niagar')
+            # en·tu·zi·az·mus and ka·ri·e·riz·mus like ka·ri·é·ra (blind4000h,
+            # operator 2026-10-09).
+            learned_entuziazm = (
+                (ph == 'ia' and 'entuzia' in word.casefold())
+                or (ph == 'ie' and 'karier' in word.casefold())
+            )
             learned_ient = (
                 ph == 'ie'
                 and phonemes[i + 1:i + 3] == ['n', 't']
@@ -2811,7 +2819,7 @@ def _resolve_hiatus(word: str, phonemes: list[str]) -> list[str]:
                 and (
                     latin_neuter or after_long or learned_iakum
                     or learned_milliard or cia_instrumental or learned_ient
-                    or learned_niagar
+                    or learned_niagar or learned_entuziazm
                 )
             ):
                 out.extend([ph[0], ph[1]])
