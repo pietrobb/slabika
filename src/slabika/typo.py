@@ -76,6 +76,15 @@ _CHRAN_ROOT_CONTEXTS = (
 _VYRVAN_VARIANT_ENDINGS = frozenset({'á', 'é'})
 # Adapted Slovak loans keep their local consonant reading despite foreign spelling matches.
 _SLOVAK_READING_STEMS = ('anglick', 'gangst', 'neser', 'soused', 'fack', 'hortenz', 'céd', 'neusch', 'prisch', 'energ', 'lamel', 'legend')
+# Slovak forms spelled like English or French words (ho·re, mo·re, v ba·be,
+# na la·ne, v mi·se). In Slovak text the Slovak reading wins (blind4000i,
+# operator 2026-10-09; Human ba·be, lo·ne, pa·ce).
+_SLOVAK_HOMOGRAPHS = frozenset({
+    'babe', 'base', 'fare', 'hale', 'hone', 'hore', 'kine', 'lane', 'lise',
+    'lone', 'mise', 'more', 'nore', 'nose', 'pace', 'pere', 'plate', 'pole',
+    'role', 'rope', 'rose', 'rude', 'state', 'tete', 'tone', 'type', 'vile',
+    'vine',
+})
 _GERMAN_ER_NAME_ENDINGS = ('ovi', 'om', 'a', 'e', 'i', 'u')
 
 # Exact pronunciation-backed points for unadapted foreign spellings. Generic
@@ -373,6 +382,15 @@ _REVIEWED_FOREIGN_BREAK_POINTS = {
     'brooklynskej': (5, 8),  # Brook·lyn·skej
     'brooklynských': (5, 8),  # Brook·lyn·ských
     'murray': (3,),  # Mur·ray, Mur·ray·ho
+    # blind4000i, operator 2026-10-09.
+    'armagnackí': (2, 4, 8),  # ar·ma·gnac·kí like ar·ma·gnac
+    'armagnackých': (2, 4, 8),
+    # French Rouen [rwɑ̃] is one syllable, like Du·nois [dü-nwa]; a vowel
+    # ending takes the n: Roue·ne, Roue·nu.
+    'rouen': (),
+    'rouenský': (5,), 'rouenská': (5,), 'rouenské': (5,), 'rouenskú': (5,),
+    'rouenskej': (5,), 'rouenskom': (5,), 'rouenským': (5,), 'rouenských': (5,),
+    'rouenského': (5, 8), 'rouenskému': (5, 8), 'rouenskými': (5, 9),
 }
 
 # Slovak case endings a reviewed foreign name takes (Domrémy·ho, Co·gna·cu,
@@ -447,6 +465,8 @@ def _preferred_internal_vowel_points(word: str) -> set[int]:
         return {10}
     if folded.startswith('najúhlavnejš'):
         return {4}
+    if folded.startswith('semiot'):
+        return {5}  # se·mi·o·ti·ka (blind4000i, operator 2026-10-09)
     return set()
 
 
@@ -634,6 +654,8 @@ def _collect_points(word: str, language: str | None = None) -> tuple[set[int], s
     doublet, so neither belongs in *variant*.
     """
     language = language or reviewed_language(word)
+    if language is None and word.lower() in _SLOVAK_HOMOGRAPHS:
+        language = "slovak"
     if "-" in word or "‐" in word:
         parts = word.replace("‐", "-").split("-")
         if not all(part.isalpha() for part in parts):

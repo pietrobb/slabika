@@ -8272,3 +8272,66 @@ def test_blind4000h_engine_divisions_the_operator_kept_2026_10_09():
         "gangsterský": "gan·gster·ský", "predošlý": "pre·do·šlý",
     }
     assert {word: hyphenate(word) for word in expected} == expected
+
+
+# blind4000i, operator 2026-10-09: AI accepted (families included).
+def test_blind4000i_ai_divisions_the_operator_accepted_2026_10_09():
+    expected = {
+        "vyhní": "vyh·ní", "vyhniach": "vyh·niach", "vyhňa": "vyh·ňa", "vyhňou": "vyh·ňou",
+        "uzavrú": "uza·vrú", "neuzavrú": "ne·uza·vrú",
+        "armagnackí": "ar·ma·gnac·kí", "armagnackých": "ar·ma·gnac·kých",
+        "semiotika": "se·mi·o·ti·ka", "semiotik": "se·mi·o·tik",
+        "semiotikov": "se·mi·o·ti·kov", "semiotikmi": "se·mi·o·tik·mi",
+        "diadém": "di·a·dém", "diadémy": "di·a·dé·my", "diadémové": "di·a·dé·mo·vé",
+        "varieté": "va·ri·e·té",
+        # French Rouen [rwɑ̃] is one syllable, like Du·nois.
+        "Rouen": "Rouen", "Rouene": "Roue·ne", "Rouenu": "Roue·nu",
+        "rouenský": "rouen·ský", "rouenského": "rouen·ské·ho", "rouenskému": "rouen·ské·mu",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # Neighbours that must not move.
+    kept = {
+        "vyhne": "vy·hne", "vyhnal": "vy·hnal", "nevyhnutný": "ne·vy·hnut·ný",
+        "uzavrel": "uza·vrel", "uzavrite": "uza·vri·te",
+        "diamant": "dia·mant", "Herodiada": "He·ro·dia·da", "varietných": "va·riet·ných",
+        "pietista": "pie·tis·ta", "Dunois": "Du·nois",
+    }
+    assert {word: hyphenate(word) for word in kept} == kept
+
+
+# blind4000i, operator 2026-10-09: engine kept.
+def test_blind4000i_engine_divisions_the_operator_kept_2026_10_09():
+    expected = {
+        "pomstychtivé": "po·msty·chti·vé", "neuškodí": "ne·uš·ko·dí",
+        "úctyhodnej": "úcty·hod·nej", "preúbohý": "pre·ú·bo·hý", "prejdúc": "prej·dúc",
+        "dvojposchodový": "dvoj·pos·cho·do·vý", "nedotknutú": "ne·dot·knu·tú",
+        "špecializovaná": "špe·cia·li·zo·va·ná", "chápadlá": "chá·pad·lá",
+        "otvoreniami": "ot·vo·re·nia·mi", "príznačnej": "príz·nač·nej",
+        "ostatne": "ostat·ne", "prospešná": "pro·speš·ná", "rastlinstve": "rast·lin·stve",
+        "zázrak": "záz·rak", "protiútok": "pro·ti·ú·tok", "otváraš": "ot·vá·raš",
+        "úžľabín": "úžľa·bín", "zástancom": "zás·tan·com", "gangster": "gan·gster",
+        "pietistického": "pie·tis·tic·ké·ho", "bejzbalistom": "bejz·ba·lis·tom",
+        "poctách": "poc·tách", "podrobné": "pod·rob·né", "stotridsaťdva": "sto·trid·sať·dva",
+        "podozrievaniu": "po·doz·rie·va·niu", "softvérových": "soft·vé·ro·vých",
+        "vyprázdnil": "vy·prázd·nil", "poslaný": "pos·la·ný", "uškieral": "uš·kie·ral",
+        "poľovačka": "po·ľo·vač·ka", "kyvadlá": "ky·vad·lá", "vydry": "vy·dry",
+        "priestranstve": "pries·tran·stve", "nezanedbateľných": "ne·za·ne·dba·teľ·ných",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+
+
+# blind4000i, operator 2026-10-09: Slovak forms spelled like English or French
+# words are divided as Slovak (Human ba·be, lo·ne, pa·ce).
+def test_slovak_homographs_of_foreign_words_divide_as_slovak():
+    expected = {
+        "hore": "ho·re", "Hore": "Ho·re", "more": "mo·re", "pole": "po·le",
+        "role": "ro·le", "rose": "ro·se", "tete": "te·te", "babe": "ba·be",
+        "kine": "ki·ne", "hale": "ha·le", "lone": "lo·ne", "nore": "no·re",
+        "fare": "fa·re", "vine": "vi·ne", "pere": "pe·re", "mise": "mi·se",
+        "tone": "to·ne", "lane": "la·ne", "pace": "pa·ce", "nose": "no·se",
+        "base": "ba·se", "rope": "ro·pe", "type": "ty·pe", "state": "sta·te",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # Genuine English words stay with the English route.
+    kept = {"case": "case", "place": "place", "mole": "mole", "Blake": "Blake"}
+    assert {word: hyphenate(word) for word in kept} == kept

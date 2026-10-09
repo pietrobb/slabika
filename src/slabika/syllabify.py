@@ -189,6 +189,9 @@ _LEXICAL_SYLLABLE_LENGTHS = {
     'uzrú': (4,), 'neuzrú': (2, 4),  # like uzrie, uzrel
     'interpret': (2, 3, 4),  # in·ter·pret like in·ter·pre·tá·cia
     'fotografiami': (2, 2, 3, 2, 1, 2),  # fo·to·gra·fi·a·mi like mi·si·a·mi
+    # blind4000i, operator 2026-10-09: the noun vyhňa keeps vyh·ňa. vyhne and
+    # vyhni are left out: they are also forms of the verb vy·hnúť.
+    'vyhní': (3, 2), 'vyhniach': (3, 5),
 }
 _ALLBRIGHT_ENDINGS = frozenset({'', 'a'})
 _ALZBETA_TAIL_LENGTHS = {
@@ -832,7 +835,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('vice', ('kráľ', 'prezid')),  # vi·ce·pre·zi·den·tom (blind3000c)
     ('srdce', ('rv',)),  # srd·ce·rvú·ci (operator 2026-10-04, blind3000c)
     ('predsa', ('vza', 'vzi', 'vzá', 'vzí', 'vzm')),  # pred·sa·vza·tie (blind3000c)
-    ('uza', ('tvár', 'tvor', 'vre', 'vri', 'vrie')),  # uza·vri·te  # blind3000e, operator 2026-10-06
+    ('uza', ('tvár', 'tvor', 'vre', 'vri', 'vrie', 'vrú')),  # uza·vri·te  # blind3000e, operator 2026-10-06; uza·vrú blind4000i
     ('zu', ('šľach',)),
     ('vele', ('cten', 'zrad')),
     ('víťazo', ('sláv',)),
@@ -2793,6 +2796,9 @@ def _resolve_hiatus(word: str, phonemes: list[str]) -> list[str]:
             learned_entuziazm = (
                 (ph == 'ia' and 'entuzia' in word.casefold())
                 or (ph == 'ie' and 'karier' in word.casefold())
+                # di·a·dém, va·ri·e·té like Ni·a·ga·ra (blind4000i, operator 2026-10-09).
+                or (ph == 'ia' and word.casefold().startswith('diadém'))
+                or (ph == 'ie' and word.casefold().startswith('varieté'))
             )
             learned_ient = (
                 ph == 'ie'
