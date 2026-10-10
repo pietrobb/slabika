@@ -17,6 +17,7 @@ scratch/
 ClaudeSupervisor*
 models.yaml
 skills/
+/.worktrees/
 
 # Local review/audit working artefacts
 /corpora/

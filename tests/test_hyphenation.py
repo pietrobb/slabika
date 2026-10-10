@@ -8332,7 +8332,11 @@ def test_slovak_homographs_of_foreign_words_divide_as_slovak():
         "base": "ba·se", "rope": "ro·pe", "type": "ty·pe", "state": "sta·te",
     }
     assert {word: hyphenate(word) for word in expected} == expected
-    # Genuine English words stay with the English route.
+
+
+def test_genuine_english_words_stay_with_the_english_route():
+    # Without the optional runtime the English route abstains and these fall back to Slovak.
+    pytest.importorskip("slabika_pronunciation")
     kept = {"case": "case", "place": "place", "mole": "mole", "Blake": "Blake"}
     assert {word: hyphenate(word) for word in kept} == kept
 
