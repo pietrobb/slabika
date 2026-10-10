@@ -355,6 +355,47 @@ After `blind3000c`, the operator accepted 57 of its 61 differences: a root-initi
 
 The earlier engine–Chlebíková comparison set and the older dual-model adjudications were removed on 2026-10-01: they could not be tied to a recorded rules text and prompt. They remain available in Git history.
 
+### Running the dual-model review yourself
+
+The prompt (`tools/review/ai_division_prompt.txt`), the rules text (`docs/pravidla-delenia-slov.md`), the response schema and the agreement procedure are all in the repository; `tools/review/ai_division.py` runs them. Calling the models is left to a small **adapter** you write yourself, so that no provider code, keys or logins ever enter the repository. The tool refuses an adapter located inside the repository.
+
+The adapter is one Python file that defines `create_factory(*, system, model_a, model_b)`. It returns a function with no arguments that the tool calls once per batch; that function returns a fresh pair of engines `{"A": ..., "B": ...}`. Each engine needs:
+
+- `model` and `label`: the model name and a short label, both stored with the run; the two models must differ;
+- `cache_namespace`: a string that changes whenever your adapter starts calling the model differently, so old cached answers are not reused;
+- `async call(prompt, schema, system=None)`: send `system` as the system message and `prompt` as the user message, ask for a JSON answer matching `schema`, and return it parsed (a dict with `items`). If the call fails, raise; the form is then filed as an invalid response.
+
+An adapter that keeps a conversation history may also expose `state()` and `restore(state)`; `state()` must return JSON-serialisable data. Without them, every call stands alone, which is enough: the review rounds repeat the earlier positions in the prompt itself. A minimal adapter:
+
+```python
+# my_adapter.py, stored outside the repository
+import json
+
+class Engine:
+    def __init__(self, model, label, system):
+        self.model, self.label, self.system = model, label, system
+        self.cache_namespace = "my-adapter-v1"
+
+    async def call(self, prompt, schema, system=None):
+        text = await ask_my_provider(self.model, system or self.system, prompt, schema)
+        return json.loads(text)
+
+def create_factory(*, system, model_a, model_b):
+    return lambda: {"A": Engine(model_a, "A", system), "B": Engine(model_b, "B", system)}
+```
+
+`ask_my_provider` stands for your own API call. Input is a JSON array of word forms. Without `--execute` the tool makes no calls and only writes the prepared batches, so you can inspect exactly what the models will receive:
+
+```
+python tools/review/ai_division.py --forms-file words.json --output prepared.json
+python tools/review/ai_division.py --forms-file words.json --adapter ../my_adapter.py ^
+    --model-a <model A> --model-b <model B> --execute --output run.json
+```
+
+`--batch-size` (default 10) and `--max-votes` (default 3 review rounds) control the procedure, `--g2p` adds pronunciation evidence from the optional `slabika-pronunciation` package, and answers are cached in `scratch/ai_division_cache.sqlite`, so a repeated identical request is not sent again. The output file is written after every batch and never overwritten. Each batch records the hashes of the rules, prompt and schema it used, and its `consensus` lists the outcome per form.
+
+The output has the same format as the `transcript.json` that `tools/review/import_ai_run.py` files into the database. The runner that sampled the forms of the runs above, retried invalid batches and wrote the remaining `comparison.json` and `summary.json` is not yet part of the repository.
+
 ## Reproduce and evaluate Liang patterns
 
 Install development tools with `python -m pip install -e ".[dev]"` and put `patgen` from TeX Live or MiKTeX on `PATH`. From the repository root:

@@ -353,6 +353,47 @@ Po behu `blind3000c` operátor prijal 57 z jeho 61 rozdielov: samohláska alebo 
 
 Staršie porovnanie enginu s Chlebíkovou a staršie dvojmodelové adjudikácie boli 2026-10-01 odstránené, lebo sa nedali priradiť k zaznamenanému textu pravidiel a promptu. Zostávajú dostupné v histórii Gitu.
 
+### Ako si spustiť posudzovanie dvoma modelmi
+
+Prompt (`tools/review/ai_division_prompt.txt`), text pravidiel (`docs/pravidla-delenia-slov.md`), schéma odpovede aj postup dohadovania sú v repozitári a spúšťa ich `tools/review/ai_division.py`. Volanie modelov zabezpečuje malý **adaptér**, ktorý si napíšete sami, aby sa do repozitára nikdy nedostal kód poskytovateľa, kľúče ani prihlasovanie. Adaptér uložený v repozitári nástroj odmietne.
+
+Adaptér je jeden súbor Pythonu s funkciou `create_factory(*, system, model_a, model_b)`. Vráti funkciu bez argumentov, ktorú nástroj zavolá raz pre každú dávku; tá vráti novú dvojicu enginov `{"A": ..., "B": ...}`. Každý engine potrebuje:
+
+- `model` a `label`: názov modelu a krátke označenie, oboje sa uloží k behu; modely musia byť dva rôzne;
+- `cache_namespace`: reťazec, ktorý zmeníte vždy, keď adaptér začne model volať inak, aby sa nepoužili staré odpovede z cache;
+- `async call(prompt, schema, system=None)`: pošle `system` ako systémovú správu a `prompt` ako správu používateľa, vyžiada si odpoveď v JSON podľa `schema` a vráti ju rozparsovanú (slovník s `items`). Ak volanie zlyhá, vyhodí výnimku; tvar sa potom zapíše ako neplatná odpoveď.
+
+Adaptér, ktorý si drží históriu konverzácie, môže mať aj `state()` a `restore(state)`; `state()` musí vrátiť dáta serializovateľné do JSON. Bez nich je každé volanie samostatné a to stačí: kolá dohadovania opakujú predchádzajúce stanoviská priamo v prompte. Najmenší adaptér:
+
+```python
+# my_adapter.py, uložený mimo repozitára
+import json
+
+class Engine:
+    def __init__(self, model, label, system):
+        self.model, self.label, self.system = model, label, system
+        self.cache_namespace = "my-adapter-v1"
+
+    async def call(self, prompt, schema, system=None):
+        text = await ask_my_provider(self.model, system or self.system, prompt, schema)
+        return json.loads(text)
+
+def create_factory(*, system, model_a, model_b):
+    return lambda: {"A": Engine(model_a, "A", system), "B": Engine(model_b, "B", system)}
+```
+
+`ask_my_provider` predstavuje vaše vlastné volanie API. Vstupom je pole slovných tvarov v JSON. Bez `--execute` nástroj nič nevolá a iba zapíše pripravené dávky, takže si môžete pozrieť presne to, čo modely dostanú:
+
+```
+python tools/review/ai_division.py --forms-file words.json --output prepared.json
+python tools/review/ai_division.py --forms-file words.json --adapter ../my_adapter.py ^
+    --model-a <model A> --model-b <model B> --execute --output run.json
+```
+
+`--batch-size` (predvolene 10) a `--max-votes` (predvolene 3 kolá dohadovania) riadia postup, `--g2p` pridá evidenciu výslovnosti z voliteľného balíka `slabika-pronunciation` a odpovede sa ukladajú do `scratch/ai_division_cache.sqlite`, takže rovnaká požiadavka sa znova neposiela. Výstupný súbor sa zapisuje po každej dávke a nikdy sa neprepisuje. Každá dávka obsahuje hashe pravidiel, promptu a schémy, s ktorými vznikla, a jej `consensus` uvádza výsledok pre každý tvar.
+
+Výstup má rovnaký formát ako `transcript.json`, ktorý `tools/review/import_ai_run.py` zapisuje do databázy. Skript, ktorý pre behy vyššie vyberal tvary, opakoval neplatné dávky a zapisoval zvyšné `comparison.json` a `summary.json`, zatiaľ v repozitári nie je.
+
 ## Liangove vzory: regenerovanie a hodnotenie
 
 Nainštalujte vývojové nástroje cez `python -m pip install -e ".[dev]"` a pridajte `patgen` z TeX Live alebo MiKTeXu na `PATH`. Z koreňa repozitára:
