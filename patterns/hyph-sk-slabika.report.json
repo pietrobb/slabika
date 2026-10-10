@@ -81,8 +81,8 @@
       "threshold": 1
     }
   ],
-  "patgen_seconds": 134.72229830001015,
-  "generated_pattern_count": 5939,
+  "patgen_seconds": 133.84428339998703,
+  "generated_pattern_count": 5933,
   "files": {
     "database": "C:\\Sources8\\slabika\\tests\\data\\translatemaster_hyphenation_working.sqlite",
     "database_sha256": "1b9d02b48234e1bda3183b3b7ad14884af4c4e2c4cc894bb95d459b13d236077",
@@ -90,9 +90,9 @@
     "training_word_source_sha256": "1b9d02b48234e1bda3183b3b7ad14884af4c4e2c4cc894bb95d459b13d236077",
     "original_patterns": "C:\\Sources8\\slabika\\tex\\hyph-sk.tex",
     "original_patterns_sha256": "7a2e3f81c80b7b7cc35ec9ea4699df9018ef352756cf3a32e9199d7cece7aba9",
-    "training_dictionary_sha256": "753b64684883515f0ba5d43ce97f32ad9b82a9a6ae8e3e9d1e4f2f1e8d0f53a4",
+    "training_dictionary_sha256": "8bb3eafdfe94c08f8ffb6cd2ef30b9e552a9a35c673561d3991577bc1fdc0201",
     "generated_patterns": "C:\\Sources8\\slabika\\patterns\\hyph-sk-slabika.tex",
-    "generated_patterns_sha256": "913e7114f419bb0cbbd0d90e1487abf5c2d0aa5f5cd935601491edf4bf0ce89b"
+    "generated_patterns_sha256": "8e4069c3a2b9fcbb985abfaa74920ff1dc38126367b6eeddf31e82c4b12f69cc"
   },
   "evaluation": {
     "generated_from_current_engine": {
@@ -101,10 +101,10 @@
       "exact_word_rate": 0.987438048971981,
       "good_points": 77099,
       "bad_points": 318,
-      "missed_points": 313,
+      "missed_points": 314,
       "precision": 0.9958923750597414,
-      "recall": 0.9959566992197592,
-      "f_beta_1_over_7": 0.9958936614615155,
+      "recall": 0.9959438337230181,
+      "f_beta_1_over_7": 0.9958934041808949,
       "first_30_non_exact": [
         {
           "word": "abeundi",
@@ -533,14 +533,14 @@
     },
     "jana_chlebikova_1992": {
       "words": 40758,
-      "exact_words": 36853,
-      "exact_word_rate": 0.9041905883507533,
-      "good_points": 74368,
-      "bad_points": 3219,
-      "missed_points": 3044,
-      "precision": 0.9585110907755165,
-      "recall": 0.9606779310701183,
-      "f_beta_1_over_7": 0.9585543317844645,
+      "exact_words": 36850,
+      "exact_word_rate": 0.9041169831689484,
+      "good_points": 74366,
+      "bad_points": 3221,
+      "missed_points": 3047,
+      "precision": 0.9584853132612422,
+      "recall": 0.9606396858408794,
+      "f_beta_1_over_7": 0.9585283060113798,
       "first_30_non_exact": [
         {
           "word": "abdrushin",
@@ -1058,8 +1058,8 @@
         }
       ]
     },
-    "test_engine_points_before_tex_mins": 99417,
-    "test_target_points_after_tex_mins": 77412,
+    "test_engine_points_before_tex_mins": 99418,
+    "test_target_points_after_tex_mins": 77413,
     "engine_points_removed_by_tex_mins": 22005,
     "original_pattern_count": 2467,
     "original_exception_count": 5
@@ -1068,21 +1068,21 @@
     "trained_on": "every corpus word plus generated numerals (no held-out split)",
     "train_words": 203879,
     "train_rows": 203879,
-    "patgen_seconds": 181.31871120003052,
-    "pattern_count": 5939,
-    "holdout_model_pattern_count": 5417,
-    "holdout_model_patterns_sha256": "2649e803e6e3cef76aa69a2df2be1ceb68dd2e630279258598ba830304eef34d",
+    "patgen_seconds": 178.45025970006827,
+    "pattern_count": 5933,
+    "holdout_model_pattern_count": 5410,
+    "holdout_model_patterns_sha256": "ad2bb966629e16a883674c2f1cf34bf9b0f1ddd162c13bdd9b7ddbcbfd83b555",
     "exception_count": 2,
     "corpus_fit_patterns_only": {
       "words": 203879,
       "exact_words": 203877,
       "exact_word_rate": 0.9999901902599091,
-      "good_points": 389814,
+      "good_points": 389815,
       "bad_points": 2,
       "missed_points": 0,
-      "precision": 0.9999948693742688,
+      "precision": 0.9999948693874305,
       "recall": 1.0,
-      "f_beta_1_over_7": 0.9999949719862675,
+      "f_beta_1_over_7": 0.999994971999166,
       "first_30_non_exact": [
         {
           "word": "bloodgoodovou",
@@ -1122,7 +1122,7 @@
       "words": 203879,
       "exact_words": 203879,
       "exact_word_rate": 1.0,
-      "good_points": 389814,
+      "good_points": 389815,
       "bad_points": 0,
       "missed_points": 0,
       "precision": 1.0,

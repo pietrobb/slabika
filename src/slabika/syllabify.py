@@ -192,6 +192,9 @@ _LEXICAL_SYLLABLE_LENGTHS = {
     # blind4000i, operator 2026-10-09: the noun vyhňa keeps vyh·ňa. vyhne and
     # vyhni are left out: they are also forms of the verb vy·hnúť.
     'vyhní': (3, 2), 'vyhniach': (3, 5),
+    # blind4000j, operator 2026-10-10: genitive plural of ob·lu·da. The rest of
+    # oblúd- is o·blúdiť (oblú·dia) and stays.
+    'oblúd': (2, 3),
 }
 _ALLBRIGHT_ENDINGS = frozenset({'', 'a'})
 _ALZBETA_TAIL_LENGTHS = {
@@ -841,6 +844,7 @@ _LEXICAL_PREFIX_ROOTS = (
     ('víťazo', ('sláv',)),
     ('vlaso', ('štiep',)),
     ('vlasti', ('zrad',)),
+    ('viero', ('vyzn',)),  # vie·ro·vy·zna·nie like vy·zna·nie (blind4000j)
     ('zadosť', ('učin',)),  # za·dosť·uči·ne·nia (blind3000)
     ('vše', ('strav', 'spravod', 'svet', 'svät', 'vlád', 'zľutov', 'žrút')),
     ('znovu', ('upad', 'nastol', 'oživ', 'navrát', 'otvor', 'smr', 'stret', 'zjednot', 'zre', 'zrod', 'zroď', 'zvol')),
@@ -869,7 +873,8 @@ _LEXICAL_PREFIX_ROOTS = (
     ('naj', ('všestran',)),
     ('ne', ('analyz', 'etic', 'etick', 'exim', 'efekt', 'oceň', 'úder', 'útul', 'ctn',
             'cti', 'ctí',  # ne·ctia, ne·ctil like ne·ctnos·tí (blind4000h)
-            'vcít', 'vciť', 'vdel', 'vmest', 'exist', 'identif', 'mst', 'obyčaj', 'ocen', 'ochot', 'oficiál', 'opís', 'otes', 'očak', 'scudzolož', 'sčet', 'sčerv', 'sčísel', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod')),
+            'vcít', 'vciť', 'vdel', 'vmest', 'exist', 'identif', 'mst', 'obyčaj', 'ocen', 'ochot', 'oficiál', 'opís', 'otes', 'očak', 'scudzolož', 'sčet', 'sčerv', 'sčísel', 'sťah', 'sťaž', 'včas', 'vchádz', 'včlen', 'včleň', 'vdých', 'vdych', 'vhod', 'vklad', 'vkrad', 'vkrád', 'vkroč', 'vkus', 'vľúd', 'vmieš', 'vpad', 'vpál', 'vpi', 'vpláv', 'vplýv', 'vpust', 'vpúšť', 'vsad', 'vsádz', 'všed', 'všim', 'vším', 'vštep', 'vťah', 'vďač', 'vďak', 'zhas', 'zhod',
+            'zhyp')),  # ne·zhyp·no·ti·zo·val like zhyp·no·ti·zo·val (blind4000j)
     ('novo', ('povst', 'prij', 'stan', 'stvor', 'vzbud', 'vznik', 'vysvät', 'zdol', 'zhotov', 'zjav', 'zrod', 'zvol')),
     ('ono', ('svet', 'stran')),  # ono·stran·stve  # blind3000e, operator 2026-10-06
     ('na', (
@@ -893,7 +898,7 @@ _LEXICAL_PREFIX_ROOTS = (
     # čakať has the prefixed allomorph -čkať (do·čkať, po·čkať, pre·čkať, vy·čkať).
     ('do', ('opek', 'čk', 'okol', 'hňup')),  # do·oko·la, do·hňu·pe·ná (blind3000d)
     ('po', ('sluh', 'dusi', 'dusí', 'dusen', 'dolie', 'duj', 'duš', 'dvoj', 'sluch', 'schod', 'plach', 'dopr', 'dopier', 'cten', 'ctiev', 'čk', 'daj', 'dal', 'dan', 'dateľ', 'dať', 'dá', 'dar', 'dej', 'del', 'delen', 'deli', 'delí', 'deľ', 'die', 'diel', 'dier', 'diev', 'dieľ', 'dív', 'div', 'dob', 'doj', 'dom', 'dotk', 'dotý', 'dozr', 'drážd', 'drep', 'driemk', 'drob', 'druh', 'klad', 'sled', 'slint', 'slúch', 'slúž', 'sluš', 'spas', 'mst', 'sťaž', 'vďač', 'vďak', 'vklad', 'všim', 'zdrav', 'zhas', 'zháň', 'zhovár', 'zhŕň', 'šl')),
-    ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač', 'exist')),  # pre·exis·ten·cia (blind4000f)
+    ('pre', ('čk', 'daj', 'dal', 'dan', 'dať', 'dav', 'dáv', 'del', 'der', 'orient', 'vďač', 'exist', 'drážd')),  # pre·exis·ten·cia (blind4000f); pre·dráž·de·ný (blind4000j)
     ('u', _U_ROOTS),
     ('vy', ('čk', 'chlad', 'cp', 'lh', 'pn', 'rv', 'sťah', 'tn')),
     ('za', ('ksicht', 'iskr', 'olej', 'oceán', 'obíd', 'obiš', *_NONSYLLABIC_INITIAL_R_ROOTS, 'mdl', 'tn', 'účink', 'včas', 'vda', 'vdá', 'vďač', 'vďak')),

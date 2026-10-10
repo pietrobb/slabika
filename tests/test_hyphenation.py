@@ -8335,3 +8335,49 @@ def test_slovak_homographs_of_foreign_words_divide_as_slovak():
     # Genuine English words stay with the English route.
     kept = {"case": "case", "place": "place", "mole": "mole", "Blake": "Blake"}
     assert {word: hyphenate(word) for word in kept} == kept
+
+
+# blind4000j, operator 2026-10-10: AI accepted (families included).
+def test_blind4000j_ai_divisions_the_operator_accepted_2026_10_10():
+    expected = {
+        "predráždená": "pre·dráž·de·ná", "predráždený": "pre·dráž·de·ný",
+        "predráždení": "pre·dráž·de·ní", "predráždením": "pre·dráž·de·ním",
+        "predráždených": "pre·dráž·de·ných", "predráždenými": "pre·dráž·de·ný·mi",
+        "nezhypnotizoval": "ne·zhyp·no·ti·zo·val",
+        "vierovyznanie": "vie·ro·vy·zna·nie", "vierovyznania": "vie·ro·vy·zna·nia",
+        "vierovyznaní": "vie·ro·vy·zna·ní",
+        # Genitive plural of ob·lu·da.
+        "oblúd": "ob·lúd",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
+    # Neighbours that must not move.
+    kept = {
+        "predraždiť": "pre·draž·diť", "predražený": "pre·dra·že·ný", "predrahý": "pre·dra·hý",
+        "zhypnotizoval": "zhyp·no·ti·zo·val", "nezhoda": "ne·zho·da",
+        "vyznanie": "vy·zna·nie", "vierouka": "vie·ro·uka",
+        "oblúdia": "oblú·dia", "oblúdenému": "oblú·de·né·mu",
+        "obluda": "ob·lu·da", "najobludnejší": "naj·ob·lud·nej·ší",
+    }
+    assert {word: hyphenate(word) for word in kept} == kept
+
+
+# blind4000j, operator 2026-10-10: engine kept.
+def test_blind4000j_engine_divisions_the_operator_kept_2026_10_10():
+    expected = {
+        "prospešnejšie": "pro·speš·nej·šie", "prospechár": "pro·spe·chár",
+        "priestranný": "pries·tran·ný", "pomstychtivosťou": "po·msty·chti·vos·ťou",
+        "zástancu": "zás·tan·cu", "prekvapujú": "pre·kva·pu·jú",
+        "priezračnejší": "prie·zrač·nej·ší", "ostatný": "ostat·ný",
+        "úctyhodnejší": "úcty·hod·nej·ší", "Mucius": "Mu·cius",
+        "nezanedbá": "ne·za·ne·dbá", "zanedbateľnú": "za·ne·dba·teľ·nú",
+        "vyprázdnenými": "vy·prázd·ne·ný·mi",
+        "najbezprostrednejšie": "naj·bez·pro·stred·nej·šie", "meradlom": "me·rad·lom",
+        "dráždidla": "dráž·did·la", "šidlom": "šid·lom", "audienciu": "au·dien·ciu",
+        "aliancii": "alian·cii", "komediantstvom": "ko·me·diant·stvom",
+        "vlastných": "vlast·ných", "transakcie": "trans·ak·cie",
+        "hojdačkou": "hoj·dač·kou", "vyobrazeniami": "vy·ob·ra·ze·nia·mi",
+        "neudrite": "ne·ud·ri·te",
+        "tristoštyridsaťpäť": "tri·sto·šty·rid·sať·päť",
+        "deväťstodvadsaťdva": "de·väť·sto·dvad·sať·dva",
+    }
+    assert {word: hyphenate(word) for word in expected} == expected
